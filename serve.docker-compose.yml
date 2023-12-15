@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  mashrooms-mysql:
+    container_name: ${APP_NAME}-mysql-${APP_ENV}
+    image: 'mysql:8.2.0'
+    restart: always
+    ports: 
+      - ${MYSQL_TCP_PORT}:3306
+    env_file: 
+      - .env
+    networks:
+      - mashrooms-network
+    
+  mashrooms-phpmyadmin:
+    image: "phpmyadmin/phpmyadmin:latest"
+    restart: always
+    ports:
+      - 8080:80
+    env_file: 
+      - .env
+    depends_on:
+      - mashrooms-mysql
+    links: 
+      - mashrooms-mysql
+    networks:
+      - mashrooms-network
+
+# volumes:
+#   mashrooms-api:
+
+networks:
+  mashrooms-network:
