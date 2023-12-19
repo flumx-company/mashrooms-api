@@ -1,4 +1,4 @@
-import { IsString, MaxLength, MinLength, IsNotEmpty } from "class-validator";
+import { IsString, MaxLength, MinLength, IsNotEmpty, Matches } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateClientDto {
@@ -23,4 +23,14 @@ export class CreateClientDto {
     type: String,
   })
   readonly lastName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\+[1-9]\d{1,14}$/)
+  @ApiProperty({
+    example: "+380681234567",
+    description: "Enter the phone.",
+    type: String,
+  })
+  readonly phone: string;
 }

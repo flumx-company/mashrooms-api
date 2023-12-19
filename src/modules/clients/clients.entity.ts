@@ -12,5 +12,10 @@ export class ClientsEntity extends DatedBasicEntity {
   @Column({ length: 35, default: null, nullable: true })
   lastName: string;
 
-  //price?
+  @ApiProperty({
+    example: "+380681234567",
+    description: "Enter the phone.",
+    type: String,
+  })
+  readonly phone: string;
 }

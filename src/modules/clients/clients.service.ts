@@ -24,10 +24,12 @@ export class ClientsService {
   async createClient({
     firstName,
     lastName,
+    phone,
   }: CreateClientDto): Promise<ClientsEntity> {
     const newClient: ClientsEntity = this.clientsRepository.create({
       firstName,
       lastName,
+      phone,
     });
 
     return this.clientsRepository.save(newClient);
@@ -37,6 +39,7 @@ export class ClientsService {
     id,
     firstName,
     lastName,
+    phone,
   }: UpdateClientDto): Promise<ClientsEntity> {
     const foundClient: Nullable<ClientsEntity> = await this.findClientById(id);
 
@@ -51,6 +54,7 @@ export class ClientsService {
       ...foundClient,
       firstName,
       lastName,
+      phone,
     });
 
     return this.clientsRepository.save(updatedClient);
