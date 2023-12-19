@@ -17,6 +17,7 @@ import { WheelbarrowsModule } from "./wheelbarrows/wheelbarrows.module";
 import { WorkdaysModule } from "./workdays/workdays.module";
 
 import { ClientsEntity } from "./clients/clients.entity";
+import { EmployeesEntity } from "./employees/employees.entity";
 import { UsersEntity } from "./core-module/users/users.entity";
 
 import { AppController } from "./app.controller";
@@ -37,7 +38,7 @@ import { AppService } from "./app.service";
       database: process.env.MYSQL_DATABASE,
       synchronize: true, //NOTE: shouldn't be used in production - otherwise you can lose production data.
       autoLoadEntities: true,
-      entities: [ClientsEntity, UsersEntity],
+      entities: [ClientsEntity, EmployeesEntity, UsersEntity],
     }),
     CoreModule,
     AuthModule,
