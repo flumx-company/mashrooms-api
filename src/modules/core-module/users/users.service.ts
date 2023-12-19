@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { genSalt, hash } from "bcrypt";
 import { UsersEntity } from "./users.entity";
 import { Nullable } from "src/core/utils/types";
-import { AddSuperaminUserDto, AddUserDto } from "./dto/add.user.dto";
+import { AddSuperaminUserDto, CreateUserDto } from "./dto/create.user.dto";
 import { UpdateUserDto } from "./dto/update.user.dto";
 import { ERole } from "./enums/roles";
 
@@ -31,7 +31,7 @@ export class UsersService {
     username,
     password,
     permissions,
-  }: AddUserDto): Promise<UsersEntity> {
+  }: CreateUserDto): Promise<UsersEntity> {
     const foundUser: Nullable<UsersEntity> = await this.findUserByUsername(
       username
     );

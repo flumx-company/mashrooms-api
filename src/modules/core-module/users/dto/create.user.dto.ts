@@ -9,7 +9,7 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 import { EPermission } from "../enums/permissions";
 
-export class AddUserDto {
+export class CreateUserDto {
   @IsString()
   @MaxLength(35)
   @MinLength(1)
