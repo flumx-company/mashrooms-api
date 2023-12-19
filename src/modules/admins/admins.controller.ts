@@ -74,7 +74,7 @@ export class AdminsController {
     description: "Model to add a superadmin.",
     type: AddSuperaminUserDto,
   })
-  @ApiResponse({
+  @ApiResponse({  
     status: 200,
     description: "Will return the user data.",
     type: UsersEntity,
@@ -82,7 +82,7 @@ export class AdminsController {
   async createSuperadminUser(
     @Body() data: AddSuperaminUserDto
   ): Promise<UsersEntity> {
-    return this.usersService.createUser(data);
+    return this.usersService.createSuperadminUser(data);
   }
 
   @Put()
