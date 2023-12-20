@@ -118,13 +118,10 @@ export class AuthController {
   }
 
   @Get("permissions")
-  @Auth({
-    roles: [ERole.SUPERADMIN, ERole.ADMIN],
-  })
   @ApiResponse({
     status: 200,
     description: "This returns list of all existing permissions",
-    type: UsersEntity,
+    type: Array,
   })
   getPermissions(): EPermission[] {
     return Object.values(EPermission);

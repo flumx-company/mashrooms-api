@@ -7,8 +7,8 @@ import { AppModule } from "./modules/app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
-    .setTitle("Mashrooms")
-    .setDescription("Mashrooms API description")
+    .setTitle("Mushrooms")
+    .setDescription("Mushrooms API description")
     .setVersion("1.0")
     // .addTag("Some tag")
     .build();

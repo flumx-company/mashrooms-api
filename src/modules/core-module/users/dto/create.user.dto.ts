@@ -27,7 +27,7 @@ export class CreateUserDto {
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
-    example: "John",
+    example: "Johnson",
     description: "Enter first name.",
     type: String,
   })
@@ -94,7 +94,7 @@ export class AddSuperaminUserDto {
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
-    example: "John",
+    example: "Johnson",
     description: "Enter last name.",
     type: String,
   })
