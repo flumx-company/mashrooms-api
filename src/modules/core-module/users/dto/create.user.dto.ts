@@ -15,7 +15,7 @@ export class CreateUserDto {
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
-    example: "John22",
+    example: "John2",
     description: "Enter username.",
     type: String,
   })
@@ -37,7 +37,7 @@ export class CreateUserDto {
 
   @IsArray()
   @ApiProperty({
-    example: [],
+    example: [EPermission.READ_PERSONAL_DATA],
     description: "Add permissions.",
     type: Array,
   })
@@ -51,7 +51,7 @@ export class AddSuperaminUserDto {
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
-    example: "John22",
+    example: "John",
     description: "Enter username.",
     type: String,
   })

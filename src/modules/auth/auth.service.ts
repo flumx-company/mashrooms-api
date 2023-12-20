@@ -11,7 +11,7 @@ import * as bcrypt from "bcrypt";
 import { LoginDto } from "./dto/login.dto";
 
 @Injectable()
-export class LoginService {
+export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService
