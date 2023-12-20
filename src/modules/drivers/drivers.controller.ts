@@ -37,7 +37,10 @@ export class DriversController {
   constructor(readonly driversService: DriversService) {}
 
   @Get()
-  @Auth({ role: ERole.ADMIN, permission: EPermission.READ_DRIVERS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_DRIVERS,
+  })
   @ApiOperation({
     summary: "Get list of all drivers",
   })
@@ -46,7 +49,10 @@ export class DriversController {
   }
 
   @Post()
-  @Auth({ role: ERole.ADMIN, permission: EPermission.CREATE_DRIVERS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CREATE_DRIVERS,
+  })
   @ApiOperation({
     summary: "Add a new drvier",
   })
@@ -64,7 +70,10 @@ export class DriversController {
   }
 
   @Put()
-  @Auth({ role: ERole.ADMIN, permission: EPermission.UPDATE_DRIVERS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.UPDATE_DRIVERS,
+  })
   @ApiOperation({
     summary: "Update an driver.",
   })
@@ -82,7 +91,10 @@ export class DriversController {
   }
 
   @Delete(":id")
-  @Auth({ role: ERole.ADMIN, permission: EPermission.DELETE_DRIVERS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.DELETE_DRIVERS,
+  })
   @ApiOperation({
     summary: "Remove an driver.",
   })

@@ -98,7 +98,10 @@ export class AuthController {
   }
 
   @Get("personal-data")
-  @Auth({ role: ERole.ADMIN })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_PERSONAL_DATA,
+  })
   @ApiResponse({
     status: 200,
     description: "This returns personal data of the logged in user",
@@ -115,7 +118,9 @@ export class AuthController {
   }
 
   @Get("permissions")
-  @Auth({ role: ERole.ADMIN, permission: EPermission.READ_PERSONAL_DATA })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+  })
   @ApiResponse({
     status: 200,
     description: "This returns list of all existing permissions",
