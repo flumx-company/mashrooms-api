@@ -6,7 +6,7 @@ import { UsersEntity } from "./users.entity";
 import { Nullable } from "src/core/utils/types";
 import { AddSuperaminUserDto, CreateUserDto } from "./dto/create.user.dto";
 import { UpdateUserDto } from "./dto/update.user.dto";
-import { ERole } from "./enums/roles";
+import { ERole } from "../../../core/enums/roles";
 
 @Injectable()
 export class UsersService {

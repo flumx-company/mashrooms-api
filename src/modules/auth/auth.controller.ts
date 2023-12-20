@@ -21,8 +21,8 @@ import { AuthService } from "./auth.service";
 import { Response as ExResponse, Request as ExRequest } from "express";
 import { UsersEntity } from "../core-module/users/users.entity";
 import { Auth } from "src/core/decorators/auth.decorator";
-import { ERole } from "src/modules/core-module/users/enums/roles";
-import { EPermission } from "../core-module/users/enums/permissions";
+import { ERole } from "src/core/enums/roles";
+import { EPermission } from "../../core/enums/permissions";
 
 const ACCESS_TOKEN = "access-token";
 

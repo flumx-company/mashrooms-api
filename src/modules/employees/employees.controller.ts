@@ -19,8 +19,8 @@ import {
 
 import { ApiV1 } from "src/core/utils/versions";
 import { Auth } from "src/core/decorators/auth.decorator";
-import { ERole } from "../core-module/users/enums/roles";
-import { EPermission } from "../core-module/users/enums/permissions";
+import { ERole } from "../../core/enums/roles";
+import { EPermission } from "../../core/enums/permissions";
 import { EmployeesService } from "./employees.service";
 import { EmployeesEntity } from "./employees.entity";
 import { CreateEmployeeDto } from "./dto/create.employees.dto";

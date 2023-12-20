@@ -20,8 +20,8 @@ import { UsersEntity } from "../core-module/users/users.entity";
 
 import { ApiV1 } from "src/core/utils/versions";
 import { Auth } from "src/core/decorators/auth.decorator";
-import { ERole } from "../core-module/users/enums/roles";
-import { EPermission } from "../core-module/users/enums/permissions";
+import { ERole } from "../../core/enums/roles";
+import { EPermission } from "../../core/enums/permissions";
 import { DriversService } from "./drivers.service";
 import { DriversEntity } from "./drivers.entity";
 import { CreateDriverDto } from "./dto/create.driver.dto";

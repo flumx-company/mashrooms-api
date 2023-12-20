@@ -2,8 +2,8 @@ import { Column, Entity } from "typeorm";
 import { Exclude } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 import { DatedBasicEntity } from "src/core/basic.entity";
-import { ERole } from "./enums/roles";
-import { EPermission } from "./enums/permissions";
+import { ERole } from "../../../core/enums/roles";
+import { EPermission } from "../../../core/enums/permissions";
 
 @Entity({ name: "users" })
 export class UsersEntity extends DatedBasicEntity {

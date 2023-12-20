@@ -1,6 +1,6 @@
 import { UseGuards, applyDecorators } from "@nestjs/common";
-import { EPermission } from "src/modules/core-module/users/enums/permissions";
-import { ERole } from "src/modules/core-module/users/enums/roles";
+import { EPermission } from "../enums/permissions";
+import { ERole } from "../enums/roles";
 import { Role } from "./role.decorator";
 import { Permission } from "./permission.decorator";
 import { RoleGuard } from "../guards/role.guard";
