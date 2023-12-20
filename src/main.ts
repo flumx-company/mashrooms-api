@@ -10,7 +10,7 @@ async function bootstrap() {
     .setTitle("Mashrooms")
     .setDescription("Mashrooms API description")
     .setVersion("1.0")
-    .addTag("no tag")
+    // .addTag("Some tag")
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
@@ -30,5 +30,6 @@ bootstrap();
  *
  * REMOVE endpoint, service, controller, dto related to superadmin creation
  * SET TypeOrmModule.forRoot synchronize to false
+ * SET .prod.env as envFilePath in app.module.ts.
  *
  */
