@@ -44,6 +44,9 @@ mus-2: some commit
 Git pull requests are headed with the Jira task. For example:
 mus-2: some PR
 
+If PR is created but not ready for review, its title starts with WIP:
+WIP: mus-2: some PR
+
 ## Connecting docker MySQL and PhpMyAdmin containers with NestJS (which is outside docker)
 PMA_HOST - host of mysql inside docker needed for PhpMyAdmin container
 PMA_PORT - port of mysql inside docker needed for PhpMyAdmin container
