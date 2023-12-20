@@ -37,7 +37,7 @@ export class ClientsController {
   constructor(readonly clientsService: ClientsService) {}
 
   @Get()
-  @Auth({ roles: [ERole.ADMIN], permission: EPermission.READ_CLIENTS })
+  @Auth({ role: ERole.SUPERADMIN, permission: EPermission.READ_CLIENTS })
   @ApiOperation({
     summary: "Get list of all clients",
   })
@@ -46,7 +46,7 @@ export class ClientsController {
   }
 
   @Post()
-  @Auth({ roles: [ERole.ADMIN], permission: EPermission.CREATE_CLIENTS })
+  @Auth({ role: ERole.ADMIN, permission: EPermission.CREATE_CLIENTS })
   @ApiOperation({
     summary: "Add a new client",
   })
@@ -64,7 +64,7 @@ export class ClientsController {
   }
 
   @Put()
-  @Auth({ roles: [ERole.ADMIN], permission: EPermission.UPDATE_CLIENTS })
+  @Auth({ role: ERole.ADMIN, permission: EPermission.UPDATE_CLIENTS })
   @ApiOperation({
     summary: "Update an client.",
   })
@@ -82,7 +82,7 @@ export class ClientsController {
   }
 
   @Delete(":id")
-  @Auth({ roles: [ERole.ADMIN], permission: EPermission.DELETE_CLIENTS })
+  @Auth({ role: ERole.ADMIN, permission: EPermission.DELETE_CLIENTS })
   @ApiOperation({
     summary: "Remove an client.",
   })

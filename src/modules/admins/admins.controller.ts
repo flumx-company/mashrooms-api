@@ -39,7 +39,7 @@ export class AdminsController {
   constructor(readonly usersService: UsersService) {}
 
   @Get()
-  @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
+  @Auth({ role: ERole.SUPERADMIN, permission: EPermission.READ_ADMINS })
   @ApiOperation({
     summary: "Get list of all admins",
   })
@@ -48,7 +48,7 @@ export class AdminsController {
   }
 
   @Post()
-  @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.CREATE_ADMINS })
+  @Auth({ role: ERole.SUPERADMIN, permission: EPermission.CREATE_ADMINS })
   @ApiOperation({
     summary: "Add a new admin user",
   })
@@ -74,7 +74,7 @@ export class AdminsController {
     description: "Model to add a superadmin.",
     type: AddSuperaminUserDto,
   })
-  @ApiResponse({  
+  @ApiResponse({
     status: 200,
     description: "Will return the user data.",
     type: UsersEntity,
@@ -86,7 +86,7 @@ export class AdminsController {
   }
 
   @Put()
-  @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
+  @Auth({ role: ERole.SUPERADMIN, permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
       "Update an admin user. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
@@ -105,7 +105,7 @@ export class AdminsController {
   }
 
   @Put("password")
-  @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
+  @Auth({ role: ERole.SUPERADMIN, permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
       "Change admin user's password. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
@@ -126,7 +126,7 @@ export class AdminsController {
   }
 
   @Delete(":id")
-  @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.DELETE_ADMINS })
+  @Auth({ role: ERole.SUPERADMIN, permission: EPermission.DELETE_ADMINS })
   @ApiOperation({
     summary:
       "Remove an admin. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",

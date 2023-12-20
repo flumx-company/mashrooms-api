@@ -36,7 +36,7 @@ export class EmployeesController {
   constructor(readonly employeesService: EmployeesService) {}
 
   @Get()
-  @Auth({ roles: [ERole.ADMIN], permission: EPermission.READ_EMPLOYEES })
+  @Auth({ role: ERole.ADMIN, permission: EPermission.READ_EMPLOYEES })
   @ApiOperation({
     summary: "Get list of all employees",
   })
@@ -45,7 +45,7 @@ export class EmployeesController {
   }
 
   @Post()
-  @Auth({ roles: [ERole.ADMIN], permission: EPermission.CREATE_EMPLOYEES })
+  @Auth({ role: ERole.ADMIN, permission: EPermission.CREATE_EMPLOYEES })
   @ApiOperation({
     summary: "Add a new employee",
   })
@@ -65,7 +65,7 @@ export class EmployeesController {
   }
 
   @Put()
-  @Auth({ roles: [ERole.ADMIN], permission: EPermission.UPDATE_EMPLOYEES })
+  @Auth({ role: ERole.ADMIN, permission: EPermission.UPDATE_EMPLOYEES })
   @ApiOperation({
     summary: "Update an employee.",
   })
@@ -85,7 +85,7 @@ export class EmployeesController {
   }
 
   @Delete(":id")
-  @Auth({ roles: [ERole.ADMIN], permission: EPermission.DELETE_EMPLOYEES })
+  @Auth({ role: ERole.ADMIN, permission: EPermission.DELETE_EMPLOYEES })
   @ApiOperation({
     summary: "Remove an employee.",
   })

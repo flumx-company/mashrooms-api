@@ -5,35 +5,36 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { Roles } from "../decorators/roles.decorator";
+import { Role } from "../decorators/role.decorator";
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class RoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  private matchRoles(roles: number[], userRole: number) {
-    const includesRole = (roles || []).includes(userRole);
+  private matchRoles(role: number, userRole: number) {
+    const isRoleAppropriate = role <= userRole;
 
-    if (!includesRole) {
+    if (!isRoleAppropriate) {
       throw new UnauthorizedException(
         "Wrong role",
         "This endpoint is not accessible for the user's role."
       );
     }
 
-    return true;
+    return isRoleAppropriate;
   }
 
   canActivate(context: ExecutionContext): boolean {
-    const roles = this.reflector.get(Roles, context.getHandler());
+    const role = this.reflector.get(Role, context.getHandler());
 
-    if (!Array.isArray(roles)) {
+    //NOTE: no role is received as empty object
+    if (typeof role !== "string") {
       return true;
     }
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    return this.matchRoles(roles, user.role);
+    return this.matchRoles(role, user.role);
   }
 }
