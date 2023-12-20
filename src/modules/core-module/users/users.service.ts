@@ -43,7 +43,7 @@ export class UsersService {
       );
     }
 
-    const salt = await genSalt(10);
+    const salt = await genSalt(process.env.PASSWORD_SALT);
     const hashedPassword: string = await hash(password, salt);
     const newUser: UsersEntity = this.usersRepository.create({
       username,
@@ -71,7 +71,7 @@ export class UsersService {
       );
     }
 
-    const salt = await genSalt(10);
+    const salt = await genSalt(process.env.PASSWORD_SALT);
     const hashedPassword: string = await hash(password, salt);
     const newUser: UsersEntity = this.usersRepository.create({
       username,
@@ -140,7 +140,7 @@ export class UsersService {
       );
     }
 
-    const salt = await genSalt(10);
+    const salt = await genSalt(process.env.PASSWORD_SALT);
     const hashedPassword: string = await hash(password, salt);
     const updatedUser: UsersEntity = this.usersRepository.create({
       ...foundUser,
