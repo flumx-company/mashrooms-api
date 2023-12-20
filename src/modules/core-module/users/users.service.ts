@@ -23,30 +23,51 @@ export class UsersService {
     return this.usersRepository.findOneBy({ id });
   }
 
-  findUserByUsername(username: string): Promise<Nullable<UsersEntity>> {
-    return this.usersRepository.findOneBy({ username });
+  findUserByEmail(email: string): Promise<Nullable<UsersEntity>> {
+    return this.usersRepository.findOneBy({ email });
+  }
+
+  findUserByPhone(phone: string): Promise<Nullable<UsersEntity>> {
+    return this.usersRepository.findOneBy({ phone });
   }
 
   async createUser({
-    username,
+    email,
+    phone,
+    firstName,
+    lastName,
     password,
     permissions,
   }: CreateUserDto): Promise<UsersEntity> {
-    const foundUser: Nullable<UsersEntity> = await this.findUserByUsername(
-      username
-    );
+    const [foundUserByEmail, foundUserByPhone]: Nullable<
+      UsersEntity
+    >[] = await Promise.all([
+      this.findUserByEmail(email),
+      this.findUserByPhone(phone),
+    ]);
 
-    if (foundUser) {
+    if (foundUserByEmail) {
       throw new HttpException(
-        "A user with this username already exists.",
+        "A user with this email already exists.",
         HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
 
-    const salt = await genSalt(process.env.PASSWORD_SALT);
+    if (foundUserByPhone) {
+      throw new HttpException(
+        "A user with this phone already exists.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
+    const salt = await genSalt(saltRounds);
     const hashedPassword: string = await hash(password, salt);
     const newUser: UsersEntity = this.usersRepository.create({
-      username,
+      email,
+      phone,
+      firstName,
+      lastName,
       password: hashedPassword,
       role: ERole.ADMIN,
       permissions,
@@ -56,25 +77,42 @@ export class UsersService {
   }
 
   async createSuperadminUser({
-    username,
+    email,
+    phone,
+    firstName,
+    lastName,
     password,
     permissions,
   }: AddSuperaminUserDto): Promise<UsersEntity> {
-    const foundUser: Nullable<UsersEntity> = await this.findUserByUsername(
-      username
-    );
+    const [foundUserByEmail, foundUserByPhone]: Nullable<
+      UsersEntity
+    >[] = await Promise.all([
+      this.findUserByEmail(email),
+      this.findUserByPhone(phone),
+    ]);
 
-    if (foundUser) {
+    if (foundUserByEmail) {
       throw new HttpException(
-        "A user with this username already exists.",
+        "A user with this email already exists.",
         HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
 
-    const salt = await genSalt(process.env.PASSWORD_SALT);
+    if (foundUserByPhone) {
+      throw new HttpException(
+        "A user with this phone already exists.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
+    const salt = await genSalt(saltRounds);
     const hashedPassword: string = await hash(password, salt);
     const newUser: UsersEntity = this.usersRepository.create({
-      username,
+      email,
+      phone,
+      firstName,
+      lastName,
       password: hashedPassword,
       role: ERole.SUPERADMIN,
       permissions,
@@ -85,29 +123,42 @@ export class UsersService {
 
   async updateUser({
     id,
-    username,
+    email,
+    phone,
+    firstName,
+    lastName,
     permissions,
   }: UpdateUserDto): Promise<UsersEntity> {
-    const foundUser: Nullable<UsersEntity> = await this.findUserById(id);
-    const foundUserByUsername: Nullable<UsersEntity> = await this.findUserByUsername(
-      username
-    );
+    const [foundUserById, foundUserByEmail, foundUserByPhone]: Nullable<
+      UsersEntity
+    >[] = await Promise.all([
+      this.findUserByEmail(email),
+      this.findUserByPhone(phone),
+      this.findUserById(id)
+    ]);
 
-    if (foundUserByUsername && foundUserByUsername.id !== id) {
+    if (foundUserByEmail && foundUserByEmail.id !== id) {
       throw new HttpException(
-        "There already exists a different user with this username.",
+        "There already exists a different user with this email.",
         HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
 
-    if (!foundUser) {
+    if (foundUserByPhone && foundUserByPhone.id !== id) {
+      throw new HttpException(
+        "There already exists a different user with this phone.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    if (!foundUserById) {
       throw new HttpException(
         "A user with this id does not exist.",
         HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
 
-    if (foundUser.role === ERole.SUPERADMIN) {
+    if (foundUserById.role === ERole.SUPERADMIN) {
       throw new HttpException(
         "Superadmin's data cannot be changed through this endpoint.",
         HttpStatus.UNPROCESSABLE_ENTITY
@@ -115,8 +166,11 @@ export class UsersService {
     }
 
     const updatedUser: UsersEntity = this.usersRepository.create({
-      ...foundUser,
-      username,
+      ...foundUserById,
+      email,
+      phone,
+      firstName,
+      lastName,
       permissions,
     });
 
@@ -140,7 +194,8 @@ export class UsersService {
       );
     }
 
-    const salt = await genSalt(process.env.PASSWORD_SALT);
+    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
+    const salt = await genSalt(saltRounds);
     const hashedPassword: string = await hash(password, salt);
     const updatedUser: UsersEntity = this.usersRepository.create({
       ...foundUser,

@@ -17,13 +17,13 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async login({ username, password }: LoginDto): Promise<string> {
-    const foundUser: UsersEntity | null = await this.usersService.findUserByUsername(
-      username
+  async login({ email, password }: LoginDto): Promise<string> {
+    const foundUser: UsersEntity | null = await this.usersService.findUserByEmail(
+      email
     );
 
     if (!foundUser) {
-      throw new NotFoundException("A user with this username does not exist.");
+      throw new NotFoundException("A user with this email does not exist.");
     }
 
     const matchPasswords = await bcrypt.compare(password, foundUser.password);

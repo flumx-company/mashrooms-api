@@ -37,10 +37,10 @@ export class AuthController {
 
   @Post("login")
   @ApiOperation({
-    summary: "Login by username and password.",
+    summary: "Login by email and password.",
   })
   @ApiBody({
-    description: "Model for Login by username and password.",
+    description: "Model for Login by email and password.",
     type: LoginDto,
   })
   @ApiResponse({
@@ -53,7 +53,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: ExResponse
   ): Promise<Boolean> {
     const accessToken = await this.authService.login({
-      username: loginData.username,
+      email: loginData.email,
       password: loginData.password,
     });
     let reply = Boolean(accessToken);

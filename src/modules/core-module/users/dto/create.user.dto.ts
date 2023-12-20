@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   Matches,
   IsArray,
+  IsEmail,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { EPermission } from "../../../../core/enums/permissions";
@@ -15,14 +16,45 @@ export class CreateUserDto {
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
-    example: "John2",
-    description: "Enter username.",
+    example: "John",
+    description: "Enter first name.",
     type: String,
   })
-  readonly username: string;
+  readonly firstName: string;
 
   @IsString()
-  @MaxLength(20)
+  @MaxLength(35)
+  @MinLength(1)
+  @IsNotEmpty()
+  @ApiProperty({
+    example: "John",
+    description: "Enter first name.",
+    type: String,
+  })
+  readonly lastName: string;
+
+  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: "test@gmail.com",
+    description: "Enter the email address.",
+    type: String,
+  })
+  readonly email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\+[1-9]\d{1,14}$/)
+  @ApiProperty({
+    example: "+380681234567",
+    description: "Enter the phone.",
+    type: String,
+  })
+  readonly phone: string;
+
+  @IsString()
+  @MaxLength(15)
   @MinLength(8)
   @IsNotEmpty()
   @Matches(
@@ -52,13 +84,44 @@ export class AddSuperaminUserDto {
   @IsNotEmpty()
   @ApiProperty({
     example: "John",
-    description: "Enter username.",
+    description: "Enter first name.",
     type: String,
   })
-  readonly username: string;
+  readonly firstName: string;
 
   @IsString()
-  @MaxLength(20)
+  @MaxLength(35)
+  @MinLength(1)
+  @IsNotEmpty()
+  @ApiProperty({
+    example: "John",
+    description: "Enter last name.",
+    type: String,
+  })
+  readonly lastName: string;
+
+  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: "test@gmail.com",
+    description: "Enter the email address.",
+    type: String,
+  })
+  readonly email: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\+[1-9]\d{1,14}$/)
+  @ApiProperty({
+    example: "+380681234567",
+    description: "Enter the phone.",
+    type: String,
+  })
+  readonly phone: string;
+
+  @IsString()
+  @MaxLength(15)
   @MinLength(8)
   @IsNotEmpty()
   @Matches(
