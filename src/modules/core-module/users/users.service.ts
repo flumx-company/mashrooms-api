@@ -173,7 +173,10 @@ export class UsersService {
     return this.usersRepository.save(updatedUser);
   }
 
-  async changeUserPassword({ id, password }): Promise<UsersEntity> {
+  async changeUserPassword(
+    id: number,
+    { password }: { password: string }
+  ): Promise<UsersEntity> {
     const foundUser: Nullable<UsersEntity> = await this.findUserById(id);
 
     if (!foundUser) {
@@ -242,13 +245,14 @@ export class UsersService {
     return foundUser.permissions;
   }
 
-  async updateUserPermissions({
-    id,
-    permissions,
-  }: {
-    id: number;
-    permissions: EPermission[];
-  }): Promise<UsersEntity> {
+  async updateUserPermissions(
+    id: number,
+    {
+      permissions,
+    }: {
+      permissions: EPermission[];
+    }
+  ): Promise<UsersEntity> {
     const foundUser: UsersEntity = await this.findUserById(id);
 
     if (!foundUser) {

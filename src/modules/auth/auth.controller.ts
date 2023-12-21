@@ -106,7 +106,8 @@ export class AuthController {
     permission: EPermission.READ_PERSONAL_DATA,
   })
   @ApiOperation({
-    summary: "Returns personal data of the logged-in user.",
+    summary:
+      "Returns personal data of the logged-in user. Permission: READ_PERSONAL_DATA.",
   })
   @ApiResponse({
     status: 200,
@@ -129,7 +130,8 @@ export class AuthController {
     permission: EPermission.READ_ALL_PERMISSIONS,
   })
   @ApiOperation({
-    summary: "Returns list of all existing permissions.",
+    summary:
+      "Returns list of all existing permissions. Permission: READ_ALL_PERMISSIONS.",
   })
   @ApiResponse({
     status: 200,

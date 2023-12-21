@@ -43,7 +43,7 @@ export class AdminsController {
   @Get()
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
   @ApiOperation({
-    summary: "Get list of all admins",
+    summary: "Get list of all admins. Permission: READ_ADMINS",
   })
   async getAllUsers(): Promise<UsersEntity[]> {
     return this.usersService.findAll();
@@ -52,7 +52,7 @@ export class AdminsController {
   @Post()
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.CREATE_ADMINS })
   @ApiOperation({
-    summary: "Add a new admin user",
+    summary: "Add a new admin user. Permission: CREATE_ADMINS",
   })
   @ApiBody({
     description: "Model to add a new user.",
@@ -91,7 +91,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
-      "Update an admin user. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+      "Update an admin user. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
   })
   @ApiParam({
     name: "id",
@@ -114,12 +114,17 @@ export class AdminsController {
     return this.usersService.updateUser(id, data);
   }
 
-  @Put("password")
+  @Put("password/:id")
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
-      "Change admin user's password. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+      "Change admin user's password. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
   })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
   @ApiBody({
     description: "Model to change user's password.",
     type: ResetPasswordDto,
@@ -130,16 +135,17 @@ export class AdminsController {
     type: UsersEntity,
   })
   async changeUserPassword(
+    @Param("id", ParseIntPipe) id: number,
     @Body() data: ResetPasswordDto
   ): Promise<UsersEntity> {
-    return this.usersService.changeUserPassword(data);
+    return this.usersService.changeUserPassword(id, data);
   }
 
   @Delete(":id")
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.DELETE_ADMINS })
   @ApiOperation({
     summary:
-      "Remove an admin. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+      "Remove an admin. Permission: DELETE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
   })
   @ApiParam({
     name: "id",
@@ -159,7 +165,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
   @ApiOperation({
     summary:
-      "Get list of all permissions of the admin user whose id is given in param.",
+      "Get list of all permissions of the admin user whose id is given in param. Permission: READ_ADMINS.",
   })
   @ApiParam({
     name: "id",
@@ -176,7 +182,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
-      "Update an admin user's permission list. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+      "Update an admin user's permission list. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
   })
   @ApiBody({
     description: "Model to update an existing user.",
@@ -191,9 +197,6 @@ export class AdminsController {
     @Param("id", ParseIntPipe) id: number,
     @Body() data: UpdateUserPermissionsDto
   ): Promise<UsersEntity> {
-    return this.usersService.updateUserPermissions({
-      id,
-      permissions: data.permissions,
-    });
+    return this.usersService.updateUserPermissions(id, data);
   }
 }

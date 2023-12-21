@@ -43,7 +43,7 @@ export class DriversController {
     permission: EPermission.READ_DRIVERS,
   })
   @ApiOperation({
-    summary: "Get list of all drivers",
+    summary: "Get list of all drivers. Permission: READ_DRIVERS.",
   })
   async getAllDrivers(): Promise<DriversEntity[]> {
     return this.driversService.findAll();
@@ -55,7 +55,7 @@ export class DriversController {
     permission: EPermission.CREATE_DRIVERS,
   })
   @ApiOperation({
-    summary: "Add a new drvier",
+    summary: "Add a new drvier. Permission: CREATE_DRIVERS.",
   })
   @ApiBody({
     description: "Model to add a new driver.",
@@ -81,7 +81,7 @@ export class DriversController {
     example: 1,
   } as ApiParamOptions)
   @ApiOperation({
-    summary: "Update an driver.",
+    summary: "Update an driver. Permission: UPDATE_DRIVERS.",
   })
   @ApiBody({
     description: "Model to update an existing driver.",
@@ -105,7 +105,7 @@ export class DriversController {
     permission: EPermission.DELETE_DRIVERS,
   })
   @ApiOperation({
-    summary: "Remove an driver.",
+    summary: "Remove an driver. Permission: DELETE_DRIVERS.",
   })
   @ApiParam({
     name: "id",
