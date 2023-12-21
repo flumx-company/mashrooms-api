@@ -69,7 +69,9 @@ export class CreateUserDto {
 
   @IsArray()
   @ApiProperty({
-    example: [EPermission.READ_PERSONAL_DATA],
+    example: Object.values(EPermission).filter(
+      (permission) => !permission.includes("ADMINS")
+    ),
     description: "Add permissions.",
     type: Array,
   })
