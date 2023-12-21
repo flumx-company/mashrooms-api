@@ -53,12 +53,4 @@ export class UpdateUserDto {
     type: String,
   })
   readonly phone: string;
-
-  @IsArray()
-  @ApiProperty({
-    example: [],
-    description: "Update permissions.",
-    type: Array,
-  })
-  readonly permissions: EPermission[];
 }

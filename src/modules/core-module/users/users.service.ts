@@ -124,7 +124,7 @@ export class UsersService {
 
   async updateUser(
     id: number,
-    { email, phone, firstName, lastName, permissions }: UpdateUserDto
+    { email, phone, firstName, lastName }: UpdateUserDto
   ): Promise<UsersEntity> {
     const [foundUserById, foundUserByEmail, foundUserByPhone]: Nullable<
       UsersEntity
@@ -168,7 +168,6 @@ export class UsersService {
       phone,
       firstName,
       lastName,
-      permissions,
     });
 
     return this.usersRepository.save(updatedUser);
