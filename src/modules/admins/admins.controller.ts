@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
 } from "@nestjs/common";
@@ -28,6 +29,7 @@ import { ApiV1 } from "src/core/utils/versions";
 import { Auth } from "src/core/decorators/auth.decorator";
 import { ERole } from "../../core/enums/roles";
 import { EPermission } from "../../core/enums/permissions";
+import { UpdateUserPermissionsDto } from "../core-module/users/dto/update.user.permissions.dto";
 
 @ApiTags("Admins")
 @ApiBadGatewayResponse({
@@ -85,12 +87,17 @@ export class AdminsController {
     return this.usersService.createSuperadminUser(data);
   }
 
-  @Put()
+  @Put(":id")
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
       "Update an admin user. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
   })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
   @ApiBody({
     description: "Model to update an existing user.",
     type: UpdateUserDto,
@@ -100,8 +107,11 @@ export class AdminsController {
     description: "Will return the user data.",
     type: UsersEntity,
   })
-  async updateUser(@Body() data: UpdateUserDto): Promise<UsersEntity> {
-    return this.usersService.updateUser(data);
+  async updateUser(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() data: UpdateUserDto
+  ): Promise<UsersEntity> {
+    return this.usersService.updateUser(id, data);
   }
 
   @Put("password")
@@ -141,7 +151,49 @@ export class AdminsController {
     description: "Will return boolean result.",
     type: Boolean,
   })
-  async removeUser(@Param("id") id: string): Promise<Boolean> {
-    return this.usersService.removeUser(parseInt(id));
+  async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
+    return this.usersService.removeUser(id);
+  }
+
+  @Get("permissions/:id")
+  @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
+  @ApiOperation({
+    summary:
+      "Get list of all permissions of the admin user whose id is given in param.",
+  })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
+  async getUserPermissions(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<EPermission[]> {
+    return this.usersService.getUserPermissions(id);
+  }
+
+  @Put("permissions/:id")
+  @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
+  @ApiOperation({
+    summary:
+      "Update an admin user's permission list. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+  })
+  @ApiBody({
+    description: "Model to update an existing user.",
+    type: UpdateUserPermissionsDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Will return the user data.",
+    type: UsersEntity,
+  })
+  async updateUserPermissions(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() data: UpdateUserPermissionsDto
+  ): Promise<UsersEntity> {
+    return this.usersService.updateUserPermissions({
+      id,
+      permissions: data.permissions,
+    });
   }
 }

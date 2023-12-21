@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
 } from "@nestjs/common";
@@ -69,7 +70,7 @@ export class ClientsController {
     return this.clientsService.createClient(data);
   }
 
-  @Put()
+  @Put(":id")
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.UPDATE_CLIENTS,
@@ -77,6 +78,11 @@ export class ClientsController {
   @ApiOperation({
     summary: "Update an client.",
   })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
   @ApiBody({
     description: "Model to update an existing client.",
     type: UpdateClientDto,
@@ -86,8 +92,11 @@ export class ClientsController {
     description: "Will return the client data.",
     type: UsersEntity,
   })
-  async updateClient(@Body() data: UpdateClientDto): Promise<ClientsEntity> {
-    return this.clientsService.updateClient(data);
+  async updateClient(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() data: UpdateClientDto
+  ): Promise<ClientsEntity> {
+    return this.clientsService.updateClient(id, data);
   }
 
   @Delete(":id")
@@ -108,7 +117,7 @@ export class ClientsController {
     description: "Will return boolean result.",
     type: Boolean,
   })
-  async removeUser(@Param("id") id: string): Promise<Boolean> {
-    return this.clientsService.removeClient(parseInt(id));
+  async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
+    return this.clientsService.removeClient(id);
   }
 }

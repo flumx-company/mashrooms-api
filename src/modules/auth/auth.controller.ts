@@ -70,6 +70,9 @@ export class AuthController {
   }
 
   @Get("logout")
+  @ApiOperation({
+    summary: "Logout.",
+  })
   @ApiResponse({
     status: 200,
     description: `This returns "true" if logout was successful`,
@@ -102,6 +105,9 @@ export class AuthController {
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_PERSONAL_DATA,
   })
+  @ApiOperation({
+    summary: "Returns personal data of the logged-in user.",
+  })
   @ApiResponse({
     status: 200,
     description: "This returns personal data of the logged in user",
@@ -121,6 +127,9 @@ export class AuthController {
   @Auth({
     roles: [ERole.SUPERADMIN],
     permission: EPermission.READ_ALL_PERMISSIONS,
+  })
+  @ApiOperation({
+    summary: "Returns list of all existing permissions.",
   })
   @ApiResponse({
     status: 200,

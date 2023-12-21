@@ -35,12 +35,10 @@ export class ClientsService {
     return this.clientsRepository.save(newClient);
   }
 
-  async updateClient({
-    id,
-    firstName,
-    lastName,
-    phone,
-  }: UpdateClientDto): Promise<ClientsEntity> {
+  async updateClient(
+    id: number,
+    { firstName, lastName, phone }: UpdateClientDto
+  ): Promise<ClientsEntity> {
     const foundClient: Nullable<ClientsEntity> = await this.findClientById(id);
 
     if (!foundClient) {

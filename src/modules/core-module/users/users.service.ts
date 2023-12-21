@@ -7,6 +7,7 @@ import { Nullable } from "src/core/utils/types";
 import { AddSuperaminUserDto, CreateUserDto } from "./dto/create.user.dto";
 import { UpdateUserDto } from "./dto/update.user.dto";
 import { ERole } from "../../../core/enums/roles";
+import { EPermission } from "src/core/enums/permissions";
 
 @Injectable()
 export class UsersService {
@@ -60,7 +61,7 @@ export class UsersService {
       );
     }
 
-    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
+    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS);
     const salt = await genSalt(saltRounds);
     const hashedPassword: string = await hash(password, salt);
     const newUser: UsersEntity = this.usersRepository.create({
@@ -105,7 +106,7 @@ export class UsersService {
       );
     }
 
-    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
+    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS);
     const salt = await genSalt(saltRounds);
     const hashedPassword: string = await hash(password, salt);
     const newUser: UsersEntity = this.usersRepository.create({
@@ -121,20 +122,16 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  async updateUser({
-    id,
-    email,
-    phone,
-    firstName,
-    lastName,
-    permissions,
-  }: UpdateUserDto): Promise<UsersEntity> {
+  async updateUser(
+    id: number,
+    { email, phone, firstName, lastName, permissions }: UpdateUserDto
+  ): Promise<UsersEntity> {
     const [foundUserById, foundUserByEmail, foundUserByPhone]: Nullable<
       UsersEntity
     >[] = await Promise.all([
       this.findUserByEmail(email),
       this.findUserByPhone(phone),
-      this.findUserById(id)
+      this.findUserById(id),
     ]);
 
     if (foundUserByEmail && foundUserByEmail.id !== id) {
@@ -194,7 +191,7 @@ export class UsersService {
       );
     }
 
-    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
+    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS);
     const salt = await genSalt(saltRounds);
     const hashedPassword: string = await hash(password, salt);
     const updatedUser: UsersEntity = this.usersRepository.create({
@@ -231,5 +228,49 @@ export class UsersService {
     }
 
     return response;
+  }
+
+  async getUserPermissions(id: number): Promise<EPermission[]> {
+    const foundUser: UsersEntity = await this.findUserById(id);
+
+    if (!foundUser) {
+      throw new HttpException(
+        "A user with this id does not exist.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    return foundUser.permissions;
+  }
+
+  async updateUserPermissions({
+    id,
+    permissions,
+  }: {
+    id: number;
+    permissions: EPermission[];
+  }): Promise<UsersEntity> {
+    const foundUser: UsersEntity = await this.findUserById(id);
+
+    if (!foundUser) {
+      throw new HttpException(
+        "A user with this id does not exist.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    if (foundUser.role === ERole.SUPERADMIN) {
+      throw new HttpException(
+        "Superadmin's data cannot be changed through this endpoint.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    const updatedUser: UsersEntity = this.usersRepository.create({
+      ...foundUser,
+      permissions,
+    });
+
+    return this.usersRepository.save(updatedUser);
   }
 }

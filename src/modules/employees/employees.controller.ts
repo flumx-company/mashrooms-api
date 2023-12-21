@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
 } from "@nestjs/common";
@@ -70,7 +71,7 @@ export class EmployeesController {
     return this.employeesService.createEmployee(data);
   }
 
-  @Put()
+  @Put(":id")
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.UPDATE_EMPLOYEES,
@@ -78,6 +79,11 @@ export class EmployeesController {
   @ApiOperation({
     summary: "Update an employee.",
   })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
   @ApiBody({
     description: "Model to update an existing employee.",
     type: UpdateEmployeeDto,
@@ -88,9 +94,10 @@ export class EmployeesController {
     type: EmployeesEntity,
   })
   async updateEmployee(
+    @Param("id", ParseIntPipe) id: number,
     @Body() data: UpdateEmployeeDto
   ): Promise<EmployeesEntity> {
-    return this.employeesService.updateEmployee(data);
+    return this.employeesService.updateEmployee(id, data);
   }
 
   @Delete(":id")
@@ -111,7 +118,9 @@ export class EmployeesController {
     description: "Will return boolean result.",
     type: Boolean,
   })
-  async removeEmployee(@Param("id") id: string): Promise<Boolean> {
-    return this.employeesService.removeEmployee(parseInt(id));
+  async removeEmployee(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<Boolean> {
+    return this.employeesService.removeEmployee(id);
   }
 }

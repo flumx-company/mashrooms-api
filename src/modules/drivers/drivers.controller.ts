@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
 } from "@nestjs/common";
@@ -69,11 +70,16 @@ export class DriversController {
     return this.driversService.createDriver(data);
   }
 
-  @Put()
+  @Put(":id")
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.UPDATE_DRIVERS,
   })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
   @ApiOperation({
     summary: "Update an driver.",
   })
@@ -86,8 +92,11 @@ export class DriversController {
     description: "Will return the driver data.",
     type: UsersEntity,
   })
-  async updateDriver(@Body() data: UpdateDriverDto): Promise<DriversEntity> {
-    return this.driversService.updateDriver(data);
+  async updateDriver(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() data: UpdateDriverDto
+  ): Promise<DriversEntity> {
+    return this.driversService.updateDriver(id, data);
   }
 
   @Delete(":id")
@@ -108,7 +117,7 @@ export class DriversController {
     description: "Will return boolean result.",
     type: Boolean,
   })
-  async removeUser(@Param("id") id: string): Promise<Boolean> {
-    return this.driversService.removeDriver(parseInt(id));
+  async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
+    return this.driversService.removeDriver(id);
   }
 }

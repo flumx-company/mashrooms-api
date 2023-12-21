@@ -12,15 +12,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import { EPermission } from "../../../../core/enums/permissions";
 
 export class UpdateUserDto {
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: 5,
-    description: "Enter user id.",
-    type: Number,
-  })
-  readonly id: number;
-
   @IsString()
   @MaxLength(35)
   @MinLength(1)
