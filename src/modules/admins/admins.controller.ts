@@ -19,10 +19,7 @@ import {
 } from "@nestjs/swagger";
 import { UsersService } from "../core-module/users/users.service";
 import { UsersEntity } from "../core-module/users/users.entity";
-import {
-  CreateUserDto,
-  AddSuperaminUserDto,
-} from "../core-module/users/dto/create.user.dto";
+import { CreateUserDto } from "../core-module/users/dto/create.user.dto";
 import { UpdateUserDto } from "../core-module/users/dto/update.user.dto";
 import { ResetPasswordDto } from "../core-module/users/dto/reset.password.dto";
 import { ApiV1 } from "src/core/utils/versions";
@@ -65,26 +62,6 @@ export class AdminsController {
   })
   async createUser(@Body() data: CreateUserDto): Promise<UsersEntity> {
     return this.usersService.createUser(data);
-  }
-
-  //NOTE: this endpoint is temporary. It will not appear in production.
-  @Post("superadmin")
-  @ApiOperation({
-    summary: "Temporary: Add a new superadmin user",
-  })
-  @ApiBody({
-    description: "Model to add a superadmin.",
-    type: AddSuperaminUserDto,
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Will return the user data.",
-    type: UsersEntity,
-  })
-  async createSuperadminUser(
-    @Body() data: AddSuperaminUserDto
-  ): Promise<UsersEntity> {
-    return this.usersService.createSuperadminUser(data);
   }
 
   @Put(":id")

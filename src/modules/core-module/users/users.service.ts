@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { genSalt, hash } from "bcrypt";
 import { UsersEntity } from "./users.entity";
 import { Nullable } from "src/core/utils/types";
-import { AddSuperaminUserDto, CreateUserDto } from "./dto/create.user.dto";
+import { CreateUserDto } from "./dto/create.user.dto";
 import { UpdateUserDto } from "./dto/update.user.dto";
 import { ERole } from "../../../core/enums/roles";
 import { EPermission } from "src/core/enums/permissions";
@@ -71,51 +71,6 @@ export class UsersService {
       lastName,
       password: hashedPassword,
       role: ERole.ADMIN,
-      permissions,
-    });
-
-    return this.usersRepository.save(newUser);
-  }
-
-  async createSuperadminUser({
-    email,
-    phone,
-    firstName,
-    lastName,
-    password,
-    permissions,
-  }: AddSuperaminUserDto): Promise<UsersEntity> {
-    const [foundUserByEmail, foundUserByPhone]: Nullable<
-      UsersEntity
-    >[] = await Promise.all([
-      this.findUserByEmail(email),
-      this.findUserByPhone(phone),
-    ]);
-
-    if (foundUserByEmail) {
-      throw new HttpException(
-        "A user with this email already exists.",
-        HttpStatus.UNPROCESSABLE_ENTITY
-      );
-    }
-
-    if (foundUserByPhone) {
-      throw new HttpException(
-        "A user with this phone already exists.",
-        HttpStatus.UNPROCESSABLE_ENTITY
-      );
-    }
-
-    const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS);
-    const salt = await genSalt(saltRounds);
-    const hashedPassword: string = await hash(password, salt);
-    const newUser: UsersEntity = this.usersRepository.create({
-      email,
-      phone,
-      firstName,
-      lastName,
-      password: hashedPassword,
-      role: ERole.SUPERADMIN,
       permissions,
     });
 
