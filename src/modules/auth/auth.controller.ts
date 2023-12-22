@@ -23,6 +23,7 @@ import { UsersEntity } from "../core-module/users/users.entity";
 import { Auth } from "src/core/decorators/auth.decorator";
 import { ERole } from "src/core/enums/roles";
 import { EPermission } from "../../core/enums/permissions";
+import { Nullable } from "src/core/utils/types";
 
 const ACCESS_TOKEN = "access-token";
 
@@ -51,22 +52,21 @@ export class AuthController {
   async loginByEmailAndPassword(
     @Body() loginData: LoginDto,
     @Res({ passthrough: true }) response: ExResponse
-  ): Promise<Boolean> {
-    const accessToken = await this.authService.login({
+  ): Promise<Nullable<UsersEntity>> {
+    const {
+      accessToken,
+      user,
+    }: {
+      accessToken: string;
+      user: UsersEntity;
+    } = await this.authService.login({
       email: loginData.email,
       password: loginData.password,
     });
-    let reply = Boolean(accessToken);
 
-    if (reply) {
-      try {
-        response.cookie(ACCESS_TOKEN, accessToken, { httpOnly: true });
-      } catch (e) {
-        reply = false;
-      }
-    }
-
-    return reply;
+    response.cookie(ACCESS_TOKEN, accessToken, { httpOnly: true });
+    
+    return user;
   }
 
   @Get("logout")

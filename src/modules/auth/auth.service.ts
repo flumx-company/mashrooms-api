@@ -17,7 +17,10 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async login({ email, password }: LoginDto): Promise<string> {
+  async login({
+    email,
+    password,
+  }: LoginDto): Promise<{ accessToken: string; user: UsersEntity }> {
     const foundUser: UsersEntity | null = await this.usersService.findUserByEmail(
       email
     );
@@ -41,7 +44,7 @@ export class AuthService {
       );
     }
 
-    return this.jwtService.sign(
+    const accessToken = await this.jwtService.sign(
       {
         id: foundUser.id,
       },
@@ -49,5 +52,10 @@ export class AuthService {
         expiresIn: process.env.AUTH_TOKEN_EXPIRATION,
       }
     );
+
+    return {
+      accessToken,
+      user: foundUser,
+    };
   }
 }
