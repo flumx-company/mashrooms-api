@@ -33,11 +33,10 @@ export class EmployeesService {
     return this.employeesRepository.save(newEmployee);
   }
 
-  async updateEmployee({
-    id,
-    firstName,
-    lastName,
-  }: UpdateEmployeeDto): Promise<EmployeesEntity> {
+  async updateEmployee(
+    id: number,
+    { firstName, lastName }: UpdateEmployeeDto
+  ): Promise<EmployeesEntity> {
     const foundEmployee: Nullable<EmployeesEntity> = await this.findEmployeeById(
       id
     );

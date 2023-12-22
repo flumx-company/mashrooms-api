@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
 } from "@nestjs/common";
@@ -37,18 +38,24 @@ export class ClientsController {
   constructor(readonly clientsService: ClientsService) {}
 
   @Get()
-  @Auth({ role: ERole.SUPERADMIN, permission: EPermission.READ_CLIENTS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENTS,
+  })
   @ApiOperation({
-    summary: "Get list of all clients",
+    summary: "Get list of all clients. Permission: READ_CLIENTS.",
   })
   async getAllUsers(): Promise<ClientsEntity[]> {
     return this.clientsService.findAll();
   }
 
   @Post()
-  @Auth({ role: ERole.ADMIN, permission: EPermission.CREATE_CLIENTS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CREATE_CLIENTS,
+  })
   @ApiOperation({
-    summary: "Add a new client",
+    summary: "Add a new client. Permission: CREATE_CLIENTS.",
   })
   @ApiBody({
     description: "Model to add a new client.",
@@ -63,11 +70,19 @@ export class ClientsController {
     return this.clientsService.createClient(data);
   }
 
-  @Put()
-  @Auth({ role: ERole.ADMIN, permission: EPermission.UPDATE_CLIENTS })
-  @ApiOperation({
-    summary: "Update an client.",
+  @Put(":id")
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.UPDATE_CLIENTS,
   })
+  @ApiOperation({
+    summary: "Update an client. Permission: UPDATE_CLIENTS.",
+  })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
   @ApiBody({
     description: "Model to update an existing client.",
     type: UpdateClientDto,
@@ -77,14 +92,20 @@ export class ClientsController {
     description: "Will return the client data.",
     type: UsersEntity,
   })
-  async updateClient(@Body() data: UpdateClientDto): Promise<ClientsEntity> {
-    return this.clientsService.updateClient(data);
+  async updateClient(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() data: UpdateClientDto
+  ): Promise<ClientsEntity> {
+    return this.clientsService.updateClient(id, data);
   }
 
   @Delete(":id")
-  @Auth({ role: ERole.ADMIN, permission: EPermission.DELETE_CLIENTS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.DELETE_CLIENTS,
+  })
   @ApiOperation({
-    summary: "Remove an client.",
+    summary: "Remove an client. Permission: DELETE_CLIENTS.",
   })
   @ApiParam({
     name: "id",
@@ -96,7 +117,7 @@ export class ClientsController {
     description: "Will return boolean result.",
     type: Boolean,
   })
-  async removeUser(@Param("id") id: string): Promise<Boolean> {
-    return this.clientsService.removeClient(parseInt(id));
+  async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
+    return this.clientsService.removeClient(id);
   }
 }

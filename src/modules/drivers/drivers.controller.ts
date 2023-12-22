@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
 } from "@nestjs/common";
@@ -37,18 +38,24 @@ export class DriversController {
   constructor(readonly driversService: DriversService) {}
 
   @Get()
-  @Auth({ role: ERole.ADMIN, permission: EPermission.READ_DRIVERS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_DRIVERS,
+  })
   @ApiOperation({
-    summary: "Get list of all drivers",
+    summary: "Get list of all drivers. Permission: READ_DRIVERS.",
   })
   async getAllDrivers(): Promise<DriversEntity[]> {
     return this.driversService.findAll();
   }
 
   @Post()
-  @Auth({ role: ERole.ADMIN, permission: EPermission.CREATE_DRIVERS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CREATE_DRIVERS,
+  })
   @ApiOperation({
-    summary: "Add a new drvier",
+    summary: "Add a new drvier. Permission: CREATE_DRIVERS.",
   })
   @ApiBody({
     description: "Model to add a new driver.",
@@ -63,10 +70,18 @@ export class DriversController {
     return this.driversService.createDriver(data);
   }
 
-  @Put()
-  @Auth({ role: ERole.ADMIN, permission: EPermission.UPDATE_DRIVERS })
+  @Put(":id")
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.UPDATE_DRIVERS,
+  })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
   @ApiOperation({
-    summary: "Update an driver.",
+    summary: "Update an driver. Permission: UPDATE_DRIVERS.",
   })
   @ApiBody({
     description: "Model to update an existing driver.",
@@ -77,14 +92,20 @@ export class DriversController {
     description: "Will return the driver data.",
     type: UsersEntity,
   })
-  async updateDriver(@Body() data: UpdateDriverDto): Promise<DriversEntity> {
-    return this.driversService.updateDriver(data);
+  async updateDriver(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() data: UpdateDriverDto
+  ): Promise<DriversEntity> {
+    return this.driversService.updateDriver(id, data);
   }
 
   @Delete(":id")
-  @Auth({ role: ERole.ADMIN, permission: EPermission.DELETE_DRIVERS })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.DELETE_DRIVERS,
+  })
   @ApiOperation({
-    summary: "Remove an driver.",
+    summary: "Remove an driver. Permission: DELETE_DRIVERS.",
   })
   @ApiParam({
     name: "id",
@@ -96,7 +117,7 @@ export class DriversController {
     description: "Will return boolean result.",
     type: Boolean,
   })
-  async removeUser(@Param("id") id: string): Promise<Boolean> {
-    return this.driversService.removeDriver(parseInt(id));
+  async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
+    return this.driversService.removeDriver(id);
   }
 }

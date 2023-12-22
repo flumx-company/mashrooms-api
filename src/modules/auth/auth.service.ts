@@ -17,13 +17,16 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async login({ username, password }: LoginDto): Promise<string> {
-    const foundUser: UsersEntity | null = await this.usersService.findUserByUsername(
-      username
+  async login({
+    email,
+    password,
+  }: LoginDto): Promise<{ accessToken: string; user: UsersEntity }> {
+    const foundUser: UsersEntity | null = await this.usersService.findUserByEmail(
+      email
     );
 
     if (!foundUser) {
-      throw new NotFoundException("A user with this username does not exist.");
+      throw new NotFoundException("A user with this email does not exist.");
     }
 
     const matchPasswords = await bcrypt.compare(password, foundUser.password);
@@ -41,7 +44,7 @@ export class AuthService {
       );
     }
 
-    return this.jwtService.sign(
+    const accessToken = await this.jwtService.sign(
       {
         id: foundUser.id,
       },
@@ -49,5 +52,10 @@ export class AuthService {
         expiresIn: process.env.AUTH_TOKEN_EXPIRATION,
       }
     );
+
+    return {
+      accessToken,
+      user: foundUser,
+    };
   }
 }

@@ -10,18 +10,17 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class LoginDto {
   @IsString()
-  @MaxLength(35)
-  @MinLength(1)
+  @IsEmail()
   @IsNotEmpty()
   @ApiProperty({
-    example: "John22",
-    description: "Enter username.",
+    example: "test@gmail.com",
+    description: "Enter the email address.",
     type: String,
   })
-  readonly username: string;
+  readonly email: string;
 
   @IsString()
-  @MaxLength(20)
+  @MaxLength(15)
   @MinLength(8)
   @IsNotEmpty()
   @Matches(

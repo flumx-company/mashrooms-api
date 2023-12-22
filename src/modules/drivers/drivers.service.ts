@@ -35,12 +35,10 @@ export class DriversService {
     return this.driversRepository.save(newDriver);
   }
 
-  async updateDriver({
-    id,
-    firstName,
-    lastName,
-    phone,
-  }: UpdateDriverDto): Promise<DriversEntity> {
+  async updateDriver(
+    id: number,
+    { firstName, lastName, phone }: UpdateDriverDto
+  ): Promise<DriversEntity> {
     const foundDriver: Nullable<DriversEntity> = await this.findDriverById(id);
 
     if (!foundDriver) {

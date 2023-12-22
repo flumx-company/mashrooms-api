@@ -19,7 +19,7 @@ export class ResetPasswordDto {
   readonly id: number;
 
   @IsString()
-  @MaxLength(20)
+  @MaxLength(15)
   @MinLength(8)
   @IsNotEmpty()
   @Matches(

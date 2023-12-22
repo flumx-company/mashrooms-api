@@ -9,15 +9,6 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 
 export class UpdateDriverDto {
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: 5,
-    description: "Enter user id.",
-    type: Number,
-  })
-  readonly id: number;
-
   @IsString()
   @MaxLength(35)
   @MinLength(1)

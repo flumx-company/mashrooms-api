@@ -7,9 +7,27 @@ import { EPermission } from "../../../core/enums/permissions";
 
 @Entity({ name: "users" })
 export class UsersEntity extends DatedBasicEntity {
-  @ApiProperty({ example: "John22", description: "User's name" })
+  @ApiProperty({ example: "John", description: "User's name" })
   @Column({ length: 35, default: null, nullable: true })
-  username: string;
+  firstName: string;
+
+  @ApiProperty({ example: "Johnson", description: "User's name" })
+  @Column({ length: 35, default: null, nullable: true })
+  lastName: string;
+
+  @ApiProperty({
+    example: "test@email.com",
+    description: "User's email",
+  })
+  @Column({ type: "varchar", default: null, nullable: true })
+  email: string;
+
+  @ApiProperty({
+    example: "+380681234567",
+    description: "User's telephone number",
+  })
+  @Column({ type: "varchar", default: null, nullable: true })
+  phone: string;
 
   @ApiProperty({
     example: "123Abc!",

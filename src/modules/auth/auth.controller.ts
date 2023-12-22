@@ -23,6 +23,7 @@ import { UsersEntity } from "../core-module/users/users.entity";
 import { Auth } from "src/core/decorators/auth.decorator";
 import { ERole } from "src/core/enums/roles";
 import { EPermission } from "../../core/enums/permissions";
+import { Nullable } from "src/core/utils/types";
 
 const ACCESS_TOKEN = "access-token";
 
@@ -37,10 +38,10 @@ export class AuthController {
 
   @Post("login")
   @ApiOperation({
-    summary: "Login by username and password.",
+    summary: "Login by email and password.",
   })
   @ApiBody({
-    description: "Model for Login by username and password.",
+    description: "Model for Login by email and password.",
     type: LoginDto,
   })
   @ApiResponse({
@@ -51,25 +52,27 @@ export class AuthController {
   async loginByEmailAndPassword(
     @Body() loginData: LoginDto,
     @Res({ passthrough: true }) response: ExResponse
-  ): Promise<Boolean> {
-    const accessToken = await this.authService.login({
-      username: loginData.username,
+  ): Promise<Nullable<UsersEntity>> {
+    const {
+      accessToken,
+      user,
+    }: {
+      accessToken: string;
+      user: UsersEntity;
+    } = await this.authService.login({
+      email: loginData.email,
       password: loginData.password,
     });
-    let reply = Boolean(accessToken);
 
-    if (reply) {
-      try {
-        response.cookie(ACCESS_TOKEN, accessToken, { httpOnly: true });
-      } catch (e) {
-        reply = false;
-      }
-    }
-
-    return reply;
+    response.cookie(ACCESS_TOKEN, accessToken, { httpOnly: true });
+    
+    return user;
   }
 
   @Get("logout")
+  @ApiOperation({
+    summary: "Logout.",
+  })
   @ApiResponse({
     status: 200,
     description: `This returns "true" if logout was successful`,
@@ -98,7 +101,14 @@ export class AuthController {
   }
 
   @Get("personal-data")
-  @Auth({ role: ERole.ADMIN })
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_PERSONAL_DATA,
+  })
+  @ApiOperation({
+    summary:
+      "Returns personal data of the logged-in user. Permission: READ_PERSONAL_DATA.",
+  })
   @ApiResponse({
     status: 200,
     description: "This returns personal data of the logged in user",
@@ -115,11 +125,18 @@ export class AuthController {
   }
 
   @Get("permissions")
-  @Auth({ role: ERole.ADMIN, permission: EPermission.READ_PERSONAL_DATA })
+  @Auth({
+    roles: [ERole.SUPERADMIN],
+    permission: EPermission.READ_ALL_PERMISSIONS,
+  })
+  @ApiOperation({
+    summary:
+      "Returns list of all existing permissions. Permission: READ_ALL_PERMISSIONS.",
+  })
   @ApiResponse({
     status: 200,
     description: "This returns list of all existing permissions",
-    type: UsersEntity,
+    type: Array,
   })
   getPermissions(): EPermission[] {
     return Object.values(EPermission);

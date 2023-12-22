@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Permission } from "../decorators/permission.decorator";
+import { ERole } from "../enums/roles";
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -26,14 +27,14 @@ export class PermissionGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const permission = this.reflector.get(Permission, context.getHandler());
-
-    //NOTE: no permission is received as empty object
-    if (typeof permission !== "string") {
-      return true;
-    }
-
     const request = context.switchToHttp().getRequest();
     const user = request.user;
+    const existsPermission = typeof permission === "string"; //NOTE: no permission is received as empty object
+    const isUserSuperAdmin = user.role === ERole.SUPERADMIN;
+
+    if (!existsPermission || isUserSuperAdmin) {
+      return true;
+    }
 
     return this.checkPermissions(permission, user.permissions);
   }

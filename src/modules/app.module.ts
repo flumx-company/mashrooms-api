@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { ConfigModule } from "@nestjs/config";
 
@@ -36,10 +36,10 @@ import { AppService } from "./app.service";
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      synchronize: true, //NOTE: shouldn't be used in production - otherwise you can lose production data.
+      synchronize: Boolean(process.env.IS_DB_SYNCHRONIZED), //NOTE: must be false for production mode
       autoLoadEntities: true,
       entities: [ClientsEntity, EmployeesEntity, UsersEntity],
-    }),
+    } as TypeOrmModuleOptions),
     CoreModule,
     AuthModule,
     AdminsModule,
