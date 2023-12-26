@@ -18,7 +18,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "seed": "ts-node -r tsconfig-paths/register src/seeds/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register src/seeds/seed.ts",
+    "createSuperAdmin": "node dist/main.commands createSuperAdmin",
+    "changePasswordSuperAdmin": "node dist/main.commands changePasswordSuperAdmin"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -34,6 +36,7 @@
     "cookie-parser": "^1.4.6",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.5",
+    "nest-commander": "^3.12.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.17"
