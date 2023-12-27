@@ -24,12 +24,3 @@ async function bootstrap() {
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
-
-/**
- * TODO before production:
- *
- * REMOVE endpoint, service, controller, dto related to superadmin creation
- * SET TypeOrmModule.forRoot synchronize to false
- * SET .prod.env as envFilePath in app.module.ts.
- *
- */

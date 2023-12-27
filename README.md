@@ -63,9 +63,28 @@ One needs .env file in the root folder with the variables specified in .env.exam
 - In another terminal, one needs to launch NestJS:
   npm run start:dev
 
-## Project launch on production mode
-One needs to follow the comments in the src/main.ts to adapt the code for production mode, first.
-One needs to use Dockerfile, which is temporary named as _Dockerfile to run NestJS application in Docker.
+## Dockerfile
+Dockerfile is used for deployment on staging /*and production*/. 
+It is not used for development mode. Because in development mode, api is launched separately from docker.
 
-//
-WIP docker file not for local
+## Docker compose file
+serve.docker-compose.yml is used for development mode.
+main.docker-compose.yml is used for staging mode.
+
+In development mode, api is not run by serve.docker-compose.yml, but is launched in a separate terminal by the following command:
+npm run start:dev
+
+## Github Secrets for deployment on staging
+Necessary secrets are added on Github repository page.
+Repository > Settings > Secrets and variables > Actions > New repository secret
+
+These are the necessary secrets:
+REGISTRY_USERNAME
+REGISTRY_PASSWORD
+DOCKER_REGISTRY_TEST 
+PORTAINER_WEBHOOK_URL_TEST - Weebhook is retrieved from Portainer after stack is deployed. 
+
+# App module configModule.forRoot uses envFilePath:
+For deployment on staging via Portainer, it should be:
+envFilePath: ["stack.env"]
+

@@ -27,7 +27,7 @@ import { AppService } from "./app.service";
   imports: [
     ConfigModule.forRoot({
       expandVariables: true,
-      envFilePath: ["stack.env"], //NOTE: use .prod.env in production
+      envFilePath: ["stack.env"], //NOTE: for dev mode, use .serve.env 
     }),
     TypeOrmModule.forRoot({
       type: "mysql",
