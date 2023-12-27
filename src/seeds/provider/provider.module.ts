@@ -16,7 +16,7 @@ import { UsersEntity } from "src/modules/core-module/users/users.entity";
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      synchronize: true, //NOTE: shouldn't be used in production - otherwise you can lose production data.
+      synchronize:  Boolean(process.env.IS_DB_SYNCHRONIZED), //NOTE: shouldn't be used in production - otherwise you can lose production data.
       autoLoadEntities: true,
       entities: [UsersEntity],
     } as TypeOrmModuleOptions),
