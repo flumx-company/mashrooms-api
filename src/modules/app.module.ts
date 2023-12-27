@@ -36,7 +36,7 @@ import { AppService } from "./app.service";
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      synchronize: Boolean(process.env.IS_DB_SYNCHRONIZED), //NOTE: must be false for production mode
+      synchronize: Boolean(parseInt(process.env.IS_DB_SYNCHRONIZED)), //NOTE: must be false for production mode
       autoLoadEntities: true,
       entities: [ClientsEntity, EmployeesEntity, UsersEntity],
     } as TypeOrmModuleOptions),
