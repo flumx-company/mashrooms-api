@@ -10,9 +10,6 @@ import { ERole } from "../core/enums/roles";
 interface CreateSuperadminCommandOptions {
   email?: string;
   password?: string;
-  // firstName?: string;
-  // lastName?: string;
-  // phone?: string;
 }
 
 @Command({
