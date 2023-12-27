@@ -1,0 +1,62 @@
+version: "3.8"
+services:
+  mashrooms-mysql:
+    container_name: ${APP_NAME}-mysql-${APP_ENV}
+    image: 'mysql:8.2.0'
+    restart: always
+    ports: 
+      - ${MYSQL_TCP_PORT}:3306
+    env_file: 
+      - .env
+    networks:
+      - registry_default
+      - mashrooms-network
+    
+  mashrooms-phpmyadmin:
+    image: "phpmyadmin/phpmyadmin:latest"
+    restart: always
+    ports:
+      - 51515:80
+    env_file: 
+      - .env
+    depends_on:
+      - mashrooms-mysql
+    links: 
+      - mashrooms-mysql
+    networks:
+      - registry_default
+      - mashrooms-network
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.blanball-api-prod.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.blanball-api-prod.entrypoints=websecure'
+      - 'traefik.http.routers.blanball-api-prod.tls.certresolver=myresolver'
+      - 'traefik.http.routers.blanball-api-prod.service=blanball-api-prod'
+      - 'traefik.http.services.blanball-api-prod.loadbalancer.server.port=51515'
+
+  api:
+    image: registry.it-flumx.com/flumx_mushrooms_api:latest
+    env_file: 
+      - .env
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.blanball-api-prod.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.blanball-api-prod.entrypoints=websecure'
+      - 'traefik.http.routers.blanball-api-prod.tls.certresolver=myresolver'
+      - 'traefik.http.routers.blanball-api-prod.service=blanball-api-prod'
+      - 'traefik.http.services.blanball-api-prod.loadbalancer.server.port=3000'
+    networks:
+      - registry_default
+      - mashrooms-network
+
+# volumes:
+#   mashrooms-api:
+
+networks:
+  registry_default:
+    external: true
+  mashrooms-network:
+    name: mashrooms-network
+
+# dockehub actions
+# create secrets
