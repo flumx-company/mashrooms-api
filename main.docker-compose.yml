@@ -36,9 +36,8 @@ services:
 
   api:
     image: registry.it-flumx.com/flumx_mushrooms_api:latest
-    # build: 
-    #   context: .
-    #   dockerfile: Dockerfile
+    env_file: 
+      - .env
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.blanball-api-prod.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
