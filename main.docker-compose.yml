@@ -16,7 +16,7 @@ services:
     image: "phpmyadmin/phpmyadmin:latest"
     restart: always
     ports:
-      - 8080:80
+      - 51515:80
     env_file: 
       - .env
     depends_on:
@@ -32,7 +32,7 @@ services:
       - 'traefik.http.routers.blanball-api-prod.entrypoints=websecure'
       - 'traefik.http.routers.blanball-api-prod.tls.certresolver=myresolver'
       - 'traefik.http.routers.blanball-api-prod.service=blanball-api-prod'
-      - 'traefik.http.services.blanball-api-prod.loadbalancer.server.port=8080'
+      - 'traefik.http.services.blanball-api-prod.loadbalancer.server.port=51515'
 
   api:
     image: registry.it-flumx.com/flumx_mushrooms_api:latest
