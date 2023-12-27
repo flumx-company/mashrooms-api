@@ -28,11 +28,11 @@ services:
       - mashrooms-network
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.blanball-api-prod.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
-      - 'traefik.http.routers.blanball-api-prod.entrypoints=websecure'
-      - 'traefik.http.routers.blanball-api-prod.tls.certresolver=myresolver'
-      - 'traefik.http.routers.blanball-api-prod.service=blanball-api-prod'
-      - 'traefik.http.services.blanball-api-prod.loadbalancer.server.port=51515'
+      - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.mushrooms-api-prod.entrypoints=websecure'
+      - 'traefik.http.routers.mushrooms-api-prod.tls.certresolver=myresolver'
+      - 'traefik.http.routers.mushrooms-api-prod.service=mushrooms-api-prod'
+      - 'traefik.http.services.mushrooms-api-prod.loadbalancer.server.port=51515'
 
   api:
     image: registry.it-flumx.com/flumx_mushrooms_api:latest
@@ -42,11 +42,11 @@ services:
       - 51516:3000
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.blanball-api-prod.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
-      - 'traefik.http.routers.blanball-api-prod.entrypoints=websecure'
-      - 'traefik.http.routers.blanball-api-prod.tls.certresolver=myresolver'
-      - 'traefik.http.routers.blanball-api-prod.service=blanball-api-prod'
-      - 'traefik.http.services.blanball-api-prod.loadbalancer.server.port=3000'
+      - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.mushrooms-api-prod.entrypoints=websecure'
+      - 'traefik.http.routers.mushrooms-api-prod.tls.certresolver=myresolver'
+      - 'traefik.http.routers.mushrooms-api-prod.service=mushrooms-api-prod'
+      - 'traefik.http.services.mushrooms-api-prod.loadbalancer.server.port=3000'
     networks:
       - registry_default
       - mashrooms-network
