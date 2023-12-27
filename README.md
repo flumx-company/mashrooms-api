@@ -67,3 +67,5 @@ One needs .env file in the root folder with the variables specified in .env.exam
 One needs to follow the comments in the src/main.ts to adapt the code for production mode, first.
 One needs to use Dockerfile, which is temporary named as _Dockerfile to run NestJS application in Docker.
 
+//
+WIP docker file not for local
