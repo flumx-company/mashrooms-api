@@ -16,9 +16,9 @@ import { EPosition } from "src/core/enums/positions";
 
 export class UpdateUserDto {
   @IsString()
-  @IsNotEmpty()
-  @MinLength(2)
   @MaxLength(20)
+  @MinLength(1)
+  @IsNotEmpty()
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: "John",
@@ -28,9 +28,9 @@ export class UpdateUserDto {
   readonly firstName: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MinLength(2)
   @MaxLength(50)
+  @MinLength(1)
+  @IsNotEmpty()
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: "John",
