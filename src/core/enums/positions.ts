@@ -1,0 +1,4 @@
+export enum EPosition {
+  FOREMAN = "FOREMAN",
+  OFFICE_ADMINISTRATOR = "OFFICE_ADMINISTRATOR",
+}

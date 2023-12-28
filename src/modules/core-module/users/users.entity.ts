@@ -4,6 +4,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { DatedBasicEntity } from "src/core/basic.entity";
 import { ERole } from "../../../core/enums/roles";
 import { EPermission } from "../../../core/enums/permissions";
+import { EPosition } from "src/core/enums/positions";
 
 @Entity({ name: "users" })
 export class UsersEntity extends DatedBasicEntity {
@@ -44,6 +45,13 @@ export class UsersEntity extends DatedBasicEntity {
   })
   @Column({ type: "enum", enum: ERole, default: ERole.ADMIN })
   role: ERole;
+
+  @ApiProperty({
+    example: EPosition.FOREMAN,
+    description: "User's position. Options: FOREMAN, OFFICE_ADMINISTRATOR",
+  })
+  @Column({ type: "enum", enum: EPosition, default: EPosition.FOREMAN })
+  position: EPosition;
 
   @ApiProperty({
     example: [],
