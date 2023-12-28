@@ -84,7 +84,16 @@ REGISTRY_PASSWORD
 DOCKER_REGISTRY_TEST 
 PORTAINER_WEBHOOK_URL_TEST - Weebhook is retrieved from Portainer after stack is deployed. 
 
-# App module configModule.forRoot uses envFilePath:
+## App module configModule.forRoot uses envFilePath:
 For deployment on staging via Portainer, it should be:
 envFilePath: ["stack.env"]
 
+## Commands:
+To seed:
+npm run seed
+
+To create a new superadmin: 
+npm run createSuperAdmin -- -e superadmins@email -p some_password
+
+To drop superadmin's password:
+npm run changePasswordSuperAdmin -- -e superadmins@email
