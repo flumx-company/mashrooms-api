@@ -1,10 +1,11 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { Exclude } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 import { DatedBasicEntity } from "src/core/basic.entity";
 import { ERole } from "../../../core/enums/roles";
 import { EPermission } from "../../../core/enums/permissions";
 import { EPosition } from "src/core/enums/positions";
+import { OffloadsEntity } from "src/modules/offloads/offloads.entity";
 
 @Entity({ name: "users" })
 export class UsersEntity extends DatedBasicEntity {
@@ -59,4 +60,7 @@ export class UsersEntity extends DatedBasicEntity {
   })
   @Column("simple-array", { nullable: true })
   permissions: EPermission[];
+
+  @OneToMany(() => OffloadsEntity, (offload) => offload.user)
+  offloads: OffloadsEntity[];
 }
