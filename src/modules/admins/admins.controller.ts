@@ -27,6 +27,8 @@ import { Auth } from "src/core/decorators/auth.decorator";
 import { ERole } from "../../core/enums/roles";
 import { EPermission } from "../../core/enums/permissions";
 import { UpdateUserPermissionsDto } from "../core-module/users/dto/update.user.permissions.dto";
+import { OffloadsEntity } from "../offloads/offloads.entity";
+import { OffloadsService } from "../offloads/offloads.service";
 
 @ApiTags("Admins")
 @ApiBadGatewayResponse({
@@ -35,7 +37,10 @@ import { UpdateUserPermissionsDto } from "../core-module/users/dto/update.user.p
 })
 @Controller(ApiV1("admins"))
 export class AdminsController {
-  constructor(readonly usersService: UsersService) {}
+  constructor(
+    readonly usersService: UsersService,
+    readonly offloadsService: OffloadsService
+  ) {}
 
   @Get()
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
@@ -136,6 +141,26 @@ export class AdminsController {
   })
   async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
     return this.usersService.removeUser(id);
+  }
+
+  @Get(":id/offloads")
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_OFFLOADS,
+  })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      "Get list of all offloads of the user, whose id is provided. Permission: READ_OFFLOADS.",
+  })
+  async getAllOffloadsByUserId(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<OffloadsEntity[]> {
+    return this.offloadsService.findAllByUserId(id);
   }
 
   @Get("permissions/:id")

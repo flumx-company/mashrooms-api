@@ -14,14 +14,27 @@ export class OffloadsService {
     private readonly usersService: UsersService
   ) {}
 
-  findAll(): Promise<OffloadsEntity[]> {
+  async findAll(): Promise<OffloadsEntity[]> {
     return this.offloadsRepository.find({
       relations: ["user"],
+      loadRelationIds: true,
     });
   }
 
   findOffloadById(id: number): Promise<Nullable<OffloadsEntity>> {
     return this.offloadsRepository.findOneBy({ id });
+  }
+
+  findAllByUserId(userId: number): Promise<Nullable<OffloadsEntity[]>> {
+    return this.offloadsRepository.find({
+      relations: ["user"],
+      loadRelationIds: true,
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+    });
   }
 
   async createOffload({
