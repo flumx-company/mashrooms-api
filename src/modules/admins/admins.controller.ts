@@ -29,6 +29,13 @@ import { EPermission } from "../../core/enums/permissions";
 import { UpdateUserPermissionsDto } from "../core-module/users/dto/update.user.permissions.dto";
 import { OffloadsEntity } from "../offloads/offloads.entity";
 import { OffloadsService } from "../offloads/offloads.service";
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from "nestjs-paginate";
+import { usersPaginationConfig } from "../core-module/users/pagination/users.pagination.config";
 
 @ApiTags("Admins")
 @ApiBadGatewayResponse({
@@ -47,8 +54,11 @@ export class AdminsController {
   @ApiOperation({
     summary: "Get list of all admins. Permission: READ_ADMINS",
   })
-  async getAllUsers(): Promise<UsersEntity[]> {
-    return this.usersService.findAll();
+  @ApiPaginationQuery(usersPaginationConfig)
+  async getAllUsers(
+    @Paginate() query: PaginateQuery
+  ): Promise<Paginated<UsersEntity>> {
+    return this.usersService.findAll(query);
   }
 
   @Post()
