@@ -31,7 +31,7 @@ export class UsersService {
   }
 
   findUserByPhone(phone: string): Promise<Nullable<UsersEntity>> {
-    return phone ? this.usersRepository.findOneBy({ phone }) : null;
+    return this.usersRepository.findOneBy({ phone });
   }
 
   async createUser({
