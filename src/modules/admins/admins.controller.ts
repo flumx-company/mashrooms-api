@@ -130,9 +130,9 @@ export class AdminsController {
   })
   async changeUserPassword(
     @Param("id", ParseIntPipe) id: number,
-    @Body() data: ResetPasswordDto
+    @Body() { password }: ResetPasswordDto
   ): Promise<UsersEntity> {
-    return this.usersService.changeUserPassword(id, data);
+    return this.usersService.changeUserPassword(id, password);
   }
 
   @Put("active/:id")
@@ -157,9 +157,9 @@ export class AdminsController {
   })
   async updateUserActiveStatus(
     @Param("id", ParseIntPipe) id: number,
-    @Body() data: UpdateActiveStatusDto
+    @Body() { isActive }: UpdateActiveStatusDto
   ): Promise<UsersEntity> {
-    return this.usersService.updateUserActiveStatus(id, data);
+    return this.usersService.updateUserActiveStatus(id, isActive);
   }
 
   @Delete(":id")
@@ -238,8 +238,8 @@ export class AdminsController {
   })
   async updateUserPermissions(
     @Param("id", ParseIntPipe) id: number,
-    @Body() data: UpdateUserPermissionsDto
+    @Body() { permissions }: UpdateUserPermissionsDto
   ): Promise<UsersEntity> {
-    return this.usersService.updateUserPermissions(id, data);
+    return this.usersService.updateUserPermissions(id, permissions);
   }
 }

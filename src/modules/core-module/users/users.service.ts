@@ -74,6 +74,7 @@ export class UsersService {
       password: hashedPassword,
       role: ERole.ADMIN,
       permissions,
+      isActive: true,
     });
 
     return this.usersRepository.save(newUser);
@@ -130,10 +131,7 @@ export class UsersService {
     return this.usersRepository.save(updatedUser);
   }
 
-  async changeUserPassword(
-    id: number,
-    { password }: { password: string }
-  ): Promise<UsersEntity> {
+  async changeUserPassword(id: number, password: string): Promise<UsersEntity> {
     const foundUser: Nullable<UsersEntity> = await this.findUserById(id);
 
     if (!foundUser) {
@@ -201,11 +199,7 @@ export class UsersService {
 
   async updateUserPermissions(
     id: number,
-    {
-      permissions,
-    }: {
-      permissions: EPermission[];
-    }
+    permissions: EPermission[]
   ): Promise<UsersEntity> {
     const foundUser: UsersEntity = await this.findUserById(id);
 
@@ -233,7 +227,7 @@ export class UsersService {
 
   async updateUserActiveStatus(
     id: number,
-    { isActive }: { isActive: boolean }
+    isActive: boolean
   ): Promise<UsersEntity> {
     const foundUser: Nullable<UsersEntity> = await this.findUserById(id);
 
