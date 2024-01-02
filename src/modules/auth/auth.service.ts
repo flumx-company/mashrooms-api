@@ -44,6 +44,10 @@ export class AuthService {
       );
     }
 
+    if(!foundUser.isActive) {
+      throw new NotFoundException("This user's account is not active. Please contact the superadmin to activate it.");
+    }
+
     const accessToken = await this.jwtService.sign(
       {
         id: foundUser.id,
