@@ -178,15 +178,12 @@ export class UsersService {
       );
     }
 
-    let response = true;
-
     try {
       await this.usersRepository.remove(foundUser);
+      return true;
     } catch (e) {
-      response = false;
+      return false;
     }
-
-    return response;
   }
 
   async getUserPermissions(id: number): Promise<EPermission[]> {
