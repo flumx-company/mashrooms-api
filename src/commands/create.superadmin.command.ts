@@ -7,6 +7,7 @@ import { UsersEntity } from "../modules/core-module/users/users.entity";
 import { EPermission } from "../core/enums/permissions";
 import { ERole } from "../core/enums/roles";
 import { EPosition } from "src/core/enums/positions";
+import { EMAIL_REGEX } from "src/core/utils/regex";
 
 interface CreateSuperadminCommandOptions {
   email?: string;
@@ -34,6 +35,11 @@ export class CreateSuperadminCommand extends CommandRunner {
     const foundUserByEmail: UsersEntity = await this.usersRepository.findOneBy({
       email,
     });
+
+    if(!EMAIL_REGEX.test(email)) {
+      console.error("The input email is not valid.");
+      return;
+    }
 
     if (foundUserByEmail) {
       console.error("A user with this email already exists in our database.");
