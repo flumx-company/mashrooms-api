@@ -6,6 +6,7 @@ import { genSalt, hash } from "bcrypt";
 import { UsersEntity } from "../modules/core-module/users/users.entity";
 import { EPermission } from "../core/enums/permissions";
 import { ERole } from "../core/enums/roles";
+import { EPosition } from "src/core/enums/positions";
 
 interface CreateSuperadminCommandOptions {
   email?: string;
@@ -46,7 +47,8 @@ export class CreateSuperadminCommand extends CommandRunner {
       const newUser: UsersEntity = this.usersRepository.create({
         email,
         password: hashedPassword,
-        role: ERole.ADMIN,
+        role: ERole.SUPERADMIN,
+        position: EPosition.SUPERADMINISTRATOR,
         permissions: Object.values(EPermission),
       });
 

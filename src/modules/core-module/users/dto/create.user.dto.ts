@@ -6,15 +6,23 @@ import {
   Matches,
   IsArray,
   IsEmail,
+  IsEnum,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { EPermission } from "../../../../core/enums/permissions";
+import { EPermission } from "src/core/enums/permissions";
+import {
+  LATIN_CYRILLIC_LETTER_NAME_REGEX,
+  PASSWORD_REGEX,
+  PHONE_REGEX,
+} from "src/core/utils/regex";
+import { EPosition } from "src/core/enums/positions";
 
 export class CreateUserDto {
   @IsString()
-  @MaxLength(35)
+  @MaxLength(20)
   @MinLength(1)
   @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: "John",
     description: "Enter first name.",
@@ -23,9 +31,10 @@ export class CreateUserDto {
   readonly firstName: string;
 
   @IsString()
-  @MaxLength(35)
+  @MaxLength(50)
   @MinLength(1)
   @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: "Johnson",
     description: "Enter first name.",
@@ -44,8 +53,7 @@ export class CreateUserDto {
   readonly email: string;
 
   @IsString()
-  @IsNotEmpty()
-  @Matches(/^\+[1-9]\d{1,14}$/)
+  @Matches(PHONE_REGEX)
   @ApiProperty({
     example: "+380681234567",
     description: "Enter the phone.",
@@ -57,9 +65,7 @@ export class CreateUserDto {
   @MaxLength(15)
   @MinLength(8)
   @IsNotEmpty()
-  @Matches(
-    /(?=.*[0-9])(?=.*[!@#$%^&*_])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*_]{8,}/g
-  )
+  @Matches(PASSWORD_REGEX)
   @ApiProperty({
     example: "123Abc!_z",
     description: "Enter password.",
@@ -76,4 +82,13 @@ export class CreateUserDto {
     type: Array,
   })
   readonly permissions: EPermission[];
+
+  @IsString()
+  @IsEnum(EPosition)
+  @ApiProperty({
+    example: EPosition.FOREMAN,
+    description: "Enter the position.",
+    type: String,
+  })
+  readonly position: EPosition;
 }

@@ -3,19 +3,23 @@ import {
   MaxLength,
   MinLength,
   IsNotEmpty,
-  IsNumber,
-  IsArray,
   IsEmail,
   Matches,
+  IsEnum,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { EPermission } from "../../../../core/enums/permissions";
+import {
+  LATIN_CYRILLIC_LETTER_NAME_REGEX,
+  PHONE_REGEX,
+} from "src/core/utils/regex";
+import { EPosition } from "src/core/enums/positions";
 
 export class UpdateUserDto {
   @IsString()
-  @MaxLength(35)
+  @MaxLength(20)
   @MinLength(1)
   @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: "John",
     description: "Enter first name.",
@@ -24,9 +28,10 @@ export class UpdateUserDto {
   readonly firstName: string;
 
   @IsString()
-  @MaxLength(35)
+  @MaxLength(50)
   @MinLength(1)
   @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: "John",
     description: "Enter last name.",
@@ -45,12 +50,20 @@ export class UpdateUserDto {
   readonly email: string;
 
   @IsString()
-  @IsNotEmpty()
-  @Matches(/^\+[1-9]\d{1,14}$/)
+  @Matches(PHONE_REGEX)
   @ApiProperty({
     example: "+380681234567",
     description: "Enter the phone.",
     type: String,
   })
   readonly phone: string;
+
+  @IsString()
+  @IsEnum(EPosition)
+  @ApiProperty({
+    example: EPosition.FOREMAN,
+    description: "Enter the position.",
+    type: String,
+  })
+  readonly position: EPosition;
 }

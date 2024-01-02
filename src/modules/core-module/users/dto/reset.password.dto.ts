@@ -7,6 +7,7 @@ import {
   IsNumber,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { PASSWORD_REGEX } from "src/core/utils/regex";
 
 export class ResetPasswordDto {
   @IsNumber()
@@ -22,9 +23,7 @@ export class ResetPasswordDto {
   @MaxLength(15)
   @MinLength(8)
   @IsNotEmpty()
-  @Matches(
-    /(?=.*[0-9])(?=.*[!@#$%^&*_])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*_]{8,}/g
-  )
+  @Matches(PASSWORD_REGEX)
   @ApiProperty({
     example: "123Abc!_z",
     description: "Enter password.",
