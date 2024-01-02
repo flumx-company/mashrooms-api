@@ -91,4 +91,13 @@ export class CreateUserDto {
     type: String,
   })
   readonly position: EPosition;
+
+  @IsString()
+  @IsEnum(EPosition)
+  @ApiProperty({
+    example: true,
+    description: "Enter the active status boolean value.",
+    type: Boolean,
+  })
+  readonly isActive: boolean;
 }

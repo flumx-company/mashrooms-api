@@ -37,6 +37,7 @@ import {
 } from "nestjs-paginate";
 import { usersPaginationConfig } from "../core-module/users/pagination/users.pagination.config";
 import { offloadsPaginationConfig } from "../offloads/pagination/offloads.pagination.config";
+import { UpdateActiveStatusDto } from "../core-module/users/dto/update.active.status.dto";
 
 @ApiTags("Admins")
 @ApiBadGatewayResponse({
@@ -132,6 +133,33 @@ export class AdminsController {
     @Body() data: ResetPasswordDto
   ): Promise<UsersEntity> {
     return this.usersService.changeUserPassword(id, data);
+  }
+
+  @Put("active/:id")
+  @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
+  @ApiOperation({
+    summary:
+      "Change admin user's active status. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+  })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: "Model to change user's active status.",
+    type: UpdateActiveStatusDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Will return the user data.",
+    type: UsersEntity,
+  })
+  async updateUserActiveStatus(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() data: UpdateActiveStatusDto
+  ): Promise<UsersEntity> {
+    return this.usersService.updateUserActiveStatus(id, data);
   }
 
   @Delete(":id")

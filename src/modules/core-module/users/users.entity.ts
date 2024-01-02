@@ -61,6 +61,13 @@ export class UsersEntity extends DatedBasicEntity {
   @Column("simple-array", { nullable: true })
   permissions: EPermission[];
 
+  @ApiProperty({
+    example: true,
+    description: "User's active status. Boolean value.",
+  })
+  @Column({ type: "boolean", default: null, nullable: true })
+  isActive: boolean;
+
   @OneToMany(() => OffloadsEntity, (offload) => offload.user)
   offloads: OffloadsEntity[];
 }

@@ -9,7 +9,7 @@ import { UpdateUserDto } from "./dto/update.user.dto";
 import { ERole } from "../../../core/enums/roles";
 import { EPermission } from "src/core/enums/permissions";
 import { PaginateQuery, Paginated, paginate } from "nestjs-paginate";
-import { usersPaginationConfig } from './pagination/users.pagination.config';
+import { usersPaginationConfig } from "./pagination/users.pagination.config";
 
 @Injectable()
 export class UsersService {
@@ -229,6 +229,34 @@ export class UsersService {
     const updatedUser: UsersEntity = this.usersRepository.create({
       ...foundUser,
       permissions,
+    });
+
+    return this.usersRepository.save(updatedUser);
+  }
+
+  async updateUserActiveStatus(
+    id: number,
+    { isActive }: { isActive: boolean }
+  ): Promise<UsersEntity> {
+    const foundUser: Nullable<UsersEntity> = await this.findUserById(id);
+
+    if (!foundUser) {
+      throw new HttpException(
+        "A user with this id does not exist.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    if (foundUser.role === ERole.SUPERADMIN) {
+      throw new HttpException(
+        "Superadmin's active status cannot be changed through this endpoint.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    const updatedUser: UsersEntity = this.usersRepository.create({
+      ...foundUser,
+      isActive,
     });
 
     return this.usersRepository.save(updatedUser);
