@@ -26,6 +26,13 @@ import { OffloadsService } from "./offloads.service";
 import { OffloadsEntity } from "./offloads.entity";
 import { CurrentUser } from "src/core/decorators/current.user.decorator";
 import { UsersEntity } from "../core-module/users/users.entity";
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from "nestjs-paginate";
+import { offloadsPaginationConfig } from "./pagination/offloads.pagination.config";
 
 @ApiTags("Offloads")
 @ApiBadGatewayResponse({
@@ -42,10 +49,13 @@ export class OffloadsController {
     permission: EPermission.READ_OFFLOADS,
   })
   @ApiOperation({
-    summary: "Get list of all offloads. Permission: READ_OFFLOADS.",
+    summary: "Get list of all offloads. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.",
   })
-  async getAllOffloads(): Promise<OffloadsEntity[]> {
-    return this.offloadsService.findAll();
+  @ApiPaginationQuery(offloadsPaginationConfig)
+  async getAllOffloads(
+    @Paginate() query: PaginateQuery
+  ): Promise<Paginated<OffloadsEntity>> {
+    return this.offloadsService.findAll(query);
   }
 
   @Post()

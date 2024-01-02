@@ -36,6 +36,7 @@ import {
   Paginated,
 } from "nestjs-paginate";
 import { usersPaginationConfig } from "../core-module/users/pagination/users.pagination.config";
+import { offloadsPaginationConfig } from "../offloads/pagination/offloads.pagination.config";
 
 @ApiTags("Admins")
 @ApiBadGatewayResponse({
@@ -163,14 +164,16 @@ export class AdminsController {
     type: "number",
     example: 1,
   } as ApiParamOptions)
+  @ApiPaginationQuery(offloadsPaginationConfig)
   @ApiOperation({
     summary:
-      "Get list of all offloads of the user, whose id is provided. Permission: READ_OFFLOADS.",
+      "Get list of all offloads of the user, whose id is provided. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.",
   })
   async getAllOffloadsByUserId(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<OffloadsEntity[]> {
-    return this.offloadsService.findAllByUserId(id);
+    @Param("id", ParseIntPipe) id: number,
+    @Paginate() query: PaginateQuery
+  ): Promise<Paginated<OffloadsEntity>> {
+    return this.offloadsService.findAllByUserId(id, query);
   }
 
   @Get("permissions/:id")
