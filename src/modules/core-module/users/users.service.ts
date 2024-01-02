@@ -8,6 +8,8 @@ import { CreateUserDto } from "./dto/create.user.dto";
 import { UpdateUserDto } from "./dto/update.user.dto";
 import { ERole } from "../../../core/enums/roles";
 import { EPermission } from "src/core/enums/permissions";
+import { PaginateQuery, Paginated, paginate } from "nestjs-paginate";
+import { usersPaginationConfig } from "./pagination/users.pagination.config";
 
 @Injectable()
 export class UsersService {
@@ -16,8 +18,8 @@ export class UsersService {
     private usersRepository: Repository<UsersEntity>
   ) {}
 
-  findAll(): Promise<UsersEntity[]> {
-    return this.usersRepository.find();
+  findAll(query: PaginateQuery): Promise<Paginated<UsersEntity>> {
+    return paginate(query, this.usersRepository, usersPaginationConfig);
   }
 
   findUserById(id: number): Promise<Nullable<UsersEntity>> {
@@ -176,15 +178,12 @@ export class UsersService {
       );
     }
 
-    let response = true;
-
     try {
       await this.usersRepository.remove(foundUser);
+      return true;
     } catch (e) {
-      response = false;
+      return false;
     }
-
-    return response;
   }
 
   async getUserPermissions(id: number): Promise<EPermission[]> {

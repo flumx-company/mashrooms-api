@@ -89,11 +89,15 @@ For deployment on staging via Portainer, it should be:
 envFilePath: ["stack.env"]
 
 ## Commands:
-To seed:
+# To seed:
 npm run seed
 
-To create a new superadmin: 
+# To create a new superadmin: 
 npm run createSuperAdmin -- -e superadmins@email -p some_password
 
-To drop superadmin's password:
+# The password is recommended to be enclosed by single quotes ('password'):
+npm run createSuperAdmin -- -e superadmins@email -p 'some_password'
+Because some symbols like exclamation mark (!) inside the password value could be interpreted in a wrong way by bash.
+
+# To drop superadmin's password:
 npm run changePasswordSuperAdmin -- -e superadmins@email

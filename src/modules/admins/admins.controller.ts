@@ -27,6 +27,16 @@ import { Auth } from "src/core/decorators/auth.decorator";
 import { ERole } from "../../core/enums/roles";
 import { EPermission } from "../../core/enums/permissions";
 import { UpdateUserPermissionsDto } from "../core-module/users/dto/update.user.permissions.dto";
+import { OffloadsEntity } from "../offloads/offloads.entity";
+import { OffloadsService } from "../offloads/offloads.service";
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from "nestjs-paginate";
+import { usersPaginationConfig } from "../core-module/users/pagination/users.pagination.config";
+import { offloadsPaginationConfig } from "../offloads/pagination/offloads.pagination.config";
 
 @ApiTags("Admins")
 @ApiBadGatewayResponse({
@@ -35,15 +45,21 @@ import { UpdateUserPermissionsDto } from "../core-module/users/dto/update.user.p
 })
 @Controller(ApiV1("admins"))
 export class AdminsController {
-  constructor(readonly usersService: UsersService) {}
+  constructor(
+    readonly usersService: UsersService,
+    readonly offloadsService: OffloadsService
+  ) {}
 
   @Get()
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
   @ApiOperation({
     summary: "Get list of all admins. Permission: READ_ADMINS",
   })
-  async getAllUsers(): Promise<UsersEntity[]> {
-    return this.usersService.findAll();
+  @ApiPaginationQuery(usersPaginationConfig)
+  async getAllUsers(
+    @Paginate() query: PaginateQuery
+  ): Promise<Paginated<UsersEntity>> {
+    return this.usersService.findAll(query);
   }
 
   @Post()
@@ -136,6 +152,28 @@ export class AdminsController {
   })
   async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
     return this.usersService.removeUser(id);
+  }
+
+  @Get(":id/offloads")
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_OFFLOADS,
+  })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    example: 1,
+  } as ApiParamOptions)
+  @ApiPaginationQuery(offloadsPaginationConfig)
+  @ApiOperation({
+    summary:
+      "Get list of all offloads of the user, whose id is provided. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.",
+  })
+  async getAllOffloadsByUserId(
+    @Param("id", ParseIntPipe) id: number,
+    @Paginate() query: PaginateQuery
+  ): Promise<Paginated<OffloadsEntity>> {
+    return this.offloadsService.findAllByUserId(id, query);
   }
 
   @Get("permissions/:id")
