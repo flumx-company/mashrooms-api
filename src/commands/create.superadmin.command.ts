@@ -56,6 +56,7 @@ export class CreateSuperadminCommand extends CommandRunner {
         role: ERole.SUPERADMIN,
         position: EPosition.SUPERADMINISTRATOR,
         permissions: Object.values(EPermission),
+        isActive: true,
       });
 
       await this.usersRepository.save(newUser);

@@ -74,6 +74,7 @@ export class UsersService {
       password: hashedPassword,
       role: ERole.ADMIN,
       permissions,
+      isActive: true,
     });
 
     return this.usersRepository.save(newUser);
@@ -130,10 +131,7 @@ export class UsersService {
     return this.usersRepository.save(updatedUser);
   }
 
-  async changeUserPassword(
-    id: number,
-    { password }: { password: string }
-  ): Promise<UsersEntity> {
+  async changeUserPassword(id: number, password: string): Promise<UsersEntity> {
     const foundUser: Nullable<UsersEntity> = await this.findUserById(id);
 
     if (!foundUser) {
@@ -201,11 +199,7 @@ export class UsersService {
 
   async updateUserPermissions(
     id: number,
-    {
-      permissions,
-    }: {
-      permissions: EPermission[];
-    }
+    permissions: EPermission[]
   ): Promise<UsersEntity> {
     const foundUser: UsersEntity = await this.findUserById(id);
 
@@ -226,6 +220,34 @@ export class UsersService {
     const updatedUser: UsersEntity = this.usersRepository.create({
       ...foundUser,
       permissions,
+    });
+
+    return this.usersRepository.save(updatedUser);
+  }
+
+  async updateUserActiveStatus(
+    id: number,
+    isActive: boolean
+  ): Promise<UsersEntity> {
+    const foundUser: Nullable<UsersEntity> = await this.findUserById(id);
+
+    if (!foundUser) {
+      throw new HttpException(
+        "A user with this id does not exist.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    if (foundUser.role === ERole.SUPERADMIN) {
+      throw new HttpException(
+        "Superadmin's active status cannot be changed through this endpoint.",
+        HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    const updatedUser: UsersEntity = this.usersRepository.create({
+      ...foundUser,
+      isActive,
     });
 
     return this.usersRepository.save(updatedUser);

@@ -4,21 +4,11 @@ import {
   MinLength,
   IsNotEmpty,
   Matches,
-  IsNumber,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { PASSWORD_REGEX } from "src/core/utils/regex";
 
 export class ResetPasswordDto {
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: 5,
-    description: "Enter user id.",
-    type: Number,
-  })
-  readonly id: number;
-
   @IsString()
   @MaxLength(15)
   @MinLength(8)

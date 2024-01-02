@@ -101,3 +101,6 @@ Because some symbols like exclamation mark (!) inside the password value could b
 
 # To drop superadmin's password:
 npm run changePasswordSuperAdmin -- -e superadmins@email
+
+## User activation/deactivation
+Only a superadmin can (de-)activate users. An admin cannot toggle this mode. A superadmin can toggle the mode only for the admins, but not for superadmins, including himself.
