@@ -14,7 +14,7 @@ export class OffloadsService {
     private offloadsRepository: Repository<OffloadsEntity>
   ) {}
 
-  async findAll(query: PaginateQuery): Promise<Paginated<OffloadsEntity>> {
+  findAll(query: PaginateQuery): Promise<Paginated<OffloadsEntity>> {
     return paginate(query, this.offloadsRepository, offloadsPaginationConfig);
   }
 
@@ -61,14 +61,11 @@ export class OffloadsService {
       );
     }
 
-    let response = true;
-
     try {
       await this.offloadsRepository.remove(foundOffload);
+      return true;
     } catch (e) {
-      response = false;
+      return false;
     }
-
-    return response;
   }
 }

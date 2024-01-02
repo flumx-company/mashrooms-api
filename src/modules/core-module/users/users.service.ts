@@ -9,7 +9,7 @@ import { UpdateUserDto } from "./dto/update.user.dto";
 import { ERole } from "../../../core/enums/roles";
 import { EPermission } from "src/core/enums/permissions";
 import { PaginateQuery, Paginated, paginate } from "nestjs-paginate";
-import { usersPaginationConfig } from './pagination/users.pagination.config';
+import { usersPaginationConfig } from "./pagination/users.pagination.config";
 
 @Injectable()
 export class UsersService {
@@ -178,15 +178,12 @@ export class UsersService {
       );
     }
 
-    let response = true;
-
     try {
       await this.usersRepository.remove(foundUser);
+      return true;
     } catch (e) {
-      response = false;
+      return false;
     }
-
-    return response;
   }
 
   async getUserPermissions(id: number): Promise<EPermission[]> {
