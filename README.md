@@ -63,6 +63,9 @@ One needs .env file in the root folder with the variables specified in .env.exam
 - In another terminal, one needs to launch NestJS:
   npm run start:dev
 
+## Project launch on staging mode
+main.docker-compose.yml is used for staging.
+
 ## Dockerfile
 Dockerfile is used for deployment on staging /*and production*/. 
 It is not used for development mode. Because in development mode, api is launched separately from docker.
