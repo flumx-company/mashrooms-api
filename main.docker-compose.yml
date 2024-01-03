@@ -51,8 +51,8 @@ services:
       - registry_default
       - mashrooms-network
 
-# volumes:
-#   mashrooms-api:
+volumes:
+  mashrooms-api:
 
 networks:
   registry_default:
