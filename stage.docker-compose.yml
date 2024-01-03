@@ -11,8 +11,8 @@ services:
     networks:
       - registry_default
       - mashrooms-network
-    volumes:
-      - mashrooms-mysql-volume:/
+    # volumes:
+    #   - mashrooms-mysql-volume:/
 
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"
@@ -62,9 +62,9 @@ services:
       - mashrooms-api-volume:/app
 
 volumes:
-  mashrooms-api-volume:
-  mashrooms-mysql-volume:
+  # mashrooms-mysql-volume:
   mashrooms-phpmyadmin-volume:
+  mashrooms-api-volume:
 
 networks:
   registry_default:
