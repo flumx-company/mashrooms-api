@@ -10,6 +10,8 @@ services:
       - .env
     networks:
       - mashrooms-network
+    volumes:
+      - mashrooms-mysql-volume
     
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"
@@ -24,9 +26,12 @@ services:
       - mashrooms-mysql
     networks:
       - mashrooms-network
+    volumes:
+      - mashrooms-phpmyadmin-volume
 
 volumes:
-  mashrooms-api:
+  mashrooms-mysql-volume:
+  mashrooms-phpmyadmin-volume:
 
 networks:
   mashrooms-network:
