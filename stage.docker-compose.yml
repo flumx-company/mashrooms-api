@@ -12,7 +12,7 @@ services:
       - registry_default
       - mashrooms-network
     volumes:
-      - mashrooms-mysql-volume
+      - mashrooms-mysql-volume:/
 
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"
