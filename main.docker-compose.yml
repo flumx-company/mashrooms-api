@@ -42,6 +42,10 @@ services:
     image: registry.it-flumx.com/flumx_mushrooms_api:latest
     env_file: 
       - .env
+    depends_on:
+      - mashrooms-mysql  
+    links: 
+      - mashrooms-mysql
     ports:
       - 51516:3000
     labels:
