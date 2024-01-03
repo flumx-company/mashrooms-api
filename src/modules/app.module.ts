@@ -3,6 +3,8 @@ import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { ConfigModule } from "@nestjs/config";
 
+import { TypeORMConfig } from "src/config/mysql.config";
+
 import { AdminsModule } from "./admins/admins.module";
 import { AuthModule } from "./auth/auth.module";
 import { ClientsModule } from "./clients/clients.module";
@@ -17,7 +19,9 @@ import { WheelbarrowsModule } from "./wheelbarrows/wheelbarrows.module";
 import { WorkdaysModule } from "./workdays/workdays.module";
 
 import { ClientsEntity } from "./clients/clients.entity";
+import { DriversEntity } from "./drivers/drivers.entity";
 import { EmployeesEntity } from "./employees/employees.entity";
+import { OffloadsEntity } from "./offloads/offloads.entity";
 import { UsersEntity } from "./core-module/users/users.entity";
 
 import { AppController } from "./app.controller";
@@ -27,18 +31,17 @@ import { AppService } from "./app.service";
   imports: [
     ConfigModule.forRoot({
       expandVariables: true,
-      envFilePath: ["stack.env"], //NOTE: for dev mode, use .serve.env 
+      envFilePath: ["stack.env"], //NOTE: for dev mode, use .serve.env; for prod mode, use stack.env
     }),
     TypeOrmModule.forRoot({
-      type: "mysql",
-      host: process.env.MYSQL_NODE_HOSTNAME, //NOTE: external host
-      port: parseInt(process.env.MYSQL_TCP_PORT), //NOTE: external port
-      username: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-      synchronize: Boolean(parseInt(process.env.IS_DB_SYNCHRONIZED)), //NOTE: must be false for production mode
-      autoLoadEntities: true,
-      entities: [ClientsEntity, EmployeesEntity, UsersEntity],
+      ...TypeORMConfig,
+      entities: [
+        ClientsEntity,
+        DriversEntity,
+        EmployeesEntity,
+        OffloadsEntity,
+        UsersEntity,
+      ],
     } as TypeOrmModuleOptions),
     CoreModule,
     AuthModule,

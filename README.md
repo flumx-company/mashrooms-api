@@ -104,3 +104,20 @@ npm run changePasswordSuperAdmin -- -e superadmins@email
 
 ## User activation/deactivation
 Only a superadmin can (de-)activate users. An admin cannot toggle this mode. A superadmin can toggle the mode only for the admins, but not for superadmins, including himself.
+
+## Migrations:
+# Migration Generation:
+To generate a new migration, one needs to run the following command:
+
+npm run migration:generate src/migrations/${migrationName}
+
+e.g. npm run migration:generate src/migrations/initialSchema
+
+# Migration Run:
+To run migrations, one needs to run the following command:
+
+npm run migration:run.
+
+However, it might be excessive because this command is run automatically, prior to start, on the following commands: 
+npm run start:dev
+npm run start:prod
