@@ -13,5 +13,6 @@ export const userList: Partial<UsersEntity>[] = [
     role: ERole.SUPERADMIN,
     position: EPosition.SUPERADMINISTRATOR,
     permissions: Object.values(EPermission),
+    isActive: true,
   },
 ];
