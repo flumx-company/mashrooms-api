@@ -11,8 +11,8 @@ services:
     networks:
       - registry_default
       - mashrooms-network
-    # volumes:
-    #   - mashrooms-mysql-volume:/var/lib/mysql/data
+    volumes:
+      - mashrooms-mysql-volume:/var/lib/mysql
 
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"
@@ -35,8 +35,8 @@ services:
       - 'traefik.http.routers.mushrooms-api-prod.tls.certresolver=myresolver'
       - 'traefik.http.routers.mushrooms-api-prod.service=mushrooms-api-prod'
       - 'traefik.http.services.mushrooms-api-prod.loadbalancer.server.port=51515'
-    # volumes:
-    #   - mashrooms-phpmyadmin-volume:/var/lib/phpmyadmin/data
+    volumes:
+      - mashrooms-phpmyadmin-volume:/var/lib/phpmyadmin
 
   api:
     image: registry.it-flumx.com/flumx_mushrooms_api:latest
@@ -54,13 +54,13 @@ services:
     networks:
       - registry_default
       - mashrooms-network
-    # volumes:
-    #   - mashrooms-api-volume:/api
+    volumes:
+      - mashrooms-api-volume:/app
 
 volumes:
-#   mashrooms-api-volume:
-#   mashrooms-mysql-volume:
-#   mashrooms-phpmyadmin-volume:
+  mashrooms-api-volume:
+  mashrooms-mysql-volume:
+  mashrooms-phpmyadmin-volume:
 
 networks:
   registry_default:
