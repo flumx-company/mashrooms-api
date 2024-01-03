@@ -41,6 +41,7 @@ export class UsersService {
     lastName,
     password,
     permissions,
+    isActive
   }: CreateUserDto): Promise<UsersEntity> {
     const [foundUserByEmail, foundUserByPhone]: Nullable<
       UsersEntity
@@ -74,7 +75,7 @@ export class UsersService {
       password: hashedPassword,
       role: ERole.ADMIN,
       permissions,
-      isActive: true,
+      isActive,
     });
 
     return this.usersRepository.save(newUser);

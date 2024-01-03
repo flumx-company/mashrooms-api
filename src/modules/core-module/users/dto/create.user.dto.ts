@@ -7,6 +7,7 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
+  IsBoolean,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { EPermission } from "src/core/enums/permissions";
@@ -92,8 +93,8 @@ export class CreateUserDto {
   })
   readonly position: EPosition;
 
-  @IsString()
-  @IsEnum(EPosition)
+  @IsBoolean()
+  @IsNotEmpty()
   @ApiProperty({
     example: true,
     description: "Enter the active status boolean value.",
