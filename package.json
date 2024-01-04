@@ -37,6 +37,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
     "mysql2": "^3.6.5",
     "nest-commander": "^3.12.5",
     "nestjs-paginate": "^8.6.0",
@@ -83,5 +84,14 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "_moduleAliases": {
+    "@commands": "src/commands",
+    "@config": "src/config",
+    "@core": "src/core",
+    "@migrations": "src/migrations",
+    "@modules": "src/modules",
+    "@seeds": "src/seeds",
+    "@user-module": "src/modules/core-module/users"
   }
 }
