@@ -56,6 +56,12 @@ export class AdminsController {
   @ApiOperation({
     summary: "Get list of all admins. Permission: READ_ADMINS",
   })
+  @ApiResponse({
+    status: 200,
+    description: "Will return the list of admins.",
+    type: UsersEntity,
+    isArray: true,
+  })
   @ApiPaginationQuery(usersPaginationConfig)
   async getAllUsers(
     @Paginate() query: PaginateQuery
@@ -197,6 +203,13 @@ export class AdminsController {
     summary:
       "Get list of all offloads of the user, whose id is provided. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.",
   })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Will return the list of offloads related to the user, whose id is provided.",
+    type: OffloadsEntity,
+    isArray: true,
+  })
   async getAllOffloadsByUserId(
     @Param("id", ParseIntPipe) id: number,
     @Paginate() query: PaginateQuery
@@ -215,6 +228,12 @@ export class AdminsController {
     type: "number",
     example: 1,
   } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: "Will return the list of permissions the user has.",
+    type: typeof EPermission,
+    isArray: true,
+  })
   async getUserPermissions(
     @Param("id", ParseIntPipe) id: number
   ): Promise<EPermission[]> {
