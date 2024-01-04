@@ -49,6 +49,12 @@ export class OffloadsController {
     summary:
       "Get list of all offloads. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.",
   })
+  @ApiResponse({
+    status: 200,
+    description: "Will return the offload data.",
+    type: OffloadsEntity,
+    isArray: true,
+  })
   @ApiPaginationQuery(offloadsPaginationConfig)
   async getAllOffloads(
     @Paginate() query: PaginateQuery
