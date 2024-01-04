@@ -7,6 +7,7 @@ import {
   Req,
   HttpException,
   HttpStatus,
+  HttpCode,
 } from "@nestjs/common";
 import { ApiV1 } from "../../core/utils/versions";
 import {
@@ -37,6 +38,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post("login")
+  @HttpCode(200)
   @ApiOperation({
     summary: "Login by email and password.",
   })
@@ -46,8 +48,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: "This will return the access token.",
-    type: Boolean,
+    description: "This will return the access token in cookies.",
+    type: UsersEntity,
   })
   async loginByEmailAndPassword(
     @Body() loginData: LoginDto,
@@ -65,7 +67,7 @@ export class AuthController {
     });
 
     response.cookie(ACCESS_TOKEN, accessToken, { httpOnly: true });
-    
+
     return user;
   }
 
