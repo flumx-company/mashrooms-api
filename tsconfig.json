@@ -18,13 +18,30 @@
     "noFallthroughCasesInSwitch": false,
     "baseUrl": "./src",
     "paths": {
+      "@basic-entities/*": ["core/basic-entities/*"],
       "@commands/*": ["commands/*"],
       "@config/*": ["config/*"],
       "@core/*": ["core/*"],
+      "@decorators/*": ["core/decorators/*"],
+      "@enums/*": ["core/enums/*"],
+      "@guards/*": ["core/guards/*"],
       "@migrations/*": ["migrations/*"],
       "@modules/*": ["modules/*"],
       "@seeds/*": ["seeds/*"],
-      "@user-module/*": ["modules/core-module/users/*"]
+      "@utils/*": ["core/utils/*"],
+      "@admins/*": ["modules/admins/*"],
+      "@auth/*": ["modules/auth/*"],
+      "@clients/*": ["modules/clients/*"],
+      "@containers/*": ["modules/containers/*"],
+      "@core-module/*": ["modules/core-module/*"],
+      "@drivers/*": ["modules/drivers/*"],
+      "@employees/*": ["modules/employees/*"],
+      "@gathering/*": ["modules/gathering/*"],
+      "@offloads/*": ["modules/offloads/*"],
+      "@products/*": ["modules/products/*"],
+      "@users/*": ["modules/core-module/users/*"],
+      "@wheelbarrows/*": ["modules/wheelbarrows/*"],
+      "@workdays/*": ["modules/workdays/*"]
     },
   }
 }

@@ -1,8 +1,9 @@
-import { Module } from "@nestjs/common";
-import { JwtStrategy } from "./jwt.strategy";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { JwtModule } from "@nestjs/jwt";
-import { UsersModule } from "./users/users.module";
+import { Module } from '@nestjs/common'
+import { JwtModule } from '@nestjs/jwt'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+
+import { JwtStrategy } from './jwt.strategy'
+import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { UsersModule } from "./users/users.module";
           signOptions: {
             expiresIn: process.env.AUTH_TOKEN_EXPIRATION,
           },
-        };
+        }
       },
       extraProviders: [ConfigService],
       inject: [ConfigService],

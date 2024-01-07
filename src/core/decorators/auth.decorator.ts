@@ -1,21 +1,19 @@
-import { UseGuards, applyDecorators } from "@nestjs/common";
-import { EPermission } from "../enums/permissions";
-import { ERole } from "../enums/roles";
-import { Roles } from "./roles.decorator";
-import { Permission } from "./permission.decorator";
-import { RolesGuard } from "../guards/roles.guard";
-import { JwtStrategy } from "src/modules/core-module/jwt.strategy";
-import { PermissionGuard } from "../guards/permission.guard";
-import { ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { IsActiveGuard } from "../guards/is.active.guard";
+import { UseGuards, applyDecorators } from '@nestjs/common'
+import { ApiUnauthorizedResponse } from '@nestjs/swagger'
 
-type auth = { roles: ERole[]; permission: EPermission };
+import { JwtStrategy } from '@core-module/index'
+
+import { EPermission, ERole } from '@enums/index'
+import { Roles, Permission } from '@decorators/index'
+import { RolesGuard, PermissionGuard, IsActiveGuard } from '@guards/index'
+
+type auth = { roles: ERole[]; permission: EPermission }
 
 export function Auth({ roles, permission }: Partial<auth>) {
   return applyDecorators(
     Roles(roles),
     Permission(permission),
     UseGuards(JwtStrategy, IsActiveGuard, RolesGuard, PermissionGuard),
-    ApiUnauthorizedResponse({ description: "Unauthorized" })
-  );
+    ApiUnauthorizedResponse({ description: 'Unauthorized' }),
+  )
 }

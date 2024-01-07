@@ -3,10 +3,9 @@ import {
   MaxLength,
   MinLength,
   IsNotEmpty,
-  IsNumber,
   Matches,
-} from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
+} from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class UpdateDriverDto {
   @IsString()
@@ -14,30 +13,30 @@ export class UpdateDriverDto {
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
-    example: "John",
-    description: "Enter first name.",
+    example: 'John',
+    description: 'Enter first name.',
     type: String,
   })
-  readonly firstName: string;
+  readonly firstName: string
 
   @IsString()
   @MaxLength(35)
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
-    example: "Johnson",
-    description: "Enter last name.",
+    example: 'Johnson',
+    description: 'Enter last name.',
     type: String,
   })
-  readonly lastName: string;
+  readonly lastName: string
 
   @IsString()
   @IsNotEmpty()
   @Matches(/^\+[1-9]\d{1,14}$/)
   @ApiProperty({
-    example: "+380681234567",
-    description: "Enter the phone.",
+    example: '+380681234567',
+    description: 'Enter the phone.',
     type: String,
   })
-  readonly phone: string;
+  readonly phone: string
 }

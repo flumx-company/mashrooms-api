@@ -8,72 +8,73 @@ import {
   HttpException,
   HttpStatus,
   HttpCode,
-} from "@nestjs/common";
-import { ApiV1 } from "../../core/utils/versions";
+} from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
   ApiOperation,
   ApiBody,
   ApiResponse,
   ApiTags,
-} from "@nestjs/swagger";
-import { LoginDto } from "./dto/login.dto";
-import { AuthService } from "./auth.service";
-import { Response as ExResponse, Request as ExRequest } from "express";
-import { UsersEntity } from "../core-module/users/users.entity";
-import { Auth } from "src/core/decorators/auth.decorator";
-import { ERole } from "src/core/enums/roles";
-import { EPermission } from "../../core/enums/permissions";
-import { Nullable } from "src/core/utils/types";
+} from '@nestjs/swagger'
+import { Response as ExResponse, Request as ExRequest } from 'express'
 
-const ACCESS_TOKEN = "access-token";
+import { UsersEntity } from '@users/users.entity'
 
-@ApiTags("Auth")
+import { Auth } from '@decorators/index'
+import { ERole, EPermission } from '@enums/index'
+import { Nullable, ApiV1 } from '@utils/index'
+
+import { LoginDto } from './dto/login.dto'
+import { AuthService } from './auth.service'
+
+const ACCESS_TOKEN = 'access-token'
+
+@ApiTags('Auth')
 @ApiBadGatewayResponse({
   status: 502,
-  description: "Something went wrong",
+  description: 'Something went wrong',
 })
-@Controller(ApiV1("auth"))
+@Controller(ApiV1('auth'))
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post("login")
+  @Post('login')
   @HttpCode(200)
   @ApiOperation({
-    summary: "Login by email and password.",
+    summary: 'Login by email and password.',
   })
   @ApiBody({
-    description: "Model for Login by email and password.",
+    description: 'Model for Login by email and password.',
     type: LoginDto,
   })
   @ApiResponse({
     status: 200,
-    description: "This will return the access token in cookies.",
+    description: 'This will return the access token in cookies.',
     type: UsersEntity,
   })
   async loginByEmailAndPassword(
     @Body() loginData: LoginDto,
-    @Res({ passthrough: true }) response: ExResponse
+    @Res({ passthrough: true }) response: ExResponse,
   ): Promise<Nullable<UsersEntity>> {
     const {
       accessToken,
       user,
     }: {
-      accessToken: string;
-      user: UsersEntity;
+      accessToken: string
+      user: UsersEntity
     } = await this.authService.login({
       email: loginData.email,
       password: loginData.password,
-    });
+    })
 
-    response.cookie(ACCESS_TOKEN, accessToken, { httpOnly: true });
+    response.cookie(ACCESS_TOKEN, accessToken, { httpOnly: true })
 
-    return user;
+    return user
   }
 
-  @Get("logout")
+  @Get('logout')
   @ApiOperation({
-    summary: "Logout.",
+    summary: 'Logout.',
   })
   @ApiResponse({
     status: 200,
@@ -82,65 +83,65 @@ export class AuthController {
   })
   logout(
     @Req() request: ExRequest,
-    @Res({ passthrough: true }) response: ExResponse
+    @Res({ passthrough: true }) response: ExResponse,
   ) {
-    let hasToken = Boolean(request?.["cookies"]?.["access-token"]);
+    let hasToken = Boolean(request?.['cookies']?.['access-token'])
 
     if (!hasToken) {
       throw new HttpException(
-        "There is no token in cookies. Nobody is logged in.",
-        HttpStatus.UNAUTHORIZED
-      );
+        'There is no token in cookies. Nobody is logged in.',
+        HttpStatus.UNAUTHORIZED,
+      )
     }
 
     try {
-      response.clearCookie(ACCESS_TOKEN, { httpOnly: true });
+      response.clearCookie(ACCESS_TOKEN, { httpOnly: true })
     } catch (e) {
-      hasToken = false;
+      hasToken = false
     }
 
-    return hasToken;
+    return hasToken
   }
 
-  @Get("personal-data")
+  @Get('personal-data')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_PERSONAL_DATA,
   })
   @ApiOperation({
     summary:
-      "Returns personal data of the logged-in user. Permission: READ_PERSONAL_DATA.",
+      'Returns personal data of the logged-in user. Permission: READ_PERSONAL_DATA.',
   })
   @ApiResponse({
     status: 200,
-    description: "This returns personal data of the logged in user",
+    description: 'This returns personal data of the logged in user',
     type: UsersEntity,
   })
   async getPersonalData(@Req() request: ExRequest): Promise<UsersEntity> {
-    let userData = request?.["user"];
+    let userData = request?.['user']
 
     if (!userData) {
-      throw new HttpException("Nobody is logged in.", HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Nobody is logged in.', HttpStatus.UNAUTHORIZED)
     }
 
-    return userData;
+    return userData
   }
 
-  @Get("permissions")
+  @Get('permissions')
   @Auth({
     roles: [ERole.SUPERADMIN],
     permission: EPermission.READ_ALL_PERMISSIONS,
   })
   @ApiOperation({
     summary:
-      "Returns list of all existing permissions. Permission: READ_ALL_PERMISSIONS.",
+      'Returns list of all existing permissions. Permission: READ_ALL_PERMISSIONS.',
   })
   @ApiResponse({
     status: 200,
-    description: "This returns list of all existing permissions",
+    description: 'This returns list of all existing permissions',
     type: Array,
   })
   getPermissions(): EPermission[] {
-    return Object.values(EPermission);
+    return Object.values(EPermission)
   }
 }

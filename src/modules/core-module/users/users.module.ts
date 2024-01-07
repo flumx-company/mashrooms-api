@@ -1,11 +1,14 @@
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { CommandRunnerModule } from "nest-commander";
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { CommandRunnerModule } from 'nest-commander'
 
-import { UsersService } from "./users.service";
-import { UsersEntity } from "./users.entity";
-import { CreateSuperadminCommand } from "../../../commands/create.superadmin.command";
-import { ChangePasswordSuperadminCommand } from "src/commands/change.password.superadmin.command";
+import { UsersService } from './users.service'
+import { UsersEntity } from './users.entity'
+
+import {
+  ChangePasswordSuperadminCommand,
+  CreateSuperadminCommand,
+} from '@commands/index'
 
 @Module({
   imports: [TypeOrmModule.forFeature([UsersEntity]), CommandRunnerModule],

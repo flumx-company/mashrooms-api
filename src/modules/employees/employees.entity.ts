@@ -1,16 +1,15 @@
-import { Column, Entity } from "typeorm";
-import { ApiProperty } from "@nestjs/swagger";
-import { DatedBasicEntity } from "src/core/basic.entity";
+import { Column, Entity } from 'typeorm'
+import { ApiProperty } from '@nestjs/swagger'
 
-@Entity({ name: "employees" })
+import { DatedBasicEntity } from '@basic-entities/index'
+
+@Entity({ name: 'employees' })
 export class EmployeesEntity extends DatedBasicEntity {
-  @ApiProperty({ example: "John", description: "User's first name" })
+  @ApiProperty({ example: 'John', description: "User's first name" })
   @Column({ length: 35, default: null, nullable: true })
-  firstName: string;
+  firstName: string
 
-  @ApiProperty({ example: "Johnson", description: "User's last name" })
+  @ApiProperty({ example: 'Johnson', description: "User's last name" })
   @Column({ length: 35, default: null, nullable: true })
-  lastName: string;
-
-  //price?
+  lastName: string
 }

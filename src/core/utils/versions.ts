@@ -1,3 +1,3 @@
-import { ApiVersion } from "../decorators/api-version.decorator";
+import { ApiVersion } from '@decorators/index'
 
-export const ApiV1 = ApiVersion("v1");
+export const ApiV1 = ApiVersion('v1')

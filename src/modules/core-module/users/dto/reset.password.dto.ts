@@ -4,9 +4,10 @@ import {
   MinLength,
   IsNotEmpty,
   Matches,
-} from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
-import { PASSWORD_REGEX } from "src/core/utils/regex";
+} from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+
+import { PASSWORD_REGEX } from '@utils/index'
 
 export class ResetPasswordDto {
   @IsString()
@@ -15,11 +16,11 @@ export class ResetPasswordDto {
   @IsNotEmpty()
   @Matches(PASSWORD_REGEX)
   @ApiProperty({
-    example: "123Abc!_z",
-    description: "Enter password.",
+    example: '123Abc!_z',
+    description: 'Enter password.',
     type: String,
   })
-  readonly password: string;
+  readonly password: string
 }
 
 // (?=.*[0-9]) - строка содержит хотя бы одно число;

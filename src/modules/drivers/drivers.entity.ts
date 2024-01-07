@@ -1,21 +1,22 @@
-import { Column, Entity } from "typeorm";
-import { ApiProperty } from "@nestjs/swagger";
-import { DatedBasicEntity } from "src/core/basic.entity";
+import { Column, Entity } from 'typeorm'
+import { ApiProperty } from '@nestjs/swagger'
 
-@Entity({ name: "drivers" })
+import { DatedBasicEntity } from '@basic-entities/index'
+
+@Entity({ name: 'drivers' })
 export class DriversEntity extends DatedBasicEntity {
-  @ApiProperty({ example: "John", description: "User's first name" })
+  @ApiProperty({ example: 'John', description: "User's first name" })
   @Column({ length: 35, default: null, nullable: true })
-  firstName: string;
+  firstName: string
 
-  @ApiProperty({ example: "Johnson", description: "User's last name" })
+  @ApiProperty({ example: 'Johnson', description: "User's last name" })
   @Column({ length: 35, default: null, nullable: true })
-  lastName: string;
+  lastName: string
 
   @ApiProperty({
-    example: "+380681234567",
-    description: "Enter the phone.",
+    example: '+380681234567',
+    description: 'Enter the phone.',
     type: String,
   })
-  readonly phone: string;
+  readonly phone: string
 }

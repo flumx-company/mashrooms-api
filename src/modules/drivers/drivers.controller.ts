@@ -7,7 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
-} from "@nestjs/common";
+} from '@nestjs/common'
 import {
   ApiTags,
   ApiOperation,
@@ -16,24 +16,25 @@ import {
   ApiResponse,
   ApiParam,
   ApiParamOptions,
-} from "@nestjs/swagger";
-import { UsersEntity } from "../core-module/users/users.entity";
+} from '@nestjs/swagger'
 
-import { ApiV1 } from "src/core/utils/versions";
-import { Auth } from "src/core/decorators/auth.decorator";
-import { ERole } from "../../core/enums/roles";
-import { EPermission } from "../../core/enums/permissions";
-import { DriversService } from "./drivers.service";
-import { DriversEntity } from "./drivers.entity";
-import { CreateDriverDto } from "./dto/create.driver.dto";
-import { UpdateDriverDto } from "./dto/update.driver.dto";
+import { UsersEntity } from '@users/users.entity'
 
-@ApiTags("Drivers")
+import { ERole, EPermission } from '@enums/index'
+import { ApiV1 } from '@utils/index'
+import { Auth } from '@decorators/index'
+
+import { DriversService } from './drivers.service'
+import { DriversEntity } from './drivers.entity'
+import { CreateDriverDto } from './dto/create.driver.dto'
+import { UpdateDriverDto } from './dto/update.driver.dto'
+
+@ApiTags('Drivers')
 @ApiBadGatewayResponse({
   status: 502,
-  description: "Something went wrong",
+  description: 'Something went wrong',
 })
-@Controller(ApiV1("drivers"))
+@Controller(ApiV1('drivers'))
 export class DriversController {
   constructor(readonly driversService: DriversService) {}
 
@@ -43,10 +44,10 @@ export class DriversController {
     permission: EPermission.READ_DRIVERS,
   })
   @ApiOperation({
-    summary: "Get list of all drivers. Permission: READ_DRIVERS.",
+    summary: 'Get list of all drivers. Permission: READ_DRIVERS.',
   })
   async getAllDrivers(): Promise<DriversEntity[]> {
-    return this.driversService.findAll();
+    return this.driversService.findAll()
   }
 
   @Post()
@@ -55,69 +56,69 @@ export class DriversController {
     permission: EPermission.CREATE_DRIVERS,
   })
   @ApiOperation({
-    summary: "Add a new drvier. Permission: CREATE_DRIVERS.",
+    summary: 'Add a new drvier. Permission: CREATE_DRIVERS.',
   })
   @ApiBody({
-    description: "Model to add a new driver.",
+    description: 'Model to add a new driver.',
     type: CreateDriverDto,
   })
   @ApiResponse({
     status: 200,
-    description: "Will return the driver data.",
+    description: 'Will return the driver data.',
     type: DriversEntity,
   })
   async createDriver(@Body() data: CreateDriverDto): Promise<DriversEntity> {
-    return this.driversService.createDriver(data);
+    return this.driversService.createDriver(data)
   }
 
-  @Put(":id")
+  @Put(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.UPDATE_DRIVERS,
   })
   @ApiParam({
-    name: "id",
-    type: "number",
+    name: 'id',
+    type: 'number',
     example: 1,
   } as ApiParamOptions)
   @ApiOperation({
-    summary: "Update an driver. Permission: UPDATE_DRIVERS.",
+    summary: 'Update an driver. Permission: UPDATE_DRIVERS.',
   })
   @ApiBody({
-    description: "Model to update an existing driver.",
+    description: 'Model to update an existing driver.',
     type: UpdateDriverDto,
   })
   @ApiResponse({
     status: 200,
-    description: "Will return the driver data.",
+    description: 'Will return the driver data.',
     type: UsersEntity,
   })
   async updateDriver(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() data: UpdateDriverDto
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateDriverDto,
   ): Promise<DriversEntity> {
-    return this.driversService.updateDriver(id, data);
+    return this.driversService.updateDriver(id, data)
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.DELETE_DRIVERS,
   })
   @ApiOperation({
-    summary: "Remove an driver. Permission: DELETE_DRIVERS.",
+    summary: 'Remove an driver. Permission: DELETE_DRIVERS.',
   })
   @ApiParam({
-    name: "id",
-    type: "number",
+    name: 'id',
+    type: 'number',
     example: 1,
   } as ApiParamOptions)
   @ApiResponse({
     status: 200,
-    description: "Will return boolean result.",
+    description: 'Will return boolean result.',
     type: Boolean,
   })
-  async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
-    return this.driversService.removeDriver(id);
+  async removeUser(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
+    return this.driversService.removeDriver(id)
   }
 }

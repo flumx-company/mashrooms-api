@@ -8,15 +8,15 @@ import {
   IsEmail,
   IsEnum,
   IsBoolean,
-} from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
-import { EPermission } from "src/core/enums/permissions";
+} from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+
+import { EPermission, EPosition } from '@enums/index'
 import {
   LATIN_CYRILLIC_LETTER_NAME_REGEX,
   PASSWORD_REGEX,
   PHONE_REGEX,
-} from "src/core/utils/regex";
-import { EPosition } from "src/core/enums/positions";
+} from '@utils/index'
 
 export class CreateUserDto {
   @IsString()
@@ -25,11 +25,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
-    example: "John",
-    description: "Enter first name.",
+    example: 'John',
+    description: 'Enter first name.',
     type: String,
   })
-  readonly firstName: string;
+  readonly firstName: string
 
   @IsString()
   @MaxLength(50)
@@ -37,30 +37,30 @@ export class CreateUserDto {
   @IsNotEmpty()
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
-    example: "Johnson",
-    description: "Enter first name.",
+    example: 'Johnson',
+    description: 'Enter first name.',
     type: String,
   })
-  readonly lastName: string;
+  readonly lastName: string
 
   @IsString()
   @IsEmail()
   @IsNotEmpty()
   @ApiProperty({
-    example: "test@gmail.com",
-    description: "Enter the email address.",
+    example: 'test@gmail.com',
+    description: 'Enter the email address.',
     type: String,
   })
-  readonly email: string;
+  readonly email: string
 
   @IsString()
   @Matches(PHONE_REGEX)
   @ApiProperty({
-    example: "+380681234567",
-    description: "Enter the phone.",
+    example: '+380681234567',
+    description: 'Enter the phone.',
     type: String,
   })
-  readonly phone: string;
+  readonly phone: string
 
   @IsString()
   @MaxLength(15)
@@ -68,37 +68,37 @@ export class CreateUserDto {
   @IsNotEmpty()
   @Matches(PASSWORD_REGEX)
   @ApiProperty({
-    example: "123Abc!_z",
-    description: "Enter password.",
+    example: '123Abc!_z',
+    description: 'Enter password.',
     type: String,
   })
-  readonly password: string;
+  readonly password: string
 
   @IsArray()
   @ApiProperty({
     example: Object.values(EPermission).filter(
-      (permission) => !permission.includes("ADMINS")
+      (permission) => !permission.includes('ADMINS'),
     ),
-    description: "Add permissions.",
+    description: 'Add permissions.',
     type: Array,
   })
-  readonly permissions: EPermission[];
+  readonly permissions: EPermission[]
 
   @IsString()
   @IsEnum(EPosition)
   @ApiProperty({
     example: EPosition.FOREMAN,
-    description: "Enter the position.",
+    description: 'Enter the position.',
     type: String,
   })
-  readonly position: EPosition;
+  readonly position: EPosition
 
   @IsBoolean()
   @IsNotEmpty()
   @ApiProperty({
     example: true,
-    description: "Enter the active status boolean value.",
+    description: 'Enter the active status boolean value.',
     type: Boolean,
   })
-  readonly isActive: boolean;
+  readonly isActive: boolean
 }

@@ -5,7 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
-} from "@nestjs/common";
+} from '@nestjs/common'
 import {
   ApiTags,
   ApiOperation,
@@ -13,30 +13,30 @@ import {
   ApiResponse,
   ApiParam,
   ApiParamOptions,
-} from "@nestjs/swagger";
-
-import { ApiV1 } from "src/core/utils/versions";
-import { Auth } from "src/core/decorators/auth.decorator";
-import { ERole } from "src/core/enums/roles";
-import { EPermission } from "src/core/enums/permissions";
-import { OffloadsService } from "./offloads.service";
-import { OffloadsEntity } from "./offloads.entity";
-import { CurrentUser } from "src/core/decorators/current.user.decorator";
-import { UsersEntity } from "../core-module/users/users.entity";
+} from '@nestjs/swagger'
 import {
   ApiPaginationQuery,
   Paginate,
   PaginateQuery,
   Paginated,
-} from "nestjs-paginate";
-import { offloadsPaginationConfig } from "./pagination/offloads.pagination.config";
+} from 'nestjs-paginate'
 
-@ApiTags("Offloads")
+import { UsersEntity } from '@users/users.entity'
+
+import { ERole, EPermission } from '@enums/index'
+import { CurrentUser, Auth } from '@decorators/index'
+import { ApiV1 } from '@utils/index'
+
+import { OffloadsService } from './offloads.service'
+import { OffloadsEntity } from './offloads.entity'
+import { offloadsPaginationConfig } from './pagination/index'
+
+@ApiTags('Offloads')
 @ApiBadGatewayResponse({
   status: 502,
-  description: "Something went wrong",
+  description: 'Something went wrong',
 })
-@Controller(ApiV1("offloads"))
+@Controller(ApiV1('offloads'))
 export class OffloadsController {
   constructor(readonly offloadsService: OffloadsService) {}
 
@@ -47,19 +47,19 @@ export class OffloadsController {
   })
   @ApiOperation({
     summary:
-      "Get list of all offloads. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.",
+      'Get list of all offloads. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.',
   })
   @ApiResponse({
     status: 200,
-    description: "Will return the offload data.",
+    description: 'Will return the offload data.',
     type: OffloadsEntity,
     isArray: true,
   })
   @ApiPaginationQuery(offloadsPaginationConfig)
   async getAllOffloads(
-    @Paginate() query: PaginateQuery
+    @Paginate() query: PaginateQuery,
   ): Promise<Paginated<OffloadsEntity>> {
-    return this.offloadsService.findAll(query);
+    return this.offloadsService.findAll(query)
   }
 
   @Post()
@@ -68,38 +68,38 @@ export class OffloadsController {
     permission: EPermission.CREATE_OFFLOADS,
   })
   @ApiOperation({
-    summary: "Add a new offload. Permission: CREATE_OFFLOADS.",
+    summary: 'Add a new offload. Permission: CREATE_OFFLOADS.',
   })
   @ApiResponse({
     status: 200,
-    description: "Will return the offload data.",
+    description: 'Will return the offload data.',
     type: OffloadsEntity,
   })
   async createOffload(
-    @CurrentUser() user: UsersEntity
+    @CurrentUser() user: UsersEntity,
   ): Promise<OffloadsEntity> {
-    return this.offloadsService.createOffload({ user });
+    return this.offloadsService.createOffload({ user })
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.DELETE_OFFLOADS,
   })
   @ApiOperation({
-    summary: "Remove an offload. Permission: DELETE_OFFLOADS.",
+    summary: 'Remove an offload. Permission: DELETE_OFFLOADS.',
   })
   @ApiParam({
-    name: "id",
-    type: "number",
+    name: 'id',
+    type: 'number',
     example: 1,
   } as ApiParamOptions)
   @ApiResponse({
     status: 200,
-    description: "Will return boolean result.",
+    description: 'Will return boolean result.',
     type: Boolean,
   })
-  async removeOffload(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
-    return this.offloadsService.removeOffload(id);
+  async removeOffload(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
+    return this.offloadsService.removeOffload(id)
   }
 }

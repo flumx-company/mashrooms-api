@@ -1,7 +1,6 @@
-import { EPermission } from "src/core/enums/permissions";
-import { EPosition } from "src/core/enums/positions";
-import { ERole } from "src/core/enums/roles";
-import { UsersEntity } from "src/modules/core-module/users/users.entity";
+import { UsersEntity } from '@users/users.entity'
+
+import { EPermission, EPosition, ERole } from '@enums/index'
 
 export const userList: Partial<UsersEntity>[] = [
   {
@@ -15,4 +14,4 @@ export const userList: Partial<UsersEntity>[] = [
     permissions: Object.values(EPermission),
     isActive: true,
   },
-];
+]
