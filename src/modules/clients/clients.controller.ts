@@ -44,7 +44,7 @@ export class ClientsController {
     permission: EPermission.READ_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Get list of all clients. Permission: READ_CLIENTS.',
+    summary: 'Get list of all clients. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
   })
   async getAllUsers(): Promise<ClientsEntity[]> {
     return this.clientsService.findAll()
@@ -56,7 +56,7 @@ export class ClientsController {
     permission: EPermission.CREATE_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Add a new client. Permission: CREATE_CLIENTS.',
+    summary: 'Add a new client. Role: SUPERADMIN, ADMIN. Permission: CREATE_CLIENTS.',
   })
   @ApiBody({
     description: 'Model to add a new client.',
@@ -77,7 +77,7 @@ export class ClientsController {
     permission: EPermission.UPDATE_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Update an client. Permission: UPDATE_CLIENTS.',
+    summary: 'Update an client. Role: SUPERADMIN, ADMIN. Permission: UPDATE_CLIENTS.',
   })
   @ApiParam({
     name: 'id',
@@ -106,7 +106,7 @@ export class ClientsController {
     permission: EPermission.DELETE_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Remove an client. Permission: DELETE_CLIENTS.',
+    summary: 'Remove an client. Role: SUPERADMIN, ADMIN. Permission: DELETE_CLIENTS.',
   })
   @ApiParam({
     name: 'id',

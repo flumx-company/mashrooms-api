@@ -110,7 +110,7 @@ export class AuthController {
   })
   @ApiOperation({
     summary:
-      'Returns personal data of the logged-in user. Permission: READ_PERSONAL_DATA.',
+      'Returns personal data of the logged-in user. Role: SUPERADMIN, ADMIN. Permission: READ_PERSONAL_DATA.',
   })
   @ApiResponse({
     status: 200,
@@ -134,7 +134,7 @@ export class AuthController {
   })
   @ApiOperation({
     summary:
-      'Returns list of all existing permissions. Permission: READ_ALL_PERMISSIONS.',
+      'Returns list of all existing permissions. Role: SUPERADMIN. Permission: READ_ALL_PERMISSIONS.',
   })
   @ApiResponse({
     status: 200,
