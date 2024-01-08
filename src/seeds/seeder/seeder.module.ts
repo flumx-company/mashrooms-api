@@ -1,7 +1,9 @@
-import { Logger, Module } from "@nestjs/common";
-import { MysqlDatabaseProviderModule } from "../provider/provider.module";
-import { Seeder } from "./seeder";
-import { UserSeederModule } from "../users/user.module";
+import { Logger, Module } from '@nestjs/common'
+
+import { MysqlDatabaseProviderModule } from '@mush/seeds/provider'
+import { UserSeederModule } from '@mush/seeds/users/user.module'
+
+import { Seeder } from './seeder'
 
 @Module({
   imports: [MysqlDatabaseProviderModule, UserSeederModule],

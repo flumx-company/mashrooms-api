@@ -1,10 +1,11 @@
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { CoreModule } from "../core-module/core.module";
-import { DriversEntity } from "./drivers.entity";
-import { DriversController } from "./drivers.controller";
-import { DriversService } from "./drivers.service";
+import { CoreModule } from '@mush/modules/core-module/core.module'
+
+import { DriversEntity } from './drivers.entity'
+import { DriversController } from './drivers.controller'
+import { DriversService } from './drivers.service'
 
 @Module({
   imports: [TypeOrmModule.forFeature([DriversEntity]), CoreModule],

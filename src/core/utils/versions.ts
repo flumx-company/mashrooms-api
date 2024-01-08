@@ -1,3 +1,3 @@
-import { ApiVersion } from "../decorators/api-version.decorator";
+import { ApiVersion } from '@mush/core/decorators'
 
-export const ApiV1 = ApiVersion("v1");
+export const ApiV1 = ApiVersion('v1')

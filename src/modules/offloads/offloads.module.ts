@@ -1,10 +1,11 @@
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { CoreModule } from "../core-module/core.module";
-import { OffloadsEntity } from "./offloads.entity";
-import { OffloadsController } from "./offloads.controller";
-import { OffloadsService } from "./offloads.service";
+import { CoreModule } from '@mush/modules/core-module/core.module'
+
+import { OffloadsEntity } from './offloads.entity'
+import { OffloadsController } from './offloads.controller'
+import { OffloadsService } from './offloads.service'
 
 @Module({
   imports: [TypeOrmModule.forFeature([OffloadsEntity]), CoreModule],

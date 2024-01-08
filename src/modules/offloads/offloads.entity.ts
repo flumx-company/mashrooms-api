@@ -1,9 +1,11 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import { DatedBasicEntity } from "src/core/basic.entity";
-import { UsersEntity } from "../core-module/users/users.entity";
+import { Entity, ManyToOne } from 'typeorm'
 
-@Entity({ name: "offloads" })
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
+
+import { DatedBasicEntity } from '@mush/core/basic-entities'
+
+@Entity({ name: 'offloads' })
 export class OffloadsEntity extends DatedBasicEntity {
   @ManyToOne(() => UsersEntity, (user) => user.offloads)
-  user: UsersEntity;
+  user: UsersEntity
 }

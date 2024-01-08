@@ -7,7 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
-} from "@nestjs/common";
+} from '@nestjs/common'
 import {
   ApiTags,
   ApiOperation,
@@ -16,24 +16,25 @@ import {
   ApiResponse,
   ApiParam,
   ApiParamOptions,
-} from "@nestjs/swagger";
-import { UsersEntity } from "../core-module/users/users.entity";
+} from '@nestjs/swagger'
 
-import { ApiV1 } from "src/core/utils/versions";
-import { Auth } from "src/core/decorators/auth.decorator";
-import { ERole } from "../../core/enums/roles";
-import { EPermission } from "../../core/enums/permissions";
-import { ClientsService } from "./clients.service";
-import { ClientsEntity } from "./clients.entity";
-import { CreateClientDto } from "./dto/create.client.dto";
-import { UpdateClientDto } from "./dto/update.client.dto";
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
-@ApiTags("Clients")
+import { Auth } from '@mush/core/decorators'
+import { ApiV1 } from '@mush/core/utils'
+import { ERole, EPermission } from '@mush/core/enums'
+
+import { ClientsService } from './clients.service'
+import { ClientsEntity } from './clients.entity'
+import { CreateClientDto } from './dto/create.client.dto'
+import { UpdateClientDto } from './dto/update.client.dto'
+
+@ApiTags('Clients')
 @ApiBadGatewayResponse({
   status: 502,
-  description: "Something went wrong",
+  description: 'Something went wrong',
 })
-@Controller(ApiV1("clients"))
+@Controller(ApiV1('clients'))
 export class ClientsController {
   constructor(readonly clientsService: ClientsService) {}
 
@@ -43,10 +44,10 @@ export class ClientsController {
     permission: EPermission.READ_CLIENTS,
   })
   @ApiOperation({
-    summary: "Get list of all clients. Permission: READ_CLIENTS.",
+    summary: 'Get list of all clients. Permission: READ_CLIENTS.',
   })
   async getAllUsers(): Promise<ClientsEntity[]> {
-    return this.clientsService.findAll();
+    return this.clientsService.findAll()
   }
 
   @Post()
@@ -55,69 +56,69 @@ export class ClientsController {
     permission: EPermission.CREATE_CLIENTS,
   })
   @ApiOperation({
-    summary: "Add a new client. Permission: CREATE_CLIENTS.",
+    summary: 'Add a new client. Permission: CREATE_CLIENTS.',
   })
   @ApiBody({
-    description: "Model to add a new client.",
+    description: 'Model to add a new client.',
     type: CreateClientDto,
   })
   @ApiResponse({
     status: 200,
-    description: "Will return the client data.",
+    description: 'Will return the client data.',
     type: ClientsEntity,
   })
   async createClient(@Body() data: CreateClientDto): Promise<ClientsEntity> {
-    return this.clientsService.createClient(data);
+    return this.clientsService.createClient(data)
   }
 
-  @Put(":id")
+  @Put(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.UPDATE_CLIENTS,
   })
   @ApiOperation({
-    summary: "Update an client. Permission: UPDATE_CLIENTS.",
+    summary: 'Update an client. Permission: UPDATE_CLIENTS.',
   })
   @ApiParam({
-    name: "id",
-    type: "number",
+    name: 'id',
+    type: 'number',
     example: 1,
   } as ApiParamOptions)
   @ApiBody({
-    description: "Model to update an existing client.",
+    description: 'Model to update an existing client.',
     type: UpdateClientDto,
   })
   @ApiResponse({
     status: 200,
-    description: "Will return the client data.",
+    description: 'Will return the client data.',
     type: UsersEntity,
   })
   async updateClient(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() data: UpdateClientDto
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateClientDto,
   ): Promise<ClientsEntity> {
-    return this.clientsService.updateClient(id, data);
+    return this.clientsService.updateClient(id, data)
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.DELETE_CLIENTS,
   })
   @ApiOperation({
-    summary: "Remove an client. Permission: DELETE_CLIENTS.",
+    summary: 'Remove an client. Permission: DELETE_CLIENTS.',
   })
   @ApiParam({
-    name: "id",
-    type: "number",
+    name: 'id',
+    type: 'number',
     example: 1,
   } as ApiParamOptions)
   @ApiResponse({
     status: 200,
-    description: "Will return boolean result.",
+    description: 'Will return boolean result.',
     type: Boolean,
   })
-  async removeUser(@Param("id", ParseIntPipe) id: number): Promise<Boolean> {
-    return this.clientsService.removeClient(id);
+  async removeUser(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
+    return this.clientsService.removeClient(id)
   }
 }

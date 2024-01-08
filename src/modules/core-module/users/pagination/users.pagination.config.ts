@@ -1,7 +1,8 @@
-import { PaginateConfig } from "nestjs-paginate";
-import { UsersEntity } from "../users.entity";
+import { PaginateConfig } from 'nestjs-paginate'
+
+import { UsersEntity } from '../users.entity'
 
 export const usersPaginationConfig: PaginateConfig<UsersEntity> = {
-  sortableColumns: ["id"],
-  defaultSortBy: [["id", "ASC"]],
-};
+  sortableColumns: ['id'],
+  defaultSortBy: [['id', 'ASC']],
+}

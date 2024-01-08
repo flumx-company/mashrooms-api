@@ -1,55 +1,54 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { Command, CommandRunner, Option } from "nest-commander";
-import { Repository } from "typeorm";
-import { genSalt, hash } from "bcrypt";
+import { InjectRepository } from '@nestjs/typeorm'
+import { Command, CommandRunner, Option } from 'nest-commander'
+import { Repository } from 'typeorm'
+import { genSalt, hash } from 'bcrypt'
 
-import { UsersEntity } from "../modules/core-module/users/users.entity";
-import { EPermission } from "../core/enums/permissions";
-import { ERole } from "../core/enums/roles";
-import { EPosition } from "src/core/enums/positions";
-import { EMAIL_REGEX } from "src/core/utils/regex";
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
+
+import { EPermission, ERole, EPosition } from '@mush/core/enums'
+import { EMAIL_REGEX } from '@mush/core/utils'
 
 interface CreateSuperadminCommandOptions {
-  email?: string;
-  password?: string;
+  email?: string
+  password?: string
 }
 
 @Command({
-  name: "createSuperAdmin",
+  name: 'createSuperAdmin',
   description:
-    "Creates superadmin with the following parameters unless a user with this email already exists.",
+    'Creates superadmin with the following parameters unless a user with this email already exists.',
 })
 export class CreateSuperadminCommand extends CommandRunner {
   constructor(
     @InjectRepository(UsersEntity)
-    private readonly usersRepository: Repository<UsersEntity>
+    private readonly usersRepository: Repository<UsersEntity>,
   ) {
-    super();
+    super()
   }
 
   async run(
     _: string[],
-    options?: CreateSuperadminCommandOptions
+    options?: CreateSuperadminCommandOptions,
   ): Promise<void> {
-    const { email, password }: CreateSuperadminCommandOptions = options;
+    const { email, password }: CreateSuperadminCommandOptions = options
     const foundUserByEmail: UsersEntity = await this.usersRepository.findOneBy({
       email,
-    });
+    })
 
-    if(!EMAIL_REGEX.test(email)) {
-      console.error("The input email is not valid.");
-      return;
+    if (!EMAIL_REGEX.test(email)) {
+      console.error('The input email is not valid.')
+      return
     }
 
     if (foundUserByEmail) {
-      console.error("A user with this email already exists in our database.");
-      return;
+      console.error('A user with this email already exists in our database.')
+      return
     }
 
     try {
-      const saltRounds: number = parseInt(process.env.PASSWORD_SALT_ROUNDS);
-      const salt: string = await genSalt(saltRounds);
-      const hashedPassword: string = await hash(password, salt);
+      const saltRounds: number = parseInt(process.env.PASSWORD_SALT_ROUNDS)
+      const salt: string = await genSalt(saltRounds)
+      const hashedPassword: string = await hash(password, salt)
       const newUser: UsersEntity = this.usersRepository.create({
         email,
         password: hashedPassword,
@@ -57,30 +56,30 @@ export class CreateSuperadminCommand extends CommandRunner {
         position: EPosition.SUPERADMINISTRATOR,
         permissions: Object.values(EPermission),
         isActive: true,
-      });
+      })
 
-      await this.usersRepository.save(newUser);
-      console.log("A superadmin user is saved in the database.");
+      await this.usersRepository.save(newUser)
+      console.log('A superadmin user is saved in the database.')
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
 
-    return;
+    return
   }
 
   @Option({
-    flags: "-e, --email [email]",
-    description: "An email return",
+    flags: '-e, --email [email]',
+    description: 'An email return',
   })
   parseEmail(email: string): string {
-    return email;
+    return email
   }
 
   @Option({
-    flags: "-p, --password [password]",
-    description: "A password return",
+    flags: '-p, --password [password]',
+    description: 'A password return',
   })
   parsePassword(password: string): string {
-    return password;
+    return password
   }
 }
