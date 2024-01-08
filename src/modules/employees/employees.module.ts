@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { CoreModule } from '@mush/core-module/core.module'
+import { CoreModule } from '@mush/modules/core-module/core.module'
 
 import { EmployeesEntity } from './employees.entity'
 import { EmployeesController } from './employees.controller'

@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 
-import { UsersEntity } from '@mush/users/users.entity'
-import { OffloadsEntity } from '@mush/offloads/offloads.entity'
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
+import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
 
 import { TypeORMConfig } from '@mush/config'
 

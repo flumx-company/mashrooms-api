@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { UsersEntity } from '@mush/users/users.entity'
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
 import { UserSeederService } from './user.service'
 

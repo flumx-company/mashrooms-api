@@ -24,23 +24,23 @@ import {
   Paginated,
 } from 'nestjs-paginate'
 
-import { UsersService } from '@mush/users/users.service'
-import { UsersEntity } from '@mush/users/users.entity'
+import { UsersService } from '@mush/modules/core-module/users/users.service'
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 import {
   CreateUserDto,
   UpdateUserDto,
   UpdateUserPermissionsDto,
   ResetPasswordDto,
   UpdateActiveStatusDto,
-} from '@mush/users/dto'
-import { usersPaginationConfig } from '@mush/users/pagination'
-import { OffloadsEntity } from '@mush/offloads/offloads.entity'
-import { OffloadsService } from '@mush/offloads/offloads.service'
-import { offloadsPaginationConfig } from '@mush/offloads/pagination'
+} from '@mush/modules/core-module/users/dto'
+import { usersPaginationConfig } from '@mush/modules/core-module/users/pagination'
+import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
+import { OffloadsService } from '@mush/modules/offloads/offloads.service'
+import { offloadsPaginationConfig } from '@mush/modules/offloads/pagination'
 
-import { Auth } from '@mush/decorators'
-import { ApiV1 } from '@mush/utils'
-import { ERole, EPermission } from '@mush/enums'
+import { Auth } from '@mush/core/decorators'
+import { ApiV1 } from '@mush/core/utils'
+import { ERole, EPermission } from '@mush/core/enums'
 
 @ApiTags('Admins')
 @ApiBadGatewayResponse({

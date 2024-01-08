@@ -11,12 +11,12 @@ import {
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
-import { EPermission, EPosition } from '@mush/enums'
+import { EPermission, EPosition } from '@mush/core/enums'
 import {
   LATIN_CYRILLIC_LETTER_NAME_REGEX,
   PASSWORD_REGEX,
   PHONE_REGEX,
-} from '@mush/utils'
+} from '@mush/core/utils'
 
 export class CreateUserDto {
   @IsString()

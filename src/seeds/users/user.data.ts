@@ -1,6 +1,6 @@
-import { UsersEntity } from '@mush/users/users.entity'
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
-import { EPermission, EPosition, ERole } from '@mush/enums'
+import { EPermission, EPosition, ERole } from '@mush/core/enums'
 
 export const userList: Partial<UsersEntity>[] = [
   {

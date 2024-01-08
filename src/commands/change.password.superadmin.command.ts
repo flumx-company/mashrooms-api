@@ -3,9 +3,9 @@ import { Command, CommandRunner, Option } from 'nest-commander'
 import { Repository } from 'typeorm'
 import { genSalt, hash } from 'bcrypt'
 
-import { UsersEntity } from '@mush/users/users.entity'
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
-import { generatePassword } from '@mush/utils'
+import { generatePassword } from '@mush/core/utils'
 
 interface ChangePasswordSuperadminCommandOptions {
   email?: string

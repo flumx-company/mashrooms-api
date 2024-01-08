@@ -7,7 +7,7 @@ import {
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
-import { PASSWORD_REGEX } from '@mush/utils'
+import { PASSWORD_REGEX } from '@mush/core/utils'
 
 export class ResetPasswordDto {
   @IsString()

@@ -4,8 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { genSalt, hash } from 'bcrypt'
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 
-import { ERole, EPermission } from '@mush/enums'
-import { Nullable } from '@mush/utils'
+import { ERole, EPermission } from '@mush/core/enums'
+import { Nullable } from '@mush/core/utils'
 
 import { UsersEntity } from './users.entity'
 import { CreateUserDto } from './dto/create.user.dto'

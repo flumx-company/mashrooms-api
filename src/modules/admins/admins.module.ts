@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 
-import { AdminsController } from '@mush/admins/admins.controller'
-import { CoreModule } from '@mush/core-module/core.module'
-import { UsersModule } from '@mush/users/users.module'
-import { OffloadsModule } from '@mush/offloads/offloads.module'
+import { AdminsController } from '@mush/modules/admins/admins.controller'
+import { CoreModule } from '@mush/modules/core-module/core.module'
+import { UsersModule } from '@mush/modules/core-module/users/users.module'
+import { OffloadsModule } from '@mush/modules/offloads/offloads.module'
 
 @Module({
   imports: [CoreModule, UsersModule, OffloadsModule],

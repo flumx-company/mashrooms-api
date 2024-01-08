@@ -3,9 +3,9 @@ import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 
-import { UsersEntity } from '@mush/users/users.entity'
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
-import { Nullable } from '@mush/utils'
+import { Nullable } from '@mush/core/utils'
 
 import { OffloadsEntity } from './offloads.entity'
 import { offloadsPaginationConfig } from './pagination/index'

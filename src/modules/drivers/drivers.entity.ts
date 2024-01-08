@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
-import { DatedBasicEntity } from '@mush/basic-entities'
+import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'drivers' })
 export class DriversEntity extends DatedBasicEntity {
