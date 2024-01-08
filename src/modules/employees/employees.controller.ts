@@ -42,7 +42,7 @@ export class EmployeesController {
     permission: EPermission.READ_EMPLOYEES,
   })
   @ApiOperation({
-    summary: 'Get list of all employees. Permission: READ_EMPLOYEES.',
+    summary: 'Get list of all employees. Role: SUPERADMIN, ADMIN. Permission: READ_EMPLOYEES.',
   })
   async getAllEmployees(): Promise<EmployeesEntity[]> {
     return this.employeesService.findAll()
@@ -54,7 +54,7 @@ export class EmployeesController {
     permission: EPermission.CREATE_EMPLOYEES,
   })
   @ApiOperation({
-    summary: 'Add a new employee. Permission: CREATE_EMPLOYEES.',
+    summary: 'Add a new employee. Role: SUPERADMIN, ADMIN. Permission: CREATE_EMPLOYEES.',
   })
   @ApiBody({
     description: 'Model to add a new employee.',
@@ -77,7 +77,7 @@ export class EmployeesController {
     permission: EPermission.UPDATE_EMPLOYEES,
   })
   @ApiOperation({
-    summary: 'Update an employee. Permission: UPDATE_EMPLOYEES.',
+    summary: 'Update an employee. Role: SUPERADMIN, ADMIN. Permission: UPDATE_EMPLOYEES.',
   })
   @ApiParam({
     name: 'id',
@@ -106,7 +106,7 @@ export class EmployeesController {
     permission: EPermission.DELETE_EMPLOYEES,
   })
   @ApiOperation({
-    summary: 'Remove an employee. Permission: DELETE_EMPLOYEES',
+    summary: 'Remove an employee. Role: SUPERADMIN, ADMIN. Permission: DELETE_EMPLOYEES',
   })
   @ApiParam({
     name: 'id',

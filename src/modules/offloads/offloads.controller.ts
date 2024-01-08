@@ -47,7 +47,7 @@ export class OffloadsController {
   })
   @ApiOperation({
     summary:
-      'Get list of all offloads. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.',
+      'Get list of all offloads. Role: SUPERADMIN, ADMIN. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.',
   })
   @ApiResponse({
     status: 200,
@@ -68,7 +68,7 @@ export class OffloadsController {
     permission: EPermission.CREATE_OFFLOADS,
   })
   @ApiOperation({
-    summary: 'Add a new offload. Permission: CREATE_OFFLOADS.',
+    summary: 'Add a new offload. Role: SUPERADMIN, ADMIN. Permission: CREATE_OFFLOADS.',
   })
   @ApiResponse({
     status: 200,
@@ -87,7 +87,7 @@ export class OffloadsController {
     permission: EPermission.DELETE_OFFLOADS,
   })
   @ApiOperation({
-    summary: 'Remove an offload. Permission: DELETE_OFFLOADS.',
+    summary: 'Remove an offload. Role: SUPERADMIN, ADMIN. Permission: DELETE_OFFLOADS.',
   })
   @ApiParam({
     name: 'id',

@@ -56,7 +56,7 @@ export class CreateUserDto {
   @IsString()
   @Matches(PHONE_REGEX)
   @ApiProperty({
-    example: '+380681234567',
+    example: '380681234567',
     description: 'Enter the phone.',
     type: String,
   })

@@ -57,7 +57,7 @@ export class AdminsController {
   @Get()
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
   @ApiOperation({
-    summary: 'Get list of all admins. Permission: READ_ADMINS',
+    summary: 'Get list of all admins. Role: SUPERADMIN. Permission: READ_ADMINS',
   })
   @ApiResponse({
     status: 200,
@@ -75,7 +75,7 @@ export class AdminsController {
   @Post()
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.CREATE_ADMINS })
   @ApiOperation({
-    summary: 'Add a new admin user. Permission: CREATE_ADMINS',
+    summary: 'Add a new admin user. Role: SUPERADMIN. Permission: CREATE_ADMINS',
   })
   @ApiBody({
     description: 'Model to add a new user.',
@@ -94,7 +94,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
-      'Update an admin user. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.',
+      'Update an admin user. Role: SUPERADMIN. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.',
   })
   @ApiParam({
     name: 'id',
@@ -121,7 +121,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
-      "Change admin user's password. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+      "Change admin user's password. Role: SUPERADMIN. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
   })
   @ApiParam({
     name: 'id',
@@ -148,7 +148,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
-      "Change admin user's active status. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+      "Change admin user's active status. Role: SUPERADMIN. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
   })
   @ApiParam({
     name: 'id',
@@ -175,7 +175,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.DELETE_ADMINS })
   @ApiOperation({
     summary:
-      'Remove an admin. Permission: DELETE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.',
+      'Remove an admin. Role: SUPERADMIN. Permission: DELETE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.',
   })
   @ApiParam({
     name: 'id',
@@ -204,7 +204,7 @@ export class AdminsController {
   @ApiPaginationQuery(offloadsPaginationConfig)
   @ApiOperation({
     summary:
-      'Get list of all offloads of the user, whose id is provided. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.',
+      'Get list of all offloads of the user, whose id is provided. Role: SUPERADMIN, ADMIN. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.',
   })
   @ApiResponse({
     status: 200,
@@ -224,7 +224,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
   @ApiOperation({
     summary:
-      'Get list of all permissions of the admin user whose id is given in param. Permission: READ_ADMINS.',
+      'Get list of all permissions of the admin user whose id is given in param. Role: SUPERADMIN. Permission: READ_ADMINS.',
   })
   @ApiParam({
     name: 'id',
@@ -247,7 +247,7 @@ export class AdminsController {
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.UPDATE_ADMINS })
   @ApiOperation({
     summary:
-      "Update an admin user's permission list. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
+      "Update an admin user's permission list. Role: SUPERADMIN. Permission: UPDATE_ADMINS. It will trigger 422 error if the user id is wrong or belongs to the superadmin.",
   })
   @ApiBody({
     description: 'Model to update an existing user.',
