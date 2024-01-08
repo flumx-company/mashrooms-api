@@ -18,9 +18,9 @@ import {
   ApiParamOptions,
 } from '@nestjs/swagger'
 
-import { Auth } from '@decorators/index'
-import { ERole, EPermission } from '@enums/index'
-import { ApiV1 } from '@utils/index'
+import { Auth } from '@mush/decorators'
+import { ERole, EPermission } from '@mush/enums'
+import { ApiV1 } from '@mush/utils'
 
 import { EmployeesService } from './employees.service'
 import { EmployeesEntity } from './employees.entity'

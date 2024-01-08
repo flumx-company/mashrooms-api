@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { hash, genSalt } from 'bcrypt'
 
-import { UsersEntity } from '@users/users.entity'
+import { UsersEntity } from '@mush/users/users.entity'
 
 import { userList } from './user.data'
 

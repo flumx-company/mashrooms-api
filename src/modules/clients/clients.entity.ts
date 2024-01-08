@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
-import { DatedBasicEntity } from '@basic-entities/index'
+import { DatedBasicEntity } from '@mush/basic-entities'
 
 @Entity({ name: 'clients' })
 export class ClientsEntity extends DatedBasicEntity {

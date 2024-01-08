@@ -9,8 +9,8 @@ import {
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
-import { EPosition } from '@enums/index'
-import { LATIN_CYRILLIC_LETTER_NAME_REGEX, PHONE_REGEX } from '@utils/index'
+import { EPosition } from '@mush/enums'
+import { LATIN_CYRILLIC_LETTER_NAME_REGEX, PHONE_REGEX } from '@mush/utils'
 
 export class UpdateUserDto {
   @IsString()

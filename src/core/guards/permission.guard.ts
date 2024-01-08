@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 
-import { ERole } from '@enums/index'
-import { Permission } from '@decorators/index'
+import { ERole } from '@mush/enums'
+import { Permission } from '@mush/decorators'
 
 @Injectable()
 export class PermissionGuard implements CanActivate {

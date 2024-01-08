@@ -7,8 +7,8 @@ import {
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
 
-import { UsersEntity } from '@users/users.entity'
-import { UsersService } from '@users/users.service'
+import { UsersEntity } from '@mush/users/users.entity'
+import { UsersService } from '@mush/users/users.service'
 
 import { LoginDto } from './dto/login.dto'
 

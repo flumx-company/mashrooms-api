@@ -1,7 +1,7 @@
 import { IsArray } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
-import { EPermission } from '@enums/index'
+import { EPermission } from '@mush/enums'
 
 export class UpdateUserPermissionsDto {
   @IsArray()

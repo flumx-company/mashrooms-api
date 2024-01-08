@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { CoreModule } from '@core-module/index'
+import { CoreModule } from '@mush/core-module/core.module'
 
 import { DriversEntity } from './drivers.entity'
 import { DriversController } from './drivers.controller'

@@ -1,8 +1,8 @@
 import { Entity, ManyToOne } from 'typeorm'
 
-import { UsersEntity } from '@users/users.entity'
+import { UsersEntity } from '@mush/users/users.entity'
 
-import { DatedBasicEntity } from '@basic-entities/dated.basic.entity'
+import { DatedBasicEntity } from '@mush/basic-entities'
 
 @Entity({ name: 'offloads' })
 export class OffloadsEntity extends DatedBasicEntity {

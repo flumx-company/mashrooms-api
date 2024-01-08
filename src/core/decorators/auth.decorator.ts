@@ -1,11 +1,11 @@
 import { UseGuards, applyDecorators } from '@nestjs/common'
 import { ApiUnauthorizedResponse } from '@nestjs/swagger'
 
-import { JwtStrategy } from '@core-module/index'
+import { JwtStrategy } from '@mush/core-module/jwt.strategy'
 
-import { EPermission, ERole } from '@enums/index'
-import { Roles, Permission } from '@decorators/index'
-import { RolesGuard, PermissionGuard, IsActiveGuard } from '@guards/index'
+import { EPermission, ERole } from '@mush/enums'
+import { Roles, Permission } from '@mush/decorators'
+import { RolesGuard, PermissionGuard, IsActiveGuard } from '@mush/guards'
 
 type auth = { roles: ERole[]; permission: EPermission }
 

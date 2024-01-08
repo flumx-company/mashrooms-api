@@ -8,7 +8,7 @@ import { UsersEntity } from './users.entity'
 import {
   ChangePasswordSuperadminCommand,
   CreateSuperadminCommand,
-} from '@commands/index'
+} from '@mush/commands'
 
 @Module({
   imports: [TypeOrmModule.forFeature([UsersEntity]), CommandRunnerModule],

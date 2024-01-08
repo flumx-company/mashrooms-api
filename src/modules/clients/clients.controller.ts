@@ -18,10 +18,11 @@ import {
   ApiParamOptions,
 } from '@nestjs/swagger'
 
-import { UsersEntity } from '@users/users.entity'
-import { Auth } from '@decorators/index'
-import { ApiV1 } from '@utils/index'
-import { ERole, EPermission } from '@enums/index'
+import { UsersEntity } from '@mush/users/users.entity'
+
+import { Auth } from '@mush/decorators'
+import { ApiV1 } from '@mush/utils'
+import { ERole, EPermission } from '@mush/enums'
 
 import { ClientsService } from './clients.service'
 import { ClientsEntity } from './clients.entity'

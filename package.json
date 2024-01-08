@@ -84,31 +84,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "_moduleAliases": {
-    "@basic-entities": "src/core/basic-entities",
-    "@commands": "src/commands",
-    "@config": "src/config",
-    "@core": "src/core",
-    "@decorators": "src/core/decorators",
-    "@enums": "src/core/enums",
-    "@guards": "src/core/guards",
-    "@migrations": "src/migrations",
-    "@modules": "src/modules",
-    "@seeds": "src/seeds",
-    "@utils": "src/core/utils",
-    "@admins": "src/modules/admins",
-    "@auth": "src/modules/auth",
-    "@clients": "src/modules/clients",
-    "@containers": "src/modules/containers",
-    "@core-module": "src/modules/core-module",
-    "@drivers": "src/modules/drivers",
-    "@employees": "src/modules/employees",
-    "@gathering": "src/modules/gathering",
-    "@offloads": "src/modules/offloads",
-    "@products": "src/modules/products",
-    "@users": "src/modules/core-module/users",
-    "@wheelbarrows": "src/modules/wheelbarrows",
-    "@workdays": "src/modules/workdays"
   }
 }

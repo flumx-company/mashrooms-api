@@ -21,11 +21,11 @@ import {
   Paginated,
 } from 'nestjs-paginate'
 
-import { UsersEntity } from '@users/users.entity'
+import { UsersEntity } from '@mush/users/users.entity'
 
-import { ERole, EPermission } from '@enums/index'
-import { CurrentUser, Auth } from '@decorators/index'
-import { ApiV1 } from '@utils/index'
+import { ERole, EPermission } from '@mush/enums'
+import { CurrentUser, Auth } from '@mush/decorators'
+import { ApiV1 } from '@mush/utils'
 
 import { OffloadsService } from './offloads.service'
 import { OffloadsEntity } from './offloads.entity'

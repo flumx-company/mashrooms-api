@@ -24,23 +24,23 @@ import {
   Paginated,
 } from 'nestjs-paginate'
 
-import { UsersService } from '@users/users.service'
-import { UsersEntity } from '@users/users.entity'
+import { UsersService } from '@mush/users/users.service'
+import { UsersEntity } from '@mush/users/users.entity'
 import {
   CreateUserDto,
   UpdateUserDto,
   UpdateUserPermissionsDto,
   ResetPasswordDto,
   UpdateActiveStatusDto,
-} from '@users/dto'
-import { usersPaginationConfig } from '@users/pagination'
-import { OffloadsEntity } from '@offloads/offloads.entity'
-import { OffloadsService } from '@offloads/offloads.service'
-import { offloadsPaginationConfig } from '@offloads/pagination/offloads.pagination.config'
+} from '@mush/users/dto'
+import { usersPaginationConfig } from '@mush/users/pagination'
+import { OffloadsEntity } from '@mush/offloads/offloads.entity'
+import { OffloadsService } from '@mush/offloads/offloads.service'
+import { offloadsPaginationConfig } from '@mush/offloads/pagination'
 
-import { Auth } from '@decorators/index'
-import { ApiV1 } from '@utils/index'
-import { ERole, EPermission } from '@enums/index'
+import { Auth } from '@mush/decorators'
+import { ApiV1 } from '@mush/utils'
+import { ERole, EPermission } from '@mush/enums'
 
 @ApiTags('Admins')
 @ApiBadGatewayResponse({

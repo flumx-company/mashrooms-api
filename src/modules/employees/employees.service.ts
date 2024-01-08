@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { Nullable } from '@utils/index'
+import { Nullable } from '@mush/utils'
 
 import { EmployeesEntity } from './employees.entity'
 import { CreateEmployeeDto } from './dto/create.employees.dto'

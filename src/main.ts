@@ -4,7 +4,7 @@ import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
 import * as cookieParser from 'cookie-parser'
 import 'module-alias/register'
 
-import { AppModule } from '@modules/app.module'
+import { AppModule } from '@mush/modules/app.module'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)

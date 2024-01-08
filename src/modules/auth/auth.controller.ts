@@ -18,11 +18,11 @@ import {
 } from '@nestjs/swagger'
 import { Response as ExResponse, Request as ExRequest } from 'express'
 
-import { UsersEntity } from '@users/users.entity'
+import { UsersEntity } from '@mush/users/users.entity'
 
-import { Auth } from '@decorators/index'
-import { ERole, EPermission } from '@enums/index'
-import { Nullable, ApiV1 } from '@utils/index'
+import { Auth } from '@mush/decorators'
+import { ERole, EPermission } from '@mush/enums'
+import { Nullable, ApiV1 } from '@mush/utils'
 
 import { LoginDto } from './dto/login.dto'
 import { AuthService } from './auth.service'

@@ -3,10 +3,10 @@ import { Command, CommandRunner, Option } from 'nest-commander'
 import { Repository } from 'typeorm'
 import { genSalt, hash } from 'bcrypt'
 
-import { UsersEntity } from '@users/users.entity'
+import { UsersEntity } from '@mush/users/users.entity'
 
-import { EPermission, ERole, EPosition } from '@enums/index'
-import { EMAIL_REGEX } from '@utils/index'
+import { EPermission, ERole, EPosition } from '@mush/enums'
+import { EMAIL_REGEX } from '@mush/utils'
 
 interface CreateSuperadminCommandOptions {
   email?: string

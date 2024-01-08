@@ -1,7 +1,7 @@
 import { Logger, Module } from '@nestjs/common'
 
-import { MysqlDatabaseProviderModule } from '@seeds/provider/provider.module'
-import { UserSeederModule } from '@seeds/users/user.module'
+import { MysqlDatabaseProviderModule } from '@mush/seeds/provider'
+import { UserSeederModule } from '@mush/seeds/users/user.module'
 
 import { Seeder } from './seeder'
 
