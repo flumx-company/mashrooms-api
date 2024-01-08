@@ -28,7 +28,7 @@ export class ClientsEntity extends DatedBasicEntity {
   lastName: string
 
   @ApiProperty({
-    example: '+380681234567',
+    example: '380681234567',
     description: 'Enter the phone.',
     type: String,
   })

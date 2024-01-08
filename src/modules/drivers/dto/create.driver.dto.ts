@@ -1,5 +1,6 @@
 import { IsString, MaxLength, MinLength, IsNotEmpty, Matches } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { PHONE_REGEX } from "@mush/core/utils";
 
 export class CreateDriverDto {
   @IsString()
@@ -26,9 +27,9 @@ export class CreateDriverDto {
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^\+[1-9]\d{1,14}$/)
+  @Matches(PHONE_REGEX)
   @ApiProperty({
-    example: "+380681234567",
+    example: "380681234567",
     description: "Enter the phone.",
     type: String,
   })

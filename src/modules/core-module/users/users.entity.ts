@@ -25,7 +25,7 @@ export class UsersEntity extends DatedBasicEntity {
   email: string
 
   @ApiProperty({
-    example: '+380681234567',
+    example: '380681234567',
     description: "User's telephone number",
   })
   @Column({ type: 'varchar', default: null, nullable: true })
