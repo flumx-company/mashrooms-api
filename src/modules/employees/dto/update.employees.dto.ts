@@ -1,5 +1,7 @@
-import { IsString, MaxLength, MinLength, IsNotEmpty } from 'class-validator'
+import { IsString, MaxLength, MinLength, IsNotEmpty, Matches } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
+
+import { PHONE_REGEX } from '@mush/core/utils'
 
 export class UpdateEmployeeDto {
   @IsString()
@@ -23,4 +25,14 @@ export class UpdateEmployeeDto {
     type: String,
   })
   readonly lastName: string
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(PHONE_REGEX)
+  @ApiProperty({
+    example: '380681234567',
+    description: 'Enter the phone.',
+    type: String,
+  })
+  readonly phone: string
 }

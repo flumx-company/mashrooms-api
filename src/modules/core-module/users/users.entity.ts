@@ -10,11 +10,11 @@ import { ERole, EPermission, EPosition } from '@mush/core/enums'
 @Entity({ name: 'users' })
 export class UsersEntity extends DatedBasicEntity {
   @ApiProperty({ example: 'John', description: "User's name" })
-  @Column({ length: 35, default: null, nullable: true })
+  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
   firstName: string
 
   @ApiProperty({ example: 'Johnson', description: "User's name" })
-  @Column({ length: 35, default: null, nullable: true })
+  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
   lastName: string
 
   @ApiProperty({
@@ -28,7 +28,7 @@ export class UsersEntity extends DatedBasicEntity {
     example: '380681234567',
     description: "User's telephone number",
   })
-  @Column({ type: 'varchar', default: null, nullable: true })
+  @Column({ type: 'varchar', length: 20, default: null, nullable: true })
   phone: string
 
   @ApiProperty({

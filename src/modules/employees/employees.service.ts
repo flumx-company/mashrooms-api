@@ -23,21 +23,15 @@ export class EmployeesService {
     return this.employeesRepository.findOneBy({ id })
   }
 
-  async createEmployee({
-    firstName,
-    lastName,
-  }: CreateEmployeeDto): Promise<EmployeesEntity> {
-    const newEmployee: EmployeesEntity = this.employeesRepository.create({
-      firstName,
-      lastName,
-    })
+  async createEmployee(data: CreateEmployeeDto): Promise<EmployeesEntity> {
+    const newEmployee: EmployeesEntity = this.employeesRepository.create(data)
 
     return this.employeesRepository.save(newEmployee)
   }
 
   async updateEmployee(
     id: number,
-    { firstName, lastName }: UpdateEmployeeDto,
+    data: UpdateEmployeeDto,
   ): Promise<EmployeesEntity> {
     const foundEmployee: Nullable<EmployeesEntity> =
       await this.findEmployeeById(id)
@@ -51,8 +45,7 @@ export class EmployeesService {
 
     const updatedEmployee: EmployeesEntity = this.employeesRepository.create({
       ...foundEmployee,
-      firstName,
-      lastName,
+      ...data,
     })
 
     return this.employeesRepository.save(updatedEmployee)

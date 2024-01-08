@@ -7,9 +7,10 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 export class ClientsEntity extends DatedBasicEntity {
   @ApiProperty({
     example: 'John',
-    description: "User's first name",
+    description: "Client's first name",
   })
   @Column({
+    type: 'varchar',
     length: 35,
     default: null,
     nullable: true,
@@ -18,9 +19,10 @@ export class ClientsEntity extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'Johnson',
-    description: "User's last name",
+    description: "Client's last name",
   })
   @Column({
+    type: 'varchar',
     length: 35,
     default: null,
     nullable: true,
@@ -29,8 +31,8 @@ export class ClientsEntity extends DatedBasicEntity {
 
   @ApiProperty({
     example: '380681234567',
-    description: 'Enter the phone.',
-    type: String,
+    description: "Client's telephone number",
   })
-  readonly phone: string
+  @Column({ type: 'varchar', length: 20, default: null, nullable: true })
+  phone: string
 }
