@@ -130,11 +130,10 @@ export class AuthController {
   @Get('permissions')
   @Auth({
     roles: [ERole.SUPERADMIN],
-    permission: EPermission.READ_ALL_PERMISSIONS,
   })
   @ApiOperation({
     summary:
-      'Returns list of all existing permissions. Role: SUPERADMIN. Permission: READ_ALL_PERMISSIONS.',
+      'Returns list of all existing permissions. Role: SUPERADMIN.',
   })
   @ApiResponse({
     status: 200,

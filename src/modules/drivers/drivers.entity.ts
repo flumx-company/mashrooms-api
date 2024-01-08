@@ -5,18 +5,18 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'drivers' })
 export class DriversEntity extends DatedBasicEntity {
-  @ApiProperty({ example: 'John', description: "User's first name" })
-  @Column({ length: 35, default: null, nullable: true })
+  @ApiProperty({ example: 'John', description: "Driver's first name" })
+  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
   firstName: string
 
-  @ApiProperty({ example: 'Johnson', description: "User's last name" })
-  @Column({ length: 35, default: null, nullable: true })
+  @ApiProperty({ example: 'Johnson', description: "Driver's last name" })
+  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
   lastName: string
 
   @ApiProperty({
     example: '380681234567',
-    description: 'Enter the phone.',
-    type: String,
+    description: "Driver's telephone number",
   })
-  readonly phone: string
+  @Column({ type: 'varchar', length: 20, default: null, nullable: true })
+  phone: string
 }
