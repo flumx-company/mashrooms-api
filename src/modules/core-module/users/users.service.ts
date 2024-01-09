@@ -92,9 +92,9 @@ export class UsersService {
       foundUserByEmail,
       foundUserByPhone,
     ]: Nullable<UsersEntity>[] = await Promise.all([
+      this.findUserById(id),
       this.findUserByEmail(email),
       this.findUserByPhone(phone),
-      this.findUserById(id),
     ])
 
     if (foundUserByEmail && foundUserByEmail.id !== id) {
