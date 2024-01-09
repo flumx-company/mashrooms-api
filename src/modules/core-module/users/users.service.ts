@@ -43,6 +43,7 @@ export class UsersService {
     password,
     permissions,
     isActive,
+    position,
   }: CreateUserDto): Promise<UsersEntity> {
     const [foundUserByEmail, foundUserByPhone]: Nullable<UsersEntity>[] =
       await Promise.all([
@@ -76,6 +77,7 @@ export class UsersService {
       role: ERole.ADMIN,
       permissions,
       isActive,
+      position,
     })
 
     return this.usersRepository.save(newUser)
@@ -83,7 +85,7 @@ export class UsersService {
 
   async updateUser(
     id: number,
-    { email, phone, firstName, lastName }: UpdateUserDto,
+    { email, phone, firstName, lastName, position }: UpdateUserDto,
   ): Promise<UsersEntity> {
     const [
       foundUserById,
@@ -129,6 +131,7 @@ export class UsersService {
       phone,
       firstName,
       lastName,
+      position,
     })
 
     return this.usersRepository.save(updatedUser)
