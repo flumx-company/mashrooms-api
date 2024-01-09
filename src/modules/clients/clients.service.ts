@@ -54,10 +54,11 @@ export class ClientsService {
     id: number,
     { firstName, lastName, phone }: UpdateClientDto,
   ): Promise<ClientsEntity> {
-    const [foundClientById, foundClientByPhone] = await Promise.all([
-      this.findClientById(id),
-      this.findClientByPhone(phone),
-    ])
+    const [foundClientById, foundClientByPhone]: Nullable<ClientsEntity>[] =
+      await Promise.all([
+        this.findClientById(id),
+        this.findClientByPhone(phone),
+      ])
 
     if (!foundClientById) {
       throw new HttpException(
@@ -93,14 +94,11 @@ export class ClientsService {
       )
     }
 
-    let response = true
-
     try {
       await this.clientsRepository.remove(foundClient)
+      return true
     } catch (e) {
-      response = false
+      return false
     }
-
-    return response
   }
 }

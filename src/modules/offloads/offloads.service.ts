@@ -29,7 +29,7 @@ export class OffloadsService {
     userId: number,
     query: PaginateQuery,
   ): Promise<Paginated<OffloadsEntity>> {
-    const _config = {
+    const config = {
       ...offloadsPaginationConfig,
       where: {
         user: {
@@ -38,7 +38,7 @@ export class OffloadsService {
       },
     }
 
-    return paginate(query, this.offloadsRepository, _config)
+    return paginate(query, this.offloadsRepository, config)
   }
 
   async createOffload({
