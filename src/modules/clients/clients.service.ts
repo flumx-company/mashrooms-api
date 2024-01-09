@@ -23,11 +23,24 @@ export class ClientsService {
     return this.clientsRepository.findOneBy({ id })
   }
 
+  findClientByPhone(phone: string): Promise<Nullable<ClientsEntity>> {
+    return this.clientsRepository.findOneBy({ phone })
+  }
+
   async createClient({
     firstName,
     lastName,
     phone,
   }: CreateClientDto): Promise<ClientsEntity> {
+    const foundClientByPhone = await this.findClientByPhone(phone)
+
+    if (foundClientByPhone) {
+      throw new HttpException(
+        'A client with this phone already exists.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
     const newClient: ClientsEntity = this.clientsRepository.create({
       firstName,
       lastName,
@@ -41,17 +54,27 @@ export class ClientsService {
     id: number,
     { firstName, lastName, phone }: UpdateClientDto,
   ): Promise<ClientsEntity> {
-    const foundClient: Nullable<ClientsEntity> = await this.findClientById(id)
+    const [foundClientById, foundClientByPhone] = await Promise.all([
+      this.findClientById(id),
+      this.findClientByPhone(phone),
+    ])
 
-    if (!foundClient) {
+    if (!foundClientById) {
       throw new HttpException(
         'A client with this id does not exist.',
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
 
+    if (foundClientByPhone && foundClientByPhone.id !== id) {
+      throw new HttpException(
+        'There already exists a different client with this phone.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
     const updatedClient: ClientsEntity = this.clientsRepository.create({
-      ...foundClient,
+      ...foundClientById,
       firstName,
       lastName,
       phone,

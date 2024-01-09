@@ -23,11 +23,24 @@ export class DriversService {
     return this.driversRepository.findOneBy({ id })
   }
 
+  findDriverByPhone(phone: string): Promise<Nullable<DriversEntity>> {
+    return this.driversRepository.findOneBy({ phone })
+  }
+
   async createDriver({
     firstName,
     lastName,
     phone,
   }: CreateDriverDto): Promise<DriversEntity> {
+    const foundDriverByPhone = await this.findDriverByPhone(phone)
+
+    if (foundDriverByPhone) {
+      throw new HttpException(
+        'A driver with this phone already exists.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
     const newDriver: DriversEntity = this.driversRepository.create({
       firstName,
       lastName,
@@ -41,17 +54,27 @@ export class DriversService {
     id: number,
     { firstName, lastName, phone }: UpdateDriverDto,
   ): Promise<DriversEntity> {
-    const foundDriver: Nullable<DriversEntity> = await this.findDriverById(id)
+    const [foundDriverById, foundDriverByPhone] = await Promise.all([
+      this.findDriverById(id),
+      this.findDriverByPhone(phone),
+    ])
 
-    if (!foundDriver) {
+    if (!foundDriverById) {
       throw new HttpException(
         'A driver with this id does not exist.',
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
 
+    if (foundDriverByPhone && foundDriverByPhone.id !== id) {
+      throw new HttpException(
+        'There already exists a different driver with this phone.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
     const updatedDriver: DriversEntity = this.driversRepository.create({
-      ...foundDriver,
+      ...foundDriverById,
       firstName,
       lastName,
       phone,

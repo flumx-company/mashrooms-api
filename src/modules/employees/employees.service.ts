@@ -23,29 +23,61 @@ export class EmployeesService {
     return this.employeesRepository.findOneBy({ id })
   }
 
-  async createEmployee(data: CreateEmployeeDto): Promise<EmployeesEntity> {
-    const newEmployee: EmployeesEntity = this.employeesRepository.create(data)
+  findEmployeeByPhone(phone: string): Promise<Nullable<EmployeesEntity>> {
+    return this.employeesRepository.findOneBy({ phone })
+  }
+
+  async createEmployee({
+    firstName,
+    lastName,
+    phone,
+  }: CreateEmployeeDto): Promise<EmployeesEntity> {
+    const foundEmployeeByPhone = await this.findEmployeeByPhone(phone)
+
+    if (foundEmployeeByPhone) {
+      throw new HttpException(
+        'An employee with this phone already exists.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const newEmployee: EmployeesEntity = this.employeesRepository.create({
+      firstName,
+      lastName,
+      phone,
+    })
 
     return this.employeesRepository.save(newEmployee)
   }
 
   async updateEmployee(
     id: number,
-    data: UpdateEmployeeDto,
+    { firstName, lastName, phone }: UpdateEmployeeDto,
   ): Promise<EmployeesEntity> {
-    const foundEmployee: Nullable<EmployeesEntity> =
-      await this.findEmployeeById(id)
+    const [foundEmployeeById, foundEmployeeByPhone] = await Promise.all([
+      this.findEmployeeById(id),
+      this.findEmployeeByPhone(phone),
+    ])
 
-    if (!foundEmployee) {
+    if (!foundEmployeeById) {
       throw new HttpException(
         'An employee with this id does not exist.',
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
 
+    if (foundEmployeeById && foundEmployeeByPhone.id !== id) {
+      throw new HttpException(
+        'There already exists a different employee with this phone.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
     const updatedEmployee: EmployeesEntity = this.employeesRepository.create({
-      ...foundEmployee,
-      ...data,
+      ...foundEmployeeById,
+      firstName,
+      lastName,
+      phone,
     })
 
     return this.employeesRepository.save(updatedEmployee)
