@@ -103,4 +103,17 @@ export class ClientsService {
       return false
     }
   }
+
+  async getClientById(id: number): Promise<ClientsEntity> {
+    const foundClient = await this.findClientById(id)
+
+    if (!foundClient) {
+      throw new HttpException(
+        'There is no client with this id.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    return foundClient
+  }
 }

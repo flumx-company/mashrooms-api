@@ -25,7 +25,7 @@ import {
 } from 'nestjs-paginate'
 
 import { Auth } from '@mush/core/decorators'
-import { ApiV1 } from '@mush/core/utils'
+import { ApiV1, Nullable } from '@mush/core/utils'
 import { ERole, EPermission } from '@mush/core/enums'
 
 import { ClientsService } from './clients.service'
@@ -63,6 +63,28 @@ export class ClientsController {
     @Paginate() query: PaginateQuery,
   ): Promise<Paginated<ClientsEntity>> {
     return this.clientsService.findAll(query)
+  }
+
+  @Get(':id')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENTS,
+  })
+  @ApiOperation({
+    summary:
+      'Get a client with the provided id. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the a client with the provided id.',
+    type: ClientsEntity,
+    isArray: true,
+  })
+  @ApiPaginationQuery(clientsPaginationConfig)
+  async getClientById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Nullable<ClientsEntity>> {
+    return this.clientsService.getClientById(id)
   }
 
   @Post()
