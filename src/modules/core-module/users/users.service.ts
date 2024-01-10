@@ -4,8 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { genSalt, hash } from 'bcrypt'
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 
-import { ERole, EPermission } from '@mush/core/enums'
+import { ERole, EPermission, EPosition } from '@mush/core/enums'
 import { Nullable } from '@mush/core/utils'
+import { findWrongEnumValue } from '@mush/core/utils/find.wrong.enum.value' //NOTE: importing from index.ts triggers error
 
 import { UsersEntity } from './users.entity'
 import { CreateUserDto } from './dto/create.user.dto'
@@ -61,6 +62,30 @@ export class UsersService {
     if (foundUserByPhone) {
       throw new HttpException(
         'A user with this phone already exists.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const wrongPermission = findWrongEnumValue({
+      $enum: EPermission,
+      value: permissions,
+    })
+
+    if (wrongPermission) {
+      throw new HttpException(
+        `${wrongPermission} is not valid permission.`,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const wrongPosition = findWrongEnumValue({
+      $enum: EPosition,
+      value: position,
+    })
+
+    if (wrongPosition) {
+      throw new HttpException(
+        `${wrongPosition} is not valid position.`,
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
@@ -121,6 +146,18 @@ export class UsersService {
     if (foundUserById.role === ERole.SUPERADMIN) {
       throw new HttpException(
         "Superadmin's data cannot be changed through this endpoint.",
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const wrongPosition = findWrongEnumValue({
+      $enum: EPosition,
+      value: position,
+    })
+
+    if (wrongPosition) {
+      throw new HttpException(
+        `${wrongPosition} is not valid position.`,
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
@@ -219,6 +256,18 @@ export class UsersService {
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
         "Superadmin's data cannot be changed through this endpoint.",
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const wrongPermission = findWrongEnumValue({
+      $enum: EPermission,
+      value: permissions,
+    })
+
+    if (wrongPermission) {
+      throw new HttpException(
+        `${wrongPermission} is not valid permission.`,
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
