@@ -5,11 +5,11 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'employees' })
 export class EmployeesEntity extends DatedBasicEntity {
-  @ApiProperty({ example: 'John', description: "User's first name" })
+  @ApiProperty({ example: 'John', description: "Employee's first name" })
   @Column({ type: 'varchar', length: 35, default: null, nullable: true })
   firstName: string
 
-  @ApiProperty({ example: 'Johnson', description: "User's last name" })
+  @ApiProperty({ example: 'Johnson', description: "Employee's last name" })
   @Column({ type: 'varchar', length: 35, default: null, nullable: true })
   lastName: string
 

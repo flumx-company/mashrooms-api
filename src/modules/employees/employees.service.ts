@@ -66,7 +66,7 @@ export class EmployeesService {
       )
     }
 
-    if (foundEmployeeById && foundEmployeeByPhone.id !== id) {
+    if (foundEmployeeByPhone && foundEmployeeByPhone.id !== id) {
       throw new HttpException(
         'There already exists a different employee with this phone.',
         HttpStatus.UNPROCESSABLE_ENTITY,
