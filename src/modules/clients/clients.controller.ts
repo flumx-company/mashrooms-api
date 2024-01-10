@@ -17,8 +17,12 @@ import {
   ApiParam,
   ApiParamOptions,
 } from '@nestjs/swagger'
-
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
 
 import { Auth } from '@mush/core/decorators'
 import { ApiV1 } from '@mush/core/utils'
@@ -28,6 +32,7 @@ import { ClientsService } from './clients.service'
 import { ClientsEntity } from './clients.entity'
 import { CreateClientDto } from './dto/create.client.dto'
 import { UpdateClientDto } from './dto/update.client.dto'
+import { clientsPaginationConfig } from './pagination'
 
 @ApiTags('Clients')
 @ApiBadGatewayResponse({
@@ -44,10 +49,20 @@ export class ClientsController {
     permission: EPermission.READ_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Get list of all clients. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
+    summary:
+      'Get list of all clients. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
   })
-  async getAllUsers(): Promise<ClientsEntity[]> {
-    return this.clientsService.findAll()
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the list of clients.',
+    type: ClientsEntity,
+    isArray: true,
+  })
+  @ApiPaginationQuery(clientsPaginationConfig)
+  async getAllClients(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<ClientsEntity>> {
+    return this.clientsService.findAll(query)
   }
 
   @Post()
@@ -56,7 +71,8 @@ export class ClientsController {
     permission: EPermission.CREATE_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Add a new client. Role: SUPERADMIN, ADMIN. Permission: CREATE_CLIENTS.',
+    summary:
+      'Add a new client. Role: SUPERADMIN, ADMIN. Permission: CREATE_CLIENTS.',
   })
   @ApiBody({
     description: 'Model to add a new client.',
@@ -77,7 +93,8 @@ export class ClientsController {
     permission: EPermission.UPDATE_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Update a client. Role: SUPERADMIN, ADMIN. Permission: UPDATE_CLIENTS.',
+    summary:
+      'Update a client. Role: SUPERADMIN, ADMIN. Permission: UPDATE_CLIENTS.',
   })
   @ApiParam({
     name: 'id',
@@ -91,7 +108,7 @@ export class ClientsController {
   @ApiResponse({
     status: 200,
     description: 'Will return the client data.',
-    type: UsersEntity,
+    type: ClientsEntity,
   })
   async updateClient(
     @Param('id', ParseIntPipe) id: number,
@@ -106,7 +123,8 @@ export class ClientsController {
     permission: EPermission.DELETE_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Remove a client. Role: SUPERADMIN, ADMIN. Permission: DELETE_CLIENTS.',
+    summary:
+      'Remove a client. Role: SUPERADMIN, ADMIN. Permission: DELETE_CLIENTS.',
   })
   @ApiParam({
     name: 'id',
