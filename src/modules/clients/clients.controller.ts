@@ -77,7 +77,7 @@ export class ClientsController {
     permission: EPermission.UPDATE_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Update an client. Role: SUPERADMIN, ADMIN. Permission: UPDATE_CLIENTS.',
+    summary: 'Update a client. Role: SUPERADMIN, ADMIN. Permission: UPDATE_CLIENTS.',
   })
   @ApiParam({
     name: 'id',
@@ -106,7 +106,7 @@ export class ClientsController {
     permission: EPermission.DELETE_CLIENTS,
   })
   @ApiOperation({
-    summary: 'Remove an client. Role: SUPERADMIN, ADMIN. Permission: DELETE_CLIENTS.',
+    summary: 'Remove a client. Role: SUPERADMIN, ADMIN. Permission: DELETE_CLIENTS.',
   })
   @ApiParam({
     name: 'id',
@@ -118,7 +118,7 @@ export class ClientsController {
     description: 'Will return boolean result.',
     type: Boolean,
   })
-  async removeUser(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
+  async removeClient(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
     return this.clientsService.removeClient(id)
   }
 }
