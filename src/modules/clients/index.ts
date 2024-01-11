@@ -1,5 +1,0 @@
-export * from './clients.controller'
-export * from './clients.entity'
-export * from './clients.module'
-export * from './clients.service'
-export * from './dto'

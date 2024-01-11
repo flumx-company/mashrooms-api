@@ -1,5 +1,7 @@
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, OneToMany } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
+
+import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 
@@ -35,4 +37,7 @@ export class ClientsEntity extends DatedBasicEntity {
   })
   @Column({ type: 'varchar', length: 20, default: null, nullable: true })
   phone: string
+
+  @OneToMany(() => OffloadsEntity, (offload) => offload.client)
+  offloads: OffloadsEntity[]
 }
