@@ -1,0 +1,111 @@
+version: '3.8'
+services:
+  mashrooms-mysql:
+    container_name: ${APP_NAME}-mysql-${APP_ENV}
+    image: 'mysql:8.2.0'
+    restart: always
+    ports:
+      - ${MYSQL_TCP_PORT}:3306
+    env_file:
+      - .env
+    networks:
+      - registry_default
+      - mashrooms-network
+    volumes:
+      - mashrooms-mysql-volume:/var/lib/mysql
+
+  mashrooms-mysql-2:
+    container_name: ${APP_NAME}-mysql-2-${APP_ENV}
+    image: 'mysql:8.2.0'
+    restart: always
+    ports:
+      - ${MYSQL_TCP_PORT_2}:3306
+    env_file:
+      - .env
+    networks:
+      - registry_default
+      - mashrooms-network
+    volumes:
+      - mashrooms-mysql-volume:/var/lib/mysql
+
+  mashrooms-phpmyadmin:
+    image: 'phpmyadmin/phpmyadmin:latest'
+    restart: always
+    ports:
+      - 51515:80
+    env_file:
+      - .env
+    depends_on:
+      - mashrooms-mysql
+    links:
+      - mashrooms-mysql
+    networks:
+      - registry_default
+      - mashrooms-network
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.mushrooms-api-prod.entrypoints=websecure'
+      - 'traefik.http.routers.mushrooms-api-prod.tls.certresolver=myresolver'
+      - 'traefik.http.routers.mushrooms-api-prod.service=mushrooms-api-prod'
+      - 'traefik.http.services.mushrooms-api-prod.loadbalancer.server.port=51515'
+    volumes:
+      - mashrooms-phpmyadmin-volume:/var/lib/phpmyadmin
+
+  mashrooms-phpmyadmin-2:
+    image: 'phpmyadmin/phpmyadmin:latest'
+    restart: always
+    ports:
+      - 51516:80
+    env_file:
+      - .env
+    depends_on:
+      - mashrooms-mysql-2
+    links:
+      - mashrooms-mysql-2
+    networks:
+      - registry_default
+      - mashrooms-network
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.mushrooms-api-prod.entrypoints=websecure'
+      - 'traefik.http.routers.mushrooms-api-prod.tls.certresolver=myresolver'
+      - 'traefik.http.routers.mushrooms-api-prod.service=mushrooms-api-prod'
+      - 'traefik.http.services.mushrooms-api-prod.loadbalancer.server.port=51515'
+    volumes:
+      - mashrooms-phpmyadmin-volume:/var/lib/phpmyadmin
+
+  api:
+    image: registry.it-flumx.com/flumx_mushrooms_api:latest
+    env_file:
+      - .env
+    depends_on:
+      - mashrooms-mysql
+    links:
+      - mashrooms-mysql
+    ports:
+      - 51516:3000
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.mushrooms-api-prod.entrypoints=websecure'
+      - 'traefik.http.routers.mushrooms-api-prod.tls.certresolver=myresolver'
+      - 'traefik.http.routers.mushrooms-api-prod.service=mushrooms-api-prod'
+      - 'traefik.http.services.mushrooms-api-prod.loadbalancer.server.port=3000'
+    networks:
+      - registry_default
+      - mashrooms-network
+    volumes:
+      - mashrooms-api-volume:/app
+
+volumes:
+  mashrooms-api-volume:
+  mashrooms-mysql-volume:
+  mashrooms-phpmyadmin-volume:
+
+networks:
+  registry_default:
+    external: true
+  mashrooms-network:
+    name: mashrooms-network
