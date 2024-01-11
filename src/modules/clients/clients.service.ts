@@ -1,12 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
+import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 
 import { Nullable } from '@mush/core/utils'
 
 import { ClientsEntity } from './clients.entity'
 import { CreateClientDto } from './dto/create.client.dto'
 import { UpdateClientDto } from './dto/update.client.dto'
+import { clientsPaginationConfig } from './pagination'
 
 @Injectable()
 export class ClientsService {
@@ -15,8 +17,8 @@ export class ClientsService {
     private clientsRepository: Repository<ClientsEntity>,
   ) {}
 
-  findAll(): Promise<ClientsEntity[]> {
-    return this.clientsRepository.find()
+  findAll(query: PaginateQuery): Promise<Paginated<ClientsEntity>> {
+    return paginate(query, this.clientsRepository, clientsPaginationConfig)
   }
 
   findClientById(id: number): Promise<Nullable<ClientsEntity>> {
@@ -100,5 +102,18 @@ export class ClientsService {
     } catch (e) {
       return false
     }
+  }
+
+  async getClientById(id: number): Promise<ClientsEntity> {
+    const foundClient = await this.findClientById(id)
+
+    if (!foundClient) {
+      throw new HttpException(
+        'There is no client with this id.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    return foundClient
   }
 }
