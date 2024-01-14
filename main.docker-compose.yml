@@ -65,6 +65,28 @@ services:
       - registry_default
       - mashrooms-network
 
+  mysql-cron-backup:
+    image: fradelg/mysql-cron-backup
+    depends_on:
+      - mashrooms-mysql
+    volumes:
+      - ${VOLUME_PATH}/backup:/backup
+    environment:
+      - MYSQL_HOST=mashrooms-mysql
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASS=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MAX_BACKUPS=15
+      - INIT_BACKUP=0
+      # Every day at 03:00
+      - CRON_TIME=0 3 * * *
+      # Make it small
+      - GZIP_LEVEL=9
+      # As of MySQL 8.0.21 this is needed
+      - MYSQLDUMP_OPTS=--no-tablespaces
+    restart: unless-stopped
+
+
 volumes:
   mashrooms-api-volume:
   mashrooms-mysql-volume:
