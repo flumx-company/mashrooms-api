@@ -19,7 +19,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
   app.use(cookieParser())
-  console.log(1)
+  console.log(1, '123123123')
   SwaggerModule.setup('api', app, document)
   await app.listen(3000, '0.0.0.0')
 
