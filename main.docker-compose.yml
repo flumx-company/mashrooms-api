@@ -69,8 +69,11 @@ services:
     image: fradelg/mysql-cron-backup
     depends_on:
       - mashrooms-mysql
-    volumes:
-      - ${VOLUME_PATH}/backup:/backup
+    links: 
+      - mashrooms-mysql
+    networks:
+      - registry_default
+      - mashrooms-network
     environment:
       - MYSQL_HOST=mashrooms-mysql
       - MYSQL_USER=${MYSQL_USER}
