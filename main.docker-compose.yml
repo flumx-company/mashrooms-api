@@ -49,10 +49,12 @@ services:
     depends_on:
       mashrooms-mysql:
         condition: service_healthy
+        restart: true
     links: 
       - mashrooms-mysql
     ports:
       - 51516:3000
+    restart: always
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
