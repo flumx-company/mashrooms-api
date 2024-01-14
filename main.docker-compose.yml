@@ -58,8 +58,6 @@ services:
     networks:
       - registry_default
       - mashrooms-network
-    volumes:
-      - mashrooms-api-volume:/app
 
 volumes:
   mashrooms-api-volume:
