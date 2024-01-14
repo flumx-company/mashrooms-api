@@ -47,7 +47,8 @@ services:
     env_file: 
       - .env
     depends_on:
-      - mashrooms-mysql  
+      mashrooms-mysql:
+        condition: service_healthy
     links: 
       - mashrooms-mysql
     ports:
