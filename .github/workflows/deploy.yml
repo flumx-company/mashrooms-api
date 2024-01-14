@@ -48,7 +48,7 @@ jobs:
             - name: Build image (API)
               working-directory: .
               run: |
-                  docker build -f ${{ env.API_DOCKERFILE_PATH }} -t api --cache-from ${{ env.LATEST_IMAGE }} -t ${{ env.COMMIT_IMAGE }} .
+                  docker build -f ${{ env.API_DOCKERFILE_PATH }} -t ${{ env.COMMIT_IMAGE }} .
             - name: Tag latest image (API)
               run: |
                   docker tag ${{ env.COMMIT_IMAGE }} ${{ env.LATEST_IMAGE }}
