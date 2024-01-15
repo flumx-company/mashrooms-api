@@ -1,4 +1,11 @@
 import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
+
+import {
   Body,
   Controller,
   Delete,
@@ -9,38 +16,32 @@ import {
   Put,
 } from '@nestjs/common'
 import {
-  ApiTags,
-  ApiOperation,
   ApiBadGatewayResponse,
   ApiBody,
-  ApiResponse,
+  ApiOperation,
   ApiParam,
   ApiParamOptions,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger'
-import {
-  ApiPaginationQuery,
-  Paginate,
-  PaginateQuery,
-  Paginated,
-} from 'nestjs-paginate'
 
-import { UsersService } from '@mush/modules/core-module/users/users.service'
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 import {
   CreateUserDto,
-  UpdateUserDto,
-  UpdateUserPermissionsDto,
   ResetPasswordDto,
   UpdateActiveStatusDto,
+  UpdateUserDto,
+  UpdateUserPermissionsDto,
 } from '@mush/modules/core-module/users/dto'
 import { usersPaginationConfig } from '@mush/modules/core-module/users/pagination'
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
+import { UsersService } from '@mush/modules/core-module/users/users.service'
 import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
 import { OffloadsService } from '@mush/modules/offloads/offloads.service'
 import { offloadsPaginationConfig } from '@mush/modules/offloads/pagination'
 
 import { Auth } from '@mush/core/decorators'
+import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'
-import { ERole, EPermission } from '@mush/core/enums'
 
 @ApiTags('Admins')
 @ApiBadGatewayResponse({
@@ -57,7 +58,8 @@ export class AdminsController {
   @Get()
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.READ_ADMINS })
   @ApiOperation({
-    summary: 'Get list of all admins. Role: SUPERADMIN. Permission: READ_ADMINS',
+    summary:
+      'Get list of all admins. Role: SUPERADMIN. Permission: READ_ADMINS',
   })
   @ApiResponse({
     status: 200,
@@ -75,7 +77,8 @@ export class AdminsController {
   @Post()
   @Auth({ roles: [ERole.SUPERADMIN], permission: EPermission.CREATE_ADMINS })
   @ApiOperation({
-    summary: 'Add a new admin user. Role: SUPERADMIN. Permission: CREATE_ADMINS',
+    summary:
+      'Add a new admin user. Role: SUPERADMIN. Permission: CREATE_ADMINS',
   })
   @ApiBody({
     description: 'Model to add a new user.',

@@ -1,14 +1,15 @@
 import {
-  IsString,
-  MaxLength,
-  MinLength,
-  IsNotEmpty,
-  Matches,
   IsArray,
+  IsBoolean,
   IsEmail,
   IsEnum,
-  IsBoolean,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
 } from 'class-validator'
+
 import { ApiProperty } from '@nestjs/swagger'
 
 import { EPermission, EPosition } from '@mush/core/enums'

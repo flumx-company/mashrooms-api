@@ -1,4 +1,19 @@
 {
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrderParserPlugins": [
+    "typescript",
+    "classProperties",
+    "decorators-legacy"
+  ],
+  "importOrder": [
+    "^@nestjs/(.*)$",
+    "^@mush/modules/(.*)$",
+    "^@mush/core/(.*)$",
+    "^@mush/(.*)$",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
   "singleQuote": true,
   "semi": false,
   "trailingComma": "all"

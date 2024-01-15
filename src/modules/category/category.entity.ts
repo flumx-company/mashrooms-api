@@ -1,11 +1,12 @@
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm'
-import { ApiProperty } from '@nestjs/swagger'
 
-import { DatedBasicEntity } from '@mush/core/basic-entities'
+import { ApiProperty } from '@nestjs/swagger'
 
 import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
 import { Picking } from '@mush/modules/picking/picking.entity'
 import { Yield } from '@mush/modules/yield/yield.entity'
+
+import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'categories' })
 export class Category extends DatedBasicEntity {

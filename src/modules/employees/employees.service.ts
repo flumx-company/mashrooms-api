@@ -1,12 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { Repository } from 'typeorm'
+
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { Nullable } from '@mush/core/utils'
 
-import { EmployeesEntity } from './employees.entity'
 import { CreateEmployeeDto } from './dto/create.employees.dto'
 import { UpdateEmployeeDto } from './dto/update.employees.dto'
+import { EmployeesEntity } from './employees.entity'
 
 @Injectable()
 export class EmployeesService {

@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { CoreModule } from '@mush/modules/core-module/core.module'
 
-import { DriversEntity } from './drivers.entity'
 import { DriversController } from './drivers.controller'
+import { DriversEntity } from './drivers.entity'
 import { DriversService } from './drivers.service'
 
 @Module({

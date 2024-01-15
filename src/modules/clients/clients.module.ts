@@ -3,9 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { CoreModule } from '@mush/modules/core-module/core.module'
 
+import { ClientsController } from './clients.controller'
 import { ClientsEntity } from './clients.entity'
 import { ClientsService } from './clients.service'
-import { ClientsController } from './clients.controller'
 
 @Module({
   imports: [TypeOrmModule.forFeature([ClientsEntity]), CoreModule],

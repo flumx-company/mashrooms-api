@@ -1,37 +1,38 @@
 import {
-  IsString,
+  IsEmail,
   IsNotEmpty,
+  IsString,
   Matches,
   MaxLength,
   MinLength,
-  IsEmail,
-} from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
+} from 'class-validator'
+
+import { ApiProperty } from '@nestjs/swagger'
 
 export class LoginDto {
   @IsString()
   @IsEmail()
   @IsNotEmpty()
   @ApiProperty({
-    example: "test@gmail.com",
-    description: "Enter the email address.",
+    example: 'test@gmail.com',
+    description: 'Enter the email address.',
     type: String,
   })
-  readonly email: string;
+  readonly email: string
 
   @IsString()
   @MaxLength(15)
   @MinLength(8)
   @IsNotEmpty()
   @Matches(
-    /(?=.*[0-9])(?=.*[!@#$%^&*_])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*_]{8,}/g
+    /(?=.*[0-9])(?=.*[!@#$%^&*_])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*_]{8,}/g,
   )
   @ApiProperty({
-    example: "123Abc!_z",
-    description: "Enter password.",
+    example: '123Abc!_z',
+    description: 'Enter password.',
     type: String,
   })
-  readonly password: string;
+  readonly password: string
 }
 
 // (?=.*[0-9]) - строка содержит хотя бы одно число;

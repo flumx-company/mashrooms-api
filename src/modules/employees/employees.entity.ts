@@ -1,4 +1,5 @@
 import { Column, Entity } from 'typeorm'
+
 import { ApiProperty } from '@nestjs/swagger'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'

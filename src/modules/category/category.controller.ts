@@ -9,21 +9,21 @@ import {
   Put,
 } from '@nestjs/common'
 import {
-  ApiTags,
-  ApiOperation,
   ApiBadGatewayResponse,
   ApiBody,
-  ApiResponse,
+  ApiOperation,
   ApiParam,
   ApiParamOptions,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger'
 
 import { Auth } from '@mush/core/decorators'
+import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'
-import { ERole, EPermission } from '@mush/core/enums'
 
-import { CategoryService } from './category.service'
 import { Category } from './category.entity'
+import { CategoryService } from './category.service'
 import { UpdateCategoryDto } from './dto'
 
 @ApiTags('Categories')
@@ -119,7 +119,9 @@ export class CategoryController {
     description: 'Will return boolean result.',
     type: Boolean,
   })
-  async removeCategory(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
+  async removeCategory(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Boolean> {
     return this.categoryService.removeCategory(id)
   }
 }
