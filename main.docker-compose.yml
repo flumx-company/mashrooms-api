@@ -82,7 +82,7 @@ services:
       - MAX_BACKUPS=15
       - INIT_BACKUP=0
       # Every day at 03:00
-      - CRON_TIME=*/5 * * * *
+      - CRON_TIME=0 * * * *
       # Make it small
       - GZIP_LEVEL=9
       # As of MySQL 8.0.21 this is needed
