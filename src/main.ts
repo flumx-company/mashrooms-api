@@ -1,8 +1,9 @@
-import { NestFactory, Reflector } from '@nestjs/core'
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
 import * as cookieParser from 'cookie-parser'
 import 'module-alias/register'
+
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
+import { NestFactory, Reflector } from '@nestjs/core'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from '@mush/modules/app.module'
 

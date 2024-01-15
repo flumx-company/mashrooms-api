@@ -1,17 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { Repository } from 'typeorm'
-import { InjectRepository } from '@nestjs/typeorm'
 import { genSalt, hash } from 'bcrypt'
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
+import { Repository } from 'typeorm'
 
-import { ERole, EPermission, EPosition } from '@mush/core/enums'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+
+import { EPermission, EPosition, ERole } from '@mush/core/enums'
 import { Nullable } from '@mush/core/utils'
-import { findWrongEnumValue } from '@mush/core/utils/find.wrong.enum.value' //NOTE: importing from index.ts triggers error
+import { findWrongEnumValue } from '@mush/core/utils/find.wrong.enum.value'
 
-import { UsersEntity } from './users.entity'
 import { CreateUserDto } from './dto/create.user.dto'
 import { UpdateUserDto } from './dto/update.user.dto'
 import { usersPaginationConfig } from './pagination/users.pagination.config'
+import { UsersEntity } from './users.entity'
 
 @Injectable()
 export class UsersService {

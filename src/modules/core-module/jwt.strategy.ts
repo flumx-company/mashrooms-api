@@ -1,17 +1,18 @@
+import { Request } from 'express'
+import { JwtPayload } from 'jsonwebtoken'
+
 import {
   CanActivate,
   ExecutionContext,
-  Scope,
   Injectable,
+  Scope,
   UnauthorizedException,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { JwtPayload } from 'jsonwebtoken'
-import { Request } from 'express'
 
-import { UsersService } from './users/users.service'
 import { UsersEntity } from './users/users.entity'
+import { UsersService } from './users/users.service'
 
 @Injectable({ scope: Scope.REQUEST })
 export class JwtStrategy implements CanActivate {

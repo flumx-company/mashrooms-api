@@ -1,4 +1,5 @@
 import { Column, Entity, OneToMany } from 'typeorm'
+
 import { ApiProperty } from '@nestjs/swagger'
 
 import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'

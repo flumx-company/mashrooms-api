@@ -1,11 +1,12 @@
+import * as bcrypt from 'bcrypt'
+
 import {
   HttpException,
-  NotFoundException,
   HttpStatus,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import * as bcrypt from 'bcrypt'
 
 import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 import { UsersService } from '@mush/modules/core-module/users/users.service'

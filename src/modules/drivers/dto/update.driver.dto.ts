@@ -1,10 +1,11 @@
 import {
+  IsNotEmpty,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
-  IsNotEmpty,
-  Matches,
 } from 'class-validator'
+
 import { ApiProperty } from '@nestjs/swagger'
 
 import { PHONE_REGEX } from '@mush/core/utils'

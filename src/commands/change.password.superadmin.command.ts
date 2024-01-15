@@ -1,7 +1,8 @@
-import { InjectRepository } from '@nestjs/typeorm'
+import { genSalt, hash } from 'bcrypt'
 import { Command, CommandRunner, Option } from 'nest-commander'
 import { Repository } from 'typeorm'
-import { genSalt, hash } from 'bcrypt'
+
+import { InjectRepository } from '@nestjs/typeorm'
 
 import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 

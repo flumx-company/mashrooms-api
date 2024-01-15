@@ -9,23 +9,23 @@ import {
   Put,
 } from '@nestjs/common'
 import {
-  ApiTags,
-  ApiOperation,
   ApiBadGatewayResponse,
   ApiBody,
-  ApiResponse,
+  ApiOperation,
   ApiParam,
   ApiParamOptions,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger'
 
 import { Auth } from '@mush/core/decorators'
-import { ERole, EPermission } from '@mush/core/enums'
+import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'
 
-import { EmployeesService } from './employees.service'
-import { EmployeesEntity } from './employees.entity'
 import { CreateEmployeeDto } from './dto/create.employees.dto'
 import { UpdateEmployeeDto } from './dto/update.employees.dto'
+import { EmployeesEntity } from './employees.entity'
+import { EmployeesService } from './employees.service'
 
 @ApiTags('Employees')
 @ApiBadGatewayResponse({
@@ -42,7 +42,8 @@ export class EmployeesController {
     permission: EPermission.READ_EMPLOYEES,
   })
   @ApiOperation({
-    summary: 'Get list of all employees. Role: SUPERADMIN, ADMIN. Permission: READ_EMPLOYEES.',
+    summary:
+      'Get list of all employees. Role: SUPERADMIN, ADMIN. Permission: READ_EMPLOYEES.',
   })
   async getAllEmployees(): Promise<EmployeesEntity[]> {
     return this.employeesService.findAll()
@@ -54,7 +55,8 @@ export class EmployeesController {
     permission: EPermission.CREATE_EMPLOYEES,
   })
   @ApiOperation({
-    summary: 'Add a new employee. Role: SUPERADMIN, ADMIN. Permission: CREATE_EMPLOYEES.',
+    summary:
+      'Add a new employee. Role: SUPERADMIN, ADMIN. Permission: CREATE_EMPLOYEES.',
   })
   @ApiBody({
     description: 'Model to add a new employee.',
@@ -77,7 +79,8 @@ export class EmployeesController {
     permission: EPermission.UPDATE_EMPLOYEES,
   })
   @ApiOperation({
-    summary: 'Update an employee. Role: SUPERADMIN, ADMIN. Permission: UPDATE_EMPLOYEES.',
+    summary:
+      'Update an employee. Role: SUPERADMIN, ADMIN. Permission: UPDATE_EMPLOYEES.',
   })
   @ApiParam({
     name: 'id',
@@ -106,7 +109,8 @@ export class EmployeesController {
     permission: EPermission.DELETE_EMPLOYEES,
   })
   @ApiOperation({
-    summary: 'Remove an employee. Role: SUPERADMIN, ADMIN. Permission: DELETE_EMPLOYEES',
+    summary:
+      'Remove an employee. Role: SUPERADMIN, ADMIN. Permission: DELETE_EMPLOYEES',
   })
   @ApiParam({
     name: 'id',

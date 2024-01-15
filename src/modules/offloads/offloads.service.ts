@@ -1,17 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { Repository } from 'typeorm'
-import { InjectRepository } from '@nestjs/typeorm'
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
+import { Repository } from 'typeorm'
 
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
-import { ClientsService } from '@mush/modules/clients/clients.service'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+
 import { ClientsEntity } from '@mush/modules/clients/clients.entity'
+import { ClientsService } from '@mush/modules/clients/clients.service'
+import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
 import { Nullable } from '@mush/core/utils'
 
+import { CreateOffloadDto } from './dto'
 import { OffloadsEntity } from './offloads.entity'
 import { offloadsPaginationConfig } from './pagination/index'
-import { CreateOffloadDto } from './dto'
 
 @Injectable()
 export class OffloadsService {
@@ -88,8 +89,9 @@ export class OffloadsService {
   }
 
   async removeOffload(id: number): Promise<Boolean> {
-    const foundOffload: Nullable<OffloadsEntity> =
-      await this.findOffloadById(id)
+    const foundOffload: Nullable<OffloadsEntity> = await this.findOffloadById(
+      id,
+    )
 
     if (!foundOffload) {
       throw new HttpException(
