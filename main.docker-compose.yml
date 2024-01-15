@@ -13,6 +13,10 @@ services:
       - mashrooms-network
     volumes:
       - mashrooms-mysql-volume:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 30
 
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"
@@ -43,11 +47,13 @@ services:
     env_file: 
       - .env
     depends_on:
-      - mashrooms-mysql  
+      mashrooms-mysql:
+        condition: service_healthy
     links: 
       - mashrooms-mysql
     ports:
       - 51516:3000
+    restart: always
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
@@ -58,8 +64,31 @@ services:
     networks:
       - registry_default
       - mashrooms-network
-    volumes:
-      - mashrooms-api-volume:/app
+
+  mysql-cron-backup:
+    image: fradelg/mysql-cron-backup
+    depends_on:
+      - mashrooms-mysql
+    links: 
+      - mashrooms-mysql
+    networks:
+      - registry_default
+      - mashrooms-network
+    environment:
+      - MYSQL_HOST=mashrooms-mysql
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASS=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MAX_BACKUPS=15
+      - INIT_BACKUP=0
+      # Every day at 03:00
+      - CRON_TIME=*/5 * * * *
+      # Make it small
+      - GZIP_LEVEL=9
+      # As of MySQL 8.0.21 this is needed
+      - MYSQLDUMP_OPTS=--no-tablespaces
+    restart: unless-stopped
+
 
 volumes:
   mashrooms-api-volume:
