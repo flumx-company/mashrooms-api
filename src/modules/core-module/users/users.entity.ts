@@ -1,11 +1,12 @@
-import { Column, Entity, OneToMany } from 'typeorm'
 import { Exclude } from 'class-transformer'
+import { Column, Entity, OneToMany } from 'typeorm'
+
 import { ApiProperty } from '@nestjs/swagger'
 
 import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { ERole, EPermission, EPosition } from '@mush/core/enums'
+import { EPermission, EPosition, ERole } from '@mush/core/enums'
 
 @Entity({ name: 'users' })
 export class UsersEntity extends DatedBasicEntity {

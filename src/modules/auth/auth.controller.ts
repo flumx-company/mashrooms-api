@@ -1,31 +1,32 @@
+import { Request as ExRequest, Response as ExResponse } from 'express'
+
 import {
   Body,
   Controller,
-  Post,
-  Res,
   Get,
-  Req,
+  HttpCode,
   HttpException,
   HttpStatus,
-  HttpCode,
+  Post,
+  Req,
+  Res,
 } from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
-  ApiOperation,
   ApiBody,
+  ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
-import { Response as ExResponse, Request as ExRequest } from 'express'
 
 import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
 import { Auth } from '@mush/core/decorators'
-import { ERole, EPermission } from '@mush/core/enums'
-import { Nullable, ApiV1 } from '@mush/core/utils'
+import { EPermission, ERole } from '@mush/core/enums'
+import { ApiV1, Nullable } from '@mush/core/utils'
 
-import { LoginDto } from './dto/login.dto'
 import { AuthService } from './auth.service'
+import { LoginDto } from './dto/login.dto'
 
 const ACCESS_TOKEN = 'access-token'
 
@@ -132,8 +133,7 @@ export class AuthController {
     roles: [ERole.SUPERADMIN],
   })
   @ApiOperation({
-    summary:
-      'Returns list of all existing permissions. Role: SUPERADMIN.',
+    summary: 'Returns list of all existing permissions. Role: SUPERADMIN.',
   })
   @ApiResponse({
     status: 200,

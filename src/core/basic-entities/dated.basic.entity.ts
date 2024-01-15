@@ -1,4 +1,4 @@
-import { CreateDateColumn, UpdateDateColumn, Entity } from 'typeorm'
+import { CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm'
 
 import { BasicEntity } from './basic.entity'
 

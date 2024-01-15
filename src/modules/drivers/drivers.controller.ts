@@ -9,23 +9,23 @@ import {
   Put,
 } from '@nestjs/common'
 import {
-  ApiTags,
-  ApiOperation,
   ApiBadGatewayResponse,
   ApiBody,
-  ApiResponse,
+  ApiOperation,
   ApiParam,
   ApiParamOptions,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger'
 
 import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
-import { ERole, EPermission } from '@mush/core/enums'
-import { ApiV1 } from '@mush/core/utils'
 import { Auth } from '@mush/core/decorators'
+import { EPermission, ERole } from '@mush/core/enums'
+import { ApiV1 } from '@mush/core/utils'
 
-import { DriversService } from './drivers.service'
 import { DriversEntity } from './drivers.entity'
+import { DriversService } from './drivers.service'
 import { CreateDriverDto } from './dto/create.driver.dto'
 import { UpdateDriverDto } from './dto/update.driver.dto'
 
@@ -44,7 +44,8 @@ export class DriversController {
     permission: EPermission.READ_DRIVERS,
   })
   @ApiOperation({
-    summary: 'Get list of all drivers. Role: SUPERADMIN, ADMIN. Permission: READ_DRIVERS.',
+    summary:
+      'Get list of all drivers. Role: SUPERADMIN, ADMIN. Permission: READ_DRIVERS.',
   })
   async getAllDrivers(): Promise<DriversEntity[]> {
     return this.driversService.findAll()
@@ -56,7 +57,8 @@ export class DriversController {
     permission: EPermission.CREATE_DRIVERS,
   })
   @ApiOperation({
-    summary: 'Add a new drvier. Role: SUPERADMIN, ADMIN. Permission: CREATE_DRIVERS.',
+    summary:
+      'Add a new drvier. Role: SUPERADMIN, ADMIN. Permission: CREATE_DRIVERS.',
   })
   @ApiBody({
     description: 'Model to add a new driver.',
@@ -82,7 +84,8 @@ export class DriversController {
     example: 1,
   } as ApiParamOptions)
   @ApiOperation({
-    summary: 'Update an driver. Role: SUPERADMIN, ADMIN. Permission: UPDATE_DRIVERS.',
+    summary:
+      'Update an driver. Role: SUPERADMIN, ADMIN. Permission: UPDATE_DRIVERS.',
   })
   @ApiBody({
     description: 'Model to update an existing driver.',
@@ -106,7 +109,8 @@ export class DriversController {
     permission: EPermission.DELETE_DRIVERS,
   })
   @ApiOperation({
-    summary: 'Remove an driver. Role: SUPERADMIN, ADMIN. Permission: DELETE_DRIVERS.',
+    summary:
+      'Remove an driver. Role: SUPERADMIN, ADMIN. Permission: DELETE_DRIVERS.',
   })
   @ApiParam({
     name: 'id',

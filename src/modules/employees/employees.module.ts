@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { CoreModule } from '@mush/modules/core-module/core.module'
 
-import { EmployeesEntity } from './employees.entity'
 import { EmployeesController } from './employees.controller'
+import { EmployeesEntity } from './employees.entity'
 import { EmployeesService } from './employees.service'
 
 @Module({

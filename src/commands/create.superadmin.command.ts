@@ -1,11 +1,12 @@
-import { InjectRepository } from '@nestjs/typeorm'
+import { genSalt, hash } from 'bcrypt'
 import { Command, CommandRunner, Option } from 'nest-commander'
 import { Repository } from 'typeorm'
-import { genSalt, hash } from 'bcrypt'
+
+import { InjectRepository } from '@nestjs/typeorm'
 
 import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
 
-import { EPermission, ERole, EPosition } from '@mush/core/enums'
+import { EPermission, EPosition, ERole } from '@mush/core/enums'
 import { EMAIL_REGEX } from '@mush/core/utils'
 
 interface CreateSuperadminCommandOptions {
