@@ -13,8 +13,8 @@ services:
       - mashrooms-network
     volumes:
       - mashrooms-mysql-volume:/var/lib/mysql
-      - ${PWD}/deploy:/etc/mysql/mysql.conf.d
-      - ${PWD}/deploy/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+      - ./deploy:/etc/mysql/mysql.conf.d
+      - ./deploy/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
