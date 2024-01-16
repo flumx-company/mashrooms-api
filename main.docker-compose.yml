@@ -13,6 +13,7 @@ services:
       - mashrooms-network
     volumes:
       - mashrooms-mysql-volume:/var/lib/mysql
+      - /deploy:/etc/mysql/mysql.conf.d
       - /deploy/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
