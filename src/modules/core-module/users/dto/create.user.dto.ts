@@ -12,6 +12,7 @@ import {
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { ToBoolean } from '@mush/core/decorators'
 import { EPermission, EPosition } from '@mush/core/enums'
 import {
   LATIN_CYRILLIC_LETTER_NAME_REGEX,
@@ -94,6 +95,7 @@ export class CreateUserDto {
   })
   readonly position: EPosition
 
+  @ToBoolean()
   @IsBoolean()
   @IsNotEmpty()
   @ApiProperty({

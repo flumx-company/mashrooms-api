@@ -2,7 +2,10 @@ import { IsBoolean, IsNotEmpty } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { ToBoolean } from '@mush/core/decorators'
+
 export class UpdateActiveStatusDto {
+  @ToBoolean()
   @IsBoolean()
   @IsNotEmpty()
   @ApiProperty({
