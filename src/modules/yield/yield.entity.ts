@@ -12,7 +12,7 @@ export class Yield extends DatedBasicEntity {
   @Column({ type: 'varchar', length: 70, default: null, nullable: true })
   name: string
 
-  @ManyToMany(() => Category)
+  @ManyToMany(() => Category, (category) => category.yields)
   @JoinTable()
   categories: Category[]
 }
