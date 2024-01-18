@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer'
-import { Column, Entity, OneToMany } from 'typeorm'
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -69,6 +69,7 @@ export class UsersEntity extends DatedBasicEntity {
   @Column({ type: 'boolean', default: null, nullable: true })
   isActive: boolean
 
-  @OneToMany(() => OffloadsEntity, (offload) => offload.user)
+  @ManyToMany(() => OffloadsEntity, (offload) => offload.users)
+  @JoinTable()
   offloads: OffloadsEntity[]
 }

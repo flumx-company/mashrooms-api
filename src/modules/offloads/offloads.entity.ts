@@ -1,4 +1,4 @@
-import { Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm'
+import { Entity, JoinTable, ManyToMany } from 'typeorm'
 
 import { Category } from '@mush/modules/category/category.entity'
 import { ClientsEntity } from '@mush/modules/clients/clients.entity'
@@ -8,13 +8,13 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'offloads' })
 export class OffloadsEntity extends DatedBasicEntity {
-  @ManyToOne(() => UsersEntity, (user) => user.offloads)
-  user: UsersEntity
+  @ManyToMany(() => UsersEntity, (user) => user.offloads)
+  users: UsersEntity[]
 
-  @ManyToOne(() => ClientsEntity, (client) => client.offloads)
-  client: ClientsEntity
+  @ManyToMany(() => ClientsEntity, (client) => client.offloads)
+  clients: ClientsEntity[]
 
-  @ManyToMany(() => Category)
+  @ManyToMany(() => Category, (category) => category.offloads)
   @JoinTable()
   categories: Category[]
 }

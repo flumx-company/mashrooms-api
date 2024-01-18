@@ -21,12 +21,12 @@ export class Category extends DatedBasicEntity {
   @Column({ type: 'varchar', length: 255, default: null, nullable: true })
   description: string
 
-  @ManyToMany(() => OffloadsEntity)
+  @ManyToMany(() => OffloadsEntity, (offload) => offload.categories)
   offloads: OffloadsEntity[]
 
-  @ManyToMany(() => Picking)
-  picking: Picking[]
+  @ManyToMany(() => Picking, (picking) => picking.categories)
+  pickings: Picking[]
 
-  @ManyToMany(() => Yield)
+  @ManyToMany(() => Yield, (yieldItem) => yieldItem.categories)
   yields: Yield[]
 }

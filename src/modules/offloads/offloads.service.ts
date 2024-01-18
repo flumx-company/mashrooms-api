@@ -37,7 +37,7 @@ export class OffloadsService {
     const config = {
       ...offloadsPaginationConfig,
       where: {
-        user: {
+        users: {
           id: userId,
         },
       },
@@ -53,7 +53,7 @@ export class OffloadsService {
     const config = {
       ...offloadsPaginationConfig,
       where: {
-        client: {
+        clients: {
           id: clientId,
         },
       },
@@ -82,8 +82,8 @@ export class OffloadsService {
     }
 
     const newOffload: OffloadsEntity = await this.offloadsRepository.create()
-    newOffload.user = user
-    newOffload.client = client
+    newOffload.users = [user]
+    newOffload.clients = [client]
 
     return this.offloadsRepository.save(newOffload)
   }
