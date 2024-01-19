@@ -8,24 +8,23 @@ import {
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
-import { UsersService } from '@mush/modules/core-module/users/users.service'
+import { User } from '@mush/modules/core-module/user/user.entity'
+import { UserService } from '@mush/modules/core-module/user/user.service'
 
 import { LoginDto } from './dto/login.dto'
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
   async login({
     email,
     password,
-  }: LoginDto): Promise<{ accessToken: string; user: UsersEntity }> {
-    const foundUser: UsersEntity | null =
-      await this.usersService.findUserByEmail(email)
+  }: LoginDto): Promise<{ accessToken: string; user: User }> {
+    const foundUser: User | null = await this.userService.findUserByEmail(email)
 
     if (!foundUser) {
       throw new NotFoundException('A user with this email does not exist.')

@@ -4,26 +4,26 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 
-import { AdminsModule } from '@mush/modules/admins/admins.module'
+import { AdminModule } from '@mush/modules/admin/admin.module'
 import { AuthModule } from '@mush/modules/auth/auth.module'
 import { Category } from '@mush/modules/category/category.entity'
 import { CategoryModule } from '@mush/modules/category/category.module'
-import { ClientsEntity } from '@mush/modules/clients/clients.entity'
-import { ClientsModule } from '@mush/modules/clients/clients.module'
-import { ContainersModule } from '@mush/modules/containers/containers.module'
+import { Client } from '@mush/modules/client/client.entity'
+import { ClientModule } from '@mush/modules/client/client.module'
+import { ContainerModule } from '@mush/modules/container/container.module'
 import { CoreModule } from '@mush/modules/core-module/core.module'
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
-import { DriversEntity } from '@mush/modules/drivers/drivers.entity'
-import { DriversModule } from '@mush/modules/drivers/drivers.module'
-import { EmployeesEntity } from '@mush/modules/employees/employees.entity'
-import { EmployeesModule } from '@mush/modules/employees/employees.module'
-import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
-import { OffloadsModule } from '@mush/modules/offloads/offloads.module'
+import { User } from '@mush/modules/core-module/user/user.entity'
+import { Driver } from '@mush/modules/driver/driver.entity'
+import { DriverModule } from '@mush/modules/driver/driver.module'
+import { Employee } from '@mush/modules/employee/employee.entity'
+import { EmployeeModule } from '@mush/modules/employee/employee.module'
+import { Offload } from '@mush/modules/offload/offload.entity'
+import { OffloadModule } from '@mush/modules/offload/offload.module'
 import { Picking } from '@mush/modules/picking/picking.entity'
 import { PickingModule } from '@mush/modules/picking/picking.module'
-import { ProductsModule } from '@mush/modules/products/products.module'
-import { WheelbarrowsModule } from '@mush/modules/wheelbarrows/wheelbarrows.module'
-import { WorkdaysModule } from '@mush/modules/workdays/workdays.module'
+import { ProductModule } from '@mush/modules/product/product.module'
+import { WheelbarrowModule } from '@mush/modules/wheelbarrow/wheelbarrow.module'
+import { WorkdayModule } from '@mush/modules/workday/workday.module'
 import { Yield } from '@mush/modules/yield/yield.entity'
 import { YieldModule } from '@mush/modules/yield/yield.module'
 
@@ -42,29 +42,29 @@ import { AppService } from './app.service'
       ...TypeORMConfig,
       entities: [
         Category,
-        ClientsEntity,
-        DriversEntity,
-        EmployeesEntity,
-        UsersEntity,
-        OffloadsEntity,
+        Client,
+        Driver,
+        Employee,
+        User,
+        Offload,
         Picking,
         Yield,
       ],
     } as TypeOrmModuleOptions),
     CoreModule,
     AuthModule,
-    AdminsModule,
+    AdminModule,
     CategoryModule,
-    ClientsModule,
-    ContainersModule,
-    DriversModule,
-    EmployeesModule,
+    ClientModule,
+    ContainerModule,
+    DriverModule,
+    EmployeeModule,
     PickingModule,
-    OffloadsModule,
+    OffloadModule,
     PickingModule,
-    ProductsModule,
-    WheelbarrowsModule,
-    WorkdaysModule,
+    ProductModule,
+    WheelbarrowModule,
+    WorkdayModule,
     YieldModule,
   ],
   controllers: [AppController],

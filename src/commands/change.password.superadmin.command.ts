@@ -4,7 +4,7 @@ import { Repository } from 'typeorm'
 
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
+import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { generatePassword } from '@mush/core/utils'
 
@@ -18,8 +18,8 @@ interface ChangePasswordSuperadminCommandOptions {
 })
 export class ChangePasswordSuperadminCommand extends CommandRunner {
   constructor(
-    @InjectRepository(UsersEntity)
-    private readonly usersRepository: Repository<UsersEntity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {
     super()
   }
@@ -35,7 +35,7 @@ export class ChangePasswordSuperadminCommand extends CommandRunner {
       return
     }
 
-    const foundUserByEmail = await this.usersRepository.findOneBy({ email })
+    const foundUserByEmail = await this.userRepository.findOneBy({ email })
 
     if (!foundUserByEmail) {
       console.error('A user with this email is not found in our database.')
@@ -47,12 +47,12 @@ export class ChangePasswordSuperadminCommand extends CommandRunner {
       const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
       const salt = await genSalt(saltRounds)
       const hashedPassword: string = await hash(newPassword, salt)
-      const newUser: UsersEntity = this.usersRepository.create({
+      const newUser: User = this.userRepository.create({
         ...foundUserByEmail,
         password: hashedPassword,
       })
 
-      await this.usersRepository.save(newUser)
+      await this.userRepository.save(newUser)
       console.log(
         `Superadmin's password with ${email} was changed to ${newPassword}.`,
       )

@@ -19,7 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
+import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
@@ -51,18 +51,18 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'This will return the access token in cookies.',
-    type: UsersEntity,
+    type: User,
   })
   async loginByEmailAndPassword(
     @Body() loginData: LoginDto,
     @Res({ passthrough: true }) response: ExResponse,
-  ): Promise<Nullable<UsersEntity>> {
+  ): Promise<Nullable<User>> {
     const {
       accessToken,
       user,
     }: {
       accessToken: string
-      user: UsersEntity
+      user: User
     } = await this.authService.login({
       email: loginData.email,
       password: loginData.password,
@@ -116,9 +116,9 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'This returns personal data of the logged in user',
-    type: UsersEntity,
+    type: User,
   })
-  async getPersonalData(@Req() request: ExRequest): Promise<UsersEntity> {
+  async getPersonalData(@Req() request: ExRequest): Promise<User> {
     let userData = request?.['user']
 
     if (!userData) {

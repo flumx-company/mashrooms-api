@@ -1,8 +1,8 @@
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm'
+import { Column, Entity, ManyToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
+import { Offload } from '@mush/modules/offload/offload.entity'
 import { Picking } from '@mush/modules/picking/picking.entity'
 import { Yield } from '@mush/modules/yield/yield.entity'
 
@@ -21,8 +21,8 @@ export class Category extends DatedBasicEntity {
   @Column({ type: 'varchar', length: 255, default: null, nullable: true })
   description: string
 
-  @ManyToMany(() => OffloadsEntity, (offload) => offload.categories)
-  offloads: OffloadsEntity[]
+  @ManyToMany(() => Offload, (offload) => offload.categories)
+  offloads: Offload[]
 
   @ManyToMany(() => Picking, (picking) => picking.categories)
   pickings: Picking[]
