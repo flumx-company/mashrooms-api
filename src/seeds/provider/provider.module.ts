@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
-import { OffloadsEntity } from '@mush/modules/offloads/offloads.entity'
+import { User } from '@mush/modules/core-module/user/user.entity'
+import { Offload } from '@mush/modules/offload/offload.entity'
 
 import { TypeORMConfig } from '@mush/config'
 
@@ -15,7 +15,7 @@ import { TypeORMConfig } from '@mush/config'
     }),
     TypeOrmModule.forRoot({
       ...TypeORMConfig,
-      entities: [UsersEntity, OffloadsEntity],
+      entities: [User, Offload],
     } as TypeOrmModuleOptions),
   ],
 })

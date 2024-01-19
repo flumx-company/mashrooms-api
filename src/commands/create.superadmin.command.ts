@@ -4,7 +4,7 @@ import { Repository } from 'typeorm'
 
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { UsersEntity } from '@mush/modules/core-module/users/users.entity'
+import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { EPermission, EPosition, ERole } from '@mush/core/enums'
 import { EMAIL_REGEX } from '@mush/core/utils'
@@ -21,8 +21,8 @@ interface CreateSuperadminCommandOptions {
 })
 export class CreateSuperadminCommand extends CommandRunner {
   constructor(
-    @InjectRepository(UsersEntity)
-    private readonly usersRepository: Repository<UsersEntity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {
     super()
   }
@@ -32,7 +32,7 @@ export class CreateSuperadminCommand extends CommandRunner {
     options?: CreateSuperadminCommandOptions,
   ): Promise<void> {
     const { email, password }: CreateSuperadminCommandOptions = options
-    const foundUserByEmail: UsersEntity = await this.usersRepository.findOneBy({
+    const foundUserByEmail: User = await this.userRepository.findOneBy({
       email,
     })
 
@@ -50,7 +50,7 @@ export class CreateSuperadminCommand extends CommandRunner {
       const saltRounds: number = parseInt(process.env.PASSWORD_SALT_ROUNDS)
       const salt: string = await genSalt(saltRounds)
       const hashedPassword: string = await hash(password, salt)
-      const newUser: UsersEntity = this.usersRepository.create({
+      const newUser: User = this.userRepository.create({
         email,
         password: hashedPassword,
         role: ERole.SUPERADMIN,
@@ -59,7 +59,7 @@ export class CreateSuperadminCommand extends CommandRunner {
         isActive: true,
       })
 
-      await this.usersRepository.save(newUser)
+      await this.userRepository.save(newUser)
       console.log('A superadmin user is saved in the database.')
     } catch (error) {
       console.error(error)

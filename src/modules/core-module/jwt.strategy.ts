@@ -11,14 +11,14 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 
-import { UsersEntity } from './users/users.entity'
-import { UsersService } from './users/users.service'
+import { User } from './user/user.entity'
+import { UserService } from './user/user.service'
 
 @Injectable({ scope: Scope.REQUEST })
 export class JwtStrategy implements CanActivate {
   constructor(
     private config: ConfigService,
-    private usersService: UsersService,
+    private userService: UserService,
     private jwtService: JwtService,
   ) {}
 
@@ -28,9 +28,9 @@ export class JwtStrategy implements CanActivate {
     return token
   }
 
-  private async validate(payload: JwtPayload): Promise<UsersEntity> {
+  private async validate(payload: JwtPayload): Promise<User> {
     const id: number = parseInt(payload.id)
-    const user: UsersEntity = await this.usersService.findUserById(id)
+    const user: User = await this.userService.findUserById(id)
 
     if (!user) {
       throw new UnauthorizedException()

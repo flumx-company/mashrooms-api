@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 
 import { JwtStrategy } from './jwt.strategy'
-import { UsersModule } from './users/users.module'
+import { UserModule } from './user/user.module'
 
 @Module({
   imports: [
@@ -20,9 +20,9 @@ import { UsersModule } from './users/users.module'
       extraProviders: [ConfigService],
       inject: [ConfigService],
     }),
-    UsersModule,
+    UserModule,
   ],
   providers: [JwtStrategy],
-  exports: [JwtStrategy, ConfigModule, UsersModule, JwtModule],
+  exports: [JwtStrategy, ConfigModule, UserModule, JwtModule],
 })
 export class CoreModule {}
