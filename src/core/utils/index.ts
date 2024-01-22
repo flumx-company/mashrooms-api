@@ -1,6 +1,7 @@
 export * from './generate.password'
 export * from './get.random'
 export * from './find.wrong.enum.value'
+export * from './format.date.to.date.time'
 export * from './password.characters'
 export * from './regex'
 export * from './types'

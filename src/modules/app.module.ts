@@ -31,12 +31,14 @@ import { TypeORMConfig } from '@mush/config'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { Pay } from './pay/pay.entity'
+import { PayModule } from './pay/pay.module'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       expandVariables: true,
-      envFilePath: ['stack.env'], //NOTE: for dev mode, use .serve.env; for prod mode, use stack.env
+      envFilePath: ['.serve.env'], //NOTE: for dev mode, use .serve.env; for prod mode, use stack.env
     }),
     TypeOrmModule.forRoot({
       ...TypeORMConfig,
@@ -48,6 +50,7 @@ import { AppService } from './app.service'
         User,
         Offload,
         Picking,
+        Pay,
         Yield,
       ],
     } as TypeOrmModuleOptions),
@@ -62,6 +65,7 @@ import { AppService } from './app.service'
     PickingModule,
     OffloadModule,
     PickingModule,
+    PayModule,
     ProductModule,
     WheelbarrowModule,
     WorkdayModule,
