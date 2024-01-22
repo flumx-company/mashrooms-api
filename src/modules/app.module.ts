@@ -38,7 +38,7 @@ import { PayModule } from './pay/pay.module'
   imports: [
     ConfigModule.forRoot({
       expandVariables: true,
-      envFilePath: ['.serve.env'], //NOTE: for dev mode, use .serve.env; for prod mode, use stack.env
+      envFilePath: ['stack.env'], //NOTE: for dev mode, use .serve.env; for prod mode, use stack.env
     }),
     TypeOrmModule.forRoot({
       ...TypeORMConfig,
