@@ -33,7 +33,7 @@ export class CategoryService {
     name: string
     description: string
   }): Promise<Category> {
-    const foundCategoryByName = this.findCategoryByName(name)
+    const foundCategoryByName = await this.findCategoryByName(name)
 
     if (foundCategoryByName) {
       throw new HttpException(
