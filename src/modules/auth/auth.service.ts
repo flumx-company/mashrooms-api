@@ -60,8 +60,6 @@ export class AuthService {
       },
     )
 
-    console.log({ accessToken })
-
     return {
       accessToken,
       user: foundUser,
