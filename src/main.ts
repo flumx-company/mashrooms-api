@@ -18,19 +18,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig)
 
   app.enableCors({
-    origin: [
-      'http://178.151.201.167/',
-      'http://178.151.201.167:51515/',
-      'http://178.151.201.167:51516/',
-      'http://178.151.201.167:51517/',
-      'http://localhost:3000/',
-      'http://localhost:8080/',
-      'http://localhost:5173/',
-      'http://localhost:5174/',
-      'http://localhost:5175/',
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
+    origin: '*',
+    credentials: false,
   })
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
