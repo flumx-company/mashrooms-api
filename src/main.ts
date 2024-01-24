@@ -20,6 +20,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
     credentials: false,
+    exposedHeaders: ['set-cookie', 'cookies'],
   })
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
