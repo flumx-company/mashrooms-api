@@ -70,12 +70,18 @@ export class AuthController {
     const nextDay = new Date()
     nextDay.setDate(new Date().getDate() + 1)
 
+    console.log('BEFORE')
+    console.log({ response })
+
     response.cookie(ACCESS_TOKEN, accessToken, {
       httpOnly: true,
       sameSite: 'none',
       secure: true,
-      expires: nextDay
+      // expires: nextDay
     })
+
+    console.log('AFTER')
+    console.log({ response })
 
     return user
   }
