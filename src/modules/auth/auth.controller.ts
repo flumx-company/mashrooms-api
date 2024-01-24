@@ -67,11 +67,8 @@ export class AuthController {
       email: loginData.email,
       password: loginData.password,
     })
-    const nextDay = new Date()
-    nextDay.setDate(new Date().getDate() + 1)
-
-    console.log('BEFORE')
-    console.log({ response })
+    // const nextDay = new Date()
+    // nextDay.setDate(new Date().getDate() + 1)
 
     response.cookie(ACCESS_TOKEN, accessToken, /*{
       httpOnly: true,
@@ -79,9 +76,6 @@ export class AuthController {
       secure: true,
       expires: nextDay
     }*/)
-
-    console.log('AFTER')
-    console.log({ response })
 
     return user
   }
