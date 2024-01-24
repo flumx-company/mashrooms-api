@@ -73,12 +73,12 @@ export class AuthController {
     console.log('BEFORE')
     console.log({ response })
 
-    response.cookie(ACCESS_TOKEN, accessToken, {
+    response.cookie(ACCESS_TOKEN, accessToken, /*{
       httpOnly: true,
       sameSite: 'none',
       secure: true,
-      // expires: nextDay
-    })
+      expires: nextDay
+    }*/)
 
     console.log('AFTER')
     console.log({ response })
