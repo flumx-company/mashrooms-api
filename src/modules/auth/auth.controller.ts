@@ -67,8 +67,15 @@ export class AuthController {
       email: loginData.email,
       password: loginData.password,
     })
+    const nextDay = new Date()
+    nextDay.setDate(new Date().getDate() + 1)
 
-    response.cookie(ACCESS_TOKEN, accessToken, { httpOnly: true })
+    response.cookie(ACCESS_TOKEN, accessToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+      expires: nextDay
+    })
 
     return user
   }
