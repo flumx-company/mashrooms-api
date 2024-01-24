@@ -22,6 +22,7 @@ async function bootstrap() {
       'http://178.151.201.167/',
       'http://178.151.201.167:51515/',
       'http://178.151.201.167:51516/',
+      'http://178.151.201.167:51517/',
       'http://localhost:3000/',
       'http://localhost:8080/',
       'http://localhost:5173/',
