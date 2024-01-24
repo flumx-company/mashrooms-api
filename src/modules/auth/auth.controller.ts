@@ -71,7 +71,7 @@ export class AuthController {
     // nextDay.setDate(new Date().getDate() + 1)
 
     response.cookie(ACCESS_TOKEN, accessToken, {
-      // httpOnly: true,
+      httpOnly: false,
       sameSite: 'none',
       // secure: true,
       // expires: nextDay
@@ -103,7 +103,7 @@ export class AuthController {
     }
 
     try {
-      response.clearCookie(ACCESS_TOKEN, { httpOnly: true })
+      response.clearCookie(ACCESS_TOKEN, { httpOnly: false, sameSite: 'none' })
     } catch (e) {
       hasToken = false
     }
