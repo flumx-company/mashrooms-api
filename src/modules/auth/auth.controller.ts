@@ -116,7 +116,9 @@ export class AuthController {
     @Req() request: ExRequest,
     @Res({ passthrough: true }) response: ExResponse,
   ) {
-    let hasToken = Boolean(request?.['cookies']?.['access-token'])
+    let hasToken = Boolean(
+      request?.['cookies']?.[process.env.COOKIE_TOKEN_NAME],
+    )
 
     if (!hasToken) {
       throw new HttpException(
