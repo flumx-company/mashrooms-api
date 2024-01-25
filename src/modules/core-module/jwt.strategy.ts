@@ -23,7 +23,7 @@ export class JwtStrategy implements CanActivate {
   ) {}
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const token: string = request?.['cookies']?.['access-token']
+    const token: string = request?.['cookies']?.[process.env.COOKIE_TOKEN_NAME]
 
     return token
   }
