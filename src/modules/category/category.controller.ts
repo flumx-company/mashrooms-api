@@ -51,7 +51,7 @@ export class CategoryController {
   @Post()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.CREATE_CLIENTS,
+    permission: EPermission.CREATE_CATEGORY,
   })
   @ApiOperation({
     summary:
