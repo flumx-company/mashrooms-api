@@ -36,6 +36,7 @@ type TSameSite = 'lax' | 'strict' | 'none' | boolean
 type THttpOnly = boolean | undefined
 type TSecure = boolean | undefined
 type TPath = string | undefined
+type TDomain = string | undefined
 
 @ApiTags('Auth')
 @ApiBadGatewayResponse({
@@ -60,8 +61,8 @@ export class AuthController {
     sameSite: process.env.COOKIE_TOKEN_SAME_SITE as TSameSite,
     secure: convertType(process.env.COOKIE_TOKEN_SECURE) as TSecure,
     expires: this.getNextDay(),
-    path: process.env.COOKIE_TOKEN_PATH as TPath,
-    domain: process.env.COOKIE_TOKEN_DOMAIN as string,
+    path: convertType(process.env.COOKIE_TOKEN_PATH) as TPath,
+    domain: convertType(process.env.COOKIE_TOKEN_DOMAIN) as TDomain,
   }
 
   @Post('login')
