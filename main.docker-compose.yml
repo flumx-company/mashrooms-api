@@ -10,7 +10,7 @@ services:
       - .env
     networks:
       - registry_default
-      - mashrooms-network
+      # - mashrooms-network
     volumes:
       - mashrooms-mysql-volume:/var/lib/mysql
       - ./deploy:/etc/mysql/mysql.conf.d
@@ -33,14 +33,14 @@ services:
       - mashrooms-mysql
     networks:
       - registry_default
-      - mashrooms-network
+      # - mashrooms-network
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.mashrooms-phpmyadmin.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
       - 'traefik.http.routers.mashrooms-phpmyadmin.entrypoints=websecure'
       - 'traefik.http.routers.mashrooms-phpmyadmin.tls.certresolver=myresolver'
       - 'traefik.http.routers.mashrooms-phpmyadmin.service=mashrooms-phpmyadmin'
-      - 'traefik.http.services.mashrooms-phpmyadmin.loadbalancer.server.port=51515'
+      - 'traefik.http.services.mashrooms-phpmyadmin.loadbalancer.server.port=80'
     volumes:
       - mashrooms-phpmyadmin-volume:/var/lib/phpmyadmin
 
@@ -58,14 +58,14 @@ services:
     restart: always
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
-      - 'traefik.http.routers.mushrooms-api-prod.entrypoints=websecure'
-      - 'traefik.http.routers.mushrooms-api-prod.tls.certresolver=myresolver'
-      - 'traefik.http.routers.mushrooms-api-prod.service=mushrooms-api-prod'
-      - 'traefik.http.services.mushrooms-api-prod.loadbalancer.server.port=3000'
+      - 'traefik.http.routers.api.rule=Host(`${API_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.api.entrypoints=websecure'
+      - 'traefik.http.routers.api.tls.certresolver=myresolver'
+      - 'traefik.http.routers.api.service=api'
+      - 'traefik.http.services.api.loadbalancer.server.port=3000'
     networks:
       - registry_default
-      - mashrooms-network
+      # - mashrooms-network
 
   mysql-cron-backup:
     image: fradelg/mysql-cron-backup
@@ -75,7 +75,7 @@ services:
       - mashrooms-mysql
     networks:
       - registry_default
-      - mashrooms-network
+      # - mashrooms-network
     environment:
       - MYSQL_HOST=mashrooms-mysql
       - MYSQL_USER=${MYSQL_USER}
@@ -100,8 +100,8 @@ volumes:
 networks:
   registry_default:
     external: true
-  mashrooms-network:
-    name: mashrooms-network
+  # mashrooms-network:
+  #   name: mashrooms-network
 
 # dockehub actions
 # create secrets
