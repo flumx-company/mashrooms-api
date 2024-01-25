@@ -36,11 +36,11 @@ services:
       - mashrooms-network
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.mushrooms-api-prod.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
-      - 'traefik.http.routers.mushrooms-api-prod.entrypoints=websecure'
-      - 'traefik.http.routers.mushrooms-api-prod.tls.certresolver=myresolver'
-      - 'traefik.http.routers.mushrooms-api-prod.service=mushrooms-api-prod'
-      - 'traefik.http.services.mushrooms-api-prod.loadbalancer.server.port=51515'
+      - 'traefik.http.routers.mashrooms-phpmyadmin.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
+      - 'traefik.http.routers.mashrooms-phpmyadmin.entrypoints=websecure'
+      - 'traefik.http.routers.mashrooms-phpmyadmin.tls.certresolver=myresolver'
+      - 'traefik.http.routers.mashrooms-phpmyadmin.service=mashrooms-phpmyadmin'
+      - 'traefik.http.services.mashrooms-phpmyadmin.loadbalancer.server.port=51515'
     volumes:
       - mashrooms-phpmyadmin-volume:/var/lib/phpmyadmin
 

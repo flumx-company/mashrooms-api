@@ -7,6 +7,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from '@mush/modules/app.module'
 
+import { convertType } from './core/utils'
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const swaggerConfig = new DocumentBuilder()
@@ -18,8 +20,18 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig)
 
   app.enableCors({
-    origin: '*',
-    credentials: true,
+    origin: [
+      'localhost',
+      'localhost:8080',
+      'http://localhost:8080',
+      'localhost:5173',
+      'http://localhost:5173',
+      'localhost:5174',
+      'http://localhost:5174',
+      'localhost:5175',
+      'http://localhost:5175',
+    ],
+    credentials: convertType(process.env.CORS_WITH_CREDENTIALS) as boolean,
   })
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))

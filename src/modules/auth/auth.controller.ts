@@ -1,4 +1,8 @@
-import { Request as ExRequest, Response as ExResponse } from 'express'
+import {
+  CookieOptions,
+  Request as ExRequest,
+  Response as ExResponse,
+} from 'express'
 
 import {
   Body,
@@ -23,12 +27,15 @@ import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
-import { ApiV1, Nullable } from '@mush/core/utils'
+import { ApiV1, Nullable, convertType } from '@mush/core/utils'
 
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 
-const ACCESS_TOKEN = 'access-token'
+type TSameSite = 'lax' | 'strict' | 'none' | boolean
+type THttpOnly = boolean | undefined
+type TSecure = boolean | undefined
+type TPath = string | undefined
 
 @ApiTags('Auth')
 @ApiBadGatewayResponse({
@@ -38,6 +45,24 @@ const ACCESS_TOKEN = 'access-token'
 @Controller(ApiV1('auth'))
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  private getNextDay = () => {
+    const nextDay = new Date()
+    nextDay.setDate(new Date().getDate() + 1)
+
+    console.log({ nextDay, type: typeof nextDay })
+
+    return nextDay
+  }
+
+  private cookieConfig: CookieOptions = {
+    httpOnly: convertType(process.env.COOKIE_TOKEN_HTTP_ONLY) as THttpOnly,
+    sameSite: process.env.COOKIE_TOKEN_SAME_SITE as TSameSite,
+    secure: convertType(process.env.COOKIE_TOKEN_SECURE) as TSecure,
+    expires: this.getNextDay(),
+    path: process.env.COOKIE_TOKEN_PATH as TPath,
+    domain: process.env.COOKIE_TOKEN_DOMAIN as string,
+  }
 
   @Post('login')
   @HttpCode(200)
@@ -67,15 +92,12 @@ export class AuthController {
       email: loginData.email,
       password: loginData.password,
     })
-    // const nextDay = new Date()
-    // nextDay.setDate(new Date().getDate() + 1)
 
-    response.cookie(ACCESS_TOKEN, accessToken, {
-      httpOnly: false,
-      sameSite: 'none',
-      // secure: true,
-      // expires: nextDay
-    })
+    response.cookie(
+      process.env.COOKIE_TOKEN_NAME,
+      accessToken,
+      this.cookieConfig,
+    )
 
     return user
   }
@@ -103,7 +125,7 @@ export class AuthController {
     }
 
     try {
-      response.clearCookie(ACCESS_TOKEN, { httpOnly: false, sameSite: 'none' })
+      response.clearCookie(process.env.COOKIE_TOKEN_NAME, this.cookieConfig)
     } catch (e) {
       hasToken = false
     }
