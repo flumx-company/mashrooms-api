@@ -51,8 +51,6 @@ export class AuthController {
     const nextDay = new Date()
     nextDay.setDate(new Date().getDate() + 1)
 
-    console.log({ nextDay, type: typeof nextDay })
-
     return nextDay
   }
 
@@ -128,7 +126,11 @@ export class AuthController {
     }
 
     try {
-      response.clearCookie(process.env.COOKIE_TOKEN_NAME, this.cookieConfig)
+      response.clearCookie(process.env.COOKIE_TOKEN_NAME, {
+        httpOnly: this.cookieConfig.httpOnly,
+        secure: this.cookieConfig.secure,
+        sameSite: this.cookieConfig.sameSite,
+      })
     } catch (e) {
       hasToken = false
     }
