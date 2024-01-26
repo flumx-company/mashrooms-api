@@ -10,24 +10,37 @@ import { EPermission, EPosition, ERole } from '@mush/core/enums'
 
 @Entity({ name: 'users' })
 export class User extends DatedBasicEntity {
-  @ApiProperty({ example: 'John', description: "User's name" })
+  @ApiProperty({
+    example: 'John',
+    description: "User's name. Max length is 35 characters.",
+  })
   @Column({ type: 'varchar', length: 35, default: null, nullable: true })
   firstName: string
 
-  @ApiProperty({ example: 'Johnson', description: "User's name" })
+  @ApiProperty({
+    example: 'son of Jeremy',
+    description: "User's patronimic. Max length is 35 characters.",
+  })
+  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
+  patronimic: string
+
+  @ApiProperty({
+    example: 'Johnson',
+    description: "User's name. Max length is 35 characters.",
+  })
   @Column({ type: 'varchar', length: 35, default: null, nullable: true })
   lastName: string
 
   @ApiProperty({
     example: 'test@email.com',
-    description: "User's email",
+    description: "User's email. Max length is 254 characters.",
   })
-  @Column({ type: 'varchar', default: null, nullable: true })
+  @Column({ type: 'varchar', length: 254, default: null, nullable: true })
   email: string
 
   @ApiProperty({
     example: '380681234567',
-    description: "User's telephone number",
+    description: "User's telephone number. Max length is 20 characters.",
   })
   @Column({ type: 'varchar', length: 20, default: null, nullable: true })
   phone: string
@@ -36,7 +49,7 @@ export class User extends DatedBasicEntity {
     example: '123Abc!',
     description: "User's password",
   })
-  @Exclude({ toPlainOnly: true }) //TODO: hide password in response
+  @Exclude({ toPlainOnly: true })
   @Column({ type: 'varchar', default: null, nullable: true })
   password: string
 

@@ -21,13 +21,21 @@ export class AuthService {
   ) {}
 
   async login({
-    email,
+    phone,
     password,
   }: LoginDto): Promise<{ accessToken: string; user: User }> {
-    const foundUser: User | null = await this.userService.findUserByEmail(email)
+    const foundUser: User | null = await this.userService.findUserByPhone(phone)
 
     if (!foundUser) {
-      throw new NotFoundException('A user with this email does not exist.')
+      throw new NotFoundException(
+        'A user with this phone number does not exist.',
+      )
+    }
+
+    if (!foundUser.isActive) {
+      throw new NotFoundException(
+        "This user's account is not active. Please contact the superadmin to activate it.",
+      )
     }
 
     const matchPasswords = await bcrypt.compare(password, foundUser.password)
@@ -42,12 +50,6 @@ export class AuthService {
         {
           cause: 'Wrong password',
         },
-      )
-    }
-
-    if (!foundUser.isActive) {
-      throw new NotFoundException(
-        "This user's account is not active. Please contact the superadmin to activate it.",
       )
     }
 

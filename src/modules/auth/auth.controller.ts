@@ -77,7 +77,7 @@ export class AuthController {
     description: 'This will return the access token in cookies.',
     type: User,
   })
-  async loginByEmailAndPassword(
+  async loginByPhoneAndPassword(
     @Body() loginData: LoginDto,
     @Res({ passthrough: true }) response: ExResponse,
   ): Promise<Nullable<User>> {
@@ -88,7 +88,7 @@ export class AuthController {
       accessToken: string
       user: User
     } = await this.authService.login({
-      email: loginData.email,
+      phone: loginData.phone,
       password: loginData.password,
     })
 

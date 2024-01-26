@@ -1,5 +1,4 @@
 import {
-  IsEmail,
   IsNotEmpty,
   IsString,
   Matches,
@@ -9,24 +8,22 @@ import {
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { PHONE_REGEX } from '@mush/core/utils'
+
 export class LoginDto {
   @IsString()
-  @IsEmail()
-  @IsNotEmpty()
+  @Matches(PHONE_REGEX)
   @ApiProperty({
-    example: 'test@gmail.com',
-    description: 'Enter the email address.',
+    example: '380681234567',
+    description: 'Enter the phone.',
     type: String,
   })
-  readonly email: string
+  readonly phone: string
 
   @IsString()
   @MaxLength(15)
-  @MinLength(8)
+  @MinLength(6)
   @IsNotEmpty()
-  @Matches(
-    /(?=.*[0-9])(?=.*[!@#$%^&*_])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*_]{8,}/g,
-  )
   @ApiProperty({
     example: '123Abc!_z',
     description: 'Enter password.',
@@ -34,9 +31,3 @@ export class LoginDto {
   })
   readonly password: string
 }
-
-// (?=.*[0-9]) - строка содержит хотя бы одно число;
-// (?=.*[!@#$%^&*_]) - строка содержит хотя бы один спецсимвол;
-// (?=.*[a-z]) - строка содержит хотя бы одну латинскую букву в нижнем регистре;
-// (?=.*[A-Z]) - строка содержит хотя бы одну латинскую букву в верхнем регистре;
-// [0-9a-zA-Z!@#$%^&*_]{8,} - строка состоит не менее, чем из 8 вышеупомянутых символов.
