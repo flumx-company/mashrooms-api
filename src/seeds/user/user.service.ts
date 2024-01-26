@@ -17,12 +17,21 @@ export class UserSeederService {
 
   create(): Array<Promise<User>> {
     return userList.map(async (user: Partial<User>) => {
-      const foundUser = await this.userRepository.findOneBy({
+      const foundUserByEmail = await this.userRepository.findOneBy({
         email: user.email,
       })
 
-      if (foundUser) {
+      const foundUserByPhone = await this.userRepository.findOneBy({
+        phone: user.phone,
+      })
+
+      if (foundUserByEmail) {
         console.log('A user with this email already exists.')
+        return Promise.resolve(null)
+      }
+
+      if (foundUserByPhone) {
+        console.log('A user with this phone number already exists.')
         return Promise.resolve(null)
       }
 

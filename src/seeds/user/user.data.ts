@@ -1,6 +1,10 @@
+import * as dotenv from 'dotenv'
+
 import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { EPermission, EPosition, ERole } from '@mush/core/enums'
+
+dotenv.config()
 
 export const userList: Partial<User>[] = [
   {
