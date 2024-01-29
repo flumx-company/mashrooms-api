@@ -10,6 +10,7 @@ import { Nullable } from '@mush/core/utils'
 import { findWrongEnumValue } from '@mush/core/utils/find.wrong.enum.value'
 
 import { CreateUserDto } from './dto/create.user.dto'
+import { UpdateSuperadminDto } from './dto/update.superadmin.dto'
 import { UpdateUserDto } from './dto/update.user.dto'
 import { userPaginationConfig } from './pagination/user.pagination.config'
 import { User } from './user.entity'
@@ -190,6 +191,60 @@ export class UserService {
     })
 
     return this.userRepository.save(updatedUser)
+  }
+
+  async updateSuperadmin(
+    id: number,
+    { firstName, lastName, patronymic, email, phone }: UpdateSuperadminDto,
+  ): Promise<User> {
+    const [
+      foundUserById,
+      foundUserByEmail,
+      foundUserByPhone,
+    ]: Nullable<User>[] = await Promise.all([
+      this.findUserById(id),
+      this.findUserByEmail(email),
+      this.findUserByPhone(phone),
+    ])
+
+    if (foundUserByEmail && foundUserByEmail.id !== id) {
+      throw new HttpException(
+        'There already exists a different user with this email.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    if (foundUserByPhone && foundUserByPhone.id !== id) {
+      throw new HttpException(
+        'There already exists a different user with this phone.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    if (!foundUserById) {
+      throw new HttpException(
+        'A user with this id does not exist.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    if (foundUserById.role !== ERole.SUPERADMIN) {
+      throw new HttpException(
+        "This is not superadmin's id.",
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const updatedSuperadmin: User = this.userRepository.create({
+      ...foundUserById,
+      firstName,
+      lastName,
+      patronymic,
+      email,
+      phone,
+    })
+
+    return this.userRepository.save(updatedSuperadmin)
   }
 
   async changeUserPassword(id: number, password: string): Promise<User> {
