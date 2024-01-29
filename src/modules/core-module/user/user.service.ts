@@ -42,15 +42,29 @@ export class UserService {
     phone,
     firstName,
     lastName,
+    patronymic,
     password,
     permissions,
     isActive,
     position,
   }: CreateUserDto): Promise<User> {
-    const [foundUserByEmail, foundUserByPhone]: Nullable<User>[] =
+    const [
+      foundUserByEmail,
+      foundUserByPhone,
+      wrongPermission,
+      wrongPosition,
+    ]: [Nullable<User>, Nullable<User>, Nullable<string>, Nullable<string>] =
       await Promise.all([
         this.findUserByEmail(email),
         this.findUserByPhone(phone),
+        findWrongEnumValue({
+          $enum: EPermission,
+          value: permissions,
+        }),
+        findWrongEnumValue({
+          $enum: EPosition,
+          value: position,
+        }),
       ])
 
     if (foundUserByEmail) {
@@ -67,22 +81,12 @@ export class UserService {
       )
     }
 
-    const wrongPermission = findWrongEnumValue({
-      $enum: EPermission,
-      value: permissions,
-    })
-
     if (wrongPermission) {
       throw new HttpException(
         `${wrongPermission} is not valid permission.`,
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
-
-    const wrongPosition = findWrongEnumValue({
-      $enum: EPosition,
-      value: position,
-    })
 
     if (wrongPosition) {
       throw new HttpException(
@@ -99,6 +103,7 @@ export class UserService {
       phone,
       firstName,
       lastName,
+      patronymic,
       password: hashedPassword,
       role: ERole.ADMIN,
       permissions,
@@ -111,16 +116,30 @@ export class UserService {
 
   async updateUser(
     id: number,
-    { email, phone, firstName, lastName, position }: UpdateUserDto,
+    {
+      firstName,
+      lastName,
+      patronymic,
+      email,
+      phone,
+      position,
+      permissions,
+      isActive,
+    }: UpdateUserDto,
   ): Promise<User> {
-    const [
-      foundUserById,
-      foundUserByEmail,
-      foundUserByPhone,
-    ]: Nullable<User>[] = await Promise.all([
+    const [foundUserById, foundUserByEmail, foundUserByPhone, wrongPosition]: [
+      Nullable<User>,
+      Nullable<User>,
+      Nullable<User>,
+      Nullable<string>,
+    ] = await Promise.all([
       this.findUserById(id),
       this.findUserByEmail(email),
       this.findUserByPhone(phone),
+      findWrongEnumValue({
+        $enum: EPosition,
+        value: position,
+      }),
     ])
 
     if (foundUserByEmail && foundUserByEmail.id !== id) {
@@ -151,11 +170,6 @@ export class UserService {
       )
     }
 
-    const wrongPosition = findWrongEnumValue({
-      $enum: EPosition,
-      value: position,
-    })
-
     if (wrongPosition) {
       throw new HttpException(
         `${wrongPosition} is not valid position.`,
@@ -165,11 +179,14 @@ export class UserService {
 
     const updatedUser: User = this.userRepository.create({
       ...foundUserById,
-      email,
-      phone,
       firstName,
       lastName,
+      patronymic,
+      email,
+      phone,
       position,
+      permissions,
+      isActive,
     })
 
     return this.userRepository.save(updatedUser)
@@ -245,7 +262,14 @@ export class UserService {
     id: number,
     permissions: EPermission[],
   ): Promise<User> {
-    const foundUser: User = await this.findUserById(id)
+    const [foundUser, wrongPermission]: [Nullable<User>, Nullable<string>] =
+      await Promise.all([
+        this.findUserById(id),
+        findWrongEnumValue({
+          $enum: EPermission,
+          value: permissions,
+        }),
+      ])
 
     if (!foundUser) {
       throw new HttpException(
@@ -260,11 +284,6 @@ export class UserService {
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
-
-    const wrongPermission = findWrongEnumValue({
-      $enum: EPermission,
-      value: permissions,
-    })
 
     if (wrongPermission) {
       throw new HttpException(
