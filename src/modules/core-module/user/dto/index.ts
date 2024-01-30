@@ -1,5 +1,6 @@
 export * from './create.user.dto'
 export * from './reset.password.dto'
 export * from './update.active.status.dto'
+export * from './update.superadmin.dto'
 export * from './update.user.dto'
 export * from './update.user.permissions.dto'

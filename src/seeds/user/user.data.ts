@@ -10,7 +10,7 @@ export const userList: Partial<User>[] = [
   {
     firstName: process.env.SEED_SUPERADMIN_FIRSTNAME,
     lastName: process.env.SEED_SUPERADMIN_LASTNAME,
-    patronimic: process.env.SEED_SUPERADMIN_PATRONIMIC,
+    patronymic: process.env.SEED_SUPERADMIN_PATRONIMIC,
     phone: process.env.SEED_SUPERADMIN_PHONE,
     email: process.env.SEED_SUPERADMIN_EMAIL,
     password: process.env.SEED_SUPERADMIN_PASSWORD,

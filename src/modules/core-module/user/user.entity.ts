@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer'
+import * as dotenv from 'dotenv'
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
@@ -8,41 +9,68 @@ import { Offload } from '@mush/modules/offload/offload.entity'
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { EPermission, EPosition, ERole } from '@mush/core/enums'
 
+dotenv.config()
+
 @Entity({ name: 'users' })
 export class User extends DatedBasicEntity {
   @ApiProperty({
     example: 'John',
     description: "User's name. Max length is 35 characters.",
   })
-  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
-  firstName: string
-
-  @ApiProperty({
-    example: 'son of Jeremy',
-    description: "User's patronimic. Max length is 35 characters.",
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_FIRST_NAME_LENGTH,
+    default: null,
+    nullable: true,
   })
-  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
-  patronimic: string
+  firstName: string
 
   @ApiProperty({
     example: 'Johnson',
     description: "User's name. Max length is 35 characters.",
   })
-  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_LAST_NAME_LENGTH,
+    default: null,
+    nullable: true,
+  })
   lastName: string
+
+  @ApiProperty({
+    example: 'son of Jeremy',
+    description: "User's patronymic. Max length is 35 characters.",
+  })
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_PATRONYMIC_LENGTH,
+    default: null,
+    nullable: true,
+  })
+  patronymic: string
 
   @ApiProperty({
     example: 'test@email.com',
     description: "User's email. Max length is 254 characters.",
   })
-  @Column({ type: 'varchar', length: 254, default: null, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_EMAIL_LENGTH,
+    default: null,
+    nullable: true,
+  })
   email: string
 
   @ApiProperty({
     example: '380681234567',
     description: "User's telephone number. Max length is 20 characters.",
   })
-  @Column({ type: 'varchar', length: 20, default: null, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_PHONE_LENGTH,
+    default: null,
+    nullable: true,
+  })
   phone: string
 
   @ApiProperty({

@@ -9,20 +9,23 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator'
+import * as dotenv from 'dotenv'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { ToBoolean } from '@mush/core/decorators'
 import { EPermission, EPosition } from '@mush/core/enums'
-import {
-  LATIN_CYRILLIC_LETTER_NAME_REGEX,
-  PASSWORD_REGEX,
-  PHONE_REGEX,
-} from '@mush/core/utils'
+import { LATIN_CYRILLIC_LETTER_NAME_REGEX, PHONE_REGEX } from '@mush/core/utils'
+
+dotenv.config()
+
+const availablePermissions = Object.values(EPermission).filter(
+  (permission) => !permission.includes('ADMINS'),
+)
 
 export class CreateUserDto {
   @IsString()
-  @MaxLength(20)
+  @MaxLength(parseInt(process.env.MAX_FIRST_NAME_LENGTH))
   @MinLength(1)
   @IsNotEmpty()
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
@@ -34,7 +37,7 @@ export class CreateUserDto {
   readonly firstName: string
 
   @IsString()
-  @MaxLength(50)
+  @MaxLength(parseInt(process.env.MAX_LAST_NAME_LENGTH))
   @MinLength(1)
   @IsNotEmpty()
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
@@ -46,8 +49,20 @@ export class CreateUserDto {
   readonly lastName: string
 
   @IsString()
-  @IsEmail()
+  @MaxLength(parseInt(process.env.MAX_PATRONYMIC_LENGTH))
+  @MinLength(1)
   @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
+  @ApiProperty({
+    example: 'Johnson',
+    description: 'Enter first name.',
+    type: String,
+  })
+  readonly patronymic: string
+
+  @IsString()
+  @IsEmail()
+  @MaxLength(parseInt(process.env.MAX_PATRONYMIC_LENGTH))
   @ApiProperty({
     example: 'test@gmail.com',
     description: 'Enter the email address.',
@@ -55,8 +70,10 @@ export class CreateUserDto {
   })
   readonly email: string
 
+  @IsNotEmpty()
   @IsString()
   @Matches(PHONE_REGEX)
+  @MaxLength(parseInt(process.env.MAX_PHONE_LENGTH))
   @ApiProperty({
     example: '380681234567',
     description: 'Enter the phone.',
@@ -65,10 +82,9 @@ export class CreateUserDto {
   readonly phone: string
 
   @IsString()
-  @MaxLength(15)
-  @MinLength(8)
+  @MaxLength(parseInt(process.env.MAX_PASSWORD_LENGTH))
+  @MinLength(parseInt(process.env.MIN_PASSWORD_LENGTH))
   @IsNotEmpty()
-  @Matches(PASSWORD_REGEX)
   @ApiProperty({
     example: '123Abc!_z',
     description: 'Enter password.',
@@ -78,9 +94,7 @@ export class CreateUserDto {
 
   @IsArray()
   @ApiProperty({
-    example: Object.values(EPermission).filter(
-      (permission) => !permission.includes('ADMINS'),
-    ),
+    example: availablePermissions,
     description: 'Add permissions.',
     type: Array,
   })

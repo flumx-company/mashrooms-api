@@ -1,8 +1,5 @@
 import {
-  IsArray,
-  IsBoolean,
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsString,
   Matches,
@@ -13,17 +10,11 @@ import * as dotenv from 'dotenv'
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { ToBoolean } from '@mush/core/decorators'
-import { EPermission, EPosition } from '@mush/core/enums'
 import { LATIN_CYRILLIC_LETTER_NAME_REGEX, PHONE_REGEX } from '@mush/core/utils'
 
 dotenv.config()
 
-const availablePermissions = Object.values(EPermission).filter(
-  (permission) => !permission.includes('ADMINS'),
-)
-
-export class UpdateUserDto {
+export class UpdateSuperadminDto {
   @IsString()
   @MaxLength(parseInt(process.env.MAX_FIRST_NAME_LENGTH))
   @MinLength(1)
@@ -80,31 +71,4 @@ export class UpdateUserDto {
     type: String,
   })
   readonly phone: string
-
-  @IsArray()
-  @ApiProperty({
-    example: availablePermissions,
-    description: 'Add permissions.',
-    type: Array,
-  })
-  readonly permissions: EPermission[]
-
-  @IsString()
-  @IsEnum(EPosition)
-  @ApiProperty({
-    example: EPosition.FOREMAN,
-    description: 'Enter the position.',
-    type: String,
-  })
-  readonly position: EPosition
-
-  @ToBoolean()
-  @IsBoolean()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: true,
-    description: 'Enter the active status boolean value.',
-    type: Boolean,
-  })
-  readonly isActive: boolean
 }

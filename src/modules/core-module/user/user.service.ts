@@ -10,6 +10,7 @@ import { Nullable } from '@mush/core/utils'
 import { findWrongEnumValue } from '@mush/core/utils/find.wrong.enum.value'
 
 import { CreateUserDto } from './dto/create.user.dto'
+import { UpdateSuperadminDto } from './dto/update.superadmin.dto'
 import { UpdateUserDto } from './dto/update.user.dto'
 import { userPaginationConfig } from './pagination/user.pagination.config'
 import { User } from './user.entity'
@@ -42,15 +43,29 @@ export class UserService {
     phone,
     firstName,
     lastName,
+    patronymic,
     password,
     permissions,
     isActive,
     position,
   }: CreateUserDto): Promise<User> {
-    const [foundUserByEmail, foundUserByPhone]: Nullable<User>[] =
+    const [
+      foundUserByEmail,
+      foundUserByPhone,
+      wrongPermission,
+      wrongPosition,
+    ]: [Nullable<User>, Nullable<User>, Nullable<string>, Nullable<string>] =
       await Promise.all([
         this.findUserByEmail(email),
         this.findUserByPhone(phone),
+        findWrongEnumValue({
+          $enum: EPermission,
+          value: permissions,
+        }),
+        findWrongEnumValue({
+          $enum: EPosition,
+          value: position,
+        }),
       ])
 
     if (foundUserByEmail) {
@@ -67,22 +82,12 @@ export class UserService {
       )
     }
 
-    const wrongPermission = findWrongEnumValue({
-      $enum: EPermission,
-      value: permissions,
-    })
-
     if (wrongPermission) {
       throw new HttpException(
         `${wrongPermission} is not valid permission.`,
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
-
-    const wrongPosition = findWrongEnumValue({
-      $enum: EPosition,
-      value: position,
-    })
 
     if (wrongPosition) {
       throw new HttpException(
@@ -99,6 +104,7 @@ export class UserService {
       phone,
       firstName,
       lastName,
+      patronymic,
       password: hashedPassword,
       role: ERole.ADMIN,
       permissions,
@@ -111,7 +117,85 @@ export class UserService {
 
   async updateUser(
     id: number,
-    { email, phone, firstName, lastName, position }: UpdateUserDto,
+    {
+      firstName,
+      lastName,
+      patronymic,
+      email,
+      phone,
+      position,
+      permissions,
+      isActive,
+    }: UpdateUserDto,
+  ): Promise<User> {
+    const [foundUserById, foundUserByEmail, foundUserByPhone, wrongPosition]: [
+      Nullable<User>,
+      Nullable<User>,
+      Nullable<User>,
+      Nullable<string>,
+    ] = await Promise.all([
+      this.findUserById(id),
+      this.findUserByEmail(email),
+      this.findUserByPhone(phone),
+      findWrongEnumValue({
+        $enum: EPosition,
+        value: position,
+      }),
+    ])
+
+    if (foundUserByEmail && foundUserByEmail.id !== id) {
+      throw new HttpException(
+        'There already exists a different user with this email.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    if (foundUserByPhone && foundUserByPhone.id !== id) {
+      throw new HttpException(
+        'There already exists a different user with this phone.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    if (!foundUserById) {
+      throw new HttpException(
+        'A user with this id does not exist.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    if (foundUserById.role === ERole.SUPERADMIN) {
+      throw new HttpException(
+        "Superadmin's data cannot be changed through this endpoint.",
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    if (wrongPosition) {
+      throw new HttpException(
+        `${wrongPosition} is not valid position.`,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const updatedUser: User = this.userRepository.create({
+      ...foundUserById,
+      firstName,
+      lastName,
+      patronymic,
+      email,
+      phone,
+      position,
+      permissions,
+      isActive,
+    })
+
+    return this.userRepository.save(updatedUser)
+  }
+
+  async updateSuperadmin(
+    id: number,
+    { firstName, lastName, patronymic, email, phone }: UpdateSuperadminDto,
   ): Promise<User> {
     const [
       foundUserById,
@@ -144,35 +228,23 @@ export class UserService {
       )
     }
 
-    if (foundUserById.role === ERole.SUPERADMIN) {
+    if (foundUserById.role !== ERole.SUPERADMIN) {
       throw new HttpException(
-        "Superadmin's data cannot be changed through this endpoint.",
+        "This is not superadmin's id.",
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
 
-    const wrongPosition = findWrongEnumValue({
-      $enum: EPosition,
-      value: position,
-    })
-
-    if (wrongPosition) {
-      throw new HttpException(
-        `${wrongPosition} is not valid position.`,
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
-    }
-
-    const updatedUser: User = this.userRepository.create({
+    const updatedSuperadmin: User = this.userRepository.create({
       ...foundUserById,
-      email,
-      phone,
       firstName,
       lastName,
-      position,
+      patronymic,
+      email,
+      phone,
     })
 
-    return this.userRepository.save(updatedUser)
+    return this.userRepository.save(updatedSuperadmin)
   }
 
   async changeUserPassword(id: number, password: string): Promise<User> {
@@ -245,7 +317,14 @@ export class UserService {
     id: number,
     permissions: EPermission[],
   ): Promise<User> {
-    const foundUser: User = await this.findUserById(id)
+    const [foundUser, wrongPermission]: [Nullable<User>, Nullable<string>] =
+      await Promise.all([
+        this.findUserById(id),
+        findWrongEnumValue({
+          $enum: EPermission,
+          value: permissions,
+        }),
+      ])
 
     if (!foundUser) {
       throw new HttpException(
@@ -260,11 +339,6 @@ export class UserService {
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
-
-    const wrongPermission = findWrongEnumValue({
-      $enum: EPermission,
-      value: permissions,
-    })
 
     if (wrongPermission) {
       throw new HttpException(

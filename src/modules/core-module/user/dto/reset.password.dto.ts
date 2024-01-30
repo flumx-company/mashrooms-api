@@ -1,21 +1,15 @@
-import {
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator'
+import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator'
+import * as dotenv from 'dotenv'
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { PASSWORD_REGEX } from '@mush/core/utils'
+dotenv.config()
 
 export class ResetPasswordDto {
   @IsString()
-  @MaxLength(15)
-  @MinLength(8)
+  @MaxLength(parseInt(process.env.MAX_PASSWORD_LENGTH))
+  @MinLength(parseInt(process.env.MIN_PASSWORD_LENGTH))
   @IsNotEmpty()
-  @Matches(PASSWORD_REGEX)
   @ApiProperty({
     example: '123Abc!_z',
     description: 'Enter password.',
@@ -23,9 +17,3 @@ export class ResetPasswordDto {
   })
   readonly password: string
 }
-
-// (?=.*[0-9]) - строка содержит хотя бы одно число;
-// (?=.*[!@#$%^&*_]) - строка содержит хотя бы один спецсимвол;
-// (?=.*[a-z]) - строка содержит хотя бы одну латинскую букву в нижнем регистре;
-// (?=.*[A-Z]) - строка содержит хотя бы одну латинскую букву в верхнем регистре;
-// [0-9a-zA-Z!@#$%^&*_]{8,} - строка состоит не менее, чем из 8 вышеупомянутых символов.

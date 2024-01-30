@@ -29,6 +29,7 @@ import {
   CreateUserDto,
   ResetPasswordDto,
   UpdateActiveStatusDto,
+  UpdateSuperadminDto,
   UpdateUserDto,
   UpdateUserPermissionsDto,
 } from '@mush/modules/core-module/user/dto'
@@ -118,6 +119,33 @@ export class AdminController {
     @Body() data: UpdateUserDto,
   ): Promise<User> {
     return this.userService.updateUser(id, data)
+  }
+
+  @Put('superadmin/:id')
+  @Auth({ roles: [ERole.SUPERADMIN] })
+  @ApiOperation({
+    summary:
+      'Update an superadmin user. Role: SUPERADMIN. It will trigger 422 error if the user id does not belong to the superadmin.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: 'Model to update an existing user.',
+    type: UpdateSuperadminDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the user data.',
+    type: User,
+  })
+  async updateSuperadmin(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateSuperadminDto,
+  ): Promise<User> {
+    return this.userService.updateSuperadmin(id, data)
   }
 
   @Put('password/:id')
