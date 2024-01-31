@@ -32,6 +32,12 @@ export class CreateSuperadminCommand extends CommandRunner {
     options?: CreateSuperadminCommandOptions,
   ): Promise<void> {
     const { number, password }: CreateSuperadminCommandOptions = options
+
+    if (!number) {
+      console.error('ERROR: A phone number is not provided.')
+      return
+    }
+
     const foundUserByPhone: User = await this.userRepository.findOneBy({
       phone: number,
     })

@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 
 import { User } from '@mush/modules/core-module/user/user.entity'
 
+import { ERole } from '@mush/core/enums'
 import { generatePassword } from '@mush/core/utils'
 
 interface ChangeSuperadminPasswordCommandOptions {
@@ -44,6 +45,13 @@ export class ChangeSuperadminPasswordCommand extends CommandRunner {
     if (!foundUserByPhone) {
       console.error(
         'ERROR: A user with this phone number is not found in our database.',
+      )
+      return
+    }
+
+    if (foundUserByPhone.role !== ERole.SUPERADMIN) {
+      console.error(
+        `ERROR: The provided phone number does not belong to a superadmin. Only the superadmin password can be changed through this terminal command.`,
       )
       return
     }
