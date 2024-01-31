@@ -107,16 +107,23 @@ npm run seed
 
 # To create a new superadmin:
 
-npm run createSuperAdmin -- -e superadmins@email -p some_password
+npm run createSuperAdmin -- -n 123456789
+npm run createSuperAdmin -- -n 123456789 -p some_password
+
+If you do not provide a new password while running this command, the new password will be automatically generated and provided in the terminal response.
 
 # The password is recommended to be enclosed by single quotes ('password'):
 
-npm run createSuperAdmin -- -e superadmins@email -p 'some_password'
-Because some symbols like exclamation mark (!) inside the password value could be interpreted in a wrong way by bash.
+npm run createSuperAdmin -- -n 123456789 -p 'some_password'
 
-# To drop superadmin's password:
+Since some symbols like exclamation mark (!) inside the password value could be interpreted in a wrong way by bash, single quotes make it clear to the bash script interpreter where the password starts and ends. 
 
-npm run changePasswordSuperAdmin -- -e superadmins@email
+# To change superadmin's password:
+
+npm run changeSuperAdminPassword -- -n 123456789
+npm run changeSuperAdminPassword -- -n 123456789 -p newPassword
+
+If you do not provide a new password while running this command, the new password will be automatically generated and provided in the terminal response.
 
 ## User activation/deactivation
 
