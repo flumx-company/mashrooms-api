@@ -8,16 +8,16 @@ import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { generatePassword } from '@mush/core/utils'
 
-interface ChangePasswordSuperadminCommandOptions {
+interface ChangeSuperadminPasswordCommandOptions {
   number?: string
   password?: string
 }
 
 @Command({
-  name: 'changePasswordSuperAdmin',
+  name: 'changeSuperAdminPassword',
   description: 'Changes superadmin password.',
 })
-export class ChangePasswordSuperadminCommand extends CommandRunner {
+export class ChangeSuperadminPasswordCommand extends CommandRunner {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -27,13 +27,13 @@ export class ChangePasswordSuperadminCommand extends CommandRunner {
 
   async run(
     _: string[],
-    options?: ChangePasswordSuperadminCommandOptions,
+    options?: ChangeSuperadminPasswordCommandOptions,
   ): Promise<void> {
-    const { number, password, ...etc }: ChangePasswordSuperadminCommandOptions =
+    const { number, password, ...etc }: ChangeSuperadminPasswordCommandOptions =
       options
 
     if (!number) {
-      console.error('Phone number is not provided.')
+      console.error('ERROR: Phone number is not provided.')
       return
     }
 
@@ -43,7 +43,7 @@ export class ChangePasswordSuperadminCommand extends CommandRunner {
 
     if (!foundUserByPhone) {
       console.error(
-        'A user with this phone number is not found in our database.',
+        'ERROR: A user with this phone number is not found in our database.',
       )
       return
     }
@@ -66,7 +66,7 @@ export class ChangePasswordSuperadminCommand extends CommandRunner {
 
       await this.userRepository.save(newUser)
       console.log(
-        `Superadmin's password with phone number ${number} was changed to ${newPassword}.`,
+        `NOTE: Superadmin's password with phone number ${number} was changed to ${newPassword}.`,
       )
       console.log(newPassword)
     } catch (error) {

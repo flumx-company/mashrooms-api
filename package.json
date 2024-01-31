@@ -22,7 +22,7 @@
     "migration:run": "npx typeorm-ts-node-esm migration:run -d src/config/datasource.config.ts",
     "seed": "ts-node -r tsconfig-paths/register src/seeds/seed.ts",
     "createSuperAdmin": "node dist/main.commands createSuperAdmin",
-    "changePasswordSuperAdmin": "node dist/main.commands changePasswordSuperAdmin"
+    "changeSuperAdminPassword": "node dist/main.commands changeSuperAdminPassword"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
