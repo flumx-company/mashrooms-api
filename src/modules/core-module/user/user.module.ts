@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import {
-  ChangePasswordSuperadminCommand,
+  ChangeSuperadminPasswordCommand,
   CreateSuperadminCommand,
 } from '@mush/commands'
 
@@ -17,12 +17,12 @@ import { UserService } from './user.service'
   providers: [
     UserService,
     CreateSuperadminCommand,
-    ChangePasswordSuperadminCommand,
+    ChangeSuperadminPasswordCommand,
   ],
   exports: [
     UserService,
     CreateSuperadminCommand,
-    ChangePasswordSuperadminCommand,
+    ChangeSuperadminPasswordCommand,
   ],
 })
 export class UserModule {}
