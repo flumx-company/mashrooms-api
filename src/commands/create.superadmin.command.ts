@@ -7,17 +7,17 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { EPermission, EPosition, ERole } from '@mush/core/enums'
-import { EMAIL_REGEX } from '@mush/core/utils'
+import { generatePassword } from '@mush/core/utils'
 
 interface CreateSuperadminCommandOptions {
-  email?: string
+  number?: string
   password?: string
 }
 
 @Command({
   name: 'createSuperAdmin',
   description:
-    'Creates superadmin with the following parameters unless a user with this email already exists.',
+    'Creates superadmin with the following parameters unless a user with this phone number already exists.',
 })
 export class CreateSuperadminCommand extends CommandRunner {
   constructor(
@@ -31,27 +31,25 @@ export class CreateSuperadminCommand extends CommandRunner {
     _: string[],
     options?: CreateSuperadminCommandOptions,
   ): Promise<void> {
-    const { email, password }: CreateSuperadminCommandOptions = options
-    const foundUserByEmail: User = await this.userRepository.findOneBy({
-      email,
+    const { number, password }: CreateSuperadminCommandOptions = options
+    const foundUserByPhone: User = await this.userRepository.findOneBy({
+      phone: number,
     })
 
-    if (!EMAIL_REGEX.test(email)) {
-      console.error('The input email is not valid.')
-      return
-    }
-
-    if (foundUserByEmail) {
-      console.error('A user with this email already exists in our database.')
+    if (foundUserByPhone) {
+      console.error(
+        'ERROR: A user with this phone number already exists in our database.',
+      )
       return
     }
 
     try {
+      const newPassword = password || generatePassword()
       const saltRounds: number = parseInt(process.env.PASSWORD_SALT_ROUNDS)
       const salt: string = await genSalt(saltRounds)
-      const hashedPassword: string = await hash(password, salt)
+      const hashedPassword: string = await hash(newPassword, salt)
       const newUser: User = this.userRepository.create({
-        email,
+        phone: number,
         password: hashedPassword,
         role: ERole.SUPERADMIN,
         position: EPosition.SUPERADMINISTRATOR,
@@ -60,7 +58,19 @@ export class CreateSuperadminCommand extends CommandRunner {
       })
 
       await this.userRepository.save(newUser)
-      console.log('A superadmin user is saved in the database.')
+
+      console.log('NOTE: A new superadmin user is saved in the database.')
+
+      if (!password) {
+        console.log(
+          'NOTE: Since you have not provided a new password, it was automatically generated.',
+        )
+      }
+      
+      console.log(`NOTE: The phone number/login: ${number}.`)
+      console.log(`NOTE: The password is ${newPassword}.`)
+      console.log(number)
+      console.log(newPassword)
     } catch (error) {
       console.error(error)
     }
@@ -69,11 +79,11 @@ export class CreateSuperadminCommand extends CommandRunner {
   }
 
   @Option({
-    flags: '-e, --email [email]',
-    description: 'An email return',
+    flags: '-n, --number [number]',
+    description: 'An phone number return',
   })
-  parseEmail(email: string): string {
-    return email
+  parseNumber(number: string): string {
+    return number
   }
 
   @Option({

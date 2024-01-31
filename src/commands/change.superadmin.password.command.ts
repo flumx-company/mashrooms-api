@@ -48,12 +48,6 @@ export class ChangeSuperadminPasswordCommand extends CommandRunner {
       return
     }
 
-    if (!password) {
-      console.log(
-        'NOTE: You have not provided a new password, so it will be automatically generated.',
-      )
-    }
-
     try {
       const newPassword = password || generatePassword()
       const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
@@ -65,6 +59,12 @@ export class ChangeSuperadminPasswordCommand extends CommandRunner {
       })
 
       await this.userRepository.save(newUser)
+
+      if (!password) {
+        console.log(
+          'NOTE: Since you have not provided a new password, it was automatically generated.',
+        )
+      }
       console.log(
         `NOTE: Superadmin's password with phone number ${number} was changed to ${newPassword}.`,
       )
