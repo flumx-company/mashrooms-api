@@ -9,7 +9,8 @@ import { User } from '@mush/modules/core-module/user/user.entity'
 import { generatePassword } from '@mush/core/utils'
 
 interface ChangePasswordSuperadminCommandOptions {
-  email?: string
+  number?: string
+  password?: string
 }
 
 @Command({
@@ -28,33 +29,44 @@ export class ChangePasswordSuperadminCommand extends CommandRunner {
     _: string[],
     options?: ChangePasswordSuperadminCommandOptions,
   ): Promise<void> {
-    const { email }: ChangePasswordSuperadminCommandOptions = options
+    const { number, password, ...etc }: ChangePasswordSuperadminCommandOptions =
+      options
 
-    if (!email) {
-      console.error('Email is not provided.')
+    if (!number) {
+      console.error('Phone number is not provided.')
       return
     }
 
-    const foundUserByEmail = await this.userRepository.findOneBy({ email })
+    const foundUserByPhone = await this.userRepository.findOneBy({
+      phone: number,
+    })
 
-    if (!foundUserByEmail) {
-      console.error('A user with this email is not found in our database.')
+    if (!foundUserByPhone) {
+      console.error(
+        'A user with this phone number is not found in our database.',
+      )
       return
+    }
+
+    if (!password) {
+      console.log(
+        'NOTE: You have not provided a new password, so it will be automatically generated.',
+      )
     }
 
     try {
-      const newPassword = generatePassword()
+      const newPassword = password || generatePassword()
       const saltRounds = parseInt(process.env.PASSWORD_SALT_ROUNDS)
       const salt = await genSalt(saltRounds)
       const hashedPassword: string = await hash(newPassword, salt)
       const newUser: User = this.userRepository.create({
-        ...foundUserByEmail,
+        ...foundUserByPhone,
         password: hashedPassword,
       })
 
       await this.userRepository.save(newUser)
       console.log(
-        `Superadmin's password with ${email} was changed to ${newPassword}.`,
+        `Superadmin's password with phone number ${number} was changed to ${newPassword}.`,
       )
       console.log(newPassword)
     } catch (error) {
@@ -65,10 +77,18 @@ export class ChangePasswordSuperadminCommand extends CommandRunner {
   }
 
   @Option({
-    flags: '-e, --email [email]',
-    description: 'An email return',
+    flags: '-n, --number [number]',
+    description: 'An phone number return',
   })
-  parseEmail(email: string): string {
-    return email
+  parseNumber(number: string): string {
+    return number
+  }
+
+  @Option({
+    flags: '-p, --password [password]',
+    description: 'A password return',
+  })
+  parsePassword(password: string): string {
+    return password
   }
 }
