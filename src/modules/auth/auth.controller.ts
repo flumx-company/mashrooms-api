@@ -141,11 +141,10 @@ export class AuthController {
   @Get('personal-data')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.READ_PERSONAL_DATA,
   })
   @ApiOperation({
     summary:
-      'Returns personal data of the logged-in user. Role: SUPERADMIN, ADMIN. Permission: READ_PERSONAL_DATA.',
+      'Returns personal data of the logged-in user. Role: SUPERADMIN, ADMIN.',
   })
   @ApiResponse({
     status: 200,
