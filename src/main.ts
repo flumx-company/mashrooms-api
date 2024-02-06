@@ -30,6 +30,12 @@ async function bootstrap() {
       'http://localhost:5174',
       'localhost:5175',
       'http://localhost:5175',
+      'auth.mushrooms.it-flumx.com',
+      'admin.mushrooms.it-flumx.com',
+      'super.mushrooms.it-flumx.com',
+      'https://auth.mushrooms.it-flumx.com',
+      'https://admin.mushrooms.it-flumx.com',
+      'https://super.mushrooms.it-flumx.com',
     ],
     credentials: convertType(process.env.CORS_WITH_CREDENTIALS) as boolean,
   })
