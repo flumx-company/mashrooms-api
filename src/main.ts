@@ -36,6 +36,12 @@ async function bootstrap() {
       'https://auth.mushrooms.it-flumx.com',
       'https://admin.mushrooms.it-flumx.com',
       'https://super-admin.mushrooms.it-flumx.com',
+      '178.151.201.167:51520',
+      'http://178.151.201.167:51520',
+      '178.151.201.167:51521',
+      'http://178.151.201.167:51521',
+      '178.151.201.167:51522',
+      'http://178.151.201.167:51522',
     ],
     credentials: convertType(process.env.CORS_WITH_CREDENTIALS) as boolean,
   })
