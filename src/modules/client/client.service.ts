@@ -6,6 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm'
 
 import { Nullable } from '@mush/core/utils'
 
+import { FileUploadService } from '../file-upload/file-upload.service'
+import { BufferedFile } from '../file-upload/file.model'
+import { PublicFile } from '../file-upload/public-file.entity'
 import { Client } from './client.entity'
 import { CreateClientDto } from './dto/create.client.dto'
 import { UpdateClientDto } from './dto/update.client.dto'
@@ -16,6 +19,7 @@ export class ClientService {
   constructor(
     @InjectRepository(Client)
     private clientRepository: Repository<Client>,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Client>> {
@@ -30,12 +34,20 @@ export class ClientService {
     return this.clientRepository.findOneBy({ phone })
   }
 
-  async createClient({
-    firstName,
-    lastName,
-    phone,
-  }: CreateClientDto): Promise<Client> {
+  findClientByIdWithFiles(id: number): Promise<Nullable<Client>> {
+    return this.clientRepository
+      .createQueryBuilder('client')
+      .leftJoinAndSelect('client.files', 'clientFiles')
+      .where('client.id = :id', { id })
+      .getOne()
+  }
+
+  async createClient(
+    { firstName, lastName, patronymic, phone }: CreateClientDto,
+    files: BufferedFile[],
+  ): Promise<Client> {
     const foundClientByPhone = await this.findClientByPhone(phone)
+    let fileListData: PublicFile[]
 
     if (foundClientByPhone) {
       throw new HttpException(
@@ -44,10 +56,16 @@ export class ClientService {
       )
     }
 
+    if (files) {
+      fileListData = await this.fileUploadService.uploadPublicFile(files)
+    }
+
     const newClient: Client = this.clientRepository.create({
       firstName,
       lastName,
+      patronymic,
       phone,
+      files: fileListData || [],
     })
 
     return this.clientRepository.save(newClient)
@@ -55,7 +73,7 @@ export class ClientService {
 
   async updateClient(
     id: number,
-    { firstName, lastName, phone }: UpdateClientDto,
+    { firstName, lastName, patronymic, phone }: UpdateClientDto,
   ): Promise<Client> {
     const [foundClientById, foundClientByPhone]: Nullable<Client>[] =
       await Promise.all([
@@ -81,6 +99,7 @@ export class ClientService {
       ...foundClientById,
       firstName,
       lastName,
+      patronymic,
       phone,
     })
 
@@ -88,7 +107,7 @@ export class ClientService {
   }
 
   async removeClient(id: number): Promise<Boolean> {
-    const foundClient: Nullable<Client> = await this.findClientById(id)
+    const foundClient: Nullable<Client> = await this.findClientByIdWithFiles(id)
 
     if (!foundClient) {
       throw new HttpException(
@@ -97,15 +116,22 @@ export class ClientService {
       )
     }
 
+    const fileIdList = foundClient.files.map((file) => file.id)
+
     try {
-      await this.clientRepository.remove(foundClient)
+      await Promise.all([
+        this.clientRepository.remove(foundClient),
+        fileIdList.length &&
+          this.fileUploadService.deletePublicFiles(fileIdList),
+      ])
+
       return true
     } catch (e) {
       return false
     }
   }
 
-  async getClientById(id: number): Promise<Client> {
+  async getClientById(id: number): Promise<Nullable<Client>> {
     const foundClient = await this.findClientById(id)
 
     if (!foundClient) {
@@ -116,5 +142,94 @@ export class ClientService {
     }
 
     return foundClient
+  }
+
+  async getFilesByClientId(id: number): Promise<Nullable<PublicFile[]>> {
+    const foundClient = await this.findClientByIdWithFiles(id)
+
+    if (!foundClient) {
+      throw new HttpException(
+        'There is no client with this id.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    return foundClient.files
+  }
+
+  async addClientFiles(
+    id: number,
+    clientFiles: BufferedFile[],
+  ): Promise<Nullable<Client>> {
+    if (!clientFiles || !clientFiles.length) {
+      throw new HttpException(
+        'No client files were provided.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    let fileListData: PublicFile[]
+    fileListData = await this.fileUploadService.uploadPublicFile(clientFiles)
+
+    const foundClient = await this.findClientByIdWithFiles(id)
+
+    if (!foundClient) {
+      throw new HttpException(
+        'There is no client with this id.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const updatedClient: Client = this.clientRepository.create({
+      ...foundClient,
+      files: [...foundClient.files, ...fileListData],
+    })
+
+    return this.clientRepository.save(updatedClient)
+  }
+
+  async removeClientFile(clientId: number, fileId: number) {
+    const foundClient: Nullable<Client> = await this.findClientByIdWithFiles(
+      clientId,
+    )
+
+    if (!foundClient) {
+      throw new HttpException(
+        'A client with this clientId does not exist.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const foundFile = foundClient.files.find((file) => file.id === fileId)
+
+    if (!foundFile) {
+      throw new HttpException(
+        'There is no file with this id related to this client.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    try {
+      await this.fileUploadService.deletePublicFile(fileId)
+      const updatedClientFileList = [...foundClient.files]
+      const removedFileIndex = updatedClientFileList.findIndex(
+        (file) => file.id === fileId,
+      )
+
+      if (removedFileIndex > -1) {
+        updatedClientFileList.splice(removedFileIndex, 1)
+      }
+
+      const updatedClient: Client = this.clientRepository.create({
+        ...foundClient,
+        files: updatedClientFileList,
+      })
+
+      this.clientRepository.save(updatedClient)
+
+      return true
+    } catch (e) {
+      return false
+    }
   }
 }

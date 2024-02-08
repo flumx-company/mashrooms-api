@@ -8,13 +8,14 @@ import {
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { PHONE_REGEX } from '@mush/core/utils'
+import { LATIN_CYRILLIC_LETTER_NAME_REGEX, PHONE_REGEX } from '@mush/core/utils'
 
 export class UpdateClientDto {
   @IsString()
-  @MaxLength(35)
+  @MaxLength(parseInt(process.env.MAX_FIRST_NAME_LENGTH))
   @MinLength(1)
   @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: 'John',
     description: 'Enter first name.',
@@ -23,19 +24,33 @@ export class UpdateClientDto {
   readonly firstName: string
 
   @IsString()
-  @MaxLength(35)
+  @MaxLength(parseInt(process.env.MAX_LAST_NAME_LENGTH))
   @MinLength(1)
   @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: 'Johnson',
-    description: 'Enter last name.',
+    description: 'Enter first name.',
     type: String,
   })
   readonly lastName: string
 
   @IsString()
+  @MaxLength(parseInt(process.env.MAX_PATRONYMIC_LENGTH))
+  @MinLength(1)
   @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
+  @ApiProperty({
+    example: 'Johnson',
+    description: 'Enter first name.',
+    type: String,
+  })
+  readonly patronymic: string
+
+  @IsNotEmpty()
+  @IsString()
   @Matches(PHONE_REGEX)
+  @MaxLength(parseInt(process.env.MAX_PHONE_LENGTH))
   @ApiProperty({
     example: '380681234567',
     description: 'Enter the phone.',

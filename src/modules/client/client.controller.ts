@@ -1,9 +1,11 @@
+import { Response as ExResponse } from 'express'
 import {
   ApiPaginationQuery,
   Paginate,
   PaginateQuery,
   Paginated,
 } from 'nestjs-paginate'
+import * as stream from 'stream'
 
 import {
   Body,
@@ -14,10 +16,16 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Res,
+  StreamableFile,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common'
+import { FilesInterceptor } from '@nestjs/platform-express'
 import {
   ApiBadGatewayResponse,
   ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiParamOptions,
@@ -26,11 +34,15 @@ import {
 } from '@nestjs/swagger'
 
 import { Auth } from '@mush/core/decorators'
-import { EPermission, ERole } from '@mush/core/enums'
+import { EFileCategory, EPermission, ERole } from '@mush/core/enums'
 import { ApiV1, Nullable } from '@mush/core/utils'
 
+import { FileUploadService } from '../file-upload/file-upload.service'
+import { BufferedFile } from '../file-upload/file.model'
+import { PublicFile } from '../file-upload/public-file.entity'
 import { Client } from './client.entity'
 import { ClientService } from './client.service'
+import { AddClientFilesDto } from './dto'
 import { CreateClientDto } from './dto/create.client.dto'
 import { UpdateClientDto } from './dto/update.client.dto'
 import { clientPaginationConfig } from './pagination'
@@ -42,7 +54,10 @@ import { clientPaginationConfig } from './pagination'
 })
 @Controller(ApiV1('clients'))
 export class ClientController {
-  constructor(readonly clientService: ClientService) {}
+  constructor(
+    readonly clientService: ClientService,
+    private fileUploadService: FileUploadService,
+  ) {}
 
   @Get()
   @Auth({
@@ -77,7 +92,7 @@ export class ClientController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Will return the a client with the provided id.',
+    description: 'Will return the client with the provided id.',
     type: Client,
     isArray: true,
   })
@@ -93,6 +108,8 @@ export class ClientController {
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.CREATE_CLIENTS,
   })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('clientFiles'))
   @ApiOperation({
     summary:
       'Add a new client. Role: SUPERADMIN, ADMIN. Permission: CREATE_CLIENTS.',
@@ -106,8 +123,11 @@ export class ClientController {
     description: 'Will return the client data.',
     type: Client,
   })
-  async createClient(@Body() data: CreateClientDto): Promise<Client> {
-    return this.clientService.createClient(data)
+  async createClient(
+    @UploadedFiles() files: BufferedFile[],
+    @Body() data: CreateClientDto,
+  ): Promise<Client> {
+    return this.clientService.createClient(data, files)
   }
 
   @Put(':id')
@@ -161,5 +181,156 @@ export class ClientController {
   })
   async removeClient(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
     return this.clientService.removeClient(id)
+  }
+
+  @Get(':id/files')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENT_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Get files related to a client whose id is provided. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENT_FILES.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return files related to a client whose id is provided.',
+    type: Client,
+    isArray: true,
+  })
+  async getFilesByClientId(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Nullable<PublicFile[]>> {
+    return this.clientService.getFilesByClientId(id)
+  }
+
+  @Post(':id/files')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CREATE_CLIENT_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Adds files to the client whose id is provided. Role: SUPERADMIN, ADMIN. Permission: CREATE_CLIENT_FILES.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description:
+      'Model to add new files related to the client whose id is provided.',
+    type: AddClientFilesDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the client data.',
+    type: Client,
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('clientFiles'))
+  async addClientFiles(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: AddClientFilesDto, //NOTE: it needs to be declared here for dto check to run
+    @UploadedFiles() clientFiles: BufferedFile[],
+  ): Promise<Client> {
+    return this.clientService.addClientFiles(id, clientFiles)
+  }
+
+  @Delete(':clientId/file/:fileId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.DELETE_CLIENT_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Remove a file with fileId related to the client whose clientId is provided. Role: SUPERADMIN, ADMIN. Permission: DELETE_CLIENT_FILES.',
+  })
+  @ApiParam({
+    name: 'clientId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiParam({
+    name: 'fileId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return boolean result.',
+    type: Boolean,
+  })
+  async removeClientFile(
+    @Param('clientId', ParseIntPipe) clientId: number,
+    @Param('fileId', ParseIntPipe) fileId: number,
+  ): Promise<Boolean> {
+    return this.clientService.removeClientFile(clientId, fileId)
+  }
+
+  @Get('file/:id')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENT_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Render client file. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENT_FILES.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  async getFileById(
+    @Param('id', ParseIntPipe) id: number,
+    @Res({ passthrough: true }) res: ExResponse,
+  ) {
+    const {
+      fileInfo,
+      stream,
+    }: { fileInfo: PublicFile; stream: stream.Readable } =
+      await this.fileUploadService.getFile(id, EFileCategory.CLIENT_FILES)
+
+    return new StreamableFile(stream, {
+      disposition: `inline filename="${fileInfo.name}`,
+      type: fileInfo.type,
+    })
+  }
+
+  @Get('file/:id')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENT_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Download client file. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENT_FILES.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  async downloadFileById(
+    @Param('id', ParseIntPipe) id: number,
+    @Res({ passthrough: true }) res: ExResponse,
+  ) {
+    const {
+      fileInfo,
+      stream,
+    }: { fileInfo: PublicFile; stream: stream.Readable } =
+      await this.fileUploadService.getFile(id, EFileCategory.CLIENT_FILES)
+
+    res.set({
+      'Content-Type': fileInfo.type,
+      'Content-Disposition': `attachment; filename=${fileInfo.name}`,
+    })
+
+    return new StreamableFile(stream, {
+      disposition: `inline filename="${fileInfo.name}`,
+      type: fileInfo.type,
+    })
   }
 }
