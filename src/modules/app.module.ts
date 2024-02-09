@@ -31,6 +31,8 @@ import { TypeORMConfig } from '@mush/config'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { FileUploadModule } from './file-upload/file-upload.module'
+import { PublicFile } from './file-upload/public-file.entity'
 import { Pay } from './pay/pay.entity'
 import { PayModule } from './pay/pay.module'
 
@@ -52,6 +54,7 @@ import { PayModule } from './pay/pay.module'
         Picking,
         Pay,
         Yield,
+        PublicFile,
       ],
     } as TypeOrmModuleOptions),
     CoreModule,
@@ -70,6 +73,7 @@ import { PayModule } from './pay/pay.module'
     WheelbarrowModule,
     WorkdayModule,
     YieldModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
