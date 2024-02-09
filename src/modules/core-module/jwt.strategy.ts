@@ -25,6 +25,8 @@ export class JwtStrategy implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const token: string = request?.['cookies']?.[process.env.COOKIE_TOKEN_NAME]
 
+    console.log({ cookies: request?.['cookies']})
+
     return token
   }
 
@@ -46,7 +48,6 @@ export class JwtStrategy implements CanActivate {
     const request: Request = context.switchToHttp().getRequest()
     const token: string = this.extractTokenFromHeader(request)
 
-    console.log({ request })
     console.log({ token })
 
     if (!token) {
