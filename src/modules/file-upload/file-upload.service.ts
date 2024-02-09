@@ -24,9 +24,13 @@ export class FileUploadService {
       accessKeyId: this.configService.get('MINIO_ACCESS_KEY'),
       secretAccessKey: this.configService.get('MINIO_SECRET_KEY'),
       region: 'eu-central-1',
-      endpoint: `${this.configService.get(
-        'MINIO_ENDPOINT',
-      )}:${this.configService.get('MINIO_PORT')}`,
+      endpoint: [
+        this.configService.get('MINIO_HTTP'),
+        '://',
+        this.configService.get('MINIO_ENDPOINT'),
+        ':',
+        this.configService.get('MINIO_PORT'),
+      ].join(),
       s3ForcePathStyle: true,
       signatureVersion: 'v4',
     })
