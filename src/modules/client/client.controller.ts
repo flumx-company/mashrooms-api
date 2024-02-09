@@ -96,7 +96,6 @@ export class ClientController {
     type: Client,
     isArray: true,
   })
-  @ApiPaginationQuery(clientPaginationConfig)
   async getClientById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Nullable<Client>> {
