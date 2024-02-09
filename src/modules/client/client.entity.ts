@@ -11,7 +11,7 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 export class Client extends DatedBasicEntity {
   @ApiProperty({
     example: 'John',
-    description: "User's name. Max length is 35 characters.",
+    description: "Client's first name. Max length is 35 characters.",
   })
   @Column({
     type: 'varchar',
@@ -23,7 +23,7 @@ export class Client extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'Johnson',
-    description: "User's name. Max length is 35 characters.",
+    description: "Client's last name. Max length is 35 characters.",
   })
   @Column({
     type: 'varchar',
@@ -35,7 +35,7 @@ export class Client extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'son of Jeremy',
-    description: "User's patronymic. Max length is 35 characters.",
+    description: "Client's patronymic. Max length is 35 characters.",
   })
   @Column({
     type: 'varchar',
@@ -47,7 +47,7 @@ export class Client extends DatedBasicEntity {
 
   @ApiProperty({
     example: '380681234567',
-    description: "User's telephone number. Max length is 20 characters.",
+    description: "Client's telephone number. Max length is 20 characters.",
   })
   @Column({
     type: 'varchar',
