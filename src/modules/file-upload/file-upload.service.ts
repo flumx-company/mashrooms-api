@@ -18,17 +18,13 @@ export class FileUploadService {
     private publicFilesRepository: Repository<PublicFile>,
     private readonly configService: ConfigService,
   ) {
-    console.log(this.configService.get('MINIO_ENDPOINT'))
-
     this.s3 = new S3({
       accessKeyId: this.configService.get('MINIO_ACCESS_KEY'),
       secretAccessKey: this.configService.get('MINIO_SECRET_KEY'),
       region: 'eu-central-1',
-      endpoint: [
-        this.configService.get('MINIO_ENDPOINT'),
-        ':',
-        this.configService.get('MINIO_PORT'),
-      ].join(),
+      endpoint: `${this.configService.get(
+        'MINIO_ENDPOINT',
+      )}:${this.configService.get('MINIO_PORT')}`,
       s3ForcePathStyle: true,
       signatureVersion: 'v4',
     })
