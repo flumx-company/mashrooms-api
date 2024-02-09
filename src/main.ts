@@ -20,29 +20,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig)
 
   app.enableCors({
-    origin: [
-      'localhost',
-      'localhost:8080',
-      'http://localhost:8080',
-      'localhost:5173',
-      'http://localhost:5173',
-      'localhost:5174',
-      'http://localhost:5174',
-      'localhost:5175',
-      'http://localhost:5175',
-      'auth.mushrooms.it-flumx.com',
-      'admin.mushrooms.it-flumx.com',
-      'super-admin.mushrooms.it-flumx.com',
-      'https://auth.mushrooms.it-flumx.com',
-      'https://admin.mushrooms.it-flumx.com',
-      'https://super-admin.mushrooms.it-flumx.com',
-      '178.151.201.167:51520',
-      'http://178.151.201.167:51520',
-      '178.151.201.167:51521',
-      'http://178.151.201.167:51521',
-      '178.151.201.167:51522',
-      'http://178.151.201.167:51522',
-    ],
+    origin: JSON.parse(process.env.CORS_ORIGIN_ARRAY),
     credentials: convertType(process.env.CORS_WITH_CREDENTIALS) as boolean,
   })
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
