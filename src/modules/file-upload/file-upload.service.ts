@@ -25,8 +25,6 @@ export class FileUploadService {
       secretAccessKey: this.configService.get('MINIO_SECRET_KEY'),
       region: 'eu-central-1',
       endpoint: [
-        this.configService.get('MINIO_HTTP'),
-        '://',
         this.configService.get('MINIO_ENDPOINT'),
         ':',
         this.configService.get('MINIO_PORT'),
