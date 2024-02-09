@@ -25,17 +25,12 @@ export class JwtStrategy implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const token: string = request?.['cookies']?.[process.env.COOKIE_TOKEN_NAME]
 
-    console.log({ cookies: request?.['cookies']})
-
     return token
   }
 
   private async validate(payload: JwtPayload): Promise<User> {
     const id: number = parseInt(payload.id)
     const user: User = await this.userService.findUserById(id)
-
-    console.log({ id })
-    console.log({ user })
 
     if (!user) {
       throw new UnauthorizedException()
@@ -48,8 +43,6 @@ export class JwtStrategy implements CanActivate {
     const request: Request = context.switchToHttp().getRequest()
     const token: string = this.extractTokenFromHeader(request)
 
-    console.log({ token })
-
     if (!token) {
       throw new UnauthorizedException()
     }
@@ -58,8 +51,6 @@ export class JwtStrategy implements CanActivate {
       const payload: JwtPayload = await this.jwtService.verifyAsync(token, {
         secret: this.config.get(process.env.AUTH_TOKEN_SECRET),
       })
-
-      console.log({ payload })
 
       request['user'] = await this.validate(payload)
     } catch {
