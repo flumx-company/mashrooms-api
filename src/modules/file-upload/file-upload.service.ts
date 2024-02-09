@@ -18,17 +18,6 @@ export class FileUploadService {
     private publicFilesRepository: Repository<PublicFile>,
     private readonly configService: ConfigService,
   ) {
-    console.log({
-      accessKeyId: this.configService.get('MINIO_ACCESS_KEY'),
-      secretAccessKey: this.configService.get('MINIO_SECRET_KEY'),
-      region: this.configService.get('MINIO_REGION'),
-      endpoint: `${this.configService.get(
-        'MINIO_ENDPOINT',
-      )}:${this.configService.get('MINIO_PORT')}`,
-      s3ForcePathStyle: true,
-      signatureVersion: 'v4',
-    })
-
     this.s3 = new S3({
       accessKeyId: this.configService.get('MINIO_ACCESS_KEY'),
       secretAccessKey: this.configService.get('MINIO_SECRET_KEY'),
@@ -36,15 +25,14 @@ export class FileUploadService {
       endpoint: `${this.configService.get(
         'MINIO_ENDPOINT',
       )}:${this.configService.get('MINIO_PORT')}`,
-      s3ForcePathStyle: true,
-      signatureVersion: 'v4',
+      s3ForcePathStyle: this.configService.get('MINIO_S3_FORCE_PATH_STYLE'),
+      signatureVersion: this.configService.get('MINIO_SIGNATURE_VERSION'),
     })
   }
 
   private async removeS3file(fileInfo) {
     await this.s3
       .deleteObject({
-        // Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
         Bucket: this.configService.get('MINIO_BUCKET'),
         Key: fileInfo.key,
       })
