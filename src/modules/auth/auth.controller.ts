@@ -92,13 +92,6 @@ export class AuthController {
       password: loginData.password,
     })
 
-    console.log({
-      'process.env.COOKIE_TOKEN_NAME': process.env.COOKIE_TOKEN_NAME,
-      accessToken,
-      'cookieConfig': this.cookieConfig
-    })
-
-
     response.cookie(
       process.env.COOKIE_TOKEN_NAME,
       accessToken,
