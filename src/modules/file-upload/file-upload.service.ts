@@ -31,17 +31,40 @@ export class FileUploadService {
   }
 
   private async removeS3file(fileInfo) {
-    await this.s3
-      .deleteObject({
+    await Promise.all([
+      this.s3
+        .deleteObject({
+          Bucket: this.configService.get('MINIO_BUCKET'),
+          Key: fileInfo.key,
+        })
+        .promise(),
+      this.publicFilesRepository.remove(fileInfo),
+    ])
+  }
+
+  async uploadPublicFile(file: BufferedFile): Promise<PublicFile> {
+    const { buffer, fieldname, originalname, mimetype } = file
+    const uploadResult = await this.s3
+      .upload({
         Bucket: this.configService.get('MINIO_BUCKET'),
-        Key: fileInfo.key,
+        Body: buffer,
+        Key: `${fieldname}/${randomUUID()}-${originalname}`,
       })
       .promise()
 
-    await this.publicFilesRepository.delete(fileInfo.id)
+    const newFile = this.publicFilesRepository.create({
+      key: uploadResult.Key,
+      url: uploadResult.Location,
+      type: mimetype,
+      name: originalname,
+    })
+
+    await this.publicFilesRepository.save(newFile)
+
+    return newFile
   }
 
-  async uploadPublicFile(files: BufferedFile[]): Promise<PublicFile[]> {
+  async uploadPublicFiles(files: BufferedFile[]): Promise<PublicFile[]> {
     const uploadResultList = await Promise.all(
       files.map(({ buffer, fieldname, originalname }) => {
         return this.s3

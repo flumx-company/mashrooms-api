@@ -108,7 +108,7 @@ export class ClientController {
     permission: EPermission.CREATE_CLIENTS,
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FilesInterceptor('clientFiles'))
+  @UseInterceptors(FilesInterceptor(EFileCategory.CLIENT_FILES))
   @ApiOperation({
     summary:
       'Add a new client. Role: SUPERADMIN, ADMIN. Permission: CREATE_CLIENTS.',
