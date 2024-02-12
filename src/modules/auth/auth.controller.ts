@@ -130,7 +130,10 @@ export class AuthController {
         httpOnly: this.cookieConfig.httpOnly,
         secure: this.cookieConfig.secure,
         sameSite: this.cookieConfig.sameSite,
+        domain: this.cookieConfig.domain,
       })
+      response.end()
+
     } catch (e) {
       hasToken = false
     }
