@@ -57,7 +57,7 @@ export class ClientService {
     }
 
     if (files) {
-      fileListData = await this.fileUploadService.uploadPublicFile(files)
+      fileListData = await this.fileUploadService.uploadPublicFiles(files)
     }
 
     const newClient: Client = this.clientRepository.create({
@@ -169,7 +169,7 @@ export class ClientService {
     }
 
     let fileListData: PublicFile[]
-    fileListData = await this.fileUploadService.uploadPublicFile(clientFiles)
+    fileListData = await this.fileUploadService.uploadPublicFiles(clientFiles)
 
     const foundClient = await this.findClientByIdWithFiles(id)
 

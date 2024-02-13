@@ -3,6 +3,7 @@ import { Column, Entity, ManyToMany } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
 import { Client } from '@mush/modules/client/client.entity'
+import { Employee } from '@mush/modules/employee/employee.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 
@@ -34,4 +35,10 @@ export class PublicFile extends DatedBasicEntity {
 
   @ManyToMany(() => Client, (clients) => clients.files)
   clientFiles: Client[]
+
+  @ManyToMany(() => Employee, (employees) => employees.avatars)
+  employeeAvatars: Employee[]
+
+  @ManyToMany(() => Employee, (employees) => employees.documents)
+  employeeDocuments: Employee[]
 }
