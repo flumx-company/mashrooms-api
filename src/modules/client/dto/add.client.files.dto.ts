@@ -12,7 +12,7 @@ export class AddClientFilesDto {
       type: 'string',
       format: 'binary',
     },
-    description: 'Select files for feed.',
+    description: 'Select files for the client.',
     required: false,
   })
   readonly clientFiles: BufferedFile[]
