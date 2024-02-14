@@ -66,7 +66,7 @@ jobs:
         uses: saulmaldonado/skip-workflow@v1
         with:
           fail-fast: 'true'
-      - name: Run healthcheck
+      - name: Run healthcheck (TEST)
         if: github.event.pull_request.base.ref == 'develop'
         uses: nick-fields/retry@v3
         with:
@@ -75,6 +75,7 @@ jobs:
           retry_on: error
           command: |
             curl -X 'GET' '${{ env.TEST_HEALTHCHECK_API_SERVER_URL }}' -H 'accept: application/json'
+      - name: Run healthcheck (PROD)
         if: github.event.pull_request.base.ref == 'main'
         uses: nick-fields/retry@v3
         with:
