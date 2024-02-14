@@ -194,7 +194,7 @@ export class ClientController {
   @ApiResponse({
     status: 200,
     description: 'Will return files related to a client whose id is provided.',
-    type: Client,
+    type: PublicFile,
     isArray: true,
   })
   async getFilesByClientId(
@@ -228,13 +228,13 @@ export class ClientController {
     type: Client,
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FilesInterceptor('clientFiles'))
+  @UseInterceptors(FilesInterceptor(EFileCategory.CLIENT_FILES))
   async addClientFiles(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: AddClientFilesDto, //NOTE: it needs to be declared here for dto check to run
-    @UploadedFiles() clientFiles: BufferedFile[],
+    @UploadedFiles() files: BufferedFile[],
   ): Promise<Client> {
-    return this.clientService.addClientFiles(id, clientFiles)
+    return this.clientService.addClientFiles(id, files)
   }
 
   @Delete(':clientId/file/:fileId')

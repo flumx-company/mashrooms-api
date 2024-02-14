@@ -4,7 +4,9 @@ import { ApiProperty } from '@nestjs/swagger'
 
 import { BufferedFile } from '@mush/modules/file-upload/file.model'
 
-export class AddClientFilesDto {
+import { EFileCategory } from '@mush/core/enums'
+
+export class EditEmployeeAvatarDto {
   @Exclude()
   @ApiProperty({
     type: 'array',
@@ -12,8 +14,8 @@ export class AddClientFilesDto {
       type: 'string',
       format: 'binary',
     },
-    description: 'Select files for the client.',
+    description: 'Select avatar for the employee.',
     required: false,
   })
-  readonly clientFiles: BufferedFile[]
+  readonly [EFileCategory.EMPLOYEE_AVATARS]: BufferedFile[]
 }

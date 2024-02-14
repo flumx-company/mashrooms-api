@@ -168,9 +168,6 @@ export class ClientService {
       )
     }
 
-    let fileListData: PublicFile[]
-    fileListData = await this.fileUploadService.uploadPublicFiles(clientFiles)
-
     const foundClient = await this.findClientByIdWithFiles(id)
 
     if (!foundClient) {
@@ -179,6 +176,9 @@ export class ClientService {
         HttpStatus.UNPROCESSABLE_ENTITY,
       )
     }
+
+    const fileListData: PublicFile[] =
+      await this.fileUploadService.uploadPublicFiles(clientFiles)
 
     const updatedClient: Client = this.clientRepository.create({
       ...foundClient,
