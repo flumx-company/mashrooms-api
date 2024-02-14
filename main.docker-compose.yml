@@ -157,7 +157,8 @@ volumes:
   mashrooms-api-volume:
   mashrooms-mysql-volume:
   mashrooms-phpmyadmin-volume:
-
+  mashrooms-minio-data:
+  
 networks:
   registry_default:
     external: true
