@@ -33,6 +33,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { FileUploadModule } from './file-upload/file-upload.module'
 import { PublicFile } from './file-upload/public-file.entity'
+import { HealthcheckModule } from './healthcheck/healthcheck.module'
 import { Pay } from './pay/pay.entity'
 import { PayModule } from './pay/pay.module'
 
@@ -74,6 +75,7 @@ import { PayModule } from './pay/pay.module'
     WorkdayModule,
     YieldModule,
     FileUploadModule,
+    HealthcheckModule,
   ],
   controllers: [AppController],
   providers: [AppService],
