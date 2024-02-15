@@ -369,4 +369,25 @@ export class EmployeeService {
       return false
     }
   }
+
+  async updateEmployeeActiveStatus(
+    id: number,
+    isActive: boolean,
+  ): Promise<Employee> {
+    const foundEmployee: Nullable<Employee> = await this.findEmployeeById(id)
+
+    if (!foundEmployee) {
+      throw new HttpException(
+        'An employee with this id does not exist.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      )
+    }
+
+    const updatedEmployee: Employee = this.employeeRepository.create({
+      ...foundEmployee,
+      isActive,
+    })
+
+    return this.employeeRepository.save(updatedEmployee)
+  }
 }
