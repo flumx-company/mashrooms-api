@@ -1,6 +1,6 @@
 export enum ERegion {
-  KYIV = 'Київська область',
-  VINNITSA = 'Вінницька область',
+  KYIV = 'Київська',
+  VINNITSA = 'Вінницька',
   VOLYN = 'Волинська',
   DNIPRO = 'Дніпропетровська',
   DONETSK = 'Донецька',
