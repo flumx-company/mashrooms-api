@@ -63,7 +63,7 @@ export class User extends DatedBasicEntity {
 
   @ApiProperty({
     example: '380681234567',
-    description: "User's telephone number. Max length is 20 characters.",
+    description: `User's telephone number. Max length is ${process.env.MAX_PHONE_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',

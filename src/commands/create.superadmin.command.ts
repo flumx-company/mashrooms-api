@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { EPermission, EPosition, ERole } from '@mush/core/enums'
-import { generatePassword } from '@mush/core/utils'
+import { PHONE_REGEX, generatePassword } from '@mush/core/utils'
 
 interface CreateSuperadminCommandOptions {
   number?: string
@@ -45,6 +45,27 @@ export class CreateSuperadminCommand extends CommandRunner {
     if (foundUserByPhone) {
       console.error(
         'ERROR: A user with this phone number already exists in our database.',
+      )
+      return
+    }
+
+    if (!PHONE_REGEX.test(number)) {
+      console.error(
+        `ERROR: Phone number should consist of digits only and be not more than ${process.env.MAX_PHONE_LENGTH} characters of length`,
+      )
+      return
+    }
+
+    if (password.length < parseInt(process.env.MIN_PASSWORD_LENGTH)) {
+      console.error(
+        `ERROR: Password should not be shorter than ${process.env.MIN_PASSWORD_LENGTH} characters.`,
+      )
+      return
+    }
+
+    if (password.length > parseInt(process.env.MAX_PASSWORD_LENGTH)) {
+      console.error(
+        `ERROR: Password should not be larger than ${process.env.MAX_PASSWORD_LENGTH} characters.`,
       )
       return
     }
