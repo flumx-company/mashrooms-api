@@ -1,3 +1,4 @@
+import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import * as stream from 'stream'
 import { Repository } from 'typeorm'
 
@@ -18,6 +19,7 @@ import { PublicFile } from '../file-upload/public-file.entity'
 import { CreateEmployeeDto } from './dto/create.employee.dto'
 import { UpdateEmployeeDto } from './dto/update.employee.dto'
 import { Employee } from './employee.entity'
+import { employeePaginationConfig } from './pagination/employee.pagination.config'
 
 @Injectable()
 export class EmployeeService {
@@ -27,8 +29,8 @@ export class EmployeeService {
     private readonly fileUploadService: FileUploadService,
   ) {}
 
-  findAll(): Promise<Employee[]> {
-    return this.employeeRepository.find()
+  findAll(query: PaginateQuery): Promise<Paginated<Employee>> {
+    return paginate(query, this.employeeRepository, employeePaginationConfig)
   }
 
   findEmployeeById(id: number): Promise<Nullable<Employee>> {
