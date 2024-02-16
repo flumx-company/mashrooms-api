@@ -1,4 +1,10 @@
 import { Response as ExResponse } from 'express'
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
 import * as stream from 'stream'
 
 import {
@@ -43,6 +49,7 @@ import { CreateEmployeeDto } from './dto/create.employee.dto'
 import { UpdateEmployeeDto } from './dto/update.employee.dto'
 import { Employee } from './employee.entity'
 import { EmployeeService } from './employee.service'
+import { employeePaginationConfig } from './pagination/employee.pagination.config'
 
 @ApiTags('Employees')
 @ApiBadGatewayResponse({
@@ -65,8 +72,11 @@ export class EmployeeController {
     summary:
       'Get list of all employees. Role: SUPERADMIN, ADMIN. Permission: READ_EMPLOYEES.',
   })
-  async getAllEmployees(): Promise<Employee[]> {
-    return this.employeeService.findAll()
+  @ApiPaginationQuery(employeePaginationConfig)
+  async getAllEmployees(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Employee>> {
+    return this.employeeService.findAll(query)
   }
 
   @Get(':id')
