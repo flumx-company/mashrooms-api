@@ -36,6 +36,8 @@ import { PublicFile } from './file-upload/public-file.entity'
 import { HealthcheckModule } from './healthcheck/healthcheck.module'
 import { Pay } from './pay/pay.entity'
 import { PayModule } from './pay/pay.module'
+import { Work } from './work/work.entity'
+import { WorkModule } from './work/work.module'
 
 @Module({
   imports: [
@@ -56,6 +58,7 @@ import { PayModule } from './pay/pay.module'
         Pay,
         Yield,
         PublicFile,
+        Work,
       ],
     } as TypeOrmModuleOptions),
     CoreModule,
@@ -76,6 +79,7 @@ import { PayModule } from './pay/pay.module'
     YieldModule,
     FileUploadModule,
     HealthcheckModule,
+    WorkModule,
   ],
   controllers: [AppController],
   providers: [AppService],
