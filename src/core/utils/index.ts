@@ -1,4 +1,5 @@
 export * from './convert.type'
+export * from './custom.error'
 export * from './generate.password'
 export * from './get.random'
 export * from './find.wrong.enum.value'

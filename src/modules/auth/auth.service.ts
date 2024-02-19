@@ -2,14 +2,15 @@ import * as bcrypt from 'bcrypt'
 
 import {
   HttpException,
-  HttpStatus,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { UserService } from '@mush/modules/core-module/user/user.service'
+
+import { EError } from '@mush/core/enums'
+import { CError } from '@mush/core/utils'
 
 import { LoginDto } from './dto/login.dto'
 
@@ -27,14 +28,16 @@ export class AuthService {
     const foundUser: User | null = await this.userService.findUserByPhone(phone)
 
     if (!foundUser) {
-      throw new NotFoundException(
-        'A user with this phone number does not exist.',
+      throw new HttpException(
+        CError[EError.NOT_FOUND_PHONE],
+        EError.NOT_FOUND_PHONE,
       )
     }
 
     if (!foundUser.isActive) {
-      throw new NotFoundException(
-        "This user's account is not active. Please contact the superadmin to activate it.",
+      throw new HttpException(
+        CError[EError.INACTIVE_USER],
+        EError.INACTIVE_USER,
       )
     }
 
@@ -42,14 +45,8 @@ export class AuthService {
 
     if (!matchPasswords) {
       throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: 'Wrong password',
-        },
-        HttpStatus.FORBIDDEN,
-        {
-          cause: 'Wrong password',
-        },
+        CError[EError.WRONG_PASSWORD],
+        EError.WRONG_PASSWORD,
       )
     }
 

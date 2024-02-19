@@ -1,14 +1,15 @@
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { Client } from '@mush/modules/client/client.entity'
 import { ClientService } from '@mush/modules/client/client.service'
 import { User } from '@mush/modules/core-module/user/user.entity'
 
-import { Nullable } from '@mush/core/utils'
+import { EError } from '@mush/core/enums'
+import { CError, Nullable } from '@mush/core/utils'
 
 import { CreateOffloadDto } from './dto'
 import { Offload } from './offload.entity'
@@ -76,10 +77,7 @@ export class OffloadService {
     )
 
     if (!client) {
-      throw new HttpException(
-        'A client with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     const newOffload: Offload = await this.offloadRepository.create()
@@ -93,10 +91,7 @@ export class OffloadService {
     const foundOffload: Nullable<Offload> = await this.findOffloadById(id)
 
     if (!foundOffload) {
-      throw new HttpException(
-        'An offload with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     try {

@@ -10,7 +10,6 @@ import {
   Get,
   HttpCode,
   HttpException,
-  HttpStatus,
   Post,
   Req,
   Res,
@@ -26,8 +25,8 @@ import {
 import { User } from '@mush/modules/core-module/user/user.entity'
 
 import { Auth } from '@mush/core/decorators'
-import { EPermission, ERole } from '@mush/core/enums'
-import { ApiV1, Nullable, convertType } from '@mush/core/utils'
+import { EError, EPermission, ERole } from '@mush/core/enums'
+import { ApiV1, CError, Nullable, convertType } from '@mush/core/utils'
 
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
@@ -119,10 +118,7 @@ export class AuthController {
     )
 
     if (!hasToken) {
-      throw new HttpException(
-        'There is no token in cookies. Nobody is logged in.',
-        HttpStatus.UNAUTHORIZED,
-      )
+      throw new HttpException(CError[EError.NO_TOKEN], EError.NO_TOKEN)
     }
 
     try {
@@ -158,7 +154,10 @@ export class AuthController {
     let userData = request?.['user']
 
     if (!userData) {
-      throw new HttpException('Nobody is logged in.', HttpStatus.UNAUTHORIZED)
+      throw new HttpException(
+        CError[EError.NOT_LOGGED_IN],
+        EError.NOT_LOGGED_IN,
+      )
     }
 
     return userData
