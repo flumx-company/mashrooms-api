@@ -1,9 +1,6 @@
 import * as bcrypt from 'bcrypt'
 
-import {
-  HttpException,
-  Injectable,
-} from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 
 import { User } from '@mush/modules/core-module/user/user.entity'
@@ -28,26 +25,17 @@ export class AuthService {
     const foundUser: User | null = await this.userService.findUserByPhone(phone)
 
     if (!foundUser) {
-      throw new HttpException(
-        CError[EError.NOT_FOUND_PHONE],
-        EError.NOT_FOUND_PHONE,
-      )
+      throw new HttpException(CError.NOT_FOUND_PHONE, HttpStatus.BAD_REQUEST)
     }
 
     if (!foundUser.isActive) {
-      throw new HttpException(
-        CError[EError.INACTIVE_USER],
-        EError.INACTIVE_USER,
-      )
+      throw new HttpException(CError.INACTIVE_USER, HttpStatus.BAD_REQUEST)
     }
 
     const matchPasswords = await bcrypt.compare(password, foundUser.password)
 
     if (!matchPasswords) {
-      throw new HttpException(
-        CError[EError.WRONG_PASSWORD],
-        EError.WRONG_PASSWORD,
-      )
+      throw new HttpException(CError.WRONG_PASSWORD, HttpStatus.BAD_REQUEST)
     }
 
     const accessToken = await this.jwtService.sign(

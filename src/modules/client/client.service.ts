@@ -1,10 +1,9 @@
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { EError } from '@mush/core/enums'
 import { CError, Nullable } from '@mush/core/utils'
 
 import { FileUploadService } from '../file-upload/file-upload.service'
@@ -52,8 +51,8 @@ export class ClientService {
 
     if (foundClientByPhone) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -83,13 +82,13 @@ export class ClientService {
       ])
 
     if (!foundClientById) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundClientByPhone && foundClientByPhone.id !== id) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -108,7 +107,7 @@ export class ClientService {
     const foundClient: Nullable<Client> = await this.findClientByIdWithFiles(id)
 
     if (!foundClient) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const fileIdList = foundClient.files.map((file) => file.id)
@@ -130,7 +129,7 @@ export class ClientService {
     const foundClient = await this.findClientById(id)
 
     if (!foundClient) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     return foundClient
@@ -140,7 +139,7 @@ export class ClientService {
     const foundClient = await this.findClientByIdWithFiles(id)
 
     if (!foundClient) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     return foundClient.files
@@ -151,16 +150,13 @@ export class ClientService {
     clientFiles: BufferedFile[],
   ): Promise<Nullable<Client>> {
     if (!clientFiles || !clientFiles.length) {
-      throw new HttpException(
-        CError[EError.NO_FILE_PROVIDED],
-        EError.NO_FILE_PROVIDED,
-      )
+      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
     }
 
     const foundClient = await this.findClientByIdWithFiles(id)
 
     if (!foundClient) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const fileListData: PublicFile[] =
@@ -181,8 +177,8 @@ export class ClientService {
 
     if (!foundClient) {
       throw new HttpException(
-        CError[EError.NOT_FOUND_CLIENT_ID],
-        EError.NOT_FOUND_CLIENT_ID,
+        CError.NOT_FOUND_CLIENT_ID,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -190,8 +186,8 @@ export class ClientService {
 
     if (!foundFile) {
       throw new HttpException(
-        CError[EError.FILE_ID_NOT_RELATED],
-        EError.FILE_ID_NOT_RELATED,
+        CError.FILE_ID_NOT_RELATED,
+        HttpStatus.BAD_REQUEST,
       )
     }
 

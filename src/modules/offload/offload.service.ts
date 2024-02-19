@@ -1,7 +1,7 @@
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { Client } from '@mush/modules/client/client.entity'
@@ -77,7 +77,7 @@ export class OffloadService {
     )
 
     if (!client) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const newOffload: Offload = await this.offloadRepository.create()
@@ -91,7 +91,7 @@ export class OffloadService {
     const foundOffload: Nullable<Offload> = await this.findOffloadById(id)
 
     if (!foundOffload) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     try {

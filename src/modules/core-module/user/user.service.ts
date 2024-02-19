@@ -2,10 +2,10 @@ import { genSalt, hash } from 'bcrypt'
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { EError, EPermission, EPosition, ERole } from '@mush/core/enums'
+import { EPermission, EPosition, ERole } from '@mush/core/enums'
 import { CError, Nullable } from '@mush/core/utils'
 import { findWrongEnumValue } from '@mush/core/utils/find.wrong.enum.value'
 
@@ -70,29 +70,29 @@ export class UserService {
 
     if (foundUserByEmail) {
       throw new HttpException(
-        CError[EError.EMAIL_ALREADY_EXISTS],
-        EError.EMAIL_ALREADY_EXISTS,
+        CError.EMAIL_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
     if (foundUserByPhone) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
     if (wrongPermission) {
       throw new HttpException(
-        `${CError[EError.INVALID_PERMISSION]} ${wrongPermission}`,
-        EError.INVALID_PERMISSION,
+        `${CError.INVALID_PERMISSION} ${wrongPermission}`,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
     if (wrongPosition) {
       throw new HttpException(
-        `${CError[EError.INVALID_POSITION]} ${wrongPosition}`,
-        EError.INVALID_POSITION,
+        `${CError.INVALID_POSITION} ${wrongPosition}`,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -143,35 +143,35 @@ export class UserService {
       }),
     ])
 
+    if (!foundUserById) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
     if (foundUserByEmail && foundUserByEmail.id !== id) {
       throw new HttpException(
-        CError[EError.EMAIL_ALREADY_EXISTS],
-        EError.EMAIL_ALREADY_EXISTS,
+        CError.EMAIL_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
     if (foundUserByPhone && foundUserByPhone.id !== id) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
-    }
-
-    if (!foundUserById) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundUserById.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
-        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        CError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
     if (wrongPosition) {
       throw new HttpException(
-        `${CError[EError.INVALID_POSITION]} ${wrongPosition}`,
-        EError.INVALID_POSITION,
+        `${CError.INVALID_POSITION} ${wrongPosition}`,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -206,27 +206,24 @@ export class UserService {
 
     if (foundUserByEmail && foundUserByEmail.id !== id) {
       throw new HttpException(
-        CError[EError.EMAIL_ALREADY_EXISTS],
-        EError.EMAIL_ALREADY_EXISTS,
+        CError.EMAIL_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
     if (foundUserByPhone && foundUserByPhone.id !== id) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
     if (!foundUserById) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundUserById.role !== ERole.SUPERADMIN) {
-      throw new HttpException(
-        CError[EError.NOT_SUPERADMIN_ID],
-        EError.NOT_SUPERADMIN_ID,
-      )
+      throw new HttpException(CError.NOT_SUPERADMIN_ID, HttpStatus.BAD_REQUEST)
     }
 
     const updatedSuperadmin: User = this.userRepository.create({
@@ -245,13 +242,13 @@ export class UserService {
     const foundUser: Nullable<User> = await this.findUserById(id)
 
     if (!foundUser) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
-        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        CError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -270,13 +267,13 @@ export class UserService {
     const foundUser: Nullable<User> = await this.findUserById(id)
 
     if (!foundUser) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
-        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        CError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -292,7 +289,7 @@ export class UserService {
     const foundUser: User = await this.findUserById(id)
 
     if (!foundUser) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     return foundUser.permissions
@@ -312,20 +309,20 @@ export class UserService {
       ])
 
     if (!foundUser) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
-        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        CError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
     if (wrongPermission) {
       throw new HttpException(
-        `${CError[EError.INVALID_PERMISSION]} ${wrongPermission}`,
-        EError.INVALID_PERMISSION,
+        `${CError.INVALID_PERMISSION} ${wrongPermission}`,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -341,13 +338,13 @@ export class UserService {
     const foundUser: Nullable<User> = await this.findUserById(id)
 
     if (!foundUser) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
-        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        CError.ATTEMPT_TO_EDIT_SUPERADMIN,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
