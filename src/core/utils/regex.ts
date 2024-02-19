@@ -1,3 +1,7 @@
+import * as dotenv from 'dotenv'
+
+dotenv.config()
+
 export const LATIN_CYRILLIC_LETTER_NAME_REGEX =
   /^[A-Za-zАаБбВвГгҐґДдЕеЁёЄєЭэЖжЗзІіЇїИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЮюЯя'-]+$/g
 export const LATIN_CYRILLIC_LETTER_TITLE_REGEX =
