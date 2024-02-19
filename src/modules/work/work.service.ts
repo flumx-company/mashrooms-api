@@ -1,10 +1,9 @@
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { EError } from '@mush/core/enums'
 import { CError, Nullable } from '@mush/core/utils'
 
 import { UpdateWorkDto } from './dto'
@@ -35,8 +34,8 @@ export class WorkService {
 
     if (foundWorkByTitle) {
       throw new HttpException(
-        CError[EError.TITLE_ALREADY_EXISTS],
-        EError.TITLE_ALREADY_EXISTS,
+        CError.TITLE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -59,13 +58,13 @@ export class WorkService {
     ])
 
     if (!foundWorkById) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundWorkByTitle && foundWorkByTitle.id !== id) {
       throw new HttpException(
-        CError[EError.TITLE_ALREADY_EXISTS],
-        EError.TITLE_ALREADY_EXISTS,
+        CError.TITLE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -83,7 +82,7 @@ export class WorkService {
     const foundWork: Nullable<Work> = await this.findWorkById(id)
 
     if (!foundWork) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     try {

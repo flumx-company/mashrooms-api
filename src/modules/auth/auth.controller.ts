@@ -10,6 +10,7 @@ import {
   Get,
   HttpCode,
   HttpException,
+  HttpStatus,
   Post,
   Req,
   Res,
@@ -118,7 +119,7 @@ export class AuthController {
     )
 
     if (!hasToken) {
-      throw new HttpException(CError[EError.NO_TOKEN], EError.NO_TOKEN)
+      throw new HttpException(CError.NO_TOKEN, HttpStatus.BAD_REQUEST)
     }
 
     try {
@@ -129,7 +130,6 @@ export class AuthController {
         domain: this.cookieConfig.domain,
       })
       response.end()
-
     } catch (e) {
       hasToken = false
     }
@@ -154,10 +154,7 @@ export class AuthController {
     let userData = request?.['user']
 
     if (!userData) {
-      throw new HttpException(
-        CError[EError.NOT_LOGGED_IN],
-        EError.NOT_LOGGED_IN,
-      )
+      throw new HttpException(CError.NOT_LOGGED_IN, HttpStatus.BAD_REQUEST)
     }
 
     return userData

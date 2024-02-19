@@ -2,10 +2,15 @@ import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import * as stream from 'stream'
 import { Repository } from 'typeorm'
 
-import { HttpException, Injectable, StreamableFile } from '@nestjs/common'
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  StreamableFile,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { EError, EFileCategory } from '@mush/core/enums'
+import { EFileCategory } from '@mush/core/enums'
 import { CError, Nullable } from '@mush/core/utils'
 
 import { FileUploadService } from '../file-upload/file-upload.service'
@@ -67,8 +72,8 @@ export class EmployeeService {
 
     if (foundEmployeeByPhone) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -129,13 +134,13 @@ export class EmployeeService {
     ])
 
     if (!foundEmployeeById) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundEmployeeByPhone && foundEmployeeByPhone.id !== id) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -161,7 +166,7 @@ export class EmployeeService {
       await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const docIdList = foundEmployee.documents.map((doc) => doc.id)
@@ -184,16 +189,13 @@ export class EmployeeService {
     const foundEmployee = await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const avatarId = foundEmployee?.avatars?.[0]?.id
 
     if (!avatarId) {
-      throw new HttpException(
-        CError[EError.NOT_FOUND_AVATAR],
-        EError.NOT_FOUND_AVATAR,
-      )
+      throw new HttpException(CError.NOT_FOUND_AVATAR, HttpStatus.BAD_REQUEST)
     }
 
     const {
@@ -216,16 +218,13 @@ export class EmployeeService {
     files: BufferedFile[],
   ): Promise<Nullable<Employee>> {
     if (!files || !files.length) {
-      throw new HttpException(
-        CError[EError.NO_FILE_PROVIDED],
-        EError.NO_FILE_PROVIDED,
-      )
+      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
     }
 
     const foundEmployee = await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const oldAvatar = foundEmployee?.avatars?.[0]
@@ -249,14 +248,11 @@ export class EmployeeService {
     const avatar: PublicFile = foundEmployee?.avatars?.[0]
 
     if (!foundEmployee) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (!avatar) {
-      throw new HttpException(
-        CError[EError.NOT_FOUND_AVATAR],
-        EError.NOT_FOUND_AVATAR,
-      )
+      throw new HttpException(CError.NOT_FOUND_AVATAR, HttpStatus.BAD_REQUEST)
     }
 
     return this.fileUploadService.deletePublicFile(avatar.id)
@@ -266,7 +262,7 @@ export class EmployeeService {
     const foundEmployee = await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     return foundEmployee.documents
@@ -277,16 +273,13 @@ export class EmployeeService {
     files: BufferedFile[],
   ): Promise<Nullable<Employee>> {
     if (!files || !files.length) {
-      throw new HttpException(
-        CError[EError.NO_FILE_PROVIDED],
-        EError.NO_FILE_PROVIDED,
-      )
+      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
     }
 
     const foundEmployee = await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const documentListData: PublicFile[] =
@@ -306,8 +299,8 @@ export class EmployeeService {
 
     if (!foundEmployee) {
       throw new HttpException(
-        CError[EError.NOT_FOUND_EMPLOYEE_ID],
-        EError.NOT_FOUND_EMPLOYEE_ID,
+        CError.NOT_FOUND_EMPLOYEE_ID,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -317,8 +310,8 @@ export class EmployeeService {
 
     if (!foundDocument) {
       throw new HttpException(
-        CError[EError.FILE_ID_NOT_RELATED],
-        EError.FILE_ID_NOT_RELATED,
+        CError.FILE_ID_NOT_RELATED,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -353,7 +346,7 @@ export class EmployeeService {
     const foundEmployee: Nullable<Employee> = await this.findEmployeeById(id)
 
     if (!foundEmployee) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const updatedEmployee: Employee = this.employeeRepository.create({

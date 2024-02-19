@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto'
 import * as stream from 'stream'
 import { Repository } from 'typeorm'
 
-import { HttpException, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 
@@ -147,8 +147,8 @@ export class FileUploadService {
 
     if (!fileCategoryPattern.test(fileInfo.key)) {
       throw new HttpException(
-        `${CError[EError.FILE_ID_NOT_RELATED_TO_SECTION]} ${category}`,
-        EError.FILE_ID_NOT_RELATED_TO_SECTION,
+        `${CError.FILE_ID_NOT_RELATED_TO_SECTION} ${category}`,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -166,9 +166,6 @@ export class FileUploadService {
       }
     }
 
-    throw new HttpException(
-      CError[EError.NOT_FOUND_FILE],
-      EError.NOT_FOUND_FILE,
-    )
+    throw new HttpException(CError.NOT_FOUND_FILE, HttpStatus.BAD_REQUEST)
   }
 }

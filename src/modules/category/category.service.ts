@@ -1,9 +1,8 @@
 import { Repository } from 'typeorm'
 
-import { HttpException, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { EError } from '@mush/core/enums'
 import { CError, Nullable } from '@mush/core/utils'
 
 import { Category } from './category.entity'
@@ -38,8 +37,8 @@ export class CategoryService {
 
     if (foundCategoryByName) {
       throw new HttpException(
-        CError[EError.NAME_ALREADY_EXISTS],
-        EError.NAME_ALREADY_EXISTS,
+        CError.NAME_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -68,13 +67,13 @@ export class CategoryService {
       ])
 
     if (!foundCategoryById) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundCategoryByName && foundCategoryByName.id !== id) {
       throw new HttpException(
-        CError[EError.NAME_ALREADY_EXISTS],
-        EError.NAME_ALREADY_EXISTS,
+        CError.NAME_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -91,7 +90,7 @@ export class CategoryService {
     const foundCategory: Nullable<Category> = await this.findCategoryById(id)
 
     if (!foundCategory) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     try {

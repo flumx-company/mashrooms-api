@@ -1,9 +1,8 @@
 import { Repository } from 'typeorm'
 
-import { HttpException, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { EError } from '@mush/core/enums'
 import { CError, Nullable } from '@mush/core/utils'
 
 import { Driver } from './driver.entity'
@@ -38,8 +37,8 @@ export class DriverService {
 
     if (foundDriverByPhone) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -62,13 +61,13 @@ export class DriverService {
     ])
 
     if (!foundDriverById) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     if (foundDriverByPhone && foundDriverByPhone.id !== id) {
       throw new HttpException(
-        CError[EError.PHONE_ALREADY_EXISTS],
-        EError.PHONE_ALREADY_EXISTS,
+        CError.PHONE_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
       )
     }
 
@@ -86,7 +85,7 @@ export class DriverService {
     const foundDriver: Nullable<Driver> = await this.findDriverById(id)
 
     if (!foundDriver) {
-      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     let response = true
