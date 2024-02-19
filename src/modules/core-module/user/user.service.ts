@@ -2,11 +2,11 @@ import { genSalt, hash } from 'bcrypt'
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { EPermission, EPosition, ERole } from '@mush/core/enums'
-import { Nullable } from '@mush/core/utils'
+import { EError, EPermission, EPosition, ERole } from '@mush/core/enums'
+import { CError, Nullable } from '@mush/core/utils'
 import { findWrongEnumValue } from '@mush/core/utils/find.wrong.enum.value'
 
 import { CreateUserDto } from './dto/create.user.dto'
@@ -70,29 +70,29 @@ export class UserService {
 
     if (foundUserByEmail) {
       throw new HttpException(
-        'A user with this email already exists.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.EMAIL_ALREADY_EXISTS],
+        EError.EMAIL_ALREADY_EXISTS,
       )
     }
 
     if (foundUserByPhone) {
       throw new HttpException(
-        'A user with this phone already exists.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.PHONE_ALREADY_EXISTS],
+        EError.PHONE_ALREADY_EXISTS,
       )
     }
 
     if (wrongPermission) {
       throw new HttpException(
-        `${wrongPermission} is not valid permission.`,
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        `${CError[EError.INVALID_PERMISSION]} ${wrongPermission}`,
+        EError.INVALID_PERMISSION,
       )
     }
 
     if (wrongPosition) {
       throw new HttpException(
-        `${wrongPosition} is not valid position.`,
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        `${CError[EError.INVALID_POSITION]} ${wrongPosition}`,
+        EError.INVALID_POSITION,
       )
     }
 
@@ -145,36 +145,33 @@ export class UserService {
 
     if (foundUserByEmail && foundUserByEmail.id !== id) {
       throw new HttpException(
-        'There already exists a different user with this email.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.EMAIL_ALREADY_EXISTS],
+        EError.EMAIL_ALREADY_EXISTS,
       )
     }
 
     if (foundUserByPhone && foundUserByPhone.id !== id) {
       throw new HttpException(
-        'There already exists a different user with this phone.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.PHONE_ALREADY_EXISTS],
+        EError.PHONE_ALREADY_EXISTS,
       )
     }
 
     if (!foundUserById) {
-      throw new HttpException(
-        'A user with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundUserById.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        "Superadmin's data cannot be changed through this endpoint.",
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
+        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
       )
     }
 
     if (wrongPosition) {
       throw new HttpException(
-        `${wrongPosition} is not valid position.`,
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        `${CError[EError.INVALID_POSITION]} ${wrongPosition}`,
+        EError.INVALID_POSITION,
       )
     }
 
@@ -209,29 +206,26 @@ export class UserService {
 
     if (foundUserByEmail && foundUserByEmail.id !== id) {
       throw new HttpException(
-        'There already exists a different user with this email.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.EMAIL_ALREADY_EXISTS],
+        EError.EMAIL_ALREADY_EXISTS,
       )
     }
 
     if (foundUserByPhone && foundUserByPhone.id !== id) {
       throw new HttpException(
-        'There already exists a different user with this phone.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.PHONE_ALREADY_EXISTS],
+        EError.PHONE_ALREADY_EXISTS,
       )
     }
 
     if (!foundUserById) {
-      throw new HttpException(
-        'A user with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundUserById.role !== ERole.SUPERADMIN) {
       throw new HttpException(
-        "This is not superadmin's id.",
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.NOT_SUPERADMIN_ID],
+        EError.NOT_SUPERADMIN_ID,
       )
     }
 
@@ -251,16 +245,13 @@ export class UserService {
     const foundUser: Nullable<User> = await this.findUserById(id)
 
     if (!foundUser) {
-      throw new HttpException(
-        'A user with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        "Superadmin's password cannot be changed through this endpoint.",
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
+        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
       )
     }
 
@@ -279,16 +270,13 @@ export class UserService {
     const foundUser: Nullable<User> = await this.findUserById(id)
 
     if (!foundUser) {
-      throw new HttpException(
-        'A user with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        'Superadmin cannot be removed through this endpoint.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
+        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
       )
     }
 
@@ -304,10 +292,7 @@ export class UserService {
     const foundUser: User = await this.findUserById(id)
 
     if (!foundUser) {
-      throw new HttpException(
-        'A user with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     return foundUser.permissions
@@ -327,23 +312,20 @@ export class UserService {
       ])
 
     if (!foundUser) {
-      throw new HttpException(
-        'A user with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        "Superadmin's data cannot be changed through this endpoint.",
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
+        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
       )
     }
 
     if (wrongPermission) {
       throw new HttpException(
-        `${wrongPermission} is not valid permission.`,
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        `${CError[EError.INVALID_PERMISSION]} ${wrongPermission}`,
+        EError.INVALID_PERMISSION,
       )
     }
 
@@ -359,16 +341,13 @@ export class UserService {
     const foundUser: Nullable<User> = await this.findUserById(id)
 
     if (!foundUser) {
-      throw new HttpException(
-        'A user with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundUser.role === ERole.SUPERADMIN) {
       throw new HttpException(
-        "Superadmin's active status cannot be changed through this endpoint.",
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.ATTEMPT_TO_EDIT_SUPERADMIN],
+        EError.ATTEMPT_TO_EDIT_SUPERADMIN,
       )
     }
 

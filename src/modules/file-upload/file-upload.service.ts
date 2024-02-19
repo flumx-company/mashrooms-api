@@ -3,9 +3,12 @@ import { randomUUID } from 'crypto'
 import * as stream from 'stream'
 import { Repository } from 'typeorm'
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpException, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
+
+import { EError } from '@mush/core/enums'
+import { CError } from '@mush/core/utils'
 
 import { BufferedFile } from './file.model'
 import { PublicFile } from './public-file.entity'
@@ -144,8 +147,8 @@ export class FileUploadService {
 
     if (!fileCategoryPattern.test(fileInfo.key)) {
       throw new HttpException(
-        `A file with this id is not related to the ${category} section.`,
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        `${CError[EError.FILE_ID_NOT_RELATED_TO_SECTION]} ${category}`,
+        EError.FILE_ID_NOT_RELATED_TO_SECTION,
       )
     }
 
@@ -164,14 +167,8 @@ export class FileUploadService {
     }
 
     throw new HttpException(
-      {
-        status: HttpStatus.NOT_FOUND,
-        error: 'File not found.',
-      },
-      HttpStatus.NOT_FOUND,
-      {
-        cause: 'File not found.',
-      },
+      CError[EError.NOT_FOUND_FILE],
+      EError.NOT_FOUND_FILE,
     )
   }
 }

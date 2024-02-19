@@ -2,16 +2,11 @@ import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import * as stream from 'stream'
 import { Repository } from 'typeorm'
 
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  StreamableFile,
-} from '@nestjs/common'
+import { HttpException, Injectable, StreamableFile } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { EFileCategory } from '@mush/core/enums'
-import { Nullable } from '@mush/core/utils'
+import { EError, EFileCategory } from '@mush/core/enums'
+import { CError, Nullable } from '@mush/core/utils'
 
 import { FileUploadService } from '../file-upload/file-upload.service'
 import { BufferedFile } from '../file-upload/file.model'
@@ -72,8 +67,8 @@ export class EmployeeService {
 
     if (foundEmployeeByPhone) {
       throw new HttpException(
-        'An employee with this phone already exists.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.PHONE_ALREADY_EXISTS],
+        EError.PHONE_ALREADY_EXISTS,
       )
     }
 
@@ -134,16 +129,13 @@ export class EmployeeService {
     ])
 
     if (!foundEmployeeById) {
-      throw new HttpException(
-        'An employee with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundEmployeeByPhone && foundEmployeeByPhone.id !== id) {
       throw new HttpException(
-        'There already exists a different employee with this phone.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.PHONE_ALREADY_EXISTS],
+        EError.PHONE_ALREADY_EXISTS,
       )
     }
 
@@ -169,10 +161,7 @@ export class EmployeeService {
       await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(
-        'An employee with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     const docIdList = foundEmployee.documents.map((doc) => doc.id)
@@ -195,18 +184,15 @@ export class EmployeeService {
     const foundEmployee = await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(
-        'An employee with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     const avatarId = foundEmployee?.avatars?.[0]?.id
 
     if (!avatarId) {
       throw new HttpException(
-        'This employee has no avatar.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.NOT_FOUND_AVATAR],
+        EError.NOT_FOUND_AVATAR,
       )
     }
 
@@ -231,18 +217,15 @@ export class EmployeeService {
   ): Promise<Nullable<Employee>> {
     if (!files || !files.length) {
       throw new HttpException(
-        'A file was not provided.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.NO_FILE_PROVIDED],
+        EError.NO_FILE_PROVIDED,
       )
     }
 
     const foundEmployee = await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(
-        'There is no employee with this id.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     const oldAvatar = foundEmployee?.avatars?.[0]
@@ -266,16 +249,13 @@ export class EmployeeService {
     const avatar: PublicFile = foundEmployee?.avatars?.[0]
 
     if (!foundEmployee) {
-      throw new HttpException(
-        'There is no employee with this id.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (!avatar) {
       throw new HttpException(
-        'There is no avatar for the employee with this id.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.NOT_FOUND_AVATAR],
+        EError.NOT_FOUND_AVATAR,
       )
     }
 
@@ -286,10 +266,7 @@ export class EmployeeService {
     const foundEmployee = await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(
-        'There is no employee with this id.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     return foundEmployee.documents
@@ -301,18 +278,15 @@ export class EmployeeService {
   ): Promise<Nullable<Employee>> {
     if (!files || !files.length) {
       throw new HttpException(
-        'No employee documents were provided.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.NO_FILE_PROVIDED],
+        EError.NO_FILE_PROVIDED,
       )
     }
 
     const foundEmployee = await this.findEmployeeByIdWithFiles(id)
 
     if (!foundEmployee) {
-      throw new HttpException(
-        'There is no employee with this id.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     const documentListData: PublicFile[] =
@@ -332,8 +306,8 @@ export class EmployeeService {
 
     if (!foundEmployee) {
       throw new HttpException(
-        'A employee with this employeeId does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.NOT_FOUND_EMPLOYEE_ID],
+        EError.NOT_FOUND_EMPLOYEE_ID,
       )
     }
 
@@ -343,8 +317,8 @@ export class EmployeeService {
 
     if (!foundDocument) {
       throw new HttpException(
-        'There is no document with this id related to this client.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.FILE_ID_NOT_RELATED],
+        EError.FILE_ID_NOT_RELATED,
       )
     }
 
@@ -379,10 +353,7 @@ export class EmployeeService {
     const foundEmployee: Nullable<Employee> = await this.findEmployeeById(id)
 
     if (!foundEmployee) {
-      throw new HttpException(
-        'An employee with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     const updatedEmployee: Employee = this.employeeRepository.create({

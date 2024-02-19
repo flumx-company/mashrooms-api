@@ -1,10 +1,11 @@
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
-import { Nullable } from '@mush/core/utils'
+import { EError } from '@mush/core/enums'
+import { CError, Nullable } from '@mush/core/utils'
 
 import { FileUploadService } from '../file-upload/file-upload.service'
 import { BufferedFile } from '../file-upload/file.model'
@@ -51,8 +52,8 @@ export class ClientService {
 
     if (foundClientByPhone) {
       throw new HttpException(
-        'A client with this phone already exists.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.PHONE_ALREADY_EXISTS],
+        EError.PHONE_ALREADY_EXISTS,
       )
     }
 
@@ -82,16 +83,13 @@ export class ClientService {
       ])
 
     if (!foundClientById) {
-      throw new HttpException(
-        'A client with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     if (foundClientByPhone && foundClientByPhone.id !== id) {
       throw new HttpException(
-        'There already exists a different client with this phone.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.PHONE_ALREADY_EXISTS],
+        EError.PHONE_ALREADY_EXISTS,
       )
     }
 
@@ -110,10 +108,7 @@ export class ClientService {
     const foundClient: Nullable<Client> = await this.findClientByIdWithFiles(id)
 
     if (!foundClient) {
-      throw new HttpException(
-        'A client with this id does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     const fileIdList = foundClient.files.map((file) => file.id)
@@ -135,10 +130,7 @@ export class ClientService {
     const foundClient = await this.findClientById(id)
 
     if (!foundClient) {
-      throw new HttpException(
-        'There is no client with this id.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     return foundClient
@@ -148,10 +140,7 @@ export class ClientService {
     const foundClient = await this.findClientByIdWithFiles(id)
 
     if (!foundClient) {
-      throw new HttpException(
-        'There is no client with this id.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     return foundClient.files
@@ -163,18 +152,15 @@ export class ClientService {
   ): Promise<Nullable<Client>> {
     if (!clientFiles || !clientFiles.length) {
       throw new HttpException(
-        'No client files were provided.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.NO_FILE_PROVIDED],
+        EError.NO_FILE_PROVIDED,
       )
     }
 
     const foundClient = await this.findClientByIdWithFiles(id)
 
     if (!foundClient) {
-      throw new HttpException(
-        'There is no client with this id.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      )
+      throw new HttpException(CError[EError.NOT_FOUND_ID], EError.NOT_FOUND_ID)
     }
 
     const fileListData: PublicFile[] =
@@ -195,8 +181,8 @@ export class ClientService {
 
     if (!foundClient) {
       throw new HttpException(
-        'A client with this clientId does not exist.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.NOT_FOUND_CLIENT_ID],
+        EError.NOT_FOUND_CLIENT_ID,
       )
     }
 
@@ -204,8 +190,8 @@ export class ClientService {
 
     if (!foundFile) {
       throw new HttpException(
-        'There is no file with this id related to this client.',
-        HttpStatus.UNPROCESSABLE_ENTITY,
+        CError[EError.FILE_ID_NOT_RELATED],
+        EError.FILE_ID_NOT_RELATED,
       )
     }
 
