@@ -1,6 +1,6 @@
 export * from './file.categories'
 export * from './error'
-export * from './pay.tenant'
+export * from './price.tenant'
 export * from './permissions'
 export * from './positions'
 export * from './regions'
