@@ -3,9 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { CoreModule } from '@mush/modules/core-module/core.module'
 
-import { Pay } from './pay.entity'
+import { Price } from './price.entity'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Pay]), CoreModule],
+  imports: [TypeOrmModule.forFeature([Price]), CoreModule],
 })
-export class PayModule {}
+export class PriceModule {}

@@ -34,8 +34,8 @@ import { AppService } from './app.service'
 import { FileUploadModule } from './file-upload/file-upload.module'
 import { PublicFile } from './file-upload/public-file.entity'
 import { HealthcheckModule } from './healthcheck/healthcheck.module'
-import { Pay } from './pay/pay.entity'
-import { PayModule } from './pay/pay.module'
+import { Price } from './price/price.entity'
+import { PriceModule } from './price/price.module'
 import { Work } from './work/work.entity'
 import { WorkModule } from './work/work.module'
 
@@ -55,7 +55,7 @@ import { WorkModule } from './work/work.module'
         User,
         Offload,
         Picking,
-        Pay,
+        Price,
         Yield,
         PublicFile,
         Work,
@@ -72,7 +72,7 @@ import { WorkModule } from './work/work.module'
     PickingModule,
     OffloadModule,
     PickingModule,
-    PayModule,
+    PriceModule,
     ProductModule,
     WheelbarrowModule,
     WorkdayModule,

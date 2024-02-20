@@ -3,24 +3,24 @@ import { Column, Entity } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { EPayTenant } from '@mush/core/enums'
+import { EPriceTenant } from '@mush/core/enums'
 import { formatDateToDateTime } from '@mush/core/utils'
 
-@Entity({ name: 'pays' })
-export class Pay extends DatedBasicEntity {
+@Entity({ name: 'prices' })
+export class Price extends DatedBasicEntity {
   @ApiProperty({
     example: 'BARREL',
     description: 'Enum: BARREL, BOX, KITCHEN. Payment entity.',
   })
-  @Column({ type: 'enum', enum: EPayTenant, default: EPayTenant.BARREL })
-  tenant: EPayTenant
+  @Column({ type: 'enum', enum: EPriceTenant, default: EPriceTenant.BARREL })
+  tenant: EPriceTenant
 
   @ApiProperty({
     example: '20.00',
     description: 'Category description',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  pay: string
+  price: string
 
   @ApiProperty({
     example: '2024-01-15 23:00:00',
