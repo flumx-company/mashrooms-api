@@ -12,7 +12,7 @@ import { PHONE_REGEX } from '@mush/core/utils'
 
 export class CreateDriverDto {
   @IsString()
-  @MaxLength(35)
+  @MaxLength(parseInt(process.env.MAX_FIRST_NAME_LENGTH))
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
@@ -23,7 +23,7 @@ export class CreateDriverDto {
   readonly firstName: string
 
   @IsString()
-  @MaxLength(35)
+  @MaxLength(parseInt(process.env.MAX_LAST_NAME_LENGTH))
   @MinLength(1)
   @IsNotEmpty()
   @ApiProperty({
@@ -35,6 +35,7 @@ export class CreateDriverDto {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(parseInt(process.env.MAX_PHONE_LENGTH))
   @Matches(PHONE_REGEX)
   @ApiProperty({
     example: '380681234567',

@@ -30,7 +30,7 @@ export class UpdateClientDto {
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: 'Johnson',
-    description: 'Enter first name.',
+    description: 'Enter last name.',
     type: String,
   })
   readonly lastName: string
@@ -42,10 +42,22 @@ export class UpdateClientDto {
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: 'Johnson',
-    description: 'Enter first name.',
+    description: 'Enter patronymic.',
     type: String,
   })
   readonly patronymic: string
+
+  @IsString()
+  @MaxLength(parseInt(process.env.MAX_NICKNAME_LENGTH))
+  @MinLength(1)
+  @IsNotEmpty()
+  @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
+  @ApiProperty({
+    example: 'John Johnson',
+    description: 'Enter nickname.',
+    type: String,
+  })
+  readonly nickname: string
 
   @IsNotEmpty()
   @IsString()

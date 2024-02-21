@@ -38,11 +38,11 @@ export class CategoryController {
   @Get()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.READ_CATEGORY,
+    permission: EPermission.READ_CATEGORIES,
   })
   @ApiOperation({
     summary:
-      'Get list of all categories. Role: SUPERADMIN, ADMIN. Permission: READ_CATEGORY.',
+      'Get list of all categories. Role: SUPERADMIN, ADMIN. Permission: READ_CATEGORIES.',
   })
   async getAllCategories(): Promise<Category[]> {
     return this.categoryService.findAll()
@@ -51,11 +51,11 @@ export class CategoryController {
   @Post()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.CREATE_CATEGORY,
+    permission: EPermission.CREATE_CATEGORIES,
   })
   @ApiOperation({
     summary:
-      'Add a new category. Role: SUPERADMIN, ADMIN. Permission: CREATE_CATEGORY.',
+      'Add a new category. Role: SUPERADMIN, ADMIN. Permission: CREATE_CATEGORIES.',
   })
   @ApiBody({
     description: 'Model to add a new category.',
@@ -73,11 +73,11 @@ export class CategoryController {
   @Put(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.UPDATE_CATEGORY,
+    permission: EPermission.UPDATE_CATEGORIES,
   })
   @ApiOperation({
     summary:
-      'Update a category. Role: SUPERADMIN, ADMIN. Permission: UPDATE_CATEGORY.',
+      'Update a category. Role: SUPERADMIN, ADMIN. Permission: UPDATE_CATEGORIES.',
   })
   @ApiParam({
     name: 'id',
@@ -103,11 +103,11 @@ export class CategoryController {
   @Delete(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.DELETE_CATEGORY,
+    permission: EPermission.DELETE_CATEGORIES,
   })
   @ApiOperation({
     summary:
-      'Remove a category. Role: SUPERADMIN, ADMIN. Permission: DELETE_CATEGORY.',
+      'Remove a category. Role: SUPERADMIN, ADMIN. Permission: DELETE_CATEGORIES.',
   })
   @ApiParam({
     name: 'id',

@@ -29,7 +29,7 @@ export class WorkService {
     return this.workRepository.findOneBy({ title })
   }
 
-  async createWork({ title, isRegular, pay }: UpdateWorkDto): Promise<Work> {
+  async createWork({ title, isRegular, price }: UpdateWorkDto): Promise<Work> {
     const foundWorkByTitle = await this.findWorkByTitle(title)
 
     if (foundWorkByTitle) {
@@ -42,7 +42,7 @@ export class WorkService {
     const newWork: Work = this.workRepository.create({
       title,
       isRegular,
-      pay,
+      price,
     })
 
     return this.workRepository.save(newWork)
@@ -50,7 +50,7 @@ export class WorkService {
 
   async updateWork(
     id: number,
-    { title, isRegular, pay }: UpdateWorkDto,
+    { title, isRegular, price }: UpdateWorkDto,
   ): Promise<Work> {
     const [foundWorkById, foundWorkByTitle] = await Promise.all([
       this.findWorkById(id),
@@ -72,7 +72,7 @@ export class WorkService {
       ...foundWorkById,
       title,
       isRegular,
-      pay,
+      price,
     })
 
     return this.workRepository.save(updatedWork)

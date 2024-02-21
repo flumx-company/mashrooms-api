@@ -39,8 +39,8 @@ export class UpdateWorkDto {
   @IsNumber()
   @ApiProperty({
     example: 150,
-    description: "Work's pay. Will be used as initial value.",
+    description: "Work's price. Will be used as initial value.",
     type: Number,
   })
-  readonly pay: number
+  readonly price: number
 }

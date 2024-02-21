@@ -43,7 +43,7 @@ export class ClientService {
   }
 
   async createClient(
-    { firstName, lastName, patronymic, phone }: CreateClientDto,
+    { firstName, lastName, patronymic, nickname, phone }: CreateClientDto,
     files: BufferedFile[],
   ): Promise<Client> {
     const foundClientByPhone = await this.findClientByPhone(phone)
@@ -64,6 +64,7 @@ export class ClientService {
       firstName,
       lastName,
       patronymic,
+      nickname,
       phone,
       files: fileListData || [],
     })
@@ -73,7 +74,7 @@ export class ClientService {
 
   async updateClient(
     id: number,
-    { firstName, lastName, patronymic, phone }: UpdateClientDto,
+    { firstName, lastName, patronymic, nickname, phone }: UpdateClientDto,
   ): Promise<Client> {
     const [foundClientById, foundClientByPhone]: Nullable<Client>[] =
       await Promise.all([
@@ -97,6 +98,7 @@ export class ClientService {
       firstName,
       lastName,
       patronymic,
+      nickname,
       phone,
     })
 

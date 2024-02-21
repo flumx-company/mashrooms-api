@@ -6,18 +6,39 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'drivers' })
 export class Driver extends DatedBasicEntity {
-  @ApiProperty({ example: 'John', description: "Driver's first name" })
-  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
+  @ApiProperty({
+    example: 'John',
+    description: `Driver's first name. Max length is ${process.env.MAX_FIRST_NAME_LENGTH} characters.`,
+  })
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_FIRST_NAME_LENGTH,
+    default: null,
+    nullable: true,
+  })
   firstName: string
 
-  @ApiProperty({ example: 'Johnson', description: "Driver's last name" })
-  @Column({ type: 'varchar', length: 35, default: null, nullable: true })
+  @ApiProperty({
+    example: 'Johnson',
+    description: `Driver's last name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
+  })
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_LAST_NAME_LENGTH,
+    default: null,
+    nullable: true,
+  })
   lastName: string
 
   @ApiProperty({
     example: '380681234567',
-    description: "Driver's telephone number",
+    description: `Driver's telephone number. Max length is ${process.env.MAX_PHONE_LENGTH} characters.`,
   })
-  @Column({ type: 'varchar', length: 20, default: null, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_PHONE_LENGTH,
+    default: null,
+    nullable: true,
+  })
   phone: string
 }
