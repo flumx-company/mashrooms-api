@@ -25,6 +25,7 @@ export const CError = {
   //NOTE: invalid data
   INVALID_PERMISSION: `${EError.INVALID_PERMISSION}: An invalid permission was provided.`,
   INVALID_POSITION: `${EError.INVALID_POSITION}: An invalid position was provided.`,
+  INVALID_TENANT: `${EError.INVALID_TENANT}: Invalid tenant.`,
   //NOTE: superadmin error
   ATTEMPT_TO_EDIT_SUPERADMIN: `${EError.ATTEMPT_TO_EDIT_SUPERADMIN}: Superadmin cannot be edited through this endpoint.`,
   NOT_SUPERADMIN_ID: `${EError.NOT_SUPERADMIN_ID}: This is not superadmin's id.`,
