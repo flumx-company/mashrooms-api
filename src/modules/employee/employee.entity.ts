@@ -11,7 +11,7 @@ import { PublicFile } from '../file-upload/public-file.entity'
 export class Employee extends DatedBasicEntity {
   @ApiProperty({
     example: 'John',
-    description: "Employee's first name. Max length is 35 characters.",
+    description: `Employee's first name. Max length is ${process.env.MAX_FIRST_NAME_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -23,7 +23,7 @@ export class Employee extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'Johnson',
-    description: "Employee's last name. Max length is 35 characters.",
+    description: `Employee's last name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -35,7 +35,7 @@ export class Employee extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'son of Jeremy',
-    description: "Employee's patronymic. Max length is 35 characters.",
+    description: `Employee's patronymic. Max length is ${process.env.MAX_PATRONYMIC_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -47,7 +47,7 @@ export class Employee extends DatedBasicEntity {
 
   @ApiProperty({
     example: '380681234567',
-    description: "Employee's telephone number. Max length is 20 characters.",
+    description: `Employee's telephone number. Max length is ${process.env.MAX_PHONE_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -59,7 +59,7 @@ export class Employee extends DatedBasicEntity {
 
   @ApiProperty({
     example: '5375111122223333',
-    description: "Employee's bank card number. Max length is 16 characters.",
+    description: `Employee's bank card number. Max length is ${process.env.MAX_BANK_CARD_NUMBER_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',

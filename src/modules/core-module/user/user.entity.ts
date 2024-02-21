@@ -15,7 +15,7 @@ dotenv.config()
 export class User extends DatedBasicEntity {
   @ApiProperty({
     example: 'John',
-    description: "User's name. Max length is 35 characters.",
+    description: `User's name. Max length is ${process.env.MAX_FIRST_NAME_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -27,7 +27,7 @@ export class User extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'Johnson',
-    description: "User's name. Max length is 35 characters.",
+    description: `User's name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -39,7 +39,7 @@ export class User extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'son of Jeremy',
-    description: "User's patronymic. Max length is 35 characters.",
+    description: `User's patronymic. Max length is ${process.env.MAX_PATRONYMIC_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -51,7 +51,7 @@ export class User extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'test@email.com',
-    description: "User's email. Max length is 254 characters.",
+    description: `User's email. Max length is ${process.env.MAX_EMAIL_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',

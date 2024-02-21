@@ -9,15 +9,12 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator'
-import * as dotenv from 'dotenv'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { ToBoolean } from '@mush/core/decorators'
 import { EPermission, EPosition } from '@mush/core/enums'
 import { LATIN_CYRILLIC_LETTER_NAME_REGEX, PHONE_REGEX } from '@mush/core/utils'
-
-dotenv.config()
 
 const availablePermissions = Object.values(EPermission).filter(
   (permission) => !permission.includes('ADMINS'),

@@ -11,7 +11,7 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 export class Client extends DatedBasicEntity {
   @ApiProperty({
     example: 'John',
-    description: "Client's first name. Max length is 35 characters.",
+    description: `Client's first name. Max length is ${process.env.MAX_FIRST_NAME_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -23,7 +23,7 @@ export class Client extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'Johnson',
-    description: "Client's last name. Max length is 35 characters.",
+    description: `Client's last name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -35,7 +35,7 @@ export class Client extends DatedBasicEntity {
 
   @ApiProperty({
     example: 'son of Jeremy',
-    description: "Client's patronymic. Max length is 35 characters.",
+    description: `Client's patronymic. Max length is ${process.env.MAX_PATRONYMIC_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
@@ -46,8 +46,20 @@ export class Client extends DatedBasicEntity {
   patronymic: string
 
   @ApiProperty({
+    example: 'son of Jeremy',
+    description: `Client's nickname. Max length is ${process.env.MAX_NICKNAME_LENGTH} characters.`,
+  })
+  @Column({
+    type: 'varchar',
+    length: process.env.MAX_NICKNAME_LENGTH,
+    default: null,
+    nullable: true,
+  })
+  nickname: string
+
+  @ApiProperty({
     example: '380681234567',
-    description: "Client's telephone number. Max length is 20 characters.",
+    description: `Client's telephone number. Max length is ${process.env.MAX_PHONE_LENGTH} characters.`,
   })
   @Column({
     type: 'varchar',
