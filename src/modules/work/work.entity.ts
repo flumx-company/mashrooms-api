@@ -29,6 +29,6 @@ export class Work extends DatedBasicEntity {
     example: true,
     description: "Work's pay. Will be used as initial value.",
   })
-  @Column({ type: 'varchar', default: 0, nullable: true })
-  pay: number
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  price: number
 }
