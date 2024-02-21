@@ -1,4 +1,14 @@
-export const formatDateToDateTime = (value: Date): string => {
+export const formatDateToDateTime = ({
+  value,
+  withTime = false,
+}: {
+  value: Date
+  withTime?: boolean
+}): string => {
+  if (typeof value === 'string') {
+    return value
+  }
+
   const year = value.getFullYear()
   const month = value.getMonth() + 1
   const day = value.getDate()
@@ -6,5 +16,9 @@ export const formatDateToDateTime = (value: Date): string => {
   const minute = value.getMinutes()
   const second = value.getSeconds()
 
-  return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+  if (withTime) {
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+  }
+
+  return `${year}-${month}-${day}`
 }
