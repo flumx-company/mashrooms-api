@@ -16,35 +16,22 @@ export class Price extends DatedBasicEntity {
   tenant: EPriceTenant
 
   @ApiProperty({
-    example: '20.00',
-    description: 'Category description',
+    example: 200,
+    description: 'Price in hryvna',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  price: string
+  price: number
 
   @ApiProperty({
-    example: '2024-01-15 23:00:00',
-    description: 'Start time',
+    example: '2024-01-15',
+    description: 'Date',
   })
   @Column({
     type: 'date',
     transformer: {
-      from: (value: string) => new Date(value),
-      to: (value: Date) => formatDateToDateTime(value),
+      from: (value: Date) => formatDateToDateTime({ value }),
+      to: (value: string) => new Date(value),
     },
   })
-  startTime: Date
-
-  @ApiProperty({
-    example: '2024-01-15 23:59:59',
-    description: 'End time',
-  })
-  @Column({
-    type: 'date',
-    transformer: {
-      from: (value: string) => new Date(value),
-      to: (value: Date) => formatDateToDateTime(value),
-    },
-  })
-  endTime: Date
+  date: Date
 }
