@@ -40,11 +40,7 @@ import { ApiV1, Nullable } from '@mush/core/utils'
 import { FileUploadService } from '../file-upload/file-upload.service'
 import { BufferedFile } from '../file-upload/file.model'
 import { PublicFile } from '../file-upload/public-file.entity'
-import {
-  AddEmployeeDocumentsDto,
-  EditEmployeeAvatarDto,
-  UpdateActiveStatusDto,
-} from './dto'
+import { AddEmployeeDocumentsDto, EditEmployeeAvatarDto } from './dto'
 import { CreateEmployeeDto } from './dto/create.employee.dto'
 import { UpdateEmployeeDto } from './dto/update.employee.dto'
 import { Employee } from './employee.entity'
@@ -413,35 +409,5 @@ export class EmployeeController {
       disposition: `inline filename="${fileInfo.name}`,
       type: fileInfo.type,
     })
-  }
-
-  @Put(':id/active')
-  @Auth({
-    roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.UPDATE_EMPLOYEES,
-  })
-  @ApiOperation({
-    summary:
-      "Change admin user's active status. Role: SUPERADMIN, ADMIN. Permission: UPDATE_EMPLOYEES. It will trigger 422 error if the employee id is wrong.",
-  })
-  @ApiParam({
-    name: 'id',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiBody({
-    description: "Model to change employee's active status.",
-    type: UpdateActiveStatusDto,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Will return the employee data.',
-    type: Employee,
-  })
-  async updateUserActiveStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() { isActive }: UpdateActiveStatusDto,
-  ): Promise<Employee> {
-    return this.employeeService.updateEmployeeActiveStatus(id, isActive)
   }
 }

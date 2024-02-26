@@ -1,11 +1,12 @@
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm'
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { PublicFile } from '@mush/modules/file-upload/public-file.entity'
+import { Shift } from '@mush/modules/shift/shift.entity'
+
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { ERegion } from '@mush/core/enums'
-
-import { PublicFile } from '../file-upload/public-file.entity'
 
 @Entity({ name: 'employees' })
 export class Employee extends DatedBasicEntity {
@@ -92,7 +93,7 @@ export class Employee extends DatedBasicEntity {
     example: true,
     description: "User's active status. Boolean value.",
   })
-  @Column({ type: 'boolean', default: null, nullable: true })
+  @Column({ type: 'boolean', default: false, nullable: true })
   isActive: boolean
 
   @ApiProperty({
@@ -117,4 +118,7 @@ export class Employee extends DatedBasicEntity {
   @ManyToMany(() => PublicFile, (publicFile) => publicFile.employeeAvatars)
   @JoinTable()
   avatars: PublicFile[]
+
+  @OneToMany(() => Shift, (shift) => shift.employee)
+  shifts: Shift[]
 }

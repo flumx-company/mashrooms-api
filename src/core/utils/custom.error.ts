@@ -13,11 +13,13 @@ export const CError = {
   NOT_FOUND_FILE: `${EError.NOT_FOUND_FILE}: A file was not found.`,
   NOT_FOUND_AVATAR: `${EError.NOT_FOUND_AVATAR}: This item does not have an avatar.`,
   NOT_FOUND_EMPLOYEE_ID: `${EError.NOT_FOUND_EMPLOYEE_ID}: An employee with this employeeId was not found.`,
+  NOT_FOUND_ONGOING_SHIFT: `${EError.NOT_FOUND_ONGOING_SHIFT}: There is no ongoing shift.`,
   //NOTE: Already exists
   NAME_ALREADY_EXISTS: `${EError.NAME_ALREADY_EXISTS}: An item with this name already exists.`,
   PHONE_ALREADY_EXISTS: `${EError.PHONE_ALREADY_EXISTS}: An item with this phone already exists.`,
   TITLE_ALREADY_EXISTS: `${EError.TITLE_ALREADY_EXISTS}: There already exists an itme with this title.`,
   EMAIL_ALREADY_EXISTS: `${EError.EMAIL_ALREADY_EXISTS}: An item with this email already exists.`,
+  ONGOING_SHIFT_ALREADY_EXISTS: `${EError.ONGOING_SHIFT_ALREADY_EXISTS}: There already exists an ongoing shift.`,
   //NOTE: File error
   NO_FILE_PROVIDED: `${EError.NO_FILE_PROVIDED}: No file was provided.`,
   FILE_ID_NOT_RELATED: `${EError.FILE_ID_NOT_RELATED}: The item has no related file with this id.`,
@@ -29,4 +31,7 @@ export const CError = {
   //NOTE: superadmin error
   ATTEMPT_TO_EDIT_SUPERADMIN: `${EError.ATTEMPT_TO_EDIT_SUPERADMIN}: Superadmin cannot be edited through this endpoint.`,
   NOT_SUPERADMIN_ID: `${EError.NOT_SUPERADMIN_ID}: This is not superadmin's id.`,
+  //NOTE: employee error
+  INACTIVE_EMPLOYEE: `${EError.INACTIVE_EMPLOYEE}: The employee with this id is not active.`,
+  ACTIVE_EMPLOYEE: `${EError.ACTIVE_EMPLOYEE}: The employee with this id is already active.`,
 }
