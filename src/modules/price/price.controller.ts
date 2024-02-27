@@ -20,7 +20,7 @@ import {
 
 import { Auth } from '@mush/core/decorators'
 import { EPermission, EPriceTenant, ERole } from '@mush/core/enums'
-import { ApiV1 } from '@mush/core/utils'
+import { ApiV1, EmptyObject } from '@mush/core/utils'
 
 import { CreatePriceDto, UpdatePriceDto } from './dto'
 import { Price } from './price.entity'
@@ -46,6 +46,19 @@ export class PriceController {
   })
   async getAllPrices(): Promise<Price[]> {
     return this.priceService.findAll()
+  }
+
+  @Get('current')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_PRICES,
+  })
+  @ApiOperation({
+    summary:
+      'Get list of the current prices of all tenants. Role: SUPERADMIN, ADMIN. Permission: READ_PRICES.',
+  })
+  async getAllCurrentPrices(): Promise<Array<Price | EmptyObject>> {
+    return this.priceService.findAllTenantCurrentPrices()
   }
 
   @Get('tenant/:tenant')
@@ -90,7 +103,7 @@ export class PriceController {
   async getTenantPriceByDate(
     @Param('tenant') tenant: EPriceTenant,
     @Param('date') date: string,
-  ): Promise<Price> {
+  ): Promise<Price | EmptyObject> {
     return this.priceService.findPriceByClosestDate({ date, tenant })
   }
 

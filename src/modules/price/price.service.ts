@@ -4,7 +4,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { EPriceTenant } from '@mush/core/enums'
-import { CError, Nullable, findWrongEnumValue } from '@mush/core/utils'
+import {
+  CError,
+  EmptyObject,
+  Nullable,
+  findWrongEnumValue,
+  formatDateToDateTime,
+} from '@mush/core/utils'
 
 import { Price } from './price.entity'
 
@@ -54,18 +60,38 @@ export class PriceService {
   }: {
     date: string
     tenant: EPriceTenant
-  }): Promise<Price> {
+  }): Promise<Price | EmptyObject> {
     if (findWrongEnumValue({ $enum: EPriceTenant, value: tenant })) {
       throw new HttpException(CError.INVALID_TENANT, HttpStatus.BAD_REQUEST)
     }
 
-    return await this.priceRepository.findOne({
+    const foundPrice = await this.priceRepository.findOne({
       where: {
         tenant,
-        date: LessThanOrEqual(new Date(`${date} 00:00:00`)),
+        date: LessThanOrEqual(new Date(`${date} 00:00:00:000`)),
       },
       order: { date: 'DESC' },
     })
+
+    return foundPrice || {}
+  }
+
+  async findAllTenantCurrentPrices(): Promise<Array<Price | EmptyObject>> {
+    const today: string = String(
+      formatDateToDateTime({ value: new Date(Date.now()) }),
+    ) //TODO: refactor
+    const promises = []
+
+    Object.values(EPriceTenant).forEach((tenant) => {
+      promises.push(
+        this.findPriceByClosestDate({
+          tenant,
+          date: today,
+        }),
+      )
+    })
+
+    return Promise.all(promises)
   }
 
   async createPrice({
@@ -80,7 +106,7 @@ export class PriceService {
     const newPrice: Price = await this.priceRepository.create({
       tenant,
       price,
-      date: `${date} 00:00:00`,
+      date: `${date} 00:00:00:000`,
     })
 
     return this.priceRepository.save(newPrice)

@@ -17,4 +17,7 @@ export const TypeORMConfig: TypeOrmModuleOptions = {
   migrationsTableName: 'migrations_TypeORM',
   synchronize: false,
   logging: true,
+  extra: {
+    decimalNumbers: true,
+  },
 }
