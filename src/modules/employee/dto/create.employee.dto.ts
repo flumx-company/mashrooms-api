@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer'
 import {
   IsBoolean,
   IsEnum,
@@ -12,11 +13,15 @@ import {
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { EFileCategory, ERegion } from '@mush/core/enums'
-import { BANK_CARD_NUMBER_REGEX, LATIN_CYRILLIC_LETTER_NAME_REGEX, PHONE_REGEX } from '@mush/core/utils'
-import { ToBoolean } from '@mush/core/decorators'
-import { Exclude } from 'class-transformer'
 import { BufferedFile } from '@mush/modules/file-upload/file.model'
+
+import { ToBoolean } from '@mush/core/decorators'
+import { EFileCategory, ERegion } from '@mush/core/enums'
+import {
+  BANK_CARD_NUMBER_REGEX,
+  LATIN_CYRILLIC_LETTER_NAME_REGEX,
+  PHONE_REGEX,
+} from '@mush/core/utils'
 
 export class CreateEmployeeDto {
   @IsString()
@@ -102,16 +107,6 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   @ApiProperty({
     example: true,
-    description: 'Enter the active status boolean value.',
-    type: Boolean,
-  })
-  readonly isActive: boolean
-
-  @ToBoolean()
-  @IsBoolean()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: true,
     description: 'Enter boolean value if an employee is unreliable.',
     type: Boolean,
   })
@@ -125,7 +120,7 @@ export class CreateEmployeeDto {
     description: 'Enter boolean value if an employee has any criminal records.',
     type: Boolean,
   })
-  readonly hasCriminalRecord: boolean
+  readonly hasCriminalRecord: boolean;
 
   @Exclude()
   @ApiProperty({
@@ -138,7 +133,7 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
-  readonly [EFileCategory.EMPLOYEE_AVATARS]: BufferedFile[]
+  readonly [EFileCategory.EMPLOYEE_AVATARS]: BufferedFile[];
 
   @Exclude()
   @ApiProperty({

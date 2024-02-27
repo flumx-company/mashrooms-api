@@ -17,12 +17,20 @@ import { Driver } from '@mush/modules/driver/driver.entity'
 import { DriverModule } from '@mush/modules/driver/driver.module'
 import { Employee } from '@mush/modules/employee/employee.entity'
 import { EmployeeModule } from '@mush/modules/employee/employee.module'
+import { FileUploadModule } from '@mush/modules/file-upload/file-upload.module'
+import { PublicFile } from '@mush/modules/file-upload/public-file.entity'
+import { HealthcheckModule } from '@mush/modules/healthcheck/healthcheck.module'
 import { Offload } from '@mush/modules/offload/offload.entity'
 import { OffloadModule } from '@mush/modules/offload/offload.module'
 import { Picking } from '@mush/modules/picking/picking.entity'
 import { PickingModule } from '@mush/modules/picking/picking.module'
+import { Price } from '@mush/modules/price/price.entity'
+import { PriceModule } from '@mush/modules/price/price.module'
 import { ProductModule } from '@mush/modules/product/product.module'
+import { Shift } from '@mush/modules/shift/shift.entity'
 import { WheelbarrowModule } from '@mush/modules/wheelbarrow/wheelbarrow.module'
+import { Work } from '@mush/modules/work/work.entity'
+import { WorkModule } from '@mush/modules/work/work.module'
 import { WorkdayModule } from '@mush/modules/workday/workday.module'
 import { Yield } from '@mush/modules/yield/yield.entity'
 import { YieldModule } from '@mush/modules/yield/yield.module'
@@ -31,13 +39,7 @@ import { TypeORMConfig } from '@mush/config'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { FileUploadModule } from './file-upload/file-upload.module'
-import { PublicFile } from './file-upload/public-file.entity'
-import { HealthcheckModule } from './healthcheck/healthcheck.module'
-import { Price } from './price/price.entity'
-import { PriceModule } from './price/price.module'
-import { Work } from './work/work.entity'
-import { WorkModule } from './work/work.module'
+import { ShiftModule } from './shift/shift.module'
 
 @Module({
   imports: [
@@ -56,9 +58,10 @@ import { WorkModule } from './work/work.module'
         Offload,
         Picking,
         Price,
-        Yield,
         PublicFile,
+        Shift,
         Work,
+        Yield,
       ],
     } as TypeOrmModuleOptions),
     CoreModule,
@@ -79,6 +82,7 @@ import { WorkModule } from './work/work.module'
     YieldModule,
     FileUploadModule,
     HealthcheckModule,
+    ShiftModule,
     WorkModule,
   ],
   controllers: [AppController],

@@ -99,15 +99,6 @@ export class UpdateEmployeeDto {
   })
   readonly town: string
 
-  @ToBoolean()
-  @IsBoolean()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: true,
-    description: 'Enter the active status boolean value.',
-    type: Boolean,
-  })
-  readonly isActive: boolean
 
   @ToBoolean()
   @IsBoolean()
