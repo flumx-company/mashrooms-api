@@ -45,10 +45,10 @@ export class Shift extends DatedBasicEntity {
   dateTo: Date
 
   @ManyToOne(() => Employee, (employee) => employee.shifts, {
-    // onDelete: 'CASCADE',
-    // onUpdate: 'CASCADE',
-    // nullable: false,
-    // orphanedRowAction: 'delete',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: false,
+    orphanedRowAction: 'delete',
   })
   employee: Employee
 }
