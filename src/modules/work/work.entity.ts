@@ -1,8 +1,10 @@
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
+
+import { WorkRecord } from '../work-record/work.record.entity'
 
 @Entity({ name: 'works' })
 export class Work extends DatedBasicEntity {
@@ -31,4 +33,7 @@ export class Work extends DatedBasicEntity {
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   price: number
+
+  @OneToMany(() => WorkRecord, (workRecord) => workRecord.work)
+  workRecords: WorkRecord[]
 }

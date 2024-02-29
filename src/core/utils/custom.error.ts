@@ -34,4 +34,7 @@ export const CError = {
   //NOTE: employee error
   INACTIVE_EMPLOYEE: `${EError.INACTIVE_EMPLOYEE}: The employee with this id is not active.`,
   ACTIVE_EMPLOYEE: `${EError.ACTIVE_EMPLOYEE}: The employee with this id is already active.`,
+  //NOTE: work record error
+  WRONG_PERCENT_SUM: `${EError.WRONG_PERCENT_SUM}: The sum of employee percent values are not equal to 1, which is 100%.`,
+  NO_ONGOING_SHIFT: `${EError.NO_ONGOING_SHIFT}: Some employees have no ongoing shifts.`,
 }

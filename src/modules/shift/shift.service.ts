@@ -44,13 +44,52 @@ export class ShiftService {
       .getMany()
   }
 
-  async findCurrentShift(employeeId: number): Promise<Nullable<Shift>> {
+  async findCurrentShiftWithEmployee(
+    employeeId: number,
+  ): Promise<Nullable<Shift>> {
     return this.shiftRepository
       .createQueryBuilder('shift')
       .where('shift.dateTo IS NULL')
       .innerJoinAndSelect('shift.employee', 'employee', 'employee.id = :id', {
         id: employeeId,
       })
+      .getOne()
+  }
+
+  async findCurrentShiftWithEmployeeId(
+    employeeId: number,
+  ): Promise<Nullable<Shift>> {
+    return this.shiftRepository
+      .createQueryBuilder('shift')
+      .where('shift.dateTo IS NULL')
+      .innerJoin('shift.employee', 'employee', 'employee.id = :id', {
+        id: employeeId,
+      })
+      .select(['shift.id', 'shift.dateFrom', 'shift.dateTo', 'employee.id'])
+      .getOne()
+  }
+
+  async findCurrentShiftWithWorkRecords(
+    employeeId: number,
+  ): Promise<Nullable<Shift>> {
+    return this.shiftRepository
+      .createQueryBuilder('shift')
+      .where('shift.dateTo IS NULL')
+      .innerJoin('shift.employee', 'employee', 'employee.id = :id', {
+        id: employeeId,
+      })
+      .innerJoin('shift.workRecords', 'workRecords')
+      .select([
+        'shift.id',
+        'shift.dateFrom',
+        'shift.dateTo',
+        'employee.id',
+        'workRecords.id',
+        'workRecords.date',
+        'workRecords.percent',
+        'workRecords.percentAmount',
+        'workRecords.reward',
+      ])
       .getOne()
   }
 
@@ -63,7 +102,7 @@ export class ShiftService {
 
     const [employee, currentShift] = await Promise.all([
       this.employeeService.findEmployeeById(employeeId),
-      this.findCurrentShift(employeeId),
+      this.findCurrentShiftWithEmployee(employeeId),
     ])
 
     if (!employee) {
@@ -105,7 +144,7 @@ export class ShiftService {
     })
     const [employee, currentShift] = await Promise.all([
       this.employeeService.findEmployeeById(employeeId),
-      this.findCurrentShift(employeeId),
+      this.findCurrentShiftWithEmployee(employeeId),
     ])
 
     if (!employee) {
