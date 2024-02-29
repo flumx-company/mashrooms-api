@@ -79,6 +79,7 @@ export class ShiftService {
         id: employeeId,
       })
       .innerJoin('shift.workRecords', 'workRecords')
+      .innerJoin('workRecords.work', 'work')
       .select([
         'shift.id',
         'shift.dateFrom',
@@ -89,6 +90,9 @@ export class ShiftService {
         'workRecords.percent',
         'workRecords.percentAmount',
         'workRecords.reward',
+        'work.id',
+        'work.title',
+        'work.isRegular',
       ])
       .getOne()
   }
