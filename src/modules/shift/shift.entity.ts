@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -6,6 +6,8 @@ import { Employee } from '@mush/modules/employee/employee.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
+
+import { WorkRecord } from '../work-record/work.record.entity'
 
 @Entity({ name: 'shifts' })
 export class Shift extends DatedBasicEntity {
@@ -51,4 +53,7 @@ export class Shift extends DatedBasicEntity {
     orphanedRowAction: 'delete',
   })
   employee: Employee
+
+  @OneToMany(() => WorkRecord, (workRecord) => workRecord.shift)
+  workRecords: WorkRecord[]
 }

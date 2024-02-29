@@ -6,6 +6,6 @@ export const workPaginationConfig: PaginateConfig<Work> = {
   sortableColumns: ['id', 'isRegular'],
   defaultSortBy: [
     ['isRegular', 'DESC'],
-    ['id', 'ASC'],
+    ['title', 'ASC'],
   ],
 }

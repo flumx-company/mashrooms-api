@@ -29,9 +29,10 @@ import { PriceModule } from '@mush/modules/price/price.module'
 import { ProductModule } from '@mush/modules/product/product.module'
 import { Shift } from '@mush/modules/shift/shift.entity'
 import { WheelbarrowModule } from '@mush/modules/wheelbarrow/wheelbarrow.module'
+import { WorkRecord } from '@mush/modules/work-record/work.record.entity'
+import { WorkRecordModule } from '@mush/modules/work-record/work.record.module'
 import { Work } from '@mush/modules/work/work.entity'
 import { WorkModule } from '@mush/modules/work/work.module'
-import { WorkdayModule } from '@mush/modules/workday/workday.module'
 import { Yield } from '@mush/modules/yield/yield.entity'
 import { YieldModule } from '@mush/modules/yield/yield.module'
 
@@ -61,6 +62,7 @@ import { ShiftModule } from './shift/shift.module'
         PublicFile,
         Shift,
         Work,
+        WorkRecord,
         Yield,
       ],
     } as TypeOrmModuleOptions),
@@ -78,12 +80,12 @@ import { ShiftModule } from './shift/shift.module'
     PriceModule,
     ProductModule,
     WheelbarrowModule,
-    WorkdayModule,
     YieldModule,
     FileUploadModule,
     HealthcheckModule,
     ShiftModule,
     WorkModule,
+    WorkRecordModule,
   ],
   controllers: [AppController],
   providers: [AppService],
