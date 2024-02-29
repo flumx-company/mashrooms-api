@@ -94,6 +94,7 @@ export class ShiftService {
         'work.title',
         'work.isRegular',
       ])
+      .orderBy('workRecords.date', 'ASC')
       .getOne()
   }
 
