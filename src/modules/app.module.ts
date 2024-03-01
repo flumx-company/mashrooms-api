@@ -30,6 +30,8 @@ import { Price } from '@mush/modules/price/price.entity'
 import { PriceModule } from '@mush/modules/price/price.module'
 import { ProductModule } from '@mush/modules/product/product.module'
 import { Shift } from '@mush/modules/shift/shift.entity'
+import { Variety } from '@mush/modules/variety/variety.entity'
+import { VarietyModule } from '@mush/modules/variety/variety.module'
 import { WheelbarrowModule } from '@mush/modules/wheelbarrow/wheelbarrow.module'
 import { WorkRecord } from '@mush/modules/work-record/work.record.entity'
 import { WorkRecordModule } from '@mush/modules/work-record/work.record.module'
@@ -66,6 +68,7 @@ import { ShiftModule } from './shift/shift.module'
         Shift,
         Work,
         WorkRecord,
+        Variety,
         Yield,
       ],
     } as TypeOrmModuleOptions),
@@ -90,6 +93,7 @@ import { ShiftModule } from './shift/shift.module'
     ShiftModule,
     WorkModule,
     WorkRecordModule,
+    VarietyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
