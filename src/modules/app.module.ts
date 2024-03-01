@@ -8,6 +8,8 @@ import { AdminModule } from '@mush/modules/admin/admin.module'
 import { AuthModule } from '@mush/modules/auth/auth.module'
 import { Category } from '@mush/modules/category/category.entity'
 import { CategoryModule } from '@mush/modules/category/category.module'
+import { Chamber } from '@mush/modules/chamber/chamber.entity'
+import { ChamberModule } from '@mush/modules/chamber/chamber.module'
 import { Client } from '@mush/modules/client/client.entity'
 import { ClientModule } from '@mush/modules/client/client.module'
 import { ContainerModule } from '@mush/modules/container/container.module'
@@ -53,6 +55,7 @@ import { ShiftModule } from './shift/shift.module'
     TypeOrmModule.forRoot({
       ...TypeORMConfig,
       entities: [
+        Chamber,
         Category,
         Client,
         Driver,
@@ -72,6 +75,7 @@ import { ShiftModule } from './shift/shift.module'
     CoreModule,
     AuthModule,
     AdminModule,
+    ChamberModule,
     CategoryModule,
     ClientModule,
     ContainerModule,
