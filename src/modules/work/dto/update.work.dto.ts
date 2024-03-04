@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -11,6 +12,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger'
 
 import { ToBoolean } from '@mush/core/decorators'
+import { EWorkType } from '@mush/core/enums'
 import { LATIN_CYRILLIC_LETTER_TITLE_REGEX } from '@mush/core/utils'
 
 export class UpdateWorkDto {
@@ -43,4 +45,13 @@ export class UpdateWorkDto {
     type: Number,
   })
   readonly price: number
+
+  @IsString()
+  @IsEnum(EWorkType)
+  @ApiProperty({
+    example: EWorkType.CUSTOM,
+    description: 'Enter the work type.',
+    type: String,
+  })
+  readonly workType: EWorkType
 }

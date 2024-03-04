@@ -7,6 +7,8 @@ import { EmployeeService } from '@mush/modules/employee/employee.service'
 
 import { CError, Nullable, pick } from '@mush/core/utils'
 
+import { Chamber } from '../chamber/chamber.entity'
+import { ChamberService } from '../chamber/chamber.service'
 import { Employee } from '../employee/employee.entity'
 import { Shift } from '../shift/shift.entity'
 import { ShiftService } from '../shift/shift.service'
@@ -23,11 +25,12 @@ export class WorkRecordService {
     private readonly workService: WorkService,
     private readonly employeeService: EmployeeService,
     private readonly shiftService: ShiftService,
+    private readonly chamberService: ChamberService,
   ) {}
 
   async createWorkRecord(
     workId: number,
-    { dividedAmount, date, employees }: CreateWorkRecordDto,
+    { dividedAmount, date, employees, chamberId }: CreateWorkRecordDto,
   ) {
     const percentSum = employees.reduce(
       (accumulator, employee) => accumulator + employee.percent,
@@ -36,6 +39,13 @@ export class WorkRecordService {
 
     if (percentSum !== 1) {
       throw new HttpException(CError.WRONG_PERCENT_SUM, HttpStatus.BAD_REQUEST)
+    }
+
+    const foundChamber: Nullable<Chamber> =
+      await this.chamberService.findChamberById(chamberId)
+
+    if (!foundChamber) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
     const foundWork: Nullable<Work> = await this.workService.findWorkById(
@@ -86,6 +96,7 @@ export class WorkRecordService {
           reward,
           work: pick(foundWork, 'id', 'title', 'isRegular'),
           shift: foundShifts[index],
+          chamber: pick(foundChamber, 'id', 'name'),
         })
       }),
     )

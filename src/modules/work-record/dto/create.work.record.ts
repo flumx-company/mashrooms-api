@@ -53,4 +53,12 @@ export class CreateWorkRecordDto {
     isArray: true,
   })
   readonly employees: WorkRecordEmployee[]
+
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 1,
+    description: 'Provide chamber id.',
+    type: Number,
+  })
+  readonly chamberId: number
 }

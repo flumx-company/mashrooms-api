@@ -29,26 +29,20 @@ export class ChamberService {
 
   async createChamber({
     name,
-    waveQuantity,
     area,
   }: {
     name: string
-    waveQuantity: number
     area: number
   }): Promise<Chamber> {
     const newChamber: Chamber = await this.chamberRepository.create({
       name,
-      waveQuantity,
       area,
     })
 
     return this.chamberRepository.save(newChamber)
   }
 
-  async updateChamber(
-    id: number,
-    { name, waveQuantity, area }: UpdateChamberDto,
-  ) {
+  async updateChamber(id: number, { name, area }: UpdateChamberDto) {
     const foundChamber: Chamber = await this.findChamberById(id)
 
     if (!foundChamber) {
@@ -58,7 +52,6 @@ export class ChamberService {
     const updatedChamber: Chamber = await this.chamberRepository.create({
       ...foundChamber,
       name,
-      waveQuantity,
       area,
     })
 

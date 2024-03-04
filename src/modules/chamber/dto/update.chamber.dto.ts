@@ -12,15 +12,15 @@ export class UpdateChamberDto {
   })
   readonly name: string
 
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @ApiProperty({
-    example: 3,
-    description: 'Enter the maximum possible wave quantity.',
-    type: Number,
-  })
-  readonly waveQuantity: number
+  // @IsNotEmpty()
+  // @IsNumber()
+  // @Min(1)
+  // @ApiProperty({
+  //   example: 3,
+  //   description: 'Enter the maximum possible wave quantity.',
+  //   type: Number,
+  // })
+  // readonly waveQuantity: number
 
   @IsNotEmpty()
   @IsNumber()
