@@ -3,6 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
+import { EWorkType } from '@mush/core/enums'
 
 import { WorkRecord } from '../work-record/work.record.entity'
 
@@ -33,6 +34,13 @@ export class Work extends DatedBasicEntity {
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   price: number
+
+  @ApiProperty({
+    example: EWorkType.CUSTOM,
+    description: 'Work type.',
+  })
+  @Column({ type: 'enum', enum: EWorkType, default: EWorkType.CUSTOM })
+  workType: EWorkType
 
   @OneToMany(() => WorkRecord, (workRecord) => workRecord.work)
   workRecords: WorkRecord[]

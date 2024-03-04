@@ -6,6 +6,7 @@ import { EmployeeModule } from '@mush/modules/employee/employee.module'
 import { ShiftModule } from '@mush/modules/shift/shift.module'
 import { WorkModule } from '@mush/modules/work/work.module'
 
+import { ChamberModule } from '../chamber/chamber.module'
 import { WorkRecordController } from './work.record.controller'
 import { WorkRecord } from './work.record.entity'
 import { WorkRecordService } from './work.record.service'
@@ -17,6 +18,7 @@ import { WorkRecordService } from './work.record.service'
     WorkModule,
     EmployeeModule,
     ShiftModule,
+    ChamberModule,
   ],
   controllers: [WorkRecordController],
   providers: [WorkRecordService],

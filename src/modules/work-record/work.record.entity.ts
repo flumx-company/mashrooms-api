@@ -5,6 +5,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
 
+import { Chamber } from '../chamber/chamber.entity'
 import { Shift } from '../shift/shift.entity'
 import { Work } from '../work/work.entity'
 
@@ -63,4 +64,12 @@ export class WorkRecord extends DatedBasicEntity {
     orphanedRowAction: 'delete',
   })
   shift: Shift
+
+  @ManyToOne(() => Chamber, (chamber) => chamber.workRecords, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: false,
+    orphanedRowAction: 'delete',
+  })
+  chamber: Chamber
 }
