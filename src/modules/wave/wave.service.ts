@@ -17,6 +17,7 @@ export class WaveService {
   async findLastWave(batchId: number): Promise<Wave> {
     return this.waveRepository
       .createQueryBuilder('wave')
+      .innerJoin('wave.batch', 'batch')
       .where('batch.id = :batchId', { batchId })
       .orderBy('wave.id', 'DESC')
       .getOne()

@@ -36,6 +36,39 @@ import { CreateBatchDto } from './dto'
 export class BatchController {
   constructor(readonly batchService: BatchService) {}
 
+  @Get()
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CATEGORIES,
+  })
+  @ApiOperation({
+    summary:
+      'Get list of all batches. Role: SUPERADMIN, ADMIN. Permission: READ_BATCHES.',
+  })
+  async getAllBatches(): Promise<Batch[]> {
+    return this.batchService.findAll()
+  }
+
+  @Get(':batchId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CATEGORIES,
+  })
+  @ApiParam({
+    name: 'batchId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get the batch with the provided id. Role: SUPERADMIN, ADMIN. Permission: READ_BATCHES.',
+  })
+  async getBatchById(
+    @Param('batchId', ParseIntPipe) batchId: number,
+  ): Promise<Batch> {
+    return this.batchService.findBatchById(batchId)
+  }
+
   @Post()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
@@ -89,7 +122,7 @@ export class BatchController {
     return this.batchService.changeWave({ batchId, waveOrder })
   }
 
-  @Put(':batchId')
+  @Put('end/:batchId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.UPDATE_BATCHES,

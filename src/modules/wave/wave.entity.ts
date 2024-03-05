@@ -10,7 +10,7 @@ import { formatDateToDateTime } from '@mush/core/utils'
 @Entity({ name: 'waves' })
 export class Wave extends DatedBasicEntity {
   @ApiProperty({ example: 1, description: 'Wave order number' })
-  @Column({ type: 'varchar', length: 1, default: null, nullable: true })
+  @Column({ type: 'decimal', precision: 2, scale: 0, default: 0 })
   order: number
 
   @ApiProperty({

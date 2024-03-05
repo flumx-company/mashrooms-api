@@ -21,6 +21,10 @@ export class BatchService {
     private readonly waveService: WaveService,
   ) {}
 
+  findAll(): Promise<Batch[]> {
+    return this.batchRepository.find({ relations: ['waves', 'chamber'] })
+  }
+
   async findLastBatch(): Promise<Batch> {
     return this.batchRepository
       .createQueryBuilder('batch')
@@ -29,7 +33,10 @@ export class BatchService {
   }
 
   async findBatchById(id): Promise<Batch> {
-    return this.batchRepository.findOne({ where: { id }, relations: ['waves'] })
+    return this.batchRepository.findOne({
+      where: { id },
+      relations: ['waves', 'chamber'],
+    })
   }
 
   async createBatch({
@@ -128,7 +135,7 @@ export class BatchService {
       formatDateToDateTime({
         value: new Date(Date.now()),
         dateFrom: true,
-        withTime: true,
+        withTime: false,
       }),
     )
     const yesterday = String(

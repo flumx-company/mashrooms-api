@@ -88,6 +88,8 @@ export class Batch extends DatedBasicEntity {
   })
   dateTo: Date
 
+  @ApiProperty({ example: 3, description: 'Maximum wave quantity' })
+  @Column({ type: 'decimal', precision: 2, scale: 0, default: 0 })
   waveQuantity: number
 
   @ManyToOne(() => Chamber, (chamber) => chamber.batches)
