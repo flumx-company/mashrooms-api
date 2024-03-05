@@ -2,10 +2,10 @@ import { Column, Entity, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
-// import { Batch } from '@mush/modules/batch/batch.entity'
-import { DatedBasicEntity } from '@mush/core/basic-entities'
+import { Batch } from '@mush/modules/batch/batch.entity'
+import { WorkRecord } from '@mush/modules/work-record/work.record.entity'
 
-import { WorkRecord } from '../work-record/work.record.entity'
+import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'chambers' })
 export class Chamber extends DatedBasicEntity {
@@ -17,8 +17,8 @@ export class Chamber extends DatedBasicEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   area: number
 
-  // @OneToMany(() => Batch, (batch) => batch.chamber)
-  // batches: Batch[]
+  @OneToMany(() => Batch, (batch) => batch.chamber)
+  batches: Batch[]
 
   @OneToMany(() => WorkRecord, (workRecord) => workRecord.chamber)
   workRecords: WorkRecord[]

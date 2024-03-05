@@ -37,4 +37,8 @@ export const CError = {
   //NOTE: work record error
   WRONG_PERCENT_SUM: `${EError.WRONG_PERCENT_SUM}: The sum of employee percent values are not equal to 1, which is 100%.`,
   NO_ONGOING_SHIFT: `${EError.NO_ONGOING_SHIFT}: Some employees have no ongoing shifts.`,
+  //NOTE: batch error
+  WRONG_WAVE_ORDER: `${EError.WRONG_WAVE_ORDER}: Provided wave order is wrong.`,
+  BATCH_CLOSED: `${EError.BATCH_CLOSED}: The batch with the provided id is already closed.`,
+  WAVE_CLOSED: `${EError.WAVE_CLOSED}: The last wave of the batch with the provided id is already closed.`,
 }
