@@ -6,6 +6,8 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 
 import { AdminModule } from '@mush/modules/admin/admin.module'
 import { AuthModule } from '@mush/modules/auth/auth.module'
+import { Batch } from '@mush/modules/batch/batch.entity'
+import { BatchModule } from '@mush/modules/batch/batch.module'
 import { Category } from '@mush/modules/category/category.entity'
 import { CategoryModule } from '@mush/modules/category/category.module'
 import { Chamber } from '@mush/modules/chamber/chamber.entity'
@@ -32,6 +34,8 @@ import { ProductModule } from '@mush/modules/product/product.module'
 import { Shift } from '@mush/modules/shift/shift.entity'
 import { Variety } from '@mush/modules/variety/variety.entity'
 import { VarietyModule } from '@mush/modules/variety/variety.module'
+import { Wave } from '@mush/modules/wave/wave.entity'
+import { WaveModule } from '@mush/modules/wave/wave.module'
 import { WheelbarrowModule } from '@mush/modules/wheelbarrow/wheelbarrow.module'
 import { WorkRecord } from '@mush/modules/work-record/work.record.entity'
 import { WorkRecordModule } from '@mush/modules/work-record/work.record.module'
@@ -55,6 +59,7 @@ import { ShiftModule } from './shift/shift.module'
     TypeOrmModule.forRoot({
       ...TypeORMConfig,
       entities: [
+        Batch,
         Chamber,
         Category,
         Client,
@@ -66,6 +71,7 @@ import { ShiftModule } from './shift/shift.module'
         Price,
         PublicFile,
         Shift,
+        Wave,
         Work,
         WorkRecord,
         Variety,
@@ -75,6 +81,7 @@ import { ShiftModule } from './shift/shift.module'
     CoreModule,
     AuthModule,
     AdminModule,
+    BatchModule,
     ChamberModule,
     CategoryModule,
     ClientModule,
@@ -91,6 +98,7 @@ import { ShiftModule } from './shift/shift.module'
     FileUploadModule,
     HealthcheckModule,
     ShiftModule,
+    WaveModule,
     WorkModule,
     WorkRecordModule,
     VarietyModule,

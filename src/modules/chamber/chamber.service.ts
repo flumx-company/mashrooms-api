@@ -27,6 +27,18 @@ export class ChamberService {
     return this.chamberRepository.findOneBy({ id })
   }
 
+  findChamberByIdWithBatches(id: number): Promise<Nullable<Chamber>> {
+    return this.chamberRepository.findOne({
+      where: { id },
+      relations: ['batches'],
+      order: { batches: { id: 'desc' } },
+    })
+  }
+
+  findChamberByName(name: string): Promise<Nullable<Chamber>> {
+    return this.chamberRepository.findOneBy({ name })
+  }
+
   async createChamber({
     name,
     area,
@@ -34,6 +46,15 @@ export class ChamberService {
     name: string
     area: number
   }): Promise<Chamber> {
+    const foundChamber = await this.findChamberByName(name)
+
+    if (foundChamber) {
+      throw new HttpException(
+        CError.NAME_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
     const newChamber: Chamber = await this.chamberRepository.create({
       name,
       area,
