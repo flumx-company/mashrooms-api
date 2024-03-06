@@ -82,14 +82,16 @@ export class BatchService {
     const newBatchNumberValue: string =
       newBatchNumber < 10 ? `0${newBatchNumber}` : String(newBatchNumber)
     const name: string = `${currentYear}-${newBatchNumberValue}`
-    const hasChamberBatches = foundChamber.batches.length
-    const isLastChamberBatchEnded = Boolean(foundChamber.batches[0].dateTo)
 
     if (!foundChamber) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    if (hasChamberBatches && !isLastChamberBatchEnded) {
+    const hasChamberBatches = foundChamber.batches.length
+    const isChamberLastBatchEnded =
+      hasChamberBatches && Boolean(foundChamber.batches[0].dateTo)
+
+    if (hasChamberBatches && !isChamberLastBatchEnded) {
       throw new HttpException(
         CError.CHAMBER_HAS_OPEN_BATCH,
         HttpStatus.BAD_REQUEST,
@@ -190,11 +192,11 @@ export class BatchService {
     }
 
     if (foundBatch.dateTo) {
-      throw new HttpException(CError.BATCH_CLOSED, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.BATCH_ENDED, HttpStatus.BAD_REQUEST)
     }
 
     if (foundWave.dateTo) {
-      throw new HttpException(CError.WAVE_CLOSED, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.WAVE_ENDED, HttpStatus.BAD_REQUEST)
     }
 
     const [_, updatedBatch]: [Wave, Batch] = await Promise.all([

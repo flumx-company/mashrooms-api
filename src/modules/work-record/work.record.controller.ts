@@ -1,20 +1,4 @@
-import {
-  ApiPaginationQuery,
-  Paginate,
-  PaginateQuery,
-  Paginated,
-} from 'nestjs-paginate'
-
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-} from '@nestjs/common'
+import { Body, Controller, Param, ParseIntPipe, Post } from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
   ApiBody,

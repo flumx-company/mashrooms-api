@@ -7,6 +7,7 @@ import { Employee } from '@mush/modules/employee/employee.entity'
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
 
+import { Watering } from '../watering/watering.entity'
 import { WorkRecord } from '../work-record/work.record.entity'
 
 @Entity({ name: 'shifts' })
@@ -56,4 +57,7 @@ export class Shift extends DatedBasicEntity {
 
   @OneToMany(() => WorkRecord, (workRecord) => workRecord.shift)
   workRecords: WorkRecord[]
+
+  @OneToMany(() => Watering, (watering) => watering.shift)
+  waterings: WorkRecord[]
 }

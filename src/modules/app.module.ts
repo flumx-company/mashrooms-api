@@ -34,6 +34,8 @@ import { ProductModule } from '@mush/modules/product/product.module'
 import { Shift } from '@mush/modules/shift/shift.entity'
 import { Variety } from '@mush/modules/variety/variety.entity'
 import { VarietyModule } from '@mush/modules/variety/variety.module'
+import { Watering } from '@mush/modules/watering/watering.entity'
+import { WateringModule } from '@mush/modules/watering/watering.module'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveModule } from '@mush/modules/wave/wave.module'
 import { WheelbarrowModule } from '@mush/modules/wheelbarrow/wheelbarrow.module'
@@ -71,6 +73,7 @@ import { ShiftModule } from './shift/shift.module'
         Price,
         PublicFile,
         Shift,
+        Watering,
         Wave,
         Work,
         WorkRecord,
@@ -98,6 +101,7 @@ import { ShiftModule } from './shift/shift.module'
     FileUploadModule,
     HealthcheckModule,
     ShiftModule,
+    WateringModule,
     WaveModule,
     WorkModule,
     WorkRecordModule,
