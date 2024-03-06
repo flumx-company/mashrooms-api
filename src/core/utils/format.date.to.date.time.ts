@@ -2,10 +2,14 @@ export const formatDateToDateTime = ({
   value,
   withTime = false,
   dateFrom = true,
+  providesHours = false,
+  providesMinutes = false,
 }: {
   value: Date
   withTime?: boolean
   dateFrom?: boolean
+  providesHours?: boolean
+  providesMinutes?: boolean
 }): string | null | Date => {
   if (typeof value === 'string' || value === null) {
     return value
@@ -21,8 +25,8 @@ export const formatDateToDateTime = ({
     return `${year}-${monthString}-${dayString}`
   }
 
-  const hour = dateFrom ? '00' : '23'
-  const minute = dateFrom ? '00' : '59'
+  const hour = providesHours ? value.getHours() : dateFrom ? '00' : '23'
+  const minute = providesMinutes ? value.getMinutes() : dateFrom ? '00' : '59'
   const second = dateFrom ? '00' : '59'
   const millisecond = dateFrom ? '000' : '999'
 

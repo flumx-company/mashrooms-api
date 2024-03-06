@@ -39,7 +39,8 @@ export const CError = {
   NO_ONGOING_SHIFT: `${EError.NO_ONGOING_SHIFT}: Some employees have no ongoing shifts.`,
   //NOTE: batch error
   WRONG_WAVE_ORDER: `${EError.WRONG_WAVE_ORDER}: Provided wave order is wrong.`,
-  BATCH_CLOSED: `${EError.BATCH_CLOSED}: The batch with the provided id is already closed.`,
-  WAVE_CLOSED: `${EError.WAVE_CLOSED}: The last wave of the batch with the provided id is already closed.`,
+  BATCH_ENDED: `${EError.BATCH_ENDED}: The batch with the provided id has already ended.`,
+  WAVE_ENDED: `${EError.WAVE_ENDED}: The last wave of the batch with the provided id has already ended.`,
   CHAMBER_HAS_OPEN_BATCH: `${EError.CHAMBER_HAS_OPEN_BATCH}: This chamber has a batch that has not ended yet.`,
+  SHIFT_ENDED: `${EError.SHIFT_ENDED}: The shift with the provided id has already ended.`,
 }

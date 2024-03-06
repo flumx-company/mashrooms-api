@@ -204,4 +204,8 @@ export class ShiftService {
       return false
     }
   }
+
+  async findShiftById(id: number): Promise<Nullable<Shift>> {
+    return this.shiftRepository.findOneBy({ id })
+  }
 }

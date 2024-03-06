@@ -12,3 +12,5 @@ export const PHONE_REGEX = new RegExp(
 export const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
 export const BANK_CARD_NUMBER_REGEX = /^[0-9]{16}$/
 export const YYYY_MM_DD_REGEX = /^[1,2][0-9][0-9][0-9]-[0,1][0-9]-[0-3][0-9]$/
+export const YYYY_MM_DD_T_HH_MM_REGEX =
+  /^[1,2][0-9][0-9][0-9]-[0,1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]$/
