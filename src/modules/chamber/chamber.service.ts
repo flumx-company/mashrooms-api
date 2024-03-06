@@ -27,6 +27,14 @@ export class ChamberService {
     return this.chamberRepository.findOneBy({ id })
   }
 
+  findChamberByIdWithBatches(id: number): Promise<Nullable<Chamber>> {
+    return this.chamberRepository.findOne({
+      where: { id },
+      relations: ['batches'],
+      order: { batches: { id: 'desc' } },
+    })
+  }
+
   findChamberByName(name: string): Promise<Nullable<Chamber>> {
     return this.chamberRepository.findOneBy({ name })
   }

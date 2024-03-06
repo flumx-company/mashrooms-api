@@ -63,7 +63,7 @@ export class BatchService {
     const [lastBatch, foundChamber]: [Nullable<Batch>, Nullable<Chamber>] =
       await Promise.all([
         this.findLastBatch(),
-        this.chamberService.findChamberById(chamberId),
+        this.chamberService.findChamberByIdWithBatches(chamberId),
       ])
     const currentYear: number = new Date().getFullYear()
     const dateFrom: string = String(
@@ -82,9 +82,18 @@ export class BatchService {
     const newBatchNumberValue: string =
       newBatchNumber < 10 ? `0${newBatchNumber}` : String(newBatchNumber)
     const name: string = `${currentYear}-${newBatchNumberValue}`
+    const hasChamberBatches = foundChamber.batches.length
+    const isLastChamberBatchEnded = Boolean(foundChamber.batches[0].dateTo)
 
     if (!foundChamber) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    if (hasChamberBatches && !isLastChamberBatchEnded) {
+      throw new HttpException(
+        CError.CHAMBER_HAS_OPEN_BATCH,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     const newBatch: Batch = await this.batchRepository.create({
@@ -167,7 +176,7 @@ export class BatchService {
       formatDateToDateTime({
         value: new Date(Date.now()),
         dateFrom: false,
-        withTime: true,
+        withTime: false,
       }),
     )
     const [foundBatch, foundWave]: [Nullable<Batch>, Nullable<Wave>] =

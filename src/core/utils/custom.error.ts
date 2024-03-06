@@ -41,4 +41,5 @@ export const CError = {
   WRONG_WAVE_ORDER: `${EError.WRONG_WAVE_ORDER}: Provided wave order is wrong.`,
   BATCH_CLOSED: `${EError.BATCH_CLOSED}: The batch with the provided id is already closed.`,
   WAVE_CLOSED: `${EError.WAVE_CLOSED}: The last wave of the batch with the provided id is already closed.`,
+  CHAMBER_HAS_OPEN_BATCH: `${EError.CHAMBER_HAS_OPEN_BATCH}: This chamber has a batch that has not ended yet.`,
 }

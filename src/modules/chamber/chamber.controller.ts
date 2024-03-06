@@ -48,6 +48,31 @@ export class ChamberController {
     return this.chamberService.findAll()
   }
 
+  @Get(':chamberId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CHAMBERS,
+  })
+  @ApiOperation({
+    summary:
+      'Get a chamber with batches by chamber id. Role: SUPERADMIN, ADMIN. Permission: READ_CHAMBERS.',
+  })
+  @ApiParam({
+    name: 'chamberId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return a chamber with batches by chamber id.',
+    type: Boolean,
+  })
+  async getChamberById(
+    @Param('chamberId', ParseIntPipe) chamberId: number,
+  ): Promise<Chamber> {
+    return this.chamberService.findChamberByIdWithBatches(chamberId)
+  }
+
   @Post()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
