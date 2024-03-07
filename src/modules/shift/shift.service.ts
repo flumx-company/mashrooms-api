@@ -78,23 +78,23 @@ export class ShiftService {
       .innerJoin('shift.employee', 'employee', 'employee.id = :id', {
         id: employeeId,
       })
-      .innerJoin('shift.workRecords', 'workRecords')
-      .innerJoin('workRecords.work', 'work')
+      .leftJoinAndSelect('shift.workRecords', 'workRecord')
+      .leftJoinAndSelect('workRecord.work', 'work')
       .select([
         'shift.id',
         'shift.dateFrom',
         'shift.dateTo',
         'employee.id',
-        'workRecords.id',
-        'workRecords.date',
-        'workRecords.percent',
-        'workRecords.percentAmount',
-        'workRecords.reward',
+        'workRecord.id',
+        'workRecord.date',
+        'workRecord.percent',
+        'workRecord.percentAmount',
+        'workRecord.reward',
         'work.id',
         'work.title',
         'work.isRegular',
       ])
-      .orderBy('workRecords.date', 'ASC')
+      .orderBy('workRecord.date', 'ASC')
       .getOne()
   }
 
