@@ -1,0 +1,128 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class InitialSchema1709806378999 implements MigrationInterface {
+    name = 'InitialSchema1709806378999'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE TABLE \`users\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`firstName\` varchar(35) NULL, \`lastName\` varchar(35) NULL, \`patronymic\` varchar(35) NULL, \`email\` varchar(254) NULL, \`phone\` varchar(15) NULL, \`password\` varchar(255) NULL, \`role\` enum ('1', '2') NOT NULL DEFAULT '2', \`position\` enum ('SUPERADMINISTRATOR', 'FOREMAN', 'OFFICE_ADMINISTRATOR') NOT NULL DEFAULT 'FOREMAN', \`permissions\` text NULL, \`isActive\` tinyint NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`works\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`title\` varchar(35) NULL, \`isRegular\` tinyint NULL DEFAULT 1, \`price\` decimal(10,2) NOT NULL DEFAULT '0.00', \`workType\` enum ('WATERING', 'CUTTING', 'CUSTOM') NOT NULL DEFAULT 'CUSTOM', PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`work-records\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`date\` date NOT NULL, \`percent\` decimal(3,2) NOT NULL DEFAULT '0.00', \`percentAmount\` decimal(10,2) NOT NULL DEFAULT '0.00', \`reward\` decimal(10,2) NOT NULL DEFAULT '0.00', \`workId\` int NOT NULL, \`shiftId\` int NOT NULL, \`chamberId\` int NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`chambers\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`name\` varchar(35) NULL, \`area\` decimal(10,2) NOT NULL DEFAULT '0.00', PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`waves\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`order\` decimal(2,0) NOT NULL DEFAULT '0', \`dateFrom\` date NOT NULL, \`dateTo\` date NULL, \`batchId\` int NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`batches\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`name\` varchar(8) NULL, \`compostSupplier\` varchar(50) NULL, \`compostWeight\` decimal(10,2) NOT NULL DEFAULT '0.00', \`briquetteQuantity\` decimal(10,2) NOT NULL DEFAULT '0.00', \`compostPrice\` decimal(10,2) NOT NULL DEFAULT '0.00', \`peatSupplier\` varchar(50) NULL, \`peatWeight\` decimal(10,2) NOT NULL DEFAULT '0.00', \`peatPrice\` decimal(10,2) NOT NULL DEFAULT '0.00', \`dateFrom\` date NOT NULL, \`dateTo\` date NULL, \`waveQuantity\` decimal(2,0) NOT NULL DEFAULT '0', \`chamberId\` int NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`waterings\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`volume\` decimal(7,0) NOT NULL DEFAULT '0', \`dateTimeFrom\` datetime NOT NULL, \`dateTimeTo\` datetime NULL, \`target\` enum ('MUSHROOM', 'PEAT') NOT NULL DEFAULT 'MUSHROOM', \`hasDrug\` tinyint NULL DEFAULT 0, \`shiftId\` int NULL, \`batchId\` int NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`shifts\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`dateFrom\` date NOT NULL, \`dateTo\` date NULL, \`employeeId\` int NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`employees\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`firstName\` varchar(35) NULL, \`lastName\` varchar(35) NULL, \`patronymic\` varchar(35) NULL, \`phone\` varchar(15) NULL, \`bankCard\` varchar(16) NULL, \`region\` enum ('Київська', 'Вінницька', 'Волинська', 'Дніпропетровська', 'Донецька', 'Житомирська', 'Закарпатська', 'Запорізька', 'Івано-Франківська', 'Кіровоградська', 'Крим', 'Луганська', 'Львівська', 'Миколаївська', 'Одеська', 'Полтавська', 'Рівненська', 'Сумська', 'Тернопільська', 'Харківська', 'Херсонська', 'Хмельницька', 'Черкаська', 'Чернівецька', 'Чернігівська') NOT NULL DEFAULT 'Дніпропетровська', \`town\` varchar(35) NULL, \`isActive\` tinyint NULL DEFAULT 0, \`isUnreliable\` tinyint NULL DEFAULT 1, \`hasCriminalRecord\` tinyint NULL DEFAULT 0, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`public_file\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`url\` varchar(255) NOT NULL, \`key\` varchar(255) NOT NULL, \`type\` varchar(255) NOT NULL, \`name\` varchar(255) NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`clients\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`firstName\` varchar(35) NULL, \`lastName\` varchar(35) NULL, \`patronymic\` varchar(35) NULL, \`nickname\` varchar(35) NULL, \`phone\` varchar(15) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`offloads\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`picking\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`name\` varchar(70) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`categories\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`name\` varchar(100) NULL, \`description\` varchar(255) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`yields\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`name\` varchar(70) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`varieties\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`name\` varchar(35) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`prices\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`tenant\` enum ('BARREL', 'BOX', 'KITCHEN') NOT NULL DEFAULT 'BARREL', \`price\` decimal(10,2) NOT NULL DEFAULT '0.00', \`date\` date NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`drivers\` (\`id\` int NOT NULL AUTO_INCREMENT, \`createdAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`firstName\` varchar(35) NULL, \`lastName\` varchar(35) NULL, \`phone\` varchar(15) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`users_offloads_offloads\` (\`usersId\` int NOT NULL, \`offloadsId\` int NOT NULL, INDEX \`IDX_96b34114bfa743fbbb4340009b\` (\`usersId\`), INDEX \`IDX_6df74ae87da1e6fe0d31facf1f\` (\`offloadsId\`), PRIMARY KEY (\`usersId\`, \`offloadsId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`employees_documents_public_file\` (\`employeesId\` int NOT NULL, \`publicFileId\` int NOT NULL, INDEX \`IDX_0aa448289d86bafa46ab602eae\` (\`employeesId\`), INDEX \`IDX_1049b28a79fc6aa15a2ca57710\` (\`publicFileId\`), PRIMARY KEY (\`employeesId\`, \`publicFileId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`employees_avatars_public_file\` (\`employeesId\` int NOT NULL, \`publicFileId\` int NOT NULL, INDEX \`IDX_1f22cce2d38f6857945c16967a\` (\`employeesId\`), INDEX \`IDX_2b725d402b0a3edfdb754370e4\` (\`publicFileId\`), PRIMARY KEY (\`employeesId\`, \`publicFileId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`clients_offloads_offloads\` (\`clientsId\` int NOT NULL, \`offloadsId\` int NOT NULL, INDEX \`IDX_112203c6828facd101f94ad017\` (\`clientsId\`), INDEX \`IDX_53075f54fc49f3d26f149cd642\` (\`offloadsId\`), PRIMARY KEY (\`clientsId\`, \`offloadsId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`clients_files_public_file\` (\`clientsId\` int NOT NULL, \`publicFileId\` int NOT NULL, INDEX \`IDX_f8c3c6ca6e5390e97d1718de9f\` (\`clientsId\`), INDEX \`IDX_2453759bfe3d25c55a4c7d7fb3\` (\`publicFileId\`), PRIMARY KEY (\`clientsId\`, \`publicFileId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`offloads_categories_categories\` (\`offloadsId\` int NOT NULL, \`categoriesId\` int NOT NULL, INDEX \`IDX_e8e15ed572693eb7a124ff1d56\` (\`offloadsId\`), INDEX \`IDX_edb27ad68f252b24701c931210\` (\`categoriesId\`), PRIMARY KEY (\`offloadsId\`, \`categoriesId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`picking_categories_categories\` (\`pickingId\` int NOT NULL, \`categoriesId\` int NOT NULL, INDEX \`IDX_e4b939cb74c8c1b943f920dbaa\` (\`pickingId\`), INDEX \`IDX_235f9ab0b190966e5beb619459\` (\`categoriesId\`), PRIMARY KEY (\`pickingId\`, \`categoriesId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`yields_categories_categories\` (\`yieldsId\` int NOT NULL, \`categoriesId\` int NOT NULL, INDEX \`IDX_90a38c291ce3b7b83a2d6052d4\` (\`yieldsId\`), INDEX \`IDX_bf6a459a38b27ca3f8bcc7f43f\` (\`categoriesId\`), PRIMARY KEY (\`yieldsId\`, \`categoriesId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`ALTER TABLE \`work-records\` ADD CONSTRAINT \`FK_34f50aeaf8c463d9a98086d20c8\` FOREIGN KEY (\`workId\`) REFERENCES \`works\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`work-records\` ADD CONSTRAINT \`FK_8b2db07030e0784e9df8fa62d31\` FOREIGN KEY (\`shiftId\`) REFERENCES \`shifts\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`work-records\` ADD CONSTRAINT \`FK_fd9fbd18b5e6018ae24c38d064f\` FOREIGN KEY (\`chamberId\`) REFERENCES \`chambers\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`waves\` ADD CONSTRAINT \`FK_35837e33cb59c62630015bc8ae7\` FOREIGN KEY (\`batchId\`) REFERENCES \`batches\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`batches\` ADD CONSTRAINT \`FK_43cdd42370021bbac239841481b\` FOREIGN KEY (\`chamberId\`) REFERENCES \`chambers\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`waterings\` ADD CONSTRAINT \`FK_a6803aaece5dc2e7d3f8f6b45b9\` FOREIGN KEY (\`shiftId\`) REFERENCES \`shifts\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`waterings\` ADD CONSTRAINT \`FK_911fae0bd5227677056eb35bc75\` FOREIGN KEY (\`batchId\`) REFERENCES \`batches\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`shifts\` ADD CONSTRAINT \`FK_ac74b69d4e1307cf392660ace63\` FOREIGN KEY (\`employeeId\`) REFERENCES \`employees\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`users_offloads_offloads\` ADD CONSTRAINT \`FK_96b34114bfa743fbbb4340009b5\` FOREIGN KEY (\`usersId\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`users_offloads_offloads\` ADD CONSTRAINT \`FK_6df74ae87da1e6fe0d31facf1fc\` FOREIGN KEY (\`offloadsId\`) REFERENCES \`offloads\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`employees_documents_public_file\` ADD CONSTRAINT \`FK_0aa448289d86bafa46ab602eae5\` FOREIGN KEY (\`employeesId\`) REFERENCES \`employees\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`employees_documents_public_file\` ADD CONSTRAINT \`FK_1049b28a79fc6aa15a2ca577102\` FOREIGN KEY (\`publicFileId\`) REFERENCES \`public_file\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`employees_avatars_public_file\` ADD CONSTRAINT \`FK_1f22cce2d38f6857945c16967a7\` FOREIGN KEY (\`employeesId\`) REFERENCES \`employees\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`employees_avatars_public_file\` ADD CONSTRAINT \`FK_2b725d402b0a3edfdb754370e46\` FOREIGN KEY (\`publicFileId\`) REFERENCES \`public_file\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`clients_offloads_offloads\` ADD CONSTRAINT \`FK_112203c6828facd101f94ad0179\` FOREIGN KEY (\`clientsId\`) REFERENCES \`clients\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`clients_offloads_offloads\` ADD CONSTRAINT \`FK_53075f54fc49f3d26f149cd642b\` FOREIGN KEY (\`offloadsId\`) REFERENCES \`offloads\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`clients_files_public_file\` ADD CONSTRAINT \`FK_f8c3c6ca6e5390e97d1718de9f3\` FOREIGN KEY (\`clientsId\`) REFERENCES \`clients\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`clients_files_public_file\` ADD CONSTRAINT \`FK_2453759bfe3d25c55a4c7d7fb3a\` FOREIGN KEY (\`publicFileId\`) REFERENCES \`public_file\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`offloads_categories_categories\` ADD CONSTRAINT \`FK_e8e15ed572693eb7a124ff1d568\` FOREIGN KEY (\`offloadsId\`) REFERENCES \`offloads\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`offloads_categories_categories\` ADD CONSTRAINT \`FK_edb27ad68f252b24701c9312103\` FOREIGN KEY (\`categoriesId\`) REFERENCES \`categories\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`picking_categories_categories\` ADD CONSTRAINT \`FK_e4b939cb74c8c1b943f920dbaa5\` FOREIGN KEY (\`pickingId\`) REFERENCES \`picking\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`picking_categories_categories\` ADD CONSTRAINT \`FK_235f9ab0b190966e5beb6194596\` FOREIGN KEY (\`categoriesId\`) REFERENCES \`categories\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`yields_categories_categories\` ADD CONSTRAINT \`FK_90a38c291ce3b7b83a2d6052d4f\` FOREIGN KEY (\`yieldsId\`) REFERENCES \`yields\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE \`yields_categories_categories\` ADD CONSTRAINT \`FK_bf6a459a38b27ca3f8bcc7f43fc\` FOREIGN KEY (\`categoriesId\`) REFERENCES \`categories\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE \`yields_categories_categories\` DROP FOREIGN KEY \`FK_bf6a459a38b27ca3f8bcc7f43fc\``);
+        await queryRunner.query(`ALTER TABLE \`yields_categories_categories\` DROP FOREIGN KEY \`FK_90a38c291ce3b7b83a2d6052d4f\``);
+        await queryRunner.query(`ALTER TABLE \`picking_categories_categories\` DROP FOREIGN KEY \`FK_235f9ab0b190966e5beb6194596\``);
+        await queryRunner.query(`ALTER TABLE \`picking_categories_categories\` DROP FOREIGN KEY \`FK_e4b939cb74c8c1b943f920dbaa5\``);
+        await queryRunner.query(`ALTER TABLE \`offloads_categories_categories\` DROP FOREIGN KEY \`FK_edb27ad68f252b24701c9312103\``);
+        await queryRunner.query(`ALTER TABLE \`offloads_categories_categories\` DROP FOREIGN KEY \`FK_e8e15ed572693eb7a124ff1d568\``);
+        await queryRunner.query(`ALTER TABLE \`clients_files_public_file\` DROP FOREIGN KEY \`FK_2453759bfe3d25c55a4c7d7fb3a\``);
+        await queryRunner.query(`ALTER TABLE \`clients_files_public_file\` DROP FOREIGN KEY \`FK_f8c3c6ca6e5390e97d1718de9f3\``);
+        await queryRunner.query(`ALTER TABLE \`clients_offloads_offloads\` DROP FOREIGN KEY \`FK_53075f54fc49f3d26f149cd642b\``);
+        await queryRunner.query(`ALTER TABLE \`clients_offloads_offloads\` DROP FOREIGN KEY \`FK_112203c6828facd101f94ad0179\``);
+        await queryRunner.query(`ALTER TABLE \`employees_avatars_public_file\` DROP FOREIGN KEY \`FK_2b725d402b0a3edfdb754370e46\``);
+        await queryRunner.query(`ALTER TABLE \`employees_avatars_public_file\` DROP FOREIGN KEY \`FK_1f22cce2d38f6857945c16967a7\``);
+        await queryRunner.query(`ALTER TABLE \`employees_documents_public_file\` DROP FOREIGN KEY \`FK_1049b28a79fc6aa15a2ca577102\``);
+        await queryRunner.query(`ALTER TABLE \`employees_documents_public_file\` DROP FOREIGN KEY \`FK_0aa448289d86bafa46ab602eae5\``);
+        await queryRunner.query(`ALTER TABLE \`users_offloads_offloads\` DROP FOREIGN KEY \`FK_6df74ae87da1e6fe0d31facf1fc\``);
+        await queryRunner.query(`ALTER TABLE \`users_offloads_offloads\` DROP FOREIGN KEY \`FK_96b34114bfa743fbbb4340009b5\``);
+        await queryRunner.query(`ALTER TABLE \`shifts\` DROP FOREIGN KEY \`FK_ac74b69d4e1307cf392660ace63\``);
+        await queryRunner.query(`ALTER TABLE \`waterings\` DROP FOREIGN KEY \`FK_911fae0bd5227677056eb35bc75\``);
+        await queryRunner.query(`ALTER TABLE \`waterings\` DROP FOREIGN KEY \`FK_a6803aaece5dc2e7d3f8f6b45b9\``);
+        await queryRunner.query(`ALTER TABLE \`batches\` DROP FOREIGN KEY \`FK_43cdd42370021bbac239841481b\``);
+        await queryRunner.query(`ALTER TABLE \`waves\` DROP FOREIGN KEY \`FK_35837e33cb59c62630015bc8ae7\``);
+        await queryRunner.query(`ALTER TABLE \`work-records\` DROP FOREIGN KEY \`FK_fd9fbd18b5e6018ae24c38d064f\``);
+        await queryRunner.query(`ALTER TABLE \`work-records\` DROP FOREIGN KEY \`FK_8b2db07030e0784e9df8fa62d31\``);
+        await queryRunner.query(`ALTER TABLE \`work-records\` DROP FOREIGN KEY \`FK_34f50aeaf8c463d9a98086d20c8\``);
+        await queryRunner.query(`DROP INDEX \`IDX_bf6a459a38b27ca3f8bcc7f43f\` ON \`yields_categories_categories\``);
+        await queryRunner.query(`DROP INDEX \`IDX_90a38c291ce3b7b83a2d6052d4\` ON \`yields_categories_categories\``);
+        await queryRunner.query(`DROP TABLE \`yields_categories_categories\``);
+        await queryRunner.query(`DROP INDEX \`IDX_235f9ab0b190966e5beb619459\` ON \`picking_categories_categories\``);
+        await queryRunner.query(`DROP INDEX \`IDX_e4b939cb74c8c1b943f920dbaa\` ON \`picking_categories_categories\``);
+        await queryRunner.query(`DROP TABLE \`picking_categories_categories\``);
+        await queryRunner.query(`DROP INDEX \`IDX_edb27ad68f252b24701c931210\` ON \`offloads_categories_categories\``);
+        await queryRunner.query(`DROP INDEX \`IDX_e8e15ed572693eb7a124ff1d56\` ON \`offloads_categories_categories\``);
+        await queryRunner.query(`DROP TABLE \`offloads_categories_categories\``);
+        await queryRunner.query(`DROP INDEX \`IDX_2453759bfe3d25c55a4c7d7fb3\` ON \`clients_files_public_file\``);
+        await queryRunner.query(`DROP INDEX \`IDX_f8c3c6ca6e5390e97d1718de9f\` ON \`clients_files_public_file\``);
+        await queryRunner.query(`DROP TABLE \`clients_files_public_file\``);
+        await queryRunner.query(`DROP INDEX \`IDX_53075f54fc49f3d26f149cd642\` ON \`clients_offloads_offloads\``);
+        await queryRunner.query(`DROP INDEX \`IDX_112203c6828facd101f94ad017\` ON \`clients_offloads_offloads\``);
+        await queryRunner.query(`DROP TABLE \`clients_offloads_offloads\``);
+        await queryRunner.query(`DROP INDEX \`IDX_2b725d402b0a3edfdb754370e4\` ON \`employees_avatars_public_file\``);
+        await queryRunner.query(`DROP INDEX \`IDX_1f22cce2d38f6857945c16967a\` ON \`employees_avatars_public_file\``);
+        await queryRunner.query(`DROP TABLE \`employees_avatars_public_file\``);
+        await queryRunner.query(`DROP INDEX \`IDX_1049b28a79fc6aa15a2ca57710\` ON \`employees_documents_public_file\``);
+        await queryRunner.query(`DROP INDEX \`IDX_0aa448289d86bafa46ab602eae\` ON \`employees_documents_public_file\``);
+        await queryRunner.query(`DROP TABLE \`employees_documents_public_file\``);
+        await queryRunner.query(`DROP INDEX \`IDX_6df74ae87da1e6fe0d31facf1f\` ON \`users_offloads_offloads\``);
+        await queryRunner.query(`DROP INDEX \`IDX_96b34114bfa743fbbb4340009b\` ON \`users_offloads_offloads\``);
+        await queryRunner.query(`DROP TABLE \`users_offloads_offloads\``);
+        await queryRunner.query(`DROP TABLE \`drivers\``);
+        await queryRunner.query(`DROP TABLE \`prices\``);
+        await queryRunner.query(`DROP TABLE \`varieties\``);
+        await queryRunner.query(`DROP TABLE \`yields\``);
+        await queryRunner.query(`DROP TABLE \`categories\``);
+        await queryRunner.query(`DROP TABLE \`picking\``);
+        await queryRunner.query(`DROP TABLE \`offloads\``);
+        await queryRunner.query(`DROP TABLE \`clients\``);
+        await queryRunner.query(`DROP TABLE \`public_file\``);
+        await queryRunner.query(`DROP TABLE \`employees\``);
+        await queryRunner.query(`DROP TABLE \`shifts\``);
+        await queryRunner.query(`DROP TABLE \`waterings\``);
+        await queryRunner.query(`DROP TABLE \`batches\``);
+        await queryRunner.query(`DROP TABLE \`waves\``);
+        await queryRunner.query(`DROP TABLE \`chambers\``);
+        await queryRunner.query(`DROP TABLE \`work-records\``);
+        await queryRunner.query(`DROP TABLE \`works\``);
+        await queryRunner.query(`DROP TABLE \`users\``);
+    }
+
+}
