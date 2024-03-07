@@ -54,7 +54,6 @@ export class CreateWorkRecordDto {
   })
   readonly employees: WorkRecordEmployee[]
 
-  @IsNotEmpty()
   @ApiProperty({
     example: 1,
     description: 'Provide chamber id.',
