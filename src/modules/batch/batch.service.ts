@@ -22,7 +22,9 @@ export class BatchService {
   ) {}
 
   findAll(): Promise<Batch[]> {
-    return this.batchRepository.find({ relations: ['waves', 'chamber'] })
+    return this.batchRepository.find({
+      relations: ['waves', 'chamber', 'waterings'],
+    })
   }
 
   async findLastBatch(): Promise<Batch> {
