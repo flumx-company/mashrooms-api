@@ -69,6 +69,24 @@ export class BatchController {
     return this.batchService.findBatchById(batchId)
   }
 
+  @Get('year/:year')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CATEGORIES,
+  })
+  @ApiParam({
+    name: 'year',
+    type: 'string',
+    example: '2024',
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get list of all batches by year. Role: SUPERADMIN, ADMIN. Permission: READ_BATCHES.',
+  })
+  async getAllBatchesByYear(@Param('year') year: string): Promise<Batch[]> {
+    return this.batchService.findAllByYear(year)
+  }
+
   @Post()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
