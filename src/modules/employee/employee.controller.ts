@@ -75,6 +75,31 @@ export class EmployeeController {
     return this.employeeService.findAll(query)
   }
 
+  @Get('search/name/:name')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_EMPLOYEES,
+  })
+  @ApiParam({
+    name: 'name',
+    type: 'string',
+    example: 'Jack',
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get employees with the provided name. Role: SUPERADMIN, ADMIN. Permission: READ_EMPLOYEES.',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Will return the employees who have matching first name or last name.',
+    type: Employee,
+    isArray: true,
+  })
+  async findEmployeesByName(@Param('name') name: string): Promise<Employee[]> {
+    return this.employeeService.findEmployeesByName(name)
+  }
+
   @Get(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
