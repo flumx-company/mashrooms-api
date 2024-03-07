@@ -1,4 +1,11 @@
-import { Body, Controller, Param, ParseIntPipe, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
   ApiBody,
@@ -25,6 +32,30 @@ import { WorkRecordService } from './work.record.service'
 @Controller(ApiV1('work-records'))
 export class WorkRecordController {
   constructor(readonly workRecordService: WorkRecordService) {}
+
+  @Get('work/:date')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_WORK_RECORDS,
+  })
+  @ApiParam({
+    name: 'date',
+    type: 'string',
+    example: '2020-05-11',
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Find work records by date. Role: SUPERADMIN, ADMIN. Permission: READ_WORK_RECORDS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the work records of that date.',
+    type: WorkRecord,
+    isArray: true,
+  })
+  async getWorkRecordsByDate(@Param('date') date: string) {
+    return this.workRecordService.findAllByDate(date)
+  }
 
   @Post('work/:workId')
   @Auth({
@@ -54,7 +85,7 @@ export class WorkRecordController {
   async createWorkRecord(
     @Param('workId', ParseIntPipe) workId: number,
     @Body() data: CreateWorkRecordDto,
-  ) {
+  ): Promise<WorkRecord[]> {
     return this.workRecordService.createWorkRecord(workId, data)
   }
 }

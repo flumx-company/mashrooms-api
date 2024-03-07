@@ -58,7 +58,7 @@ export class WateringController {
     type: Watering,
     isArray: true,
   })
-  async getAllShifts(
+  async getAllWaterings(
     @Paginate() query: PaginateQuery,
   ): Promise<Paginated<Watering>> {
     return this.wateringService.findAll(query)
