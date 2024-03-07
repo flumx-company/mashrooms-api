@@ -27,6 +27,16 @@ export class BatchService {
     })
   }
 
+  async findAllByYear(year): Promise<Batch[]> {
+    return this.batchRepository
+      .createQueryBuilder('batch')
+      .select()
+      .where('batch.dateFrom like :year', { year: `%${year}%` })
+      .leftJoinAndSelect('batch.waves', 'waves')
+      .leftJoinAndSelect('batch.chamber', 'chamber')
+      .getMany()
+  }
+
   async findLastBatch(): Promise<Batch> {
     return this.batchRepository
       .createQueryBuilder('batch')
