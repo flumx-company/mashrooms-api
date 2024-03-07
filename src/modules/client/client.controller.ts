@@ -86,6 +86,11 @@ export class ClientController {
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_CLIENTS,
   })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
   @ApiOperation({
     summary:
       'Get a client with the provided id. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
@@ -100,6 +105,31 @@ export class ClientController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Nullable<Client>> {
     return this.clientService.getClientById(id)
+  }
+
+  @Get('search/name/:name')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENTS,
+  })
+  @ApiParam({
+    name: 'name',
+    type: 'string',
+    example: 'Jack',
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get a client list with the provided name. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Will return the client list who have matching first name or last name.',
+    type: Client,
+    isArray: true,
+  })
+  async findClientsByName(@Param('name') name: string): Promise<Client[]> {
+    return this.clientService.findClientsByName(name)
   }
 
   @Post()

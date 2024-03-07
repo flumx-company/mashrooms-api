@@ -1,3 +1,4 @@
+import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
@@ -8,6 +9,7 @@ import { CError, Nullable } from '@mush/core/utils'
 import { Driver } from './driver.entity'
 import { CreateDriverDto } from './dto/create.driver.dto'
 import { UpdateDriverDto } from './dto/update.driver.dto'
+import { driverPaginationConfig } from './pagination/driver.pagination.config'
 
 @Injectable()
 export class DriverService {
@@ -16,8 +18,8 @@ export class DriverService {
     private driverRepository: Repository<Driver>,
   ) {}
 
-  findAll(): Promise<Driver[]> {
-    return this.driverRepository.find()
+  findAll(query: PaginateQuery): Promise<Paginated<Driver>> {
+    return paginate(query, this.driverRepository, driverPaginationConfig)
   }
 
   findDriverById(id: number): Promise<Nullable<Driver>> {
@@ -26,6 +28,15 @@ export class DriverService {
 
   findDriverByPhone(phone: string): Promise<Nullable<Driver>> {
     return this.driverRepository.findOneBy({ phone })
+  }
+
+  findDriversByName(name: string): Promise<Driver[]> {
+    return this.driverRepository
+      .createQueryBuilder('driver')
+      .select()
+      .where('driver.firstName like :name', { name: `%${name}%` })
+      .orWhere('driver.lastName like :name', { name: `%${name}%` })
+      .getMany()
   }
 
   async createDriver({

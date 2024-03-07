@@ -41,6 +41,15 @@ export class EmployeeService {
     return this.employeeRepository.findOneBy({ phone })
   }
 
+  findEmployeesByName(name: string): Promise<Employee[]> {
+    return this.employeeRepository
+      .createQueryBuilder('employee')
+      .select()
+      .where('employee.firstName like :name', { name: `%${name}%` })
+      .orWhere('employee.lastName like :name', { name: `%${name}%` })
+      .getMany()
+  }
+
   findEmployeeByIdWithFiles(id: number): Promise<Nullable<Employee>> {
     return this.employeeRepository
       .createQueryBuilder('employee')
