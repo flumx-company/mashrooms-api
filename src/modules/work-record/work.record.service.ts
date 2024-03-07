@@ -28,10 +28,43 @@ export class WorkRecordService {
     private readonly chamberService: ChamberService,
   ) {}
 
+  findAllByDate(date): Promise<WorkRecord[]> {
+    return this.workRecordRepository
+      .createQueryBuilder('workRecord')
+      .where('workRecord.date = :date', { date })
+      .leftJoinAndSelect('workRecord.shift', 'shift')
+      .leftJoinAndSelect('workRecord.work', 'work')
+      .leftJoinAndSelect('workRecord.chamber', 'chamber')
+      .leftJoinAndSelect('shift.employee', 'employee')
+      .select([
+        'workRecord.id',
+        'workRecord.date',
+        'workRecord.percent',
+        'workRecord.percentAmount',
+        'workRecord.reward',
+        'shift.id',
+        'shift.dateFrom',
+        'shift.dateTo',
+        'employee.id',
+        'employee.firstName',
+        'employee.lastName',
+        'employee.patronymic',
+        'work.id',
+        'work.title',
+        'work.isRegular',
+        'work.price',
+        'chamber.id',
+        'chamber.name',
+        'chamber.area',
+      ])
+      .orderBy('work.title', 'ASC')
+      .getMany()
+  }
+
   async createWorkRecord(
     workId: number,
     { dividedAmount, date, employees, chamberId }: CreateWorkRecordDto,
-  ) {
+  ): Promise<WorkRecord[]> {
     const percentSum = employees.reduce(
       (accumulator, employee) => accumulator + employee.percent,
       0,
