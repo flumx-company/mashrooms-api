@@ -1,4 +1,11 @@
 import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
+
+import {
   Body,
   Controller,
   Delete,
@@ -28,6 +35,7 @@ import { Driver } from './driver.entity'
 import { DriverService } from './driver.service'
 import { CreateDriverDto } from './dto/create.driver.dto'
 import { UpdateDriverDto } from './dto/update.driver.dto'
+import { driverPaginationConfig } from './pagination/driver.pagination.config'
 
 @ApiTags('Drivers')
 @ApiBadGatewayResponse({
@@ -47,8 +55,17 @@ export class DriverController {
     summary:
       'Get list of all drivers. Role: SUPERADMIN, ADMIN. Permission: READ_DRIVERS.',
   })
-  async getAllDrivers(): Promise<Driver[]> {
-    return this.driverService.findAll()
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the list of drivers.',
+    type: Driver,
+    isArray: true,
+  })
+  @ApiPaginationQuery(driverPaginationConfig)
+  async getAllDrivers(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Driver>> {
+    return this.driverService.findAll(query)
   }
 
   @Get('search/name/:name')
