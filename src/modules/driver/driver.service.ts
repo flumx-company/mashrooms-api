@@ -30,15 +30,6 @@ export class DriverService {
     return this.driverRepository.findOneBy({ phone })
   }
 
-  findDriversByName(name: string): Promise<Driver[]> {
-    return this.driverRepository
-      .createQueryBuilder('driver')
-      .select()
-      .where('driver.firstName like :name', { name: `%${name}%` })
-      .orWhere('driver.lastName like :name', { name: `%${name}%` })
-      .getMany()
-  }
-
   async createDriver({
     firstName,
     lastName,

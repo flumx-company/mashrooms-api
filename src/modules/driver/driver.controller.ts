@@ -68,31 +68,6 @@ export class DriverController {
     return this.driverService.findAll(query)
   }
 
-  @Get('search/name/:name')
-  @Auth({
-    roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.READ_DRIVERS,
-  })
-  @ApiParam({
-    name: 'name',
-    type: 'string',
-    example: 'Jack',
-  } as ApiParamOptions)
-  @ApiOperation({
-    summary:
-      'Get drivers with the provided name. Role: SUPERADMIN, ADMIN. Permission: READ_DRIVERS.',
-  })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Will return the drivers who have matching first name or last name.',
-    type: Driver,
-    isArray: true,
-  })
-  async findDriversByName(@Param('name') name: string): Promise<Driver[]> {
-    return this.driverService.findDriversByName(name)
-  }
-
   @Post()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],

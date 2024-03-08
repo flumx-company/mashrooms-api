@@ -30,15 +30,6 @@ export class ClientService {
     return this.clientRepository.findOneBy({ id })
   }
 
-  findClientsByName(name: string): Promise<Client[]> {
-    return this.clientRepository
-      .createQueryBuilder('client')
-      .select()
-      .where('client.firstName like :name', { name: `%${name}%` })
-      .orWhere('client.lastName like :name', { name: `%${name}%` })
-      .getMany()
-  }
-
   findClientByPhone(phone: string): Promise<Nullable<Client>> {
     return this.clientRepository.findOneBy({ phone })
   }
