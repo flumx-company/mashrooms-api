@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
 import { Chamber } from '@mush/modules/chamber/chamber.entity'
+import { Cutting } from '@mush/modules/cutting/cutting.entity'
 import { Watering } from '@mush/modules/watering/watering.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
 
@@ -101,4 +102,7 @@ export class Batch extends DatedBasicEntity {
 
   @OneToMany(() => Watering, (watering) => watering.batch)
   waterings: Watering[]
+
+  @OneToMany(() => Cutting, (cutting) => cutting.batch)
+  cuttings: Cutting[]
 }

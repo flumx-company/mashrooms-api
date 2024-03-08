@@ -1,9 +1,10 @@
 import { Exclude } from 'class-transformer'
 import * as dotenv from 'dotenv'
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm'
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { Cutting } from '@mush/modules/cutting/cutting.entity'
 import { Offload } from '@mush/modules/offload/offload.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
@@ -113,4 +114,7 @@ export class User extends DatedBasicEntity {
   @ManyToMany(() => Offload, (offload) => offload.users)
   @JoinTable()
   offloads: Offload[]
+
+  @OneToMany(() => Cutting, (cutting) => cutting.author)
+  cuttings: Cutting[]
 }
