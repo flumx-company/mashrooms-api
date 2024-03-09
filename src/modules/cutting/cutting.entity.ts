@@ -59,7 +59,7 @@ export class Cutting extends DatedBasicEntity {
     nullable: false,
     orphanedRowAction: 'delete',
   })
-  shift: Shift[]
+  shift: Shift
 
   @ManyToOne(() => User, (user) => user.cuttings, {
     onDelete: 'CASCADE',
