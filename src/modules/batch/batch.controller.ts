@@ -26,7 +26,7 @@ import { ApiV1 } from '@mush/core/utils'
 import { Wave } from '../wave/wave.entity'
 import { Batch } from './batch.entity'
 import { BatchService } from './batch.service'
-import { CreateBatchDto } from './dto'
+import { CreateBatchDto, UpdateBatchDto } from './dto'
 
 @ApiTags('Batches')
 @ApiBadGatewayResponse({
@@ -45,7 +45,7 @@ export class BatchController {
   @ApiQuery({
     name: 'year',
     type: 'string',
-    example: '2023'
+    example: '2023',
   })
   @ApiOperation({
     summary:
@@ -93,8 +93,38 @@ export class BatchController {
     description: 'Will return the batch data.',
     type: Batch,
   })
-  async createBatch(@Body() data: CreateBatchDto): Promise<any> {
+  async createBatch(@Body() data: CreateBatchDto): Promise<Batch> {
     return this.batchService.createBatch(data)
+  }
+
+  @Put(':batchId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.UPDATE_BATCHES,
+  })
+  @ApiParam({
+    name: 'batchId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Add a new batch. Role: SUPERADMIN, ADMIN. Permission: UPDATE_BATCHES.',
+  })
+  @ApiBody({
+    description: 'Model to add a new batch.',
+    type: UpdateBatchDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the batch data.',
+    type: Batch,
+  })
+  async updateBatch(
+    @Param('batchId', ParseIntPipe) batchId: number,
+    @Body() data: UpdateBatchDto,
+  ): Promise<Batch> {
+    return this.batchService.updateBatch(batchId, data)
   }
 
   @Put(':batchId/wave/:waveOrder')
