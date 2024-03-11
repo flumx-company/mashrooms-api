@@ -25,7 +25,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 
-
 import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'

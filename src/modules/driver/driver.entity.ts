@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, Index } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -22,6 +22,7 @@ export class Driver extends DatedBasicEntity {
     example: 'Johnson',
     description: `Driver's last name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_LAST_NAME_LENGTH,
@@ -34,6 +35,7 @@ export class Driver extends DatedBasicEntity {
     example: '380681234567',
     description: `Driver's telephone number. Max length is ${process.env.MAX_PHONE_LENGTH} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_PHONE_LENGTH,

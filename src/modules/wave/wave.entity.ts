@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { Batch } from '@mush/modules/batch/batch.entity'
+import { Cutting } from '@mush/modules/cutting/cutting.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
@@ -50,4 +51,7 @@ export class Wave extends DatedBasicEntity {
 
   @ManyToOne(() => Batch, (batch) => batch.waves)
   batch: Batch
+
+  @OneToMany(() => Cutting, (cutting) => cutting.wave)
+  cuttings: Cutting[]
 }

@@ -1,9 +1,17 @@
 import { Exclude } from 'class-transformer'
 import * as dotenv from 'dotenv'
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm'
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { Cutting } from '@mush/modules/cutting/cutting.entity'
 import { Offload } from '@mush/modules/offload/offload.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
@@ -29,6 +37,7 @@ export class User extends DatedBasicEntity {
     example: 'Johnson',
     description: `User's name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_LAST_NAME_LENGTH,
@@ -65,6 +74,7 @@ export class User extends DatedBasicEntity {
     example: '380681234567',
     description: `User's telephone number. Max length is ${process.env.MAX_PHONE_LENGTH} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_PHONE_LENGTH,
@@ -113,4 +123,7 @@ export class User extends DatedBasicEntity {
   @ManyToMany(() => Offload, (offload) => offload.users)
   @JoinTable()
   offloads: Offload[]
+
+  @OneToMany(() => Cutting, (cutting) => cutting.author)
+  cuttings: Cutting[]
 }

@@ -4,6 +4,7 @@ import { Work } from '../work.entity'
 
 export const workPaginationConfig: PaginateConfig<Work> = {
   sortableColumns: ['id', 'isRegular'],
+  searchableColumns: ['title'],
   defaultSortBy: [
     ['isRegular', 'DESC'],
     ['title', 'ASC'],

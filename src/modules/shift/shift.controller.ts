@@ -70,6 +70,10 @@ export class ShiftController {
   }
 
   @Get('ongoing/employee/:employeeId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_SHIFTS,
+  })
   @ApiParam({
     name: 'employeeId',
     type: 'number',

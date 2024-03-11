@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, Index } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -12,6 +12,7 @@ export class Price extends DatedBasicEntity {
     example: 'BARREL',
     description: 'Enum: BARREL, BOX, KITCHEN. Payment entity.',
   })
+  @Index()
   @Column({ type: 'enum', enum: EPriceTenant, default: EPriceTenant.BARREL })
   tenant: EPriceTenant
 
@@ -26,6 +27,7 @@ export class Price extends DatedBasicEntity {
     example: '2024-01-15',
     description: 'Date',
   })
+  @Index()
   @Column({
     type: 'date',
     transformer: {

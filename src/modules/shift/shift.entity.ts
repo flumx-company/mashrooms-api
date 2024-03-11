@@ -1,14 +1,14 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { Cutting } from '@mush/modules/cutting/cutting.entity'
 import { Employee } from '@mush/modules/employee/employee.entity'
+import { Watering } from '@mush/modules/watering/watering.entity'
+import { WorkRecord } from '@mush/modules/work-record/work.record.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
-
-import { Watering } from '../watering/watering.entity'
-import { WorkRecord } from '../work-record/work.record.entity'
 
 @Entity({ name: 'shifts' })
 export class Shift extends DatedBasicEntity {
@@ -33,6 +33,7 @@ export class Shift extends DatedBasicEntity {
     example: '2024-01-15',
     description: 'Shift end date',
   })
+  @Index()
   @Column({
     type: 'date',
     default: null,
@@ -60,4 +61,7 @@ export class Shift extends DatedBasicEntity {
 
   @OneToMany(() => Watering, (watering) => watering.shift)
   waterings: WorkRecord[]
+
+  @OneToMany(() => Cutting, (cutting) => cutting.shift)
+  cuttings: Cutting[]
 }

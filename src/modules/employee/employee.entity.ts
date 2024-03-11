@@ -1,4 +1,11 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -26,6 +33,7 @@ export class Employee extends DatedBasicEntity {
     example: 'Johnson',
     description: `Employee's last name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_LAST_NAME_LENGTH,
@@ -50,6 +58,7 @@ export class Employee extends DatedBasicEntity {
     example: '380681234567',
     description: `Employee's telephone number. Max length is ${process.env.MAX_PHONE_LENGTH} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_PHONE_LENGTH,

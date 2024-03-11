@@ -11,6 +11,7 @@ import { WaveService } from '@mush/modules/wave/wave.service'
 import { CError, Nullable, formatDateToDateTime, pick } from '@mush/core/utils'
 
 import { Batch } from './batch.entity'
+import { UpdateBatchDto } from './dto'
 
 @Injectable()
 export class BatchService {
@@ -21,19 +22,16 @@ export class BatchService {
     private readonly waveService: WaveService,
   ) {}
 
-  findAll(): Promise<Batch[]> {
-    return this.batchRepository.find({
-      relations: ['waves', 'chamber', 'waterings'],
-    })
-  }
-
   async findAllByYear(year): Promise<Batch[]> {
+    const currentYear: number = new Date().getFullYear()
+
     return this.batchRepository
       .createQueryBuilder('batch')
       .select()
-      .where('batch.dateFrom like :year', { year: `%${year}%` })
+      .where('batch.dateFrom like :year', { year: `%${year || currentYear}%` })
       .leftJoinAndSelect('batch.waves', 'waves')
       .leftJoinAndSelect('batch.chamber', 'chamber')
+      .leftJoinAndSelect('batch.waterings', 'watering')
       .getMany()
   }
 
@@ -47,7 +45,7 @@ export class BatchService {
   async findBatchById(id): Promise<Batch> {
     return this.batchRepository.findOne({
       where: { id },
-      relations: ['waves', 'chamber'],
+      relations: ['waves', 'chamber', 'waterings'],
     })
   }
 
@@ -71,7 +69,7 @@ export class BatchService {
     peatPrice: number
     waveQuantity: number
     chamberId: number
-  }): Promise<any> {
+  }): Promise<Batch> {
     const [lastBatch, foundChamber]: [Nullable<Batch>, Nullable<Chamber>] =
       await Promise.all([
         this.findLastBatch(),
@@ -133,6 +131,38 @@ export class BatchService {
     })
 
     return savedBatch
+  }
+
+  async updateBatch(
+    id: number,
+    {
+      compostSupplier,
+      compostWeight,
+      briquetteQuantity,
+      compostPrice,
+      peatSupplier,
+      peatWeight,
+      peatPrice,
+    }: UpdateBatchDto,
+  ): Promise<Batch> {
+    const foundBatch: Nullable<Batch> = await this.findBatchById(id)
+
+    if (!foundBatch) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const updatedClient: Batch = this.batchRepository.create({
+      ...foundBatch,
+      compostSupplier,
+      compostWeight,
+      briquetteQuantity,
+      compostPrice,
+      peatSupplier,
+      peatWeight,
+      peatPrice,
+    })
+
+    return this.batchRepository.save(updatedClient)
   }
 
   async changeWave({

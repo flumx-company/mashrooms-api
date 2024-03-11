@@ -17,6 +17,8 @@ import { ClientModule } from '@mush/modules/client/client.module'
 import { ContainerModule } from '@mush/modules/container/container.module'
 import { CoreModule } from '@mush/modules/core-module/core.module'
 import { User } from '@mush/modules/core-module/user/user.entity'
+import { Cutting } from '@mush/modules/cutting/cutting.entity'
+import { CuttingModule } from '@mush/modules/cutting/cutting.module'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { DriverModule } from '@mush/modules/driver/driver.module'
 import { Employee } from '@mush/modules/employee/employee.entity'
@@ -65,6 +67,7 @@ import { ShiftModule } from './shift/shift.module'
         Chamber,
         Category,
         Client,
+        Cutting,
         Driver,
         Employee,
         User,
@@ -89,6 +92,7 @@ import { ShiftModule } from './shift/shift.module'
     CategoryModule,
     ClientModule,
     ContainerModule,
+    CuttingModule,
     DriverModule,
     EmployeeModule,
     PickingModule,
