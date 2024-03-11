@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -33,6 +33,7 @@ export class Shift extends DatedBasicEntity {
     example: '2024-01-15',
     description: 'Shift end date',
   })
+  @Index()
   @Column({
     type: 'date',
     default: null,

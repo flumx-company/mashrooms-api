@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -16,6 +16,7 @@ export class Batch extends DatedBasicEntity {
     example: '2024-01',
     description: 'Batch name',
   })
+  @Index()
   @Column({ type: 'varchar', length: 8, default: null, nullable: true })
   name: string
 
@@ -53,12 +54,11 @@ export class Batch extends DatedBasicEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   peatPrice: number
 
-  @ApiProperty({ example: 3, description: 'Maximum possible wave quantity' })
-  @Column({ type: 'decimal', precision: 3, scale: 0, default: 0 })
   @ApiProperty({
     example: '2024-01-15',
     description: 'Batch start date',
   })
+  @Index()
   @Column({
     type: 'date',
     transformer: {

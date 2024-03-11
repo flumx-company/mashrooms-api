@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm'
+import { Column, Entity, Index, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -13,6 +13,7 @@ export class Work extends DatedBasicEntity {
     example: 'Take photos',
     description: `Work title. Max length is ${process.env.MAX_WORK_TITLE} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_WORK_TITLE,

@@ -1,6 +1,13 @@
 import { Exclude } from 'class-transformer'
 import * as dotenv from 'dotenv'
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -30,6 +37,7 @@ export class User extends DatedBasicEntity {
     example: 'Johnson',
     description: `User's name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_LAST_NAME_LENGTH,
@@ -66,6 +74,7 @@ export class User extends DatedBasicEntity {
     example: '380681234567',
     description: `User's telephone number. Max length is ${process.env.MAX_PHONE_LENGTH} characters.`,
   })
+  @Index()
   @Column({
     type: 'varchar',
     length: process.env.MAX_PHONE_LENGTH,

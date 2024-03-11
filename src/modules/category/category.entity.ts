@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, OneToMany } from 'typeorm'
+import { Column, Entity, Index, ManyToMany, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -12,6 +12,7 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 @Entity({ name: 'categories' })
 export class Category extends DatedBasicEntity {
   @ApiProperty({ example: 'Category name', description: 'Category name' })
+  @Index()
   @Column({ type: 'varchar', length: 100, default: null, nullable: true })
   name: string
 

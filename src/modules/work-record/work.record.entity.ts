@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, Index, ManyToOne } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -15,6 +15,7 @@ export class WorkRecord extends DatedBasicEntity {
     example: '2024-01-15',
     description: 'Work record date',
   })
+  @Index()
   @Column({
     type: 'date',
     transformer: {
