@@ -1,12 +1,12 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
@@ -14,6 +14,7 @@ import {
   ApiOperation,
   ApiParam,
   ApiParamOptions,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
@@ -41,12 +42,17 @@ export class BatchController {
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_CATEGORIES,
   })
+  @ApiQuery({
+    name: 'year',
+    type: 'string',
+    example: '2023'
+  })
   @ApiOperation({
     summary:
       'Get list of all batches. Role: SUPERADMIN, ADMIN. Permission: READ_BATCHES.',
   })
-  async getAllBatches(): Promise<Batch[]> {
-    return this.batchService.findAll()
+  async getAllBatches(@Query('year') year: string): Promise<Batch[]> {
+    return this.batchService.findAllByYear(year)
   }
 
   @Get(':batchId')
@@ -67,24 +73,6 @@ export class BatchController {
     @Param('batchId', ParseIntPipe) batchId: number,
   ): Promise<Batch> {
     return this.batchService.findBatchById(batchId)
-  }
-
-  @Get('year/:year')
-  @Auth({
-    roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.READ_CATEGORIES,
-  })
-  @ApiParam({
-    name: 'year',
-    type: 'string',
-    example: '2024',
-  } as ApiParamOptions)
-  @ApiOperation({
-    summary:
-      'Get list of all batches by year. Role: SUPERADMIN, ADMIN. Permission: READ_BATCHES.',
-  })
-  async getAllBatchesByYear(@Param('year') year: string): Promise<Batch[]> {
-    return this.batchService.findAllByYear(year)
   }
 
   @Post()

@@ -21,19 +21,16 @@ export class BatchService {
     private readonly waveService: WaveService,
   ) {}
 
-  findAll(): Promise<Batch[]> {
-    return this.batchRepository.find({
-      relations: ['waves', 'chamber', 'waterings'],
-    })
-  }
-
   async findAllByYear(year): Promise<Batch[]> {
+    const currentYear: number = new Date().getFullYear()
+
     return this.batchRepository
       .createQueryBuilder('batch')
       .select()
-      .where('batch.dateFrom like :year', { year: `%${year}%` })
+      .where('batch.dateFrom like :year', { year: `%${year || currentYear}%` })
       .leftJoinAndSelect('batch.waves', 'waves')
       .leftJoinAndSelect('batch.chamber', 'chamber')
+      .leftJoinAndSelect('batch.waterings', 'watering')
       .getMany()
   }
 
