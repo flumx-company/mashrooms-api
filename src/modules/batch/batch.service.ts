@@ -47,7 +47,7 @@ export class BatchService {
   async findBatchById(id): Promise<Batch> {
     return this.batchRepository.findOne({
       where: { id },
-      relations: ['waves', 'chamber'],
+      relations: ['waves', 'chamber', 'waterings'],
     })
   }
 
