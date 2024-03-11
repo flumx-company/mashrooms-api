@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, Index, ManyToOne } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -19,6 +19,7 @@ export class Watering extends DatedBasicEntity {
     example: '2024-01-15',
     description: 'Watering start date time',
   })
+  @Index()
   @Column({
     type: 'datetime',
     transformer: {
