@@ -24,7 +24,7 @@ export class WaveService {
   }
 
   async findWaveById(id): Promise<Wave> {
-    return this.waveRepository.findOneBy({ id })
+    return this.waveRepository.findOne({ where: { id }, relations: ['batch'] })
   }
 
   async createWave({
