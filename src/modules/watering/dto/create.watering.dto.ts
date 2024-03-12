@@ -1,15 +1,15 @@
 import {
-  IsBoolean,
   IsDateString,
   IsEnum,
   IsNotEmpty,
   IsString,
   Matches,
+  MaxLength,
+  MinLength,
 } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { ToBoolean } from '@mush/core/decorators'
 import { EWaterTarget } from '@mush/core/enums'
 import { YYYY_MM_DD_T_HH_MM_REGEX } from '@mush/core/utils'
 
@@ -51,14 +51,13 @@ export class CreateWateringDto {
   })
   readonly target: EWaterTarget
 
-  @ToBoolean()
-  @IsBoolean()
-  @IsNotEmpty()
+  @IsString()
+  @MinLength(0)
+  @MaxLength(50)
   @ApiProperty({
-    example: true,
-    description:
-      'tatus indicates if drugs were used in watering. Boolean value.',
-    type: Boolean,
+    example: '',
+    description: 'Enter the drug if it was used.',
+    type: String,
   })
-  readonly hasDrug: boolean
+  readonly drug: string
 }

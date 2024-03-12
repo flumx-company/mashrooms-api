@@ -21,6 +21,24 @@ export class Batch extends DatedBasicEntity {
   name: string
 
   @ApiProperty({
+    example: '2024-01-15',
+    description: 'Compost load date',
+  })
+  @Index()
+  @Column({
+    type: 'date',
+    transformer: {
+      from: (value: Date) => {
+        return formatDateToDateTime({ value })
+      },
+      to: (value: string) => {
+        return new Date(value)
+      },
+    },
+  })
+  compostLoadDate: Date
+
+  @ApiProperty({
     example: 'Compost Supplier 1',
     description: 'Compost supplier name',
   })
@@ -38,6 +56,24 @@ export class Batch extends DatedBasicEntity {
   @ApiProperty({ example: 100, description: 'Compost price' })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   compostPrice: number
+
+  @ApiProperty({
+    example: '2024-01-15',
+    description: 'Peat load date',
+  })
+  @Index()
+  @Column({
+    type: 'date',
+    transformer: {
+      from: (value: Date) => {
+        return formatDateToDateTime({ value })
+      },
+      to: (value: string) => {
+        return new Date(value)
+      },
+    },
+  })
+  peatLoadDate: Date
 
   @ApiProperty({
     example: 'Peat Supplier 1',

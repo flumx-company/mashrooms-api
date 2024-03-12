@@ -54,9 +54,11 @@ export class BatchService {
     compostWeight,
     briquetteQuantity,
     compostPrice,
+    compostLoadDate,
     peatSupplier,
     peatWeight,
     peatPrice,
+    peatLoadDate,
     waveQuantity,
     chamberId,
   }: {
@@ -64,9 +66,11 @@ export class BatchService {
     compostWeight: number
     briquetteQuantity: number
     compostPrice: number
+    compostLoadDate: string
     peatSupplier: string
     peatWeight: number
     peatPrice: number
+    peatLoadDate: string
     waveQuantity: number
     chamberId: number
   }): Promise<Batch> {
@@ -114,9 +118,11 @@ export class BatchService {
       compostWeight,
       briquetteQuantity,
       compostPrice,
+      compostLoadDate,
       peatSupplier,
       peatWeight,
       peatPrice,
+      peatLoadDate,
       waveQuantity,
       dateFrom,
       dateTo: null,
@@ -140,9 +146,11 @@ export class BatchService {
       compostWeight,
       briquetteQuantity,
       compostPrice,
+      compostLoadDate,
       peatSupplier,
       peatWeight,
       peatPrice,
+      peatLoadDate,
     }: UpdateBatchDto,
   ): Promise<Batch> {
     const foundBatch: Nullable<Batch> = await this.findBatchById(id)
@@ -156,9 +164,11 @@ export class BatchService {
       compostSupplier,
       compostWeight,
       briquetteQuantity,
+      compostLoadDate,
       compostPrice,
       peatSupplier,
       peatWeight,
+      peatLoadDate,
       peatPrice,
     })
 
