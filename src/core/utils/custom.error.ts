@@ -43,4 +43,6 @@ export const CError = {
   WAVE_ENDED: `${EError.WAVE_ENDED}: The last wave of the batch with the provided id has already ended.`,
   CHAMBER_HAS_OPEN_BATCH: `${EError.CHAMBER_HAS_OPEN_BATCH}: This chamber has a batch that has not ended yet.`,
   SHIFT_ENDED: `${EError.SHIFT_ENDED}: The shift with the provided id has already ended.`,
+  CHAMBER_HAS_NO_OPEN_BATCH: `${EError.CHAMBER_HAS_OPEN_BATCH}: This chamber has no open batch.`,
+  WAVE_NOT_RELATED_TO_CHAMBER: `${EError.WAVE_NOT_RELATED_TO_CHAMBER}: The specified wave is not related to the specified chamber`,
 }

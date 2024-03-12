@@ -24,7 +24,6 @@ export class Batch extends DatedBasicEntity {
     example: '2024-01-15',
     description: 'Compost load date',
   })
-  @Index()
   @Column({
     type: 'date',
     transformer: {
@@ -61,7 +60,6 @@ export class Batch extends DatedBasicEntity {
     example: '2024-01-15',
     description: 'Peat load date',
   })
-  @Index()
   @Column({
     type: 'date',
     transformer: {

@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 import { Batch } from '@mush/modules/batch/batch.entity'
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
+import { Storage } from '@mush/modules/storage/storage.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
@@ -54,4 +55,7 @@ export class Wave extends DatedBasicEntity {
 
   @OneToMany(() => Cutting, (cutting) => cutting.wave)
   cuttings: Cutting[]
+
+  @OneToMany(() => Storage, (storages) => storages.wave)
+  storages: Storage[]
 }
