@@ -22,6 +22,9 @@ export class ShiftService {
       .createQueryBuilder('shift')
       .select(['shift.id', 'shift.dateFrom', 'shift.dateTo', 'employee.id'])
       .leftJoin('shift.employee', 'employee')
+      .leftJoinAndSelect('shift.workRecords', 'workRecord')
+      .leftJoinAndSelect('shift.waterings', 'watering')
+      .leftJoinAndSelect('shift.cuttings', 'cutting')
       .getMany()
   }
 

@@ -22,6 +22,15 @@ export class CreateBatchDto {
   })
   readonly compostWeight: number
 
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: '2024-01-15',
+    description: 'Enter the compost load date.',
+    type: String,
+  })
+  readonly compostLoadDate: string
+
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
@@ -60,6 +69,15 @@ export class CreateBatchDto {
     type: Number,
   })
   readonly peatWeight: number
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: '2024-01-25',
+    description: 'Enter the peat load date.',
+    type: String,
+  })
+  readonly peatLoadDate: string
 
   @IsNotEmpty()
   @IsNumber()

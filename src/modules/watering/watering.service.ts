@@ -43,7 +43,7 @@ export class WateringService {
     dateTimeFrom,
     dateTimeTo,
     target,
-    hasDrug,
+    drug,
     shiftId,
     batchId,
   }: CreateWateringDto & { shiftId: number; batchId: number }) {
@@ -85,7 +85,7 @@ export class WateringService {
       dateTimeFrom: updatedDateTimeFrom,
       dateTimeTo: updatedDateTimeTo,
       target,
-      hasDrug,
+      drug,
       shift: pick(foundShift, 'id'),
       batch: pick(foundBatch, 'id'),
     })

@@ -71,12 +71,11 @@ export class Watering extends DatedBasicEntity {
   target: EWaterTarget
 
   @ApiProperty({
-    example: true,
-    description:
-      'Status indicates if drugs were used in watering. Boolean value.',
+    example: 'Some drug name or empty string',
+    description: 'Drug name if used',
   })
-  @Column({ type: 'boolean', default: false, nullable: true })
-  hasDrug: boolean
+  @Column({ type: 'varchar', length: 50, default: null, nullable: true })
+  drug: string
 
   @ManyToOne(() => Shift, (shift) => shift.waterings)
   shift: Shift

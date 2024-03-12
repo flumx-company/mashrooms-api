@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator'
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -32,6 +39,17 @@ export class UpdateBatchDto {
   })
   readonly briquetteQuantity: number
 
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(0)
+  @MaxLength(50)
+  @ApiProperty({
+    example: '2024-01-15',
+    description: 'Enter the compost load date.',
+    type: String,
+  })
+  readonly compostLoadDate: string
+
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
@@ -60,6 +78,17 @@ export class UpdateBatchDto {
     type: Number,
   })
   readonly peatWeight: number
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(0)
+  @MaxLength(50)
+  @ApiProperty({
+    example: '2024-01-25',
+    description: 'Enter the peat load date.',
+    type: String,
+  })
+  readonly peatLoadDate: string
 
   @IsNotEmpty()
   @IsNumber()
