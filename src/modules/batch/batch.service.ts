@@ -198,7 +198,7 @@ export class BatchService {
       formatDateToDateTime({
         value: new Date(Date.now()),
         dateFrom: true,
-        withTime: false,
+        withTime: true,
       }),
     )
     const yesterday = String(

@@ -61,48 +61,4 @@ export class StorageController {
   ): Promise<Paginated<Storage>> {
     return this.storageRepository.findAll(query)
   }
-
-  @Post('chamber/:chamberId/wave/:waveId/variety/:varietyId')
-  @Auth({
-    roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.CREATE_STORAGES,
-  })
-  @ApiOperation({
-    summary:
-      'Create a storage. Role: SUPERADMIN, ADMIN. Permission: CREATE_STORAGES.',
-  })
-  @ApiParam({
-    name: 'chamberId',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiParam({
-    name: 'waveId',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiParam({
-    name: 'varietyId',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiResponse({
-    status: 200,
-    description: 'Will create and return a new storage.',
-    type: Storage,
-  })
-  async createStorage(
-    @Param('chamberId', ParseIntPipe) chamberId: number,
-    @Param('waveId', ParseIntPipe) waveId: number,
-    @Param('varietyId', ParseIntPipe) varietyId: number,
-    @Body() { date, amount }: CreateStorageDto,
-  ) {
-    return this.storageRepository.createStorage({
-      chamberId,
-      waveId,
-      varietyId,
-      date,
-      amount,
-    })
-  }
 }

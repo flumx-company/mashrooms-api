@@ -1,4 +1,10 @@
 import { Request as ExRequest } from 'express'
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
 
 import {
   Body,
@@ -27,6 +33,7 @@ import { User } from '../core-module/user/user.entity'
 import { Cutting } from './cutting.entity'
 import { CuttingService } from './cutting.service'
 import { CreateCuttingDto } from './dto'
+import { cuttingPaginationConfig } from './pagination'
 
 @ApiTags('Cuttings')
 @ApiBadGatewayResponse({
@@ -46,13 +53,45 @@ export class CuttingController {
     summary:
       'Get list of all cuttings. Role: SUPERADMIN, ADMIN. Permission: READ_CUTTINGS.',
   })
-  async getAllCuttings(): Promise<Cutting[]> {
-    return this.cuttingService.findAll()
+  @ApiPaginationQuery(cuttingPaginationConfig)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the cutting list.',
+    type: Paginated<Cutting>,
+  })
+  async getAllCuttings(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Cutting>> {
+    return this.cuttingService.findAll(query)
   }
 
-  @Post(
-    'category/:categoryId/variety/:varietyId/batch/:batchId/wave/:waveId/shift/:shiftId',
-  )
+  @Get('batch/:batchId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CUTTINGS,
+  })
+  @ApiParam({
+    name: 'batchId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get list of all cuttings by batch id. Role: SUPERADMIN, ADMIN. Permission: READ_CUTTINGS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the cutting list.',
+    type: Cutting,
+    isArray: true,
+  })
+  async getAllCuttingsByBatchId(
+    @Param('batchId', ParseIntPipe) batchId: number,
+  ): Promise<Cutting[]> {
+    return this.cuttingService.findAllByBatchId(batchId)
+  }
+
+  @Post('category/:categoryId/batch/:batchId/wave/:waveId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.CREATE_CUTTINGS,
@@ -63,22 +102,12 @@ export class CuttingController {
     example: 1,
   } as ApiParamOptions)
   @ApiParam({
-    name: 'varietyId',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiParam({
     name: 'batchId',
     type: 'number',
     example: 1,
   } as ApiParamOptions)
   @ApiParam({
     name: 'waveId',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiParam({
-    name: 'shiftId',
     type: 'number',
     example: 1,
   } as ApiParamOptions)
@@ -99,14 +128,12 @@ export class CuttingController {
   async createCutting(
     @Req() request: ExRequest,
     @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('varietyId', ParseIntPipe) varietyId: number,
     @Param('batchId', ParseIntPipe) batchId: number,
     @Param('waveId', ParseIntPipe) waveId: number,
     @Body() data: CreateCuttingDto[],
   ): Promise<Cutting[]> {
     return this.cuttingService.createCutting({
       categoryId,
-      varietyId,
       batchId,
       waveId,
       data,
