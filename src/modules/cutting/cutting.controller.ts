@@ -1,4 +1,10 @@
 import { Request as ExRequest } from 'express'
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
 
 import {
   Body,
@@ -27,6 +33,7 @@ import { User } from '../core-module/user/user.entity'
 import { Cutting } from './cutting.entity'
 import { CuttingService } from './cutting.service'
 import { CreateCuttingDto } from './dto'
+import { cuttingPaginationConfig } from './pagination'
 
 @ApiTags('Cuttings')
 @ApiBadGatewayResponse({
@@ -46,8 +53,42 @@ export class CuttingController {
     summary:
       'Get list of all cuttings. Role: SUPERADMIN, ADMIN. Permission: READ_CUTTINGS.',
   })
-  async getAllCuttings(): Promise<Cutting[]> {
-    return this.cuttingService.findAll()
+  @ApiPaginationQuery(cuttingPaginationConfig)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the cutting list.',
+    type: Paginated<Cutting>,
+  })
+  async getAllCuttings(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Cutting>> {
+    return this.cuttingService.findAll(query)
+  }
+
+  @Get('batch/:batchId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CUTTINGS,
+  })
+  @ApiParam({
+    name: 'batchId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get list of all cuttings by batch id. Role: SUPERADMIN, ADMIN. Permission: READ_CUTTINGS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the cutting list.',
+    type: Cutting,
+    isArray: true,
+  })
+  async getAllCuttingsByBatchId(
+    @Param('batchId', ParseIntPipe) batchId: number,
+  ): Promise<Cutting[]> {
+    return this.cuttingService.findAllByBatchId(batchId)
   }
 
   @Post('category/:categoryId/batch/:batchId/wave/:waveId')

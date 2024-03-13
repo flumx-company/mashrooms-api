@@ -1,3 +1,4 @@
+import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
@@ -21,6 +22,7 @@ import { CError, formatDateToDateTime, pick } from '@mush/core/utils'
 
 import { Cutting } from './cutting.entity'
 import { CreateCuttingDto } from './dto'
+import { cuttingPaginationConfig } from './pagination'
 
 type CuttingGeneralDataType = {
   categoryId: number
@@ -42,8 +44,20 @@ export class CuttingService {
     private storageService: StorageService,
   ) {}
 
-  findAll(): Promise<Cutting[]> {
-    return this.cuttingRepository.find()
+  findAll(query: PaginateQuery): Promise<Paginated<Cutting>> {
+    return paginate(query, this.cuttingRepository, cuttingPaginationConfig)
+  }
+
+  async findAllByBatchId(batchId: number): Promise<Cutting[]> {
+    return this.cuttingRepository
+      .createQueryBuilder('cutting')
+      .select()
+      .leftJoinAndSelect('cutting.batch', 'batch')
+      .leftJoinAndSelect('cutting.wave', 'wave')
+      .leftJoinAndSelect('cutting.shift', 'shift')
+      .leftJoinAndSelect('shift.employee', 'employee')
+      .where('batch.id = :batchId', { batchId })
+      .getMany()
   }
 
   async createCutting({
