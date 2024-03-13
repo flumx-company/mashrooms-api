@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
@@ -21,7 +23,7 @@ import {
 
 import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
-import { ApiV1 } from '@mush/core/utils'
+import { ApiV1, CError } from '@mush/core/utils'
 
 import { Wave } from '../wave/wave.entity'
 import { Batch } from './batch.entity'
@@ -40,7 +42,7 @@ export class BatchController {
   @Get()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.READ_CATEGORIES,
+    permission: EPermission.READ_BATCHES,
   })
   @ApiQuery({
     name: 'year',
@@ -58,7 +60,7 @@ export class BatchController {
   @Get(':batchId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.READ_CATEGORIES,
+    permission: EPermission.READ_BATCHES,
   })
   @ApiParam({
     name: 'batchId',
@@ -72,7 +74,13 @@ export class BatchController {
   async getBatchById(
     @Param('batchId', ParseIntPipe) batchId: number,
   ): Promise<Batch> {
-    return this.batchService.findBatchById(batchId)
+    const foundBatch = await this.batchService.findBatchById(batchId)
+
+    if (!foundBatch) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    return foundBatch
   }
 
   @Post()
