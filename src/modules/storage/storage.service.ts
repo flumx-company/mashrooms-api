@@ -11,7 +11,7 @@ import { VarietyService } from '@mush/modules/variety/variety.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { CError, Nullable, pick } from '@mush/core/utils'
+import { CError, Nullable, formatDateToDateTime, pick } from '@mush/core/utils'
 
 import { storagePaginationConfig } from './pagination'
 import { Storage } from './storage.entity'
@@ -28,6 +28,37 @@ export class StorageService {
 
   findAll(query: PaginateQuery): Promise<Paginated<Storage>> {
     return paginate(query, this.storageRepository, storagePaginationConfig)
+  }
+
+  findById(id: number): Promise<Nullable<Storage>> {
+    return this.storageRepository.findOneBy({ id })
+  }
+
+  async findAllTodayStoragesByWaveId(waveId: number): Promise<object> {
+    const today = String(
+      formatDateToDateTime({
+        value: new Date(Date.now()),
+      }),
+    )
+    const byVarietyStorageList = {}
+
+    const foundStorages = await this.storageRepository
+      .createQueryBuilder('storage')
+      .leftJoinAndSelect('storage.wave', 'wave')
+      .leftJoinAndSelect('storage.variety', 'variety')
+      .where('storage.date like :date', { date: `%${today}%` })
+      .andWhere('wave.id = :id', { id: waveId })
+      .select(['storage.id', 'storage.amount', 'storage.date', 'variety.id'])
+      .getMany()
+
+    foundStorages.forEach(({ variety, amount, id }) => {
+      byVarietyStorageList[variety.id] = {
+        amount,
+        id,
+      }
+    })
+
+    return byVarietyStorageList
   }
 
   async createStorage({
@@ -73,16 +104,32 @@ export class StorageService {
       )
     }
 
-    console.log({
-      currentBatch,
-      foundWave,
-    })
-
     const newStorage: Storage = await this.storageRepository.create({
       date,
       amount,
       variety: pick(foundVariety, 'id', 'name'),
       wave: pick(foundWave, 'id'),
+    })
+
+    return this.storageRepository.save(newStorage)
+  }
+
+  async updateStorage({
+    id,
+    amount,
+  }: {
+    id: number
+    amount: number
+  }): Promise<Storage> {
+    const foundStorage = await this.findById(id)
+
+    if (!foundStorage) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const newStorage: Storage = await this.storageRepository.create({
+      ...foundStorage,
+      amount,
     })
 
     return this.storageRepository.save(newStorage)

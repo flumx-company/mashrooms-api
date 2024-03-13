@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger'
 export class CreateCuttingDto {
   @IsNotEmpty()
   @ApiProperty({
-    example: 200,
+    example: 5,
     description: 'Enter the quantity of boxes that were gathered.',
     type: Number,
   })
@@ -13,7 +13,7 @@ export class CreateCuttingDto {
 
   @IsNotEmpty()
   @ApiProperty({
-    example: 200,
+    example: 2,
     description: 'Enter the trip number.',
     type: Number,
   })
@@ -26,4 +26,12 @@ export class CreateCuttingDto {
     type: Number,
   })
   readonly shiftId: number
+
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 1,
+    description: 'Enter the varietyId of the cut mushrooms.',
+    type: Number,
+  })
+  readonly varietyId: number
 }

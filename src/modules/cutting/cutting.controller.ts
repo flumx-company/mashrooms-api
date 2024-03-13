@@ -50,9 +50,7 @@ export class CuttingController {
     return this.cuttingService.findAll()
   }
 
-  @Post(
-    'category/:categoryId/variety/:varietyId/batch/:batchId/wave/:waveId/shift/:shiftId',
-  )
+  @Post('category/:categoryId/batch/:batchId/wave/:waveId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.CREATE_CUTTINGS,
@@ -63,22 +61,12 @@ export class CuttingController {
     example: 1,
   } as ApiParamOptions)
   @ApiParam({
-    name: 'varietyId',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiParam({
     name: 'batchId',
     type: 'number',
     example: 1,
   } as ApiParamOptions)
   @ApiParam({
     name: 'waveId',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiParam({
-    name: 'shiftId',
     type: 'number',
     example: 1,
   } as ApiParamOptions)
@@ -99,14 +87,12 @@ export class CuttingController {
   async createCutting(
     @Req() request: ExRequest,
     @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('varietyId', ParseIntPipe) varietyId: number,
     @Param('batchId', ParseIntPipe) batchId: number,
     @Param('waveId', ParseIntPipe) waveId: number,
     @Body() data: CreateCuttingDto[],
   ): Promise<Cutting[]> {
     return this.cuttingService.createCutting({
       categoryId,
-      varietyId,
       batchId,
       waveId,
       data,
