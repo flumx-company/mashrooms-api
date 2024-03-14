@@ -6,7 +6,7 @@ export const batchPaginationConfig: PaginateConfig<Batch> = {
   sortableColumns: ['id'],
   searchableColumns: ['chamber.id', 'dateFrom', 'dateTo'],
   defaultSortBy: [['id', 'ASC']],
-  relations: ['waves', 'chamber', 'cuttings', 'waterings'],
+  relations: ['waves', 'chamber', 'cuttings', 'waterings', 'subbatches'],
   filterableColumns: {
     dateTo: [FilterOperator.NULL],
     dateFrom: [FilterOperator.ILIKE],

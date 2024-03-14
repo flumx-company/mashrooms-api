@@ -10,6 +10,8 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
 
+import { Subbatch } from '../subbatch/subbatch.entity'
+
 @Entity({ name: 'batches' })
 export class Batch extends DatedBasicEntity {
   @ApiProperty({
@@ -20,73 +22,9 @@ export class Batch extends DatedBasicEntity {
   @Column({ type: 'varchar', length: 8, default: null, nullable: true })
   name: string
 
-  @ApiProperty({
-    example: '2024-01-15',
-    description: 'Compost load date',
-  })
-  @Column({
-    type: 'date',
-    transformer: {
-      from: (value: Date) => {
-        return formatDateToDateTime({ value })
-      },
-      to: (value: string) => {
-        return new Date(value)
-      },
-    },
-  })
-  compostLoadDate: Date
-
-  @ApiProperty({
-    example: 'Compost Supplier 1',
-    description: 'Compost supplier name',
-  })
-  @Column({ type: 'varchar', length: 50, default: null, nullable: true })
-  compostSupplier: string
-
-  @ApiProperty({ example: 100, description: 'Compost weight by kg' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  compostWeight: number
-
   @ApiProperty({ example: 100, description: 'Briquette quantity' })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   briquetteQuantity: number
-
-  @ApiProperty({ example: 100, description: 'Compost price' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  compostPrice: number
-
-  @ApiProperty({
-    example: '2024-01-15',
-    description: 'Peat load date',
-  })
-  @Column({
-    type: 'date',
-    transformer: {
-      from: (value: Date) => {
-        return formatDateToDateTime({ value })
-      },
-      to: (value: string) => {
-        return new Date(value)
-      },
-    },
-  })
-  peatLoadDate: Date
-
-  @ApiProperty({
-    example: 'Peat Supplier 1',
-    description: 'Peat supplier name',
-  })
-  @Column({ type: 'varchar', length: 50, default: null, nullable: true })
-  peatSupplier: string
-
-  @ApiProperty({ example: 100, description: 'Peat weight by kg' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  peatWeight: number
-
-  @ApiProperty({ example: 100, description: 'Peat price' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  peatPrice: number
 
   @ApiProperty({
     example: '2024-01-15',
@@ -130,6 +68,9 @@ export class Batch extends DatedBasicEntity {
 
   @ManyToOne(() => Chamber, (chamber) => chamber.batches)
   chamber: Chamber
+
+  @OneToMany(() => Subbatch, (subbatch) => subbatch.batch)
+  subbatches: Subbatch[]
 
   @OneToMany(() => Wave, (wave) => wave.batch)
   waves: Wave[]

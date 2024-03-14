@@ -1,34 +1,10 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  MaxLength,
-  Min,
-  MinLength,
-} from 'class-validator'
+import { IsNotEmpty, IsNumber, Min } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { UpdateSubbatchDto } from '@mush/modules/subbatch/dto'
+
 export class UpdateBatchDto {
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty({
-    example: 'Compost supplier 1',
-    description: 'Enter compost supplier.',
-    type: String,
-  })
-  readonly compostSupplier: string
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @ApiProperty({
-    example: 100,
-    description: 'Enter the compost weight by kg.',
-    type: Number,
-  })
-  readonly compostWeight: number
-
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
@@ -39,64 +15,45 @@ export class UpdateBatchDto {
   })
   readonly briquetteQuantity: number
 
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(0)
-  @MaxLength(50)
-  @ApiProperty({
-    example: '2024-01-15',
-    description: 'Enter the compost load date.',
-    type: String,
-  })
-  readonly compostLoadDate: string
-
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
   @ApiProperty({
-    example: 100,
-    description: 'Enter the compost price.',
+    example: 3,
+    description: 'Enter the maximum possible number of waves.',
     type: Number,
   })
-  readonly compostPrice: number
+  readonly waveQuantity: number
 
   @IsNotEmpty()
-  @IsString()
   @ApiProperty({
-    example: 'Peat supplier 1',
-    description: 'Enter peat supplier.',
-    type: String,
+    example: [
+      {
+        id: 1,
+        compostSupplier: 'Compost supplier 1',
+        compostWeight: 100,
+        compostLoadDate: '2024-01-15',
+        compostPrice: 100,
+        peatSupplier: 'Peat supplier 1',
+        peatWeight: 100,
+        peatLoadDate: '2024-01-25',
+        peatPrice: 100,
+      },
+      {
+        id: 2,
+        compostSupplier: 'Compost supplier 2',
+        compostWeight: 100,
+        compostLoadDate: '2024-01-15',
+        compostPrice: 100,
+        peatSupplier: 'Peat supplier 2',
+        peatWeight: 100,
+        peatLoadDate: '2024-01-25',
+        peatPrice: 100,
+      },
+    ],
+    description: 'Enter the subbatch data.',
+    type: UpdateSubbatchDto,
+    isArray: true,
   })
-  readonly peatSupplier: string
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @ApiProperty({
-    example: 100,
-    description: 'Enter the peat weight by kg.',
-    type: Number,
-  })
-  readonly peatWeight: number
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(0)
-  @MaxLength(50)
-  @ApiProperty({
-    example: '2024-01-25',
-    description: 'Enter the peat load date.',
-    type: String,
-  })
-  readonly peatLoadDate: string
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @ApiProperty({
-    example: 100,
-    description: 'Enter the peat price.',
-    type: Number,
-  })
-  readonly peatPrice: number
+  readonly subbatches: UpdateSubbatchDto[]
 }
