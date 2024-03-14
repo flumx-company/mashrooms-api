@@ -30,6 +30,18 @@ export class StorageService {
     return paginate(query, this.storageRepository, storagePaginationConfig)
   }
 
+  findAllByBatchId(batchId: number): Promise<Storage[]> {
+    return this.storageRepository
+      .createQueryBuilder('storage')
+      .select()
+      .leftJoinAndSelect('storage.variety', 'variety')
+      .leftJoinAndSelect('storage.wave', 'wave')
+      .leftJoinAndSelect('wave.batch', 'batch')
+      .leftJoinAndSelect('batch.chamber', 'chamber')
+      .where('batch.id = :batchId', { batchId })
+      .getMany()
+  }
+
   findById(id: number): Promise<Nullable<Storage>> {
     return this.storageRepository.findOneBy({ id })
   }

@@ -1,3 +1,4 @@
+import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
@@ -12,6 +13,7 @@ import { CError, Nullable, formatDateToDateTime, pick } from '@mush/core/utils'
 
 import { Batch } from './batch.entity'
 import { UpdateBatchDto } from './dto'
+import { batchPaginationConfig } from './pagination'
 
 @Injectable()
 export class BatchService {
@@ -22,17 +24,8 @@ export class BatchService {
     private readonly waveService: WaveService,
   ) {}
 
-  async findAllByYear(year): Promise<Batch[]> {
-    const currentYear: number = new Date().getFullYear()
-
-    return this.batchRepository
-      .createQueryBuilder('batch')
-      .select()
-      .where('batch.dateFrom like :year', { year: `%${year || currentYear}%` })
-      .leftJoinAndSelect('batch.waves', 'waves')
-      .leftJoinAndSelect('batch.chamber', 'chamber')
-      .leftJoinAndSelect('batch.waterings', 'watering')
-      .getMany()
+  findAll(query: PaginateQuery): Promise<Paginated<Batch>> {
+    return paginate(query, this.batchRepository, batchPaginationConfig)
   }
 
   async findLastBatch(): Promise<Batch> {
