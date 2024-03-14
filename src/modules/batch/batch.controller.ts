@@ -1,4 +1,11 @@
 import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
+
+import {
   Body,
   Controller,
   Get,
@@ -16,19 +23,20 @@ import {
   ApiOperation,
   ApiParam,
   ApiParamOptions,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
+
+import { Wave } from '@mush/modules/wave/wave.entity'
 
 import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1, CError } from '@mush/core/utils'
 
-import { Wave } from '../wave/wave.entity'
 import { Batch } from './batch.entity'
 import { BatchService } from './batch.service'
 import { CreateBatchDto, UpdateBatchDto } from './dto'
+import { batchPaginationConfig } from './pagination'
 
 @ApiTags('Batches')
 @ApiBadGatewayResponse({
@@ -44,17 +52,15 @@ export class BatchController {
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_BATCHES,
   })
-  @ApiQuery({
-    name: 'year',
-    type: 'string',
-    example: '2023',
-  })
   @ApiOperation({
     summary:
       'Get list of all batches. Role: SUPERADMIN, ADMIN. Permission: READ_BATCHES.',
   })
-  async getAllBatches(@Query('year') year: string): Promise<Batch[]> {
-    return this.batchService.findAllByYear(year)
+  @ApiPaginationQuery(batchPaginationConfig)
+  async getAllBatches(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Batch>> {
+    return this.batchService.findAll(query)
   }
 
   @Get(':batchId')
