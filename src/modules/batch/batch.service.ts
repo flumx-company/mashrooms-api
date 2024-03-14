@@ -6,11 +6,14 @@ import { InjectRepository } from '@nestjs/typeorm'
 
 import { Chamber } from '@mush/modules/chamber/chamber.entity'
 import { ChamberService } from '@mush/modules/chamber/chamber.service'
+import { CreateSubbatchDto } from '@mush/modules/subbatch/dto'
+import { SubbatchService } from '@mush/modules/subbatch/subbatch.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
 import { CError, Nullable, formatDateToDateTime, pick } from '@mush/core/utils'
 
+import { Subbatch } from '../subbatch/subbatch.entity'
 import { Batch } from './batch.entity'
 import { UpdateBatchDto } from './dto'
 import { batchPaginationConfig } from './pagination'
@@ -22,6 +25,7 @@ export class BatchService {
     private batchRepository: Repository<Batch>,
     private readonly chamberService: ChamberService,
     private readonly waveService: WaveService,
+    private readonly subbatchService: SubbatchService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Batch>> {
@@ -43,29 +47,15 @@ export class BatchService {
   }
 
   async createBatch({
-    compostSupplier,
-    compostWeight,
     briquetteQuantity,
-    compostPrice,
-    compostLoadDate,
-    peatSupplier,
-    peatWeight,
-    peatPrice,
-    peatLoadDate,
     waveQuantity,
     chamberId,
+    subbatches,
   }: {
-    compostSupplier: string
-    compostWeight: number
     briquetteQuantity: number
-    compostPrice: number
-    compostLoadDate: string
-    peatSupplier: string
-    peatWeight: number
-    peatPrice: number
-    peatLoadDate: string
     waveQuantity: number
     chamberId: number
+    subbatches: CreateSubbatchDto[]
   }): Promise<Batch> {
     const [lastBatch, foundChamber]: [Nullable<Batch>, Nullable<Chamber>] =
       await Promise.all([
@@ -105,21 +95,20 @@ export class BatchService {
       )
     }
 
+    const createdSubbatches: Subbatch[] = await Promise.all(
+      subbatches.map((subbatch) =>
+        this.subbatchService.createSubbatch(subbatch),
+      ),
+    )
+
     const newBatch: Batch = await this.batchRepository.create({
       name,
-      compostSupplier,
-      compostWeight,
       briquetteQuantity,
-      compostPrice,
-      compostLoadDate,
-      peatSupplier,
-      peatWeight,
-      peatPrice,
-      peatLoadDate,
       waveQuantity,
       dateFrom,
       dateTo: null,
       chamber: pick(foundChamber, 'id', 'name'),
+      subbatches: createdSubbatches,
     })
     const savedBatch = await this.batchRepository.save(newBatch)
 
@@ -134,17 +123,7 @@ export class BatchService {
 
   async updateBatch(
     id: number,
-    {
-      compostSupplier,
-      compostWeight,
-      briquetteQuantity,
-      compostPrice,
-      compostLoadDate,
-      peatSupplier,
-      peatWeight,
-      peatPrice,
-      peatLoadDate,
-    }: UpdateBatchDto,
+    { briquetteQuantity, waveQuantity, subbatches }: UpdateBatchDto,
   ): Promise<Batch> {
     const foundBatch: Nullable<Batch> = await this.findBatchById(id)
 
@@ -152,20 +131,20 @@ export class BatchService {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    const updatedClient: Batch = this.batchRepository.create({
+    const updatedSubbatches: Subbatch[] = await Promise.all(
+      subbatches.map((subbatch) =>
+        this.subbatchService.updateSubbatch(subbatch),
+      ),
+    )
+
+    const updatedBatch: Batch = this.batchRepository.create({
       ...foundBatch,
-      compostSupplier,
-      compostWeight,
       briquetteQuantity,
-      compostLoadDate,
-      compostPrice,
-      peatSupplier,
-      peatWeight,
-      peatLoadDate,
-      peatPrice,
+      waveQuantity,
+      subbatches: updatedSubbatches,
     })
 
-    return this.batchRepository.save(updatedClient)
+    return this.batchRepository.save(updatedBatch)
   }
 
   async changeWave({

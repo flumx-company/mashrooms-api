@@ -5,6 +5,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
 import { Offload } from '@mush/modules/offload/offload.entity'
 import { Picking } from '@mush/modules/picking/picking.entity'
+import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Yield } from '@mush/modules/yield/yield.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
@@ -34,4 +35,7 @@ export class Category extends DatedBasicEntity {
 
   @OneToMany(() => Cutting, (cutting) => cutting.category)
   cuttings: Cutting[]
+
+  @OneToMany(() => Subbatch, (subbatch) => subbatch.batch)
+  subbatches: Subbatch[]
 }

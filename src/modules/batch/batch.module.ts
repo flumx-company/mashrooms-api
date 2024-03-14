@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { ChamberModule } from '@mush/modules/chamber/chamber.module'
 import { CoreModule } from '@mush/modules/core-module/core.module'
+import { SubbatchModule } from '@mush/modules/subbatch/subbatch.module'
 import { WaveModule } from '@mush/modules/wave/wave.module'
 
 import { BatchController } from './batch.controller'
@@ -15,6 +16,7 @@ import { BatchService } from './batch.service'
     CoreModule,
     ChamberModule,
     WaveModule,
+    SubbatchModule,
   ],
   controllers: [BatchController],
   providers: [BatchService],
