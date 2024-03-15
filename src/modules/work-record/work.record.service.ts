@@ -172,7 +172,7 @@ export class WorkRecordService {
         return this.workRecordRepository.findOneBy({ id })
       }),
     )
-    const byEmployeeShift = {}
+    const byEmployeeShifts = {}
 
     if (percentSum !== 1) {
       throw new HttpException(CError.WRONG_PERCENT_SUM, HttpStatus.BAD_REQUEST)
@@ -199,16 +199,14 @@ export class WorkRecordService {
         throw new HttpException(CError.NO_ONGOING_SHIFT, HttpStatus.BAD_REQUEST)
       }
 
-      byEmployeeShift[shift.employee.id] = shift.id
+      byEmployeeShifts[shift.employee.id] = shift.id
     })
 
     foundEditedRecords.forEach((record) => {
       if (!record) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
-    })
 
-    foundEditedRecords.forEach((record) => {
       if (record.recordGroupId !== recordGroupId) {
         throw new HttpException(
           CError.WRONG_RECORD_GROUP_ID,
@@ -220,7 +218,7 @@ export class WorkRecordService {
     const updatedRecords: Array<Nullable<WorkRecord>> = await Promise.all(
       foundWorkGroupRecords.map(async (foundRecord) => {
         const updatingData = employees.find(
-          (item) => item.id === foundRecord.id,
+          (newEmployeeData) => newEmployeeData.id === foundRecord.id,
         )
 
         if (!updatingData) {
@@ -235,7 +233,7 @@ export class WorkRecordService {
             percentAmount: dividedAmount * updatingData.percent,
             reward: updatingData.reward,
             work: foundWork,
-            shift: byEmployeeShift[updatingData.employeeId],
+            shift: byEmployeeShifts[updatingData.employeeId],
             chamber: foundChamber,
             recordGroupId,
           })
