@@ -48,18 +48,6 @@ export class CuttingService {
     return paginate(query, this.cuttingRepository, cuttingPaginationConfig)
   }
 
-  async findAllByBatchId(batchId: number): Promise<Cutting[]> {
-    return this.cuttingRepository
-      .createQueryBuilder('cutting')
-      .select()
-      .leftJoinAndSelect('cutting.batch', 'batch')
-      .leftJoinAndSelect('cutting.wave', 'wave')
-      .leftJoinAndSelect('cutting.shift', 'shift')
-      .leftJoinAndSelect('shift.employee', 'employee')
-      .where('batch.id = :batchId', { batchId })
-      .getMany()
-  }
-
   async createCutting({
     categoryId,
     batchId,
