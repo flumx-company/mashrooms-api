@@ -65,32 +65,6 @@ export class CuttingController {
     return this.cuttingService.findAll(query)
   }
 
-  @Get('batch/:batchId')
-  @Auth({
-    roles: [ERole.SUPERADMIN, ERole.ADMIN],
-    permission: EPermission.READ_CUTTINGS,
-  })
-  @ApiParam({
-    name: 'batchId',
-    type: 'number',
-    example: 1,
-  } as ApiParamOptions)
-  @ApiOperation({
-    summary:
-      'Get list of all cuttings by batch id. Role: SUPERADMIN, ADMIN. Permission: READ_CUTTINGS.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Will return the cutting list.',
-    type: Cutting,
-    isArray: true,
-  })
-  async getAllCuttingsByBatchId(
-    @Param('batchId', ParseIntPipe) batchId: number,
-  ): Promise<Cutting[]> {
-    return this.cuttingService.findAllByBatchId(batchId)
-  }
-
   @Post('category/:categoryId/batch/:batchId/wave/:waveId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
