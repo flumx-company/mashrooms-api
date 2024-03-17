@@ -73,4 +73,11 @@ export class WorkRecord extends DatedBasicEntity {
     orphanedRowAction: 'delete',
   })
   chamber: Chamber
+
+  @ApiProperty({
+    example: true,
+    description: 'Commmon id for work record group.',
+  })
+  @Column({ type: 'decimal', precision: 15, scale: 0, default: 0 })
+  recordGroupId: number
 }
