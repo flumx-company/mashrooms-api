@@ -25,6 +25,8 @@ export class ShiftService {
       .leftJoinAndSelect('shift.workRecords', 'workRecord')
       .leftJoinAndSelect('shift.waterings', 'watering')
       .leftJoinAndSelect('shift.cuttings', 'cutting')
+      .leftJoinAndSelect('shift.loadings', 'loading')
+      .leftJoin('workRecord.work', 'work')
       .getMany()
   }
 
@@ -41,8 +43,26 @@ export class ShiftService {
         'employee.firstName',
         'employee.lastName',
         'employee.patronymic',
+        'cutting.id',
+        'cutting.boxQuantity',
+        'watering.id',
+        'watering.drug',
+        'watering.volume',
+        'workRecord.id',
+        'workRecord.date',
+        'workRecord.percent',
+        'workRecord.percentAmount',
+        'workRecord.reward',
+        'work.id',
+        'work.title',
+        'work.isRegular',
       ])
       .leftJoin('shift.employee', 'employee')
+      .leftJoin('shift.cuttings', 'cutting')
+      .leftJoin('shift.loadings', 'loading')
+      .leftJoin('shift.waterings', 'watering')
+      .leftJoin('shift.workRecords', 'workRecord')
+      .leftJoin('workRecord.work', 'work')
       .orderBy('employee.lastName', 'ASC')
       .getMany()
   }
@@ -68,7 +88,30 @@ export class ShiftService {
       .innerJoin('shift.employee', 'employee', 'employee.id = :id', {
         id: employeeId,
       })
-      .select(['shift.id', 'shift.dateFrom', 'shift.dateTo', 'employee.id'])
+      .leftJoinAndSelect('shift.workRecords', 'workRecord')
+      .leftJoinAndSelect('shift.waterings', 'watering')
+      .leftJoinAndSelect('shift.cuttings', 'cutting')
+      .leftJoinAndSelect('shift.loadings', 'loading')
+      .leftJoinAndSelect('workRecord.work', 'work')
+      .select([
+        'shift.id',
+        'shift.dateFrom',
+        'shift.dateTo',
+        'employee.id',
+        'cutting.id',
+        'cutting.boxQuantity',
+        'watering.id',
+        'watering.drug',
+        'watering.volume',
+        'workRecord.id',
+        'workRecord.date',
+        'workRecord.percent',
+        'workRecord.percentAmount',
+        'workRecord.reward',
+        'work.id',
+        'work.title',
+        'work.isRegular',
+      ])
       .getOne()
   }
 
@@ -77,11 +120,11 @@ export class ShiftService {
   ): Promise<Nullable<Shift>> {
     return this.shiftRepository
       .createQueryBuilder('shift')
-      .where('shift.dateTo IS NULL')
-      .innerJoin('shift.employee', 'employee', 'employee.id = :id', {
-        id: employeeId,
-      })
+      .innerJoin('shift.employee', 'employee')
       .leftJoinAndSelect('shift.workRecords', 'workRecord')
+      .leftJoinAndSelect('shift.waterings', 'watering')
+      .leftJoinAndSelect('shift.cuttings', 'cutting')
+      .leftJoinAndSelect('shift.loadings', 'loading')
       .leftJoinAndSelect('workRecord.work', 'work')
       .select([
         'shift.id',
@@ -96,7 +139,14 @@ export class ShiftService {
         'work.id',
         'work.title',
         'work.isRegular',
+        'cutting.id',
+        'cutting.boxQuantity',
+        'watering.id',
+        'watering.drug',
+        'watering.volume',
       ])
+      .where('shift.dateTo IS NULL')
+      .andWhere('employee.id = :employeeId', { employeeId })
       .orderBy('workRecord.date', 'ASC')
       .getOne()
   }

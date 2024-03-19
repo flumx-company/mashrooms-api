@@ -60,8 +60,11 @@ export class Shift extends DatedBasicEntity {
   workRecords: WorkRecord[]
 
   @OneToMany(() => Watering, (watering) => watering.shift)
-  waterings: WorkRecord[]
+  waterings: Watering[]
 
-  @OneToMany(() => Cutting, (cutting) => cutting.shift)
+  @OneToMany(() => Cutting, (cutting) => cutting.cutterShift)
   cuttings: Cutting[]
+
+  @OneToMany(() => Cutting, (cutting) => cutting.loaderShift)
+  loadings: Cutting[]
 }

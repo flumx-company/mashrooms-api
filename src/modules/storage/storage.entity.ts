@@ -2,6 +2,7 @@ import { Column, Entity, Index, ManyToOne } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
+import { Category } from '@mush/modules/category/category.entity'
 import { Variety } from '@mush/modules/variety/variety.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
 
@@ -37,4 +38,7 @@ export class Storage extends DatedBasicEntity {
 
   @ManyToOne(() => Variety, (variety) => variety.storages)
   variety: Variety
+
+  @ManyToOne(() => Category, (category) => category.storages)
+  category: Category
 }
