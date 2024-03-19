@@ -4,6 +4,8 @@ import { Repository } from 'typeorm'
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
+import { Category } from '@mush/modules/category/category.entity'
+import { CategoryService } from '@mush/modules/category/category.service'
 import { Chamber } from '@mush/modules/chamber/chamber.entity'
 import { ChamberService } from '@mush/modules/chamber/chamber.service'
 import { Variety } from '@mush/modules/variety/variety.entity'
@@ -24,6 +26,7 @@ export class StorageService {
     private readonly chamberService: ChamberService,
     private readonly waveService: WaveService,
     private readonly varietyService: VarietyService,
+    private readonly categoryService: CategoryService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Storage>> {
@@ -36,6 +39,7 @@ export class StorageService {
       .select()
       .leftJoinAndSelect('storage.variety', 'variety')
       .leftJoinAndSelect('storage.wave', 'wave')
+      .leftJoinAndSelect('storage.category', 'category')
       .leftJoinAndSelect('wave.batch', 'batch')
       .leftJoinAndSelect('batch.chamber', 'chamber')
       .where('batch.id = :batchId', { batchId })
@@ -46,7 +50,13 @@ export class StorageService {
     return this.storageRepository.findOneBy({ id })
   }
 
-  async findAllTodayStoragesByWaveId(waveId: number): Promise<object> {
+  async findAllTodayStoragesByWaveId({
+    waveId,
+    categoryId,
+  }: {
+    waveId: number
+    categoryId: number
+  }): Promise<object> {
     const today = String(
       formatDateToDateTime({
         value: new Date(Date.now()),
@@ -58,9 +68,17 @@ export class StorageService {
       .createQueryBuilder('storage')
       .leftJoinAndSelect('storage.wave', 'wave')
       .leftJoinAndSelect('storage.variety', 'variety')
+      .leftJoinAndSelect('storage.category', 'category')
       .where('storage.date like :date', { date: `%${today}%` })
-      .andWhere('wave.id = :id', { id: waveId })
-      .select(['storage.id', 'storage.amount', 'storage.date', 'variety.id'])
+      .andWhere('wave.id = :waveId', { waveId })
+      .andWhere('category.id = :categoryId', { categoryId })
+      .select([
+        'storage.id',
+        'storage.amount',
+        'storage.date',
+        'variety.id',
+        'category.id',
+      ])
       .getMany()
 
     foundStorages.forEach(({ variety, amount, id }) => {
@@ -79,24 +97,28 @@ export class StorageService {
     waveId,
     varietyId,
     chamberId,
+    categoryId,
   }: {
     date: string
     amount: number
     waveId: number
     varietyId: number
     chamberId: number
+    categoryId: number
   }): Promise<Storage> {
-    const [foundChamber, foundWave, foundVariety]: [
+    const [foundChamber, foundWave, foundVariety, foundCategory]: [
       Nullable<Chamber>,
       Nullable<Wave>,
       Nullable<Variety>,
+      Nullable<Category>,
     ] = await Promise.all([
       this.chamberService.findChamberByIdWithBatches(chamberId),
       this.waveService.findWaveById(waveId),
       this.varietyService.findVarietyById(varietyId),
+      this.categoryService.findCategoryById(categoryId),
     ])
 
-    if (!foundChamber || !foundWave || !foundVariety) {
+    if (!foundChamber || !foundWave || !foundVariety || !foundCategory) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
@@ -121,6 +143,7 @@ export class StorageService {
       amount,
       variety: pick(foundVariety, 'id', 'name'),
       wave: pick(foundWave, 'id'),
+      category: pick(foundCategory, 'id'),
     })
 
     return this.storageRepository.save(newStorage)

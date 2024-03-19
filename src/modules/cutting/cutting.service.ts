@@ -11,7 +11,6 @@ import { CategoryService } from '@mush/modules/category/category.service'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Shift } from '@mush/modules/shift/shift.entity'
 import { ShiftService } from '@mush/modules/shift/shift.service'
-import { Storage } from '@mush/modules/storage/storage.entity'
 import { StorageService } from '@mush/modules/storage/storage.service'
 import { Variety } from '@mush/modules/variety/variety.entity'
 import { VarietyService } from '@mush/modules/variety/variety.service'
@@ -74,16 +73,20 @@ export class CuttingService {
       this.categoryService.findCategoryById(categoryId),
       this.batchService.findBatchById(batchId),
       this.waveService.findWaveById(waveId),
-      this.storageService.findAllTodayStoragesByWaveId(waveId),
+      this.storageService.findAllTodayStoragesByWaveId({ waveId, categoryId }),
     ])
 
     if (!category || !batch || !wave) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    data.forEach(({ shiftId, varietyId }) => {
-      if (!byIdShifts[shiftId]) {
-        byIdShifts[shiftId] = shiftId
+    data.forEach(({ cutterShiftId, loaderShiftId, varietyId }) => {
+      if (!byIdShifts[cutterShiftId]) {
+        byIdShifts[cutterShiftId] = cutterShiftId
+      }
+
+      if (!byIdShifts[loaderShiftId]) {
+        byIdShifts[loaderShiftId] = loaderShiftId
       }
 
       if (!byIdVarieties[varietyId]) {
@@ -124,25 +127,27 @@ export class CuttingService {
     })
 
     const createdCuttings = await Promise.all(
-      (data || []).map(({ boxQuantity, trip, varietyId, shiftId }) =>
-        this.cuttingRepository.create({
-          boxQuantity,
-          trip,
-          category,
-          variety: byIdVarieties[varietyId],
-          batch,
-          wave,
-          shift: byIdShifts[shiftId],
-          author: pick(
-            author,
-            'id',
-            'firstName',
-            'lastName',
-            'patronymic',
-            'role',
-            'position',
-          ),
-        }),
+      (data || []).map(
+        ({ boxQuantity, trip, varietyId, cutterShiftId, loaderShiftId }) =>
+          this.cuttingRepository.create({
+            boxQuantity,
+            trip,
+            category,
+            variety: byIdVarieties[varietyId],
+            batch,
+            wave,
+            cutterShift: byIdShifts[cutterShiftId],
+            loaderShift: byIdShifts[loaderShiftId],
+            author: pick(
+              author,
+              'id',
+              'firstName',
+              'lastName',
+              'patronymic',
+              'role',
+              'position',
+            ),
+          }),
       ),
     )
 
@@ -160,12 +165,12 @@ export class CuttingService {
 
     await Promise.all(
       Object.keys(byVarietyIdStorages).map((varietyId) => {
-        const previouslySavedItemId = byVarietyIdStorages[varietyId].id
+        const id = byVarietyIdStorages[varietyId].id
         const amount = byVarietyIdStorages[varietyId].amount
 
-        if (previouslySavedItemId) {
+        if (id) {
           return this.storageService.updateStorage({
-            id: previouslySavedItemId,
+            id,
             amount,
           })
         }
@@ -174,8 +179,9 @@ export class CuttingService {
           date: today,
           amount,
           waveId,
-          varietyId: Number(varietyId),
+          varietyId: parseInt(varietyId),
           chamberId: batch.chamber.id,
+          categoryId,
         })
       }),
     )

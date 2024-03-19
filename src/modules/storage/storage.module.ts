@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
+import { CategoryModule } from '@mush/modules/category/category.module'
 import { ChamberModule } from '@mush/modules/chamber/chamber.module'
 import { CoreModule } from '@mush/modules/core-module/core.module'
 import { VarietyModule } from '@mush/modules/variety/variety.module'
@@ -17,6 +18,7 @@ import { StorageService } from './storage.service'
     ChamberModule,
     WaveModule,
     VarietyModule,
+    CategoryModule,
   ],
   controllers: [StorageController],
   providers: [StorageService],

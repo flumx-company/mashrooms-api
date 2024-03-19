@@ -25,7 +25,15 @@ export class CreateCuttingDto {
     description: 'Enter the shiftId of the cutter.',
     type: Number,
   })
-  readonly shiftId: number
+  readonly cutterShiftId: number
+
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 1,
+    description: 'Enter the shiftId of the loader.',
+    type: Number,
+  })
+  readonly loaderShiftId: number
 
   @IsNotEmpty()
   @ApiProperty({
