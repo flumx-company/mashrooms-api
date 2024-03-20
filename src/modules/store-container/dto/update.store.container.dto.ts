@@ -2,6 +2,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  Max,
   MaxLength,
   MinLength,
 } from 'class-validator'
@@ -22,10 +23,9 @@ export class UpdateStoreContainerDto {
 
   @IsNumber()
   @IsNotEmpty()
-  @MinLength(1)
-  @MaxLength(11)
+  @Max(99999999)
   @ApiProperty({
-    example: 'Store container weight',
+    example: 0.5,
     description: 'Enter the store container weight.',
     type: Number,
   })

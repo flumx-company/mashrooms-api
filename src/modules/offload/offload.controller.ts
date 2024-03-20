@@ -115,19 +115,37 @@ export class OffloadController {
     example: 1,
   } as ApiParamOptions)
   @ApiBody({
-    description: 'Model to add a new client.',
-    type: Array<Array<CreateOffloadDto>>,
+    description: `Model to add a new offload. 
+      [
+        [
+          { 
+            "batchId": 1,
+            "waveId": 1, 
+            "varietyId": 1,
+            "categoryId": 1,
+            "storeContainerId": 1,
+            "cuttingDate": "2024-03-20", 
+            "amount": 200, 
+            "weight": 500, 
+            "price": 1200 
+          }
+        ]
+      ]
+      `,
+    type: [CreateOffloadDto],
+    isArray: true,
   })
   @ApiResponse({
     status: 200,
     description: 'Will return the offload data.',
     type: Offload,
+    isArray: true,
   })
   async createOffload(
     @Param('clientId', ParseIntPipe) clientId: number,
     @Param('driverId', ParseIntPipe) driverId: number,
     @CurrentUser() user: User,
-    @Body() data: CreateOffloadDto[][],
+    @Body() data: Array<Array<CreateOffloadDto>>,
   ): Promise<Offload[]> {
     return this.offloadService.createOffload({ clientId, driverId, user, data })
   }

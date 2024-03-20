@@ -48,4 +48,6 @@ export const CError = {
   WAVE_NOT_RELATED_TO_CHAMBER: `${EError.WAVE_NOT_RELATED_TO_CHAMBER}: The specified wave is not related to the specified chamber`,
   //NOTE: offload error
   WRONG_PRICE: `${EError.WRONG_PRICE}: The price per kg of each price group item should be the same.`,
+  WRONG_STORAGE_DATA: `${EError.WRONG_STORAGE_DATA}: There is no storage of the provided date, variety, wave, category.`,
+  WRONG_BOX_AMOUNT: `${EError.WRONG_BOX_AMOUNT}: The offload box amount exceeds the correspondent storage box amount.`,
 }

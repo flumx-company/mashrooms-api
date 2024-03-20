@@ -13,6 +13,8 @@ import { ClientService } from '@mush/modules/client/client.service'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { DriverService } from '@mush/modules/driver/driver.service'
+import { Storage } from '@mush/modules/storage/storage.entity'
+import { StorageService } from '@mush/modules/storage/storage.service'
 import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
 import { StoreContainerService } from '@mush/modules/store-container/store-container.service'
 import { Variety } from '@mush/modules/variety/variety.entity'
@@ -20,7 +22,6 @@ import { VarietyService } from '@mush/modules/variety/variety.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { EError } from '@mush/core/enums'
 import { CError, Nullable } from '@mush/core/utils'
 
 import { CreateOffloadDto } from './dto'
@@ -39,6 +40,7 @@ export class OffloadService {
     private readonly storeContainerService: StoreContainerService,
     private readonly categoryService: CategoryService,
     private readonly varietyService: VarietyService,
+    private readonly storageService: StorageService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Offload>> {
@@ -104,6 +106,7 @@ export class OffloadService {
     const byIdVarieties = {}
     const docId = Date.now()
     const newOffloadData = []
+    const storageSubtractionData = []
 
     if (!client || !driver) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -120,6 +123,8 @@ export class OffloadService {
           waveId,
           varietyId,
           price,
+          cuttingDate,
+          amount,
         } = offload
 
         if (!index) {
@@ -149,6 +154,14 @@ export class OffloadService {
         if (!byIdStoreContainers[storeContainerId]) {
           byIdStoreContainers[storeContainerId] = storeContainerId
         }
+
+        storageSubtractionData.push({
+          date: cuttingDate,
+          amount,
+          waveId,
+          varietyId,
+          categoryId,
+        })
       })
     })
 
@@ -178,6 +191,17 @@ export class OffloadService {
           this.storeContainerService.findStoreContainerById(parseInt(id)),
         ),
       )
+
+    const foundStorages: Array<Nullable<Storage>> = await Promise.all(
+      storageSubtractionData.map(({ varietyId, waveId, categoryId, date }) => {
+        return this.storageService.findByOffloadParameters({
+          varietyId,
+          waveId,
+          categoryId,
+          date,
+        })
+      }),
+    )
 
     foundCategories.forEach((category) => {
       if (!category) {
@@ -225,6 +249,30 @@ export class OffloadService {
       })
     })
 
+    foundStorages.forEach((storage, index) => {
+      if (!storage) {
+        throw new HttpException(
+          CError.WRONG_STORAGE_DATA,
+          HttpStatus.BAD_REQUEST,
+        )
+      }
+
+      if (storageSubtractionData[index]?.amount > storage.amount) {
+        throw new HttpException(CError.WRONG_BOX_AMOUNT, HttpStatus.BAD_REQUEST)
+      }
+    })
+
+    await Promise.all(
+      foundStorages.map(({ id, amount: storedAmount }, index) => {
+        const offloadAmount: number = storageSubtractionData[index]?.amount
+        const remainedAmount: number = storedAmount - offloadAmount
+
+        return remainedAmount
+          ? this.storageService.updateStorage({ id, amount: remainedAmount })
+          : this.storageService.removeStorage(id)
+      }),
+    )
+
     data.forEach((offloadPriceGroup, index) => {
       const priceId = parseInt(`${docId}${index}`)
 
@@ -252,6 +300,8 @@ export class OffloadService {
           docId,
           priceId,
           author: user,
+          client,
+          driver,
         })
       })
     })

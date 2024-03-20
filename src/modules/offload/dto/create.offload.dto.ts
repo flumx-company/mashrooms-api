@@ -1,4 +1,10 @@
-import { IsDateString, IsNotEmpty, IsNumber, Matches } from 'class-validator'
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  Matches,
+  Min,
+} from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -62,6 +68,7 @@ export class CreateOffloadDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @Min(1)
   @ApiProperty({
     example: 20,
     description: 'Enter box amount.',
