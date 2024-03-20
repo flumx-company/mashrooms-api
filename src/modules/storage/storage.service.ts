@@ -46,6 +46,30 @@ export class StorageService {
       .getMany()
   }
 
+  findByOffloadParameters({
+    varietyId,
+    waveId,
+    categoryId,
+    date,
+  }: {
+    varietyId: number
+    waveId: number
+    categoryId: number
+    date: Date
+  }): Promise<Storage> {
+    return this.storageRepository
+      .createQueryBuilder('storage')
+      .select()
+      .leftJoinAndSelect('storage.variety', 'variety')
+      .leftJoinAndSelect('storage.wave', 'wave')
+      .leftJoinAndSelect('storage.category', 'category')
+      .where('storage.date = :date', { date })
+      .andWhere('variety.id = :varietyId', { varietyId })
+      .andWhere('wave.id = :waveId', { waveId })
+      .andWhere('category.id = :categoryId', { categoryId })
+      .getOne()
+  }
+
   findById(id: number): Promise<Nullable<Storage>> {
     return this.storageRepository.findOneBy({ id })
   }
@@ -168,5 +192,23 @@ export class StorageService {
     })
 
     return this.storageRepository.save(newStorage)
+  }
+
+  async removeStorage(id: number): Promise<Boolean> {
+    const foundStorage: Nullable<Storage> = await this.findById(id)
+
+    if (!foundStorage) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    let response = true
+
+    try {
+      await this.storageRepository.remove(foundStorage)
+    } catch (e) {
+      response = false
+    }
+
+    return response
   }
 }

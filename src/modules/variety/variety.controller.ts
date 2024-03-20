@@ -33,7 +33,7 @@ import { VarietyService } from './variety.service'
 })
 @Controller(ApiV1('varieties'))
 export class VarietyController {
-  constructor(readonly varietyRepository: VarietyService) {}
+  constructor(readonly varietyService: VarietyService) {}
 
   @Get()
   @Auth({
@@ -45,7 +45,7 @@ export class VarietyController {
       'Get list of all varieties. Role: SUPERADMIN, ADMIN. Permission: READ_VARIETIES.',
   })
   async getAllVarieties(): Promise<Variety[]> {
-    return this.varietyRepository.findAll()
+    return this.varietyService.findAll()
   }
 
   @Post()
@@ -67,7 +67,7 @@ export class VarietyController {
     type: Variety,
   })
   async createCategory(@Body() data: UpdateVarietyDto): Promise<Variety> {
-    return this.varietyRepository.createVariety(data)
+    return this.varietyService.createVariety(data)
   }
 
   @Put(':id')
@@ -97,7 +97,7 @@ export class VarietyController {
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateVarietyDto,
   ): Promise<Variety> {
-    return this.varietyRepository.updateVariety(id, data)
+    return this.varietyService.updateVariety(id, data)
   }
 
   @Delete(':id')
@@ -120,6 +120,6 @@ export class VarietyController {
     type: Boolean,
   })
   async removeVariety(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
-    return this.varietyRepository.removeVariety(id)
+    return this.varietyService.removeVariety(id)
   }
 }

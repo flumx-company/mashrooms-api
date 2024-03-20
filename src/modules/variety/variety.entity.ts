@@ -3,6 +3,7 @@ import { Column, Entity, Index, OneToMany } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
+import { Offload } from '@mush/modules/offload/offload.entity'
 import { Storage } from '@mush/modules/storage/storage.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
@@ -19,4 +20,7 @@ export class Variety extends DatedBasicEntity {
 
   @OneToMany(() => Storage, (storage) => storage.variety)
   storages: Storage[]
+
+  @OneToMany(() => Offload, (offload) => offload.wave)
+  offloads: Offload[]
 }

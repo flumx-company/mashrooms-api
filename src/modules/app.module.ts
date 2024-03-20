@@ -14,7 +14,6 @@ import { Chamber } from '@mush/modules/chamber/chamber.entity'
 import { ChamberModule } from '@mush/modules/chamber/chamber.module'
 import { Client } from '@mush/modules/client/client.entity'
 import { ClientModule } from '@mush/modules/client/client.module'
-import { ContainerModule } from '@mush/modules/container/container.module'
 import { CoreModule } from '@mush/modules/core-module/core.module'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
@@ -34,15 +33,17 @@ import { Price } from '@mush/modules/price/price.entity'
 import { PriceModule } from '@mush/modules/price/price.module'
 import { ProductModule } from '@mush/modules/product/product.module'
 import { Shift } from '@mush/modules/shift/shift.entity'
+import { ShiftModule } from '@mush/modules/shift/shift.module'
 import { Storage } from '@mush/modules/storage/storage.entity'
 import { StorageModule } from '@mush/modules/storage/storage.module'
+import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
+import { StoreContainerModule } from '@mush/modules/store-container/store-container.module'
 import { Variety } from '@mush/modules/variety/variety.entity'
 import { VarietyModule } from '@mush/modules/variety/variety.module'
 import { Watering } from '@mush/modules/watering/watering.entity'
 import { WateringModule } from '@mush/modules/watering/watering.module'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveModule } from '@mush/modules/wave/wave.module'
-import { WheelbarrowModule } from '@mush/modules/wheelbarrow/wheelbarrow.module'
 import { WorkRecord } from '@mush/modules/work-record/work.record.entity'
 import { WorkRecordModule } from '@mush/modules/work-record/work.record.module'
 import { Work } from '@mush/modules/work/work.entity'
@@ -54,7 +55,6 @@ import { TypeORMConfig } from '@mush/config'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { ShiftModule } from './shift/shift.module'
 
 @Module({
   imports: [
@@ -79,6 +79,7 @@ import { ShiftModule } from './shift/shift.module'
         PublicFile,
         Shift,
         Storage,
+        StoreContainer,
         Watering,
         Wave,
         Work,
@@ -94,7 +95,6 @@ import { ShiftModule } from './shift/shift.module'
     ChamberModule,
     CategoryModule,
     ClientModule,
-    ContainerModule,
     CuttingModule,
     DriverModule,
     EmployeeModule,
@@ -103,12 +103,12 @@ import { ShiftModule } from './shift/shift.module'
     PickingModule,
     PriceModule,
     ProductModule,
-    WheelbarrowModule,
     YieldModule,
     FileUploadModule,
     HealthcheckModule,
     ShiftModule,
     StorageModule,
+    StoreContainerModule,
     WateringModule,
     WaveModule,
     WorkModule,

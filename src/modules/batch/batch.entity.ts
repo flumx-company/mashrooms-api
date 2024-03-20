@@ -4,13 +4,13 @@ import { ApiProperty } from '@nestjs/swagger'
 
 import { Chamber } from '@mush/modules/chamber/chamber.entity'
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
+import { Offload } from '@mush/modules/offload/offload.entity'
+import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Watering } from '@mush/modules/watering/watering.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
-
-import { Subbatch } from '../subbatch/subbatch.entity'
 
 @Entity({ name: 'batches' })
 export class Batch extends DatedBasicEntity {
@@ -80,4 +80,7 @@ export class Batch extends DatedBasicEntity {
 
   @OneToMany(() => Cutting, (cutting) => cutting.batch)
   cuttings: Cutting[]
+
+  @OneToMany(() => Offload, (offload) => offload.batch)
+  offloads: Offload[]
 }

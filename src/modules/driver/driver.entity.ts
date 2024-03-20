@@ -1,6 +1,8 @@
-import { Column, Entity, Index } from 'typeorm'
+import { Column, Entity, Index, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
+
+import { Offload } from '@mush/modules/offload/offload.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 
@@ -43,4 +45,7 @@ export class Driver extends DatedBasicEntity {
     nullable: true,
   })
   phone: string
+
+  @OneToMany(() => Offload, (offload) => offload.driver)
+  offloads: Offload[]
 }

@@ -43,7 +43,7 @@ export class WorkRecordService {
         'workRecord.percent',
         'workRecord.percentAmount',
         'workRecord.reward',
-        'workRecord.recordGoupId',
+        'workRecord.recordGroupId',
         'shift.id',
         'shift.dateFrom',
         'shift.dateTo',

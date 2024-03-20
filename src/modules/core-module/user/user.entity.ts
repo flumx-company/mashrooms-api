@@ -120,7 +120,7 @@ export class User extends DatedBasicEntity {
   @Column({ type: 'boolean', default: null, nullable: true })
   isActive: boolean
 
-  @ManyToMany(() => Offload, (offload) => offload.users)
+  @OneToMany(() => Offload, (offload) => offload.author)
   @JoinTable()
   offloads: Offload[]
 

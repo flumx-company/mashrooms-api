@@ -95,7 +95,7 @@ export class OffloadController {
     return this.offloadService.findAllByClientId(clientId, query)
   }
 
-  @Post()
+  @Post('client/:clientId/driver/:driverId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.CREATE_OFFLOADS,
@@ -104,20 +104,50 @@ export class OffloadController {
     summary:
       'Add a new offload. Role: SUPERADMIN, ADMIN. Permission: CREATE_OFFLOADS.',
   })
+  @ApiParam({
+    name: 'clientId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiParam({
+    name: 'driverId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
   @ApiBody({
-    description: 'Model to add a new client.',
-    type: CreateOffloadDto,
+    description: `Model to add a new offload. 
+      [
+        [
+          { 
+            "batchId": 1,
+            "waveId": 1, 
+            "varietyId": 1,
+            "categoryId": 1,
+            "storeContainerId": 1,
+            "cuttingDate": "2024-03-20", 
+            "amount": 200, 
+            "weight": 500, 
+            "price": 1200 
+          }
+        ]
+      ]
+      `,
+    type: [CreateOffloadDto],
+    isArray: true,
   })
   @ApiResponse({
     status: 200,
     description: 'Will return the offload data.',
     type: Offload,
+    isArray: true,
   })
   async createOffload(
+    @Param('clientId', ParseIntPipe) clientId: number,
+    @Param('driverId', ParseIntPipe) driverId: number,
     @CurrentUser() user: User,
-    @Body() data: CreateOffloadDto,
-  ): Promise<Offload> {
-    return this.offloadService.createOffload({ user, data })
+    @Body() data: Array<Array<CreateOffloadDto>>,
+  ): Promise<Offload[]> {
+    return this.offloadService.createOffload({ clientId, driverId, user, data })
   }
 
   @Delete(':id')

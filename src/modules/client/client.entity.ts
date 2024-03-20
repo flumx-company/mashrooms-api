@@ -1,4 +1,11 @@
-import { Column, Entity, Index, JoinTable, ManyToMany } from 'typeorm'
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -71,7 +78,7 @@ export class Client extends DatedBasicEntity {
   })
   phone: string
 
-  @ManyToMany(() => Offload, (offload) => offload.clients)
+  @OneToMany(() => Offload, (offload) => offload.client)
   @JoinTable()
   offloads: Offload[]
 
