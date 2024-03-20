@@ -95,7 +95,7 @@ export class OffloadController {
     return this.offloadService.findAllByClientId(clientId, query)
   }
 
-  @Post()
+  @Post('client/:clientId/driver/:driverId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.CREATE_OFFLOADS,
@@ -104,9 +104,19 @@ export class OffloadController {
     summary:
       'Add a new offload. Role: SUPERADMIN, ADMIN. Permission: CREATE_OFFLOADS.',
   })
+  @ApiParam({
+    name: 'clientId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiParam({
+    name: 'driverId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
   @ApiBody({
     description: 'Model to add a new client.',
-    type: CreateOffloadDto,
+    type: Array<Array<CreateOffloadDto>>,
   })
   @ApiResponse({
     status: 200,
@@ -114,10 +124,12 @@ export class OffloadController {
     type: Offload,
   })
   async createOffload(
+    @Param('clientId', ParseIntPipe) clientId: number,
+    @Param('driverId', ParseIntPipe) driverId: number,
     @CurrentUser() user: User,
-    @Body() data: CreateOffloadDto,
-  ): Promise<Offload> {
-    return this.offloadService.createOffload({ user, data })
+    @Body() data: CreateOffloadDto[][],
+  ): Promise<Offload[]> {
+    return this.offloadService.createOffload({ clientId, driverId, user, data })
   }
 
   @Delete(':id')

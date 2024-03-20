@@ -46,4 +46,6 @@ export const CError = {
   SHIFT_ENDED: `${EError.SHIFT_ENDED}: The shift with the provided id has already ended.`,
   CHAMBER_HAS_NO_OPEN_BATCH: `${EError.CHAMBER_HAS_OPEN_BATCH}: This chamber has no open batch.`,
   WAVE_NOT_RELATED_TO_CHAMBER: `${EError.WAVE_NOT_RELATED_TO_CHAMBER}: The specified wave is not related to the specified chamber`,
+  //NOTE: offload error
+  WRONG_PRICE: `${EError.WRONG_PRICE}: The price per kg of each price group item should be the same.`,
 }
