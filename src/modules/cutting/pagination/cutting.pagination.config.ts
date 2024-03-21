@@ -8,6 +8,7 @@ export const cuttingPaginationConfig: PaginateConfig<Cutting> = {
   defaultSortBy: [['id', 'ASC']],
   relations: [
     'batch',
+    'batch.chamber',
     'wave',
     'cutterShift',
     'cutterShift.employee',
@@ -19,5 +20,8 @@ export const cuttingPaginationConfig: PaginateConfig<Cutting> = {
   ],
   filterableColumns: {
     ['batch.id']: [FilterOperator.EQ],
+    ['wave.id']: [FilterOperator.EQ],
+    createdAt: [FilterOperator.ILIKE],
+    ['batch.chamber.id']: [FilterOperator.EQ],
   },
 }
