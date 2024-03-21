@@ -286,6 +286,7 @@ export class OffloadService {
           cuttingDate,
           amount,
           price,
+          weight,
         } = offload
 
         newOffloadData.push({
@@ -302,6 +303,7 @@ export class OffloadService {
           author: user,
           client,
           driver,
+          weight,
         })
       })
     })
