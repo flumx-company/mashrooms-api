@@ -6,6 +6,7 @@ import { Batch } from '@mush/modules/batch/batch.entity'
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
 import { Offload } from '@mush/modules/offload/offload.entity'
 import { Storage } from '@mush/modules/storage/storage.entity'
+import { Yield } from '@mush/modules/yield/yield.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime } from '@mush/core/utils'
@@ -62,4 +63,7 @@ export class Wave extends DatedBasicEntity {
 
   @OneToMany(() => Offload, (offload) => offload.wave)
   offloads: Offload[]
+
+  @OneToMany(() => Yield, (yieldItem) => yieldItem.category)
+  yields: Yield[]
 }

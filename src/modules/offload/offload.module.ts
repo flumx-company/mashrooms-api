@@ -10,6 +10,7 @@ import { StorageModule } from '@mush/modules/storage/storage.module'
 import { StoreContainerModule } from '@mush/modules/store-container/store-container.module'
 import { VarietyModule } from '@mush/modules/variety/variety.module'
 import { WaveModule } from '@mush/modules/wave/wave.module'
+import { YieldModule } from '@mush/modules/yield/yield.module'
 
 import { OffloadController } from './offload.controller'
 import { Offload } from './offload.entity'
@@ -27,6 +28,7 @@ import { OffloadService } from './offload.service'
     VarietyModule,
     StoreContainerModule,
     StorageModule,
+    YieldModule,
   ],
   controllers: [OffloadController],
   providers: [OffloadService],

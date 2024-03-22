@@ -17,12 +17,14 @@ import { Storage } from '@mush/modules/storage/storage.entity'
 import { StorageService } from '@mush/modules/storage/storage.service'
 import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
 import { StoreContainerService } from '@mush/modules/store-container/store-container.service'
+import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Variety } from '@mush/modules/variety/variety.entity'
 import { VarietyService } from '@mush/modules/variety/variety.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
+import { YieldService } from '@mush/modules/yield/yield.service'
 
-import { CError, Nullable } from '@mush/core/utils'
+import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 
 import { CreateOffloadDto } from './dto'
 import { Offload } from './offload.entity'
@@ -41,6 +43,7 @@ export class OffloadService {
     private readonly categoryService: CategoryService,
     private readonly varietyService: VarietyService,
     private readonly storageService: StorageService,
+    private readonly yieldService: YieldService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Offload>> {
@@ -99,14 +102,23 @@ export class OffloadService {
         this.clientService.findClientById(clientId),
         this.driverService.findDriverById(driverId),
       ])
-    const byIdCategories = {}
-    const byIdBatches = {}
-    const byIdStoreContainers = {}
-    const byIdWaves = {}
-    const byIdVarieties = {}
+    const byIdCategories: Record<number, Category | {}> = {}
+    const byIdBatches: Record<number, Batch | {}> = {}
+    const byIdStoreContainers: Record<number, StoreContainer | {}> = {}
+    const byIdWaves: Record<number, Wave | {}> = {}
+    const byIdVarieties: Record<number, Variety | {}> = {}
+    const byBatchIdCategoryIdSubbatches: Record<
+      number,
+      Record<number, Subbatch> | {}
+    > = {}
     const docId = Date.now()
     const newOffloadData = []
     const storageSubtractionData = []
+    const today = String(
+      formatDateToDateTime({
+        value: new Date(Date.now()),
+      }),
+    )
 
     if (!client || !driver) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -136,23 +148,24 @@ export class OffloadService {
         }
 
         if (!byIdBatches[batchId]) {
-          byIdBatches[batchId] = batchId
+          byIdBatches[batchId] = {}
+          byBatchIdCategoryIdSubbatches[batchId] = {}
         }
 
         if (!byIdWaves[waveId]) {
-          byIdWaves[waveId] = waveId
+          byIdWaves[waveId] = {}
         }
 
         if (!byIdCategories[categoryId]) {
-          byIdCategories[categoryId] = categoryId
+          byIdCategories[categoryId] = {}
         }
 
         if (!byIdVarieties[varietyId]) {
-          byIdVarieties[varietyId] = varietyId
+          byIdVarieties[varietyId] = {}
         }
 
         if (!byIdStoreContainers[storeContainerId]) {
-          byIdStoreContainers[storeContainerId] = storeContainerId
+          byIdStoreContainers[storeContainerId] = {}
         }
 
         storageSubtractionData.push({
@@ -208,17 +221,20 @@ export class OffloadService {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdCategories).forEach((id) => {
-        byIdCategories[id] = category
-      })
+      byIdCategories[category.id] = category as Category
     })
     foundBatches.forEach((batch) => {
       if (!batch) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdBatches).forEach((id) => {
-        byIdBatches[id] = batch
+      byIdBatches[batch.id] = batch as Batch
+      byBatchIdCategoryIdSubbatches[batch.id] = {}
+
+      batch.subbatches.forEach((subbatch) => {
+        const categoryId = subbatch.category.id
+        byBatchIdCategoryIdSubbatches[batch.id][categoryId] =
+          subbatch as Subbatch
       })
     })
     foundWaves.forEach((wave) => {
@@ -226,27 +242,22 @@ export class OffloadService {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdWaves).forEach((id) => {
-        byIdWaves[id] = wave
-      })
+      byIdWaves[wave.id] = wave as Wave
     })
     foundVarieties.forEach((variety) => {
       if (!variety) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdVarieties).forEach((id) => {
-        byIdVarieties[id] = variety
-      })
+      byIdVarieties[variety.id] = variety as Variety
     })
+
     foundStoreContainers.forEach((container) => {
       if (!container) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdStoreContainers).forEach((id) => {
-        byIdStoreContainers[id] = container
-      })
+      byIdStoreContainers[container.id] = container as StoreContainer
     })
 
     foundStorages.forEach((storage, index) => {
@@ -314,9 +325,37 @@ export class OffloadService {
       ),
     )
 
-    return Promise.all(
+    const savedNewOffloads: Offload[] = await Promise.all(
       newOffloads.map((offload) => this.offloadRepository.save(offload)),
     )
+
+    const foundTodayOffloads = await this.findAll({
+      filter: { createdAt: `$ilike:${today}` },
+      path: '',
+    }).then((paginatedData) => paginatedData.data)
+
+    const yieldUpdatingdOffloads = foundTodayOffloads.filter(
+      ({ category, wave, variety }) => {
+        return (
+          byIdCategories[category.id] &&
+          byIdWaves[wave.id] &&
+          byIdVarieties[variety.id]
+        )
+      },
+    )
+
+    await this.yieldService.createYields({
+      date: today,
+      offloads: yieldUpdatingdOffloads,
+      byIdWaves: byIdWaves as Record<number, Wave>,
+      byBatchIdCategoryIdSubbatches,
+      byIdStoreContainers: byIdStoreContainers as Record<
+        number,
+        StoreContainer
+      >,
+    })
+
+    return savedNewOffloads
   }
 
   async removeOffload(id: number): Promise<Boolean> {
