@@ -1,14 +1,19 @@
 import { Repository } from 'typeorm'
 
-import { Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 
+import { Batch } from '@mush/modules/batch/batch.entity'
+import { BatchService } from '@mush/modules/batch/batch.service'
+import { Category } from '@mush/modules/category/category.entity'
+import { CategoryService } from '@mush/modules/category/category.service'
 import { Offload } from '@mush/modules/offload/offload.entity'
 import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
 import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
+import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { Nullable } from '@mush/core/utils'
+import { CError, Nullable } from '@mush/core/utils'
 
 import { Yield } from './yield.entity'
 
@@ -19,18 +24,64 @@ export class YieldService {
   constructor(
     @InjectRepository(Yield)
     private yieldRepository: Repository<Yield>,
+    private readonly batchService: BatchService,
+    private readonly categoryService: CategoryService,
+    private readonly waveService: WaveService,
   ) {}
+
+  async findAllByDate({
+    date,
+    batchId,
+    categoryId,
+    waveId,
+  }: {
+    date: string
+    batchId: number
+    categoryId: number
+    waveId: number
+  }): Promise<Yield[]> {
+    const [batch, category, wave]: [
+      batch: Batch,
+      category: Category,
+      wave: Wave,
+    ] = await Promise.all([
+      this.batchService.findBatchById(batchId),
+      this.categoryService.findCategoryById(categoryId),
+      this.waveService.findWaveById(waveId),
+    ])
+
+    if (!batch || !category || !wave) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    return this.yieldRepository
+      .createQueryBuilder('yield')
+      .select()
+      .leftJoinAndSelect('yield.category', 'category')
+      .leftJoinAndSelect('yield.batch', 'batch')
+      .leftJoinAndSelect('yield.variety', 'variety')
+      .leftJoinAndSelect('yield.wave', 'wave')
+      .leftJoinAndSelect(
+        'batch.subbatches',
+        'subbatch',
+        `batch.id = subbatch.batchId AND subbatch.categoryId = ${categoryId}`,
+      )
+      .where('date = :date', { date })
+      .andWhere('batch.id = :batchId', { batchId })
+      .andWhere('wave.id = :waveId', { waveId })
+      .getMany()
+  }
 
   findYieldByOffloadParameters({
     date,
-    categoryId,
     batchId,
+    categoryId,
     varietyId,
     waveId,
   }: {
     date: string
-    categoryId: number
     batchId: number
+    categoryId: number
     varietyId: number
     waveId: number
   }): Promise<Yield> {
@@ -42,9 +93,9 @@ export class YieldService {
       .leftJoinAndSelect('yield.variety', 'variety')
       .leftJoinAndSelect('yield.wave', 'wave')
       .where('date = :date', { date })
-      .andWhere('category.id = :categoryId', { categoryId })
       .andWhere('batch.id = :batchId', { batchId })
       .andWhere('variety.id = :varietyId', { varietyId })
+      .andWhere('category.id = :categoryId', { categoryId })
       .andWhere('wave.id = :waveId', { waveId })
       .getOne()
   }
@@ -162,11 +213,11 @@ export class YieldService {
 
     const newYields = await Promise.all(
       yieldData.map((yieldDataItem, index) => {
-        const previousData = foundYields[index]
-        let weight =
+        const previousData: Yield = foundYields[index]
+        let weight: number =
           yieldDataItem.weight + (previousData ? previousData.weight : 0)
-        let boxQuantity = yieldDataItem.boxQuantity
-        let percent = yieldDataItem.percent
+        let boxQuantity: number = yieldDataItem.boxQuantity
+        let percent: number = yieldDataItem.percent
 
         if (previousData) {
           weight += previousData.weight
