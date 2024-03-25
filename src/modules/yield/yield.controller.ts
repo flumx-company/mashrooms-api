@@ -55,21 +55,78 @@ export class YieldController {
   } as ApiParamOptions)
   @ApiResponse({
     status: 200,
-    description: 'Will return the list of yields.',
+    description:
+      'Will return the yields for a specific batch, category, wave, date.',
     type: Yield,
     isArray: true,
   })
-  async getAllYields(
+  async findAllByAllParameters(
     @Param('batchId', ParseIntPipe) batchId: number,
     @Param('waveId', ParseIntPipe) waveId: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Param('date') date: string,
   ): Promise<Yield[]> {
-    return this.yieldService.findAllByDate({
+    return this.yieldService.findAllByAllParameters({
       batchId,
       categoryId,
       waveId,
       date,
+    })
+  }
+
+  @Get('wave/:waveId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_YIELDS,
+  })
+  @ApiOperation({
+    summary:
+      'Get yields for a specific wave. Role: SUPERADMIN, ADMIN. Permission: READ_YIELDS.',
+  })
+  @ApiParam({
+    name: 'waveId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return yields of a specific wave.',
+    type: Yield,
+    isArray: true,
+  })
+  async getAllWaveYields(
+    @Param('waveId', ParseIntPipe) waveId: number,
+  ): Promise<object> {
+    return this.yieldService.findAllByWave({
+      waveId,
+    })
+  }
+
+  @Get('batch/:batchId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_YIELDS,
+  })
+  @ApiOperation({
+    summary:
+      'Get yields for a specific batch. Role: SUPERADMIN, ADMIN. Permission: READ_YIELDS.',
+  })
+  @ApiParam({
+    name: 'batchId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return of yields of a specific batch.',
+    type: Yield,
+    isArray: true,
+  })
+  async getAllBatchYields(
+    @Param('batchId', ParseIntPipe) batchId: number,
+  ): Promise<object> {
+    return this.yieldService.findAllByBatch({
+      batchId,
     })
   }
 }

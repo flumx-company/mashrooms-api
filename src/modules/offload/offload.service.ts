@@ -300,6 +300,17 @@ export class OffloadService {
           weight,
         } = offload
 
+        if ((byIdWaves?.[waveId]?.['batch']?.id as number) !== batchId) {
+          throw new HttpException(CError.WRONG_WAVE_ID, HttpStatus.BAD_REQUEST)
+        }
+
+        if (!byBatchIdCategoryIdSubbatches[batchId][categoryId]) {
+          throw new HttpException(
+            CError.WRONG_CATEGORY_ID,
+            HttpStatus.BAD_REQUEST,
+          )
+        }
+
         newOffloadData.push({
           storeContainer: byIdStoreContainers[storeContainerId],
           batch: byIdBatches[batchId],
@@ -329,10 +340,15 @@ export class OffloadService {
       newOffloads.map((offload) => this.offloadRepository.save(offload)),
     )
 
-    const foundTodayOffloads = await this.findAll({
-      filter: { createdAt: `$ilike:${today}` },
-      path: '',
-    }).then((paginatedData) => paginatedData.data)
+    const foundTodayOffloads = await this.offloadRepository
+      .createQueryBuilder('offload')
+      .select()
+      .leftJoinAndSelect('offload.category', 'category')
+      .leftJoinAndSelect('offload.variety', 'variety')
+      .leftJoinAndSelect('offload.wave', 'wave')
+      .leftJoinAndSelect('offload.storeContainer', 'storeContainer')
+      .where('offload.createdAt like :date', { date: `${today}%` })
+      .getMany()
 
     const yieldUpdatingdOffloads = foundTodayOffloads.filter(
       ({ category, wave, variety }) => {
