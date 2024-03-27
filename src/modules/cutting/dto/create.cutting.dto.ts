@@ -1,9 +1,11 @@
-import { IsNotEmpty } from 'class-validator'
+import { IsNotEmpty, Max, Min } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateCuttingDto {
   @IsNotEmpty()
+  @Min(1)
+  @Max(99999)
   @ApiProperty({
     example: 5,
     description: 'Enter the quantity of boxes that were gathered.',

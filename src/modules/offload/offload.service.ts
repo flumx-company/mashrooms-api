@@ -13,6 +13,8 @@ import { ClientService } from '@mush/modules/client/client.service'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { DriverService } from '@mush/modules/driver/driver.service'
+import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
+import { OffloadRecordService } from '@mush/modules/offload-record/offload-record.service'
 import { Storage } from '@mush/modules/storage/storage.entity'
 import { StorageService } from '@mush/modules/storage/storage.service'
 import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
@@ -44,6 +46,7 @@ export class OffloadService {
     private readonly varietyService: VarietyService,
     private readonly storageService: StorageService,
     private readonly yieldService: YieldService,
+    private readonly offloadRecordService: OffloadRecordService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Offload>> {
@@ -95,8 +98,8 @@ export class OffloadService {
     clientId: number
     driverId: number
     user: User
-    data: CreateOffloadDto[][]
-  }): Promise<Offload[]> {
+    data: CreateOffloadDto
+  }): Promise<Offload> {
     const [client, driver]: [Nullable<Client>, Nullable<Driver>] =
       await Promise.all([
         this.clientService.findClientById(clientId),
@@ -111,39 +114,69 @@ export class OffloadService {
       number,
       Record<number, Subbatch> | {}
     > = {}
-    const docId = Date.now()
-    const newOffloadData = []
-    const storageSubtractionData = []
-    const today = String(
+    const priceIdBase: number = Date.now()
+    const newOffloadRecordData: Array<{
+      batch: Partial<Batch>
+      boxQuantity: number
+      category: Partial<Category>
+      cuttingDate: Date
+      priceId: number
+      pricePerBox: number
+      storeContainer: Partial<StoreContainer>
+      wave: Partial<Wave>
+      weight: number
+      variety: Partial<Variety>
+    }> = []
+    const storageSubtractionData: Array<{
+      date: Date
+      amount: number
+      waveId: number
+      varietyId: number
+      categoryId: number
+    }> = []
+    const today: string = String(
       formatDateToDateTime({
         value: new Date(Date.now()),
       }),
     )
+    let priceTotal: number = 0
+    const {
+      offloadRecords,
+      paidMoney,
+      delContainer1_7In,
+      delContainer1_7Out,
+      delContainer0_5In,
+      delContainer0_5Out,
+      delContainer0_4In,
+      delContainer0_4Out,
+      delContainerSchoellerIn,
+      delContainerSchoellerOut,
+    } = data
 
     if (!client || !driver) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    data.forEach((offloadPriceGroup) => {
-      let commonPrice = 0
+    offloadRecords.forEach((offloadRecordPriceGroup) => {
+      let commonPricePerBox = 0
 
-      offloadPriceGroup.forEach((offload, index) => {
+      offloadRecordPriceGroup.forEach((record, index) => {
         const {
-          storeContainerId,
           batchId,
+          boxQuantity,
           categoryId,
+          cuttingDate,
+          pricePerBox,
+          storeContainerId,
           waveId,
           varietyId,
-          price,
-          cuttingDate,
-          amount,
-        } = offload
+        } = record
 
         if (!index) {
-          commonPrice = price
+          commonPricePerBox = pricePerBox
         }
 
-        if (index && price !== commonPrice) {
+        if (index && pricePerBox !== commonPricePerBox) {
           throw new HttpException(CError.WRONG_PRICE, HttpStatus.BAD_REQUEST)
         }
 
@@ -170,7 +203,7 @@ export class OffloadService {
 
         storageSubtractionData.push({
           date: cuttingDate,
-          amount,
+          amount: boxQuantity,
           waveId,
           varietyId,
           categoryId,
@@ -284,21 +317,21 @@ export class OffloadService {
       }),
     )
 
-    data.forEach((offloadPriceGroup, index) => {
-      const priceId = parseInt(`${docId}${index}`)
+    offloadRecords.forEach((offloadRecordPriceGroup, index) => {
+      const priceId = parseInt(`${priceIdBase}${index}`)
 
-      offloadPriceGroup.forEach((offload) => {
+      offloadRecordPriceGroup.forEach((record) => {
         const {
-          storeContainerId,
           batchId,
+          boxQuantity,
           categoryId,
-          waveId,
-          varietyId,
           cuttingDate,
-          amount,
-          price,
+          pricePerBox,
+          storeContainerId,
+          waveId,
           weight,
-        } = offload
+          varietyId,
+        } = record
 
         if ((byIdWaves?.[waveId]?.['batch']?.id as number) !== batchId) {
           throw new HttpException(CError.WRONG_WAVE_ID, HttpStatus.BAD_REQUEST)
@@ -311,58 +344,102 @@ export class OffloadService {
           )
         }
 
-        newOffloadData.push({
-          storeContainer: byIdStoreContainers[storeContainerId],
-          batch: byIdBatches[batchId],
-          category: byIdCategories[categoryId],
-          wave: byIdWaves[waveId],
-          variety: byIdVarieties[varietyId],
+        priceTotal += pricePerBox * boxQuantity
+        newOffloadRecordData.push({
+          batch: { id: batchId },
+          boxQuantity,
+          category: { id: categoryId },
           cuttingDate,
-          amount,
-          price,
-          docId,
           priceId,
-          author: user,
-          client,
-          driver,
+          pricePerBox,
+          storeContainer: { id: storeContainerId },
+          wave: { id: waveId },
           weight,
+          variety: { id: varietyId },
         })
       })
     })
 
-    const newOffloads: Offload[] = await Promise.all(
-      newOffloadData.map((offload: Offload) =>
-        this.offloadRepository.create(offload),
+    const {
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    } = client
+    const newMoneyDebt = moneyDebt + priceTotal - paidMoney
+    const delContainer1_7NewDebt =
+      delContainer1_7Debt + delContainer1_7Out - delContainer1_7In
+    const delContainer0_5NewDebt =
+      delContainer0_5Debt + delContainer0_5Out - delContainer0_5In
+    const delContainer0_4NewDebt =
+      delContainer0_4Debt + delContainer0_4Out - delContainer0_4In
+    const delContainerSchoellerNewDebt =
+      delContainerSchoellerDebt +
+      delContainerSchoellerOut -
+      delContainerSchoellerIn
+
+    const newOffload: Offload = await this.offloadRepository.create({
+      author: user,
+      client,
+      driver,
+      previousMoneyDebt: moneyDebt,
+      priceTotal,
+      paidMoney,
+      newMoneyDebt: newMoneyDebt,
+      delContainer1_7PreviousDebt: delContainer1_7Debt,
+      delContainer1_7In,
+      delContainer1_7Out,
+      delContainer1_7NewDebt,
+      delContainer0_5PreviousDebt: delContainer0_5Debt,
+      delContainer0_5In,
+      delContainer0_5Out,
+      delContainer0_5NewDebt,
+      delContainer0_4PreviousDebt: delContainer0_4Debt,
+      delContainer0_4In,
+      delContainer0_4Out,
+      delContainer0_4NewDebt,
+      delContainerSchoellerPreviousDebt: delContainerSchoellerDebt,
+      delContainerSchoellerIn,
+      delContainerSchoellerOut,
+      delContainerSchoellerNewDebt,
+    })
+
+    const savedNewOffload = await this.offloadRepository.save(newOffload)
+
+    await this.clientService.updateClientDebt({
+      id: clientId,
+      moneyDebt: newMoneyDebt,
+      delContainer1_7Debt: delContainer1_7NewDebt,
+      delContainer0_5Debt: delContainer0_5NewDebt,
+      delContainer0_4Debt: delContainer0_4NewDebt,
+      delContainerSchoellerDebt: delContainerSchoellerNewDebt,
+    })
+
+    await Promise.all(
+      newOffloadRecordData.map((record) =>
+        this.offloadRecordService.createOffloadRecord({
+          ...record,
+          offload: { id: savedNewOffload.id },
+        }),
       ),
     )
 
-    const savedNewOffloads: Offload[] = await Promise.all(
-      newOffloads.map((offload) => this.offloadRepository.save(offload)),
-    )
+    const foundTodayOffloadRecords: OffloadRecord[] =
+      await this.offloadRecordService.findAllByDate(today)
 
-    const foundTodayOffloads = await this.offloadRepository
-      .createQueryBuilder('offload')
-      .select()
-      .leftJoinAndSelect('offload.category', 'category')
-      .leftJoinAndSelect('offload.variety', 'variety')
-      .leftJoinAndSelect('offload.wave', 'wave')
-      .leftJoinAndSelect('offload.storeContainer', 'storeContainer')
-      .where('offload.createdAt like :date', { date: `${today}%` })
-      .getMany()
-
-    const yieldUpdatingdOffloads = foundTodayOffloads.filter(
-      ({ category, wave, variety }) => {
+    const yieldUpdatingdOffloadRecords: OffloadRecord[] =
+      foundTodayOffloadRecords.filter(({ category, wave, variety }) => {
         return (
           byIdCategories[category.id] &&
           byIdWaves[wave.id] &&
           byIdVarieties[variety.id]
         )
-      },
-    )
+      })
 
     await this.yieldService.createYields({
       date: today,
-      offloads: yieldUpdatingdOffloads,
+      offloadRecords: yieldUpdatingdOffloadRecords,
       byIdWaves: byIdWaves as Record<number, Wave>,
       byBatchIdCategoryIdSubbatches,
       byIdStoreContainers: byIdStoreContainers as Record<
@@ -371,7 +448,7 @@ export class OffloadService {
       >,
     })
 
-    return savedNewOffloads
+    return savedNewOffload
   }
 
   async removeOffload(id: number): Promise<Boolean> {

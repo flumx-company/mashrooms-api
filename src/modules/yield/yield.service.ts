@@ -7,7 +7,7 @@ import { Batch } from '@mush/modules/batch/batch.entity'
 import { BatchService } from '@mush/modules/batch/batch.service'
 import { Category } from '@mush/modules/category/category.entity'
 import { CategoryService } from '@mush/modules/category/category.service'
-import { Offload } from '@mush/modules/offload/offload.entity'
+import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
 import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
 import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
@@ -225,49 +225,50 @@ export class YieldService {
   }
 
   async createYields({
-    offloads,
+    offloadRecords,
     byIdWaves,
     date,
     byBatchIdCategoryIdSubbatches,
     byIdStoreContainers,
   }: {
-    offloads: Offload[]
+    offloadRecords: OffloadRecord[]
     byIdWaves: Record<number, Wave>
     byBatchIdCategoryIdSubbatches: Record<number, Record<number, Subbatch>>
     byIdStoreContainers: Record<number, StoreContainer>
     date: string
   }) {
-    const sortedOffloads = {}
+    const sortedOffloadRecords = {}
     const yieldData = []
 
-    offloads.forEach((offload) => {
-      const categoryId = offload.category.id
-      const waveId = offload.wave.id
-      const varietyId = offload.variety.id
-      const offloadId = offload.id
+    offloadRecords.forEach((offloadRecord) => {
+      const categoryId = offloadRecord.category.id
+      const waveId = offloadRecord.wave.id
+      const varietyId = offloadRecord.variety.id
+      const offloadId = offloadRecord.id
 
-      if (!sortedOffloads[categoryId]) {
-        sortedOffloads[categoryId] = {}
+      if (!sortedOffloadRecords[categoryId]) {
+        sortedOffloadRecords[categoryId] = {}
       }
 
-      if (!sortedOffloads[categoryId]?.[waveId]) {
-        sortedOffloads[categoryId][waveId] = {}
+      if (!sortedOffloadRecords[categoryId]?.[waveId]) {
+        sortedOffloadRecords[categoryId][waveId] = {}
       }
 
-      if (!sortedOffloads[categoryId]?.[waveId]?.[varietyId]) {
-        sortedOffloads[categoryId][waveId][varietyId] = {}
+      if (!sortedOffloadRecords[categoryId]?.[waveId]?.[varietyId]) {
+        sortedOffloadRecords[categoryId][waveId][varietyId] = {}
       }
 
-      sortedOffloads[categoryId][waveId][varietyId][offloadId] = offload
+      sortedOffloadRecords[categoryId][waveId][varietyId][offloadId] =
+        offloadRecord
     })
 
-    Object.keys(sortedOffloads).forEach((categoryId) => {
-      return Object.keys(sortedOffloads[categoryId]).forEach((waveId) => {
+    Object.keys(sortedOffloadRecords).forEach((categoryId) => {
+      return Object.keys(sortedOffloadRecords[categoryId]).forEach((waveId) => {
         const batchId = byIdWaves[waveId].batch.id
         const compostWeight =
           byBatchIdCategoryIdSubbatches[batchId][categoryId].compostWeight
 
-        return Object.keys(sortedOffloads[categoryId][waveId]).forEach(
+        return Object.keys(sortedOffloadRecords[categoryId][waveId]).forEach(
           (varietyId) => {
             const yieldItem: {
               date: string
@@ -289,33 +290,33 @@ export class YieldService {
               percent: 0,
             }
 
-            Object.keys(sortedOffloads[categoryId][waveId][varietyId]).forEach(
-              (offloadId) => {
-                const {
-                  weight,
-                  amount,
-                  storeContainer,
-                }: {
-                  weight: number
-                  amount: number
-                  storeContainer: StoreContainer
-                } = sortedOffloads[categoryId][waveId][varietyId][offloadId]
-                const multipleBoxWeight: number = amount * boxWeight
-                const containerWeight: number =
-                  byIdStoreContainers[storeContainer.id].weight
-                const netWeight: number =
-                  weight - multipleBoxWeight - containerWeight
-                const percent: number = netWeight / compostWeight
+            Object.keys(
+              sortedOffloadRecords[categoryId][waveId][varietyId],
+            ).forEach((offloadId) => {
+              const {
+                weight,
+                boxQuantity,
+                storeContainer,
+              }: {
+                weight: number
+                boxQuantity: number
+                storeContainer: StoreContainer
+              } = sortedOffloadRecords[categoryId][waveId][varietyId][offloadId]
+              const multipleBoxWeight: number = boxQuantity * boxWeight
+              const containerWeight: number =
+                byIdStoreContainers[storeContainer.id].weight
+              const netWeight: number =
+                weight - multipleBoxWeight - containerWeight
+              const percent: number = netWeight / compostWeight
 
-                yieldItem.weight = Number.parseFloat(
-                  (yieldItem.weight + netWeight).toFixed(3),
-                )
-                yieldItem.boxQuantity = yieldItem.boxQuantity + amount
-                yieldItem.percent = Number.parseFloat(
-                  (yieldItem.percent + percent).toFixed(5),
-                )
-              },
-            )
+              yieldItem.weight = Number.parseFloat(
+                (yieldItem.weight + netWeight).toFixed(3),
+              )
+              yieldItem.boxQuantity = yieldItem.boxQuantity + boxQuantity
+              yieldItem.percent = Number.parseFloat(
+                (yieldItem.percent + percent).toFixed(5),
+              )
+            })
 
             yieldData.push(yieldItem)
           },

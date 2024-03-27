@@ -26,7 +26,13 @@ export class VarietyService {
     return this.varietyRepository.findOneBy({ name })
   }
 
-  async createVariety({ name }: { name: string }): Promise<Variety> {
+  async createVariety({
+    name,
+    isCutterPaid,
+  }: {
+    name: string
+    isCutterPaid: boolean
+  }): Promise<Variety> {
     const foundVarietyByName = await this.findVarietyByName(name)
 
     if (foundVarietyByName) {
@@ -38,6 +44,7 @@ export class VarietyService {
 
     const newVariety: Variety = await this.varietyRepository.create({
       name,
+      isCutterPaid,
     })
 
     return this.varietyRepository.save(newVariety)
@@ -47,8 +54,10 @@ export class VarietyService {
     id: number,
     {
       name,
+      isCutterPaid,
     }: {
       name: string
+      isCutterPaid: boolean
     },
   ): Promise<Variety> {
     const [foundVarietyById, foundVarietyByName]: Nullable<Variety>[] =
@@ -71,6 +80,7 @@ export class VarietyService {
     const updatedVariety: Variety = await this.varietyRepository.create({
       ...foundVarietyById,
       name,
+      isCutterPaid,
     })
 
     return this.varietyRepository.save(updatedVariety)

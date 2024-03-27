@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 import { Batch } from '@mush/modules/batch/batch.entity'
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
-import { Offload } from '@mush/modules/offload/offload.entity'
+import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
 import { Storage } from '@mush/modules/storage/storage.entity'
 import { Yield } from '@mush/modules/yield/yield.entity'
 
@@ -61,8 +61,8 @@ export class Wave extends DatedBasicEntity {
   @OneToMany(() => Storage, (storage) => storage.wave)
   storages: Storage[]
 
-  @OneToMany(() => Offload, (offload) => offload.wave)
-  offloads: Offload[]
+  @OneToMany(() => OffloadRecord, (offloadRecord) => offloadRecord.wave)
+  offloadRecords: OffloadRecord[]
 
   @OneToMany(() => Yield, (yieldItem) => yieldItem.category)
   yields: Yield[]

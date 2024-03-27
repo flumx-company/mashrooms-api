@@ -13,7 +13,7 @@ import { Wave } from '../wave/wave.entity'
 
 @Entity({ name: 'cuttings' })
 export class Cutting extends DatedBasicEntity {
-  @ApiProperty({ example: 3, description: 'Maximum wave quantity' })
+  @ApiProperty({ example: 5, description: 'Box quantity' })
   @Column({ type: 'decimal', precision: 0, scale: 0, default: 0 })
   boxQuantity: number
 

@@ -1,96 +1,138 @@
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsNumber,
-  Matches,
-  Min,
-} from 'class-validator'
+import { IsArray, IsNotEmpty, IsNumber, Max, Min } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { YYYY_MM_DD_REGEX } from '@mush/core/utils'
+import { CreateOffloadRecordDto } from '@mush/modules/offload-record/dto/create.offload.record.dto'
 
 export class CreateOffloadDto {
   @IsNumber()
   @IsNotEmpty()
-  @ApiProperty({
-    example: 5,
-    description: 'Enter batchId.',
-    type: Number,
-  })
-  readonly batchId: number
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: 5,
-    description: 'Enter waveId.',
-    type: Number,
-  })
-  readonly waveId: number
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: 5,
-    description: 'Enter varietyId.',
-    type: Number,
-  })
-  readonly varietyId: number
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: 5,
-    description: 'Enter categoryId.',
-    type: Number,
-  })
-  readonly categoryId: number
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: 5,
-    description: 'Enter storeContainerId.',
-    type: Number,
-  })
-  readonly storeContainerId: number
-
-  @IsDateString()
-  @IsNotEmpty()
-  @Matches(YYYY_MM_DD_REGEX)
-  @ApiProperty({
-    example: '2024-01-25',
-    description: 'Enter the cutting date.',
-    type: String,
-  })
-  readonly cuttingDate: string
-
-  @IsNumber()
-  @IsNotEmpty()
-  @Min(1)
-  @ApiProperty({
-    example: 20,
-    description: 'Enter box amount.',
-    type: Number,
-  })
-  readonly amount: number
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: 20,
-    description: 'Enter weight in kg.',
-    type: Number,
-  })
-  readonly weight: number
-
-  @IsNumber()
-  @IsNotEmpty()
+  @Min(-99999999)
+  @Max(99999999)
   @ApiProperty({
     example: 250,
-    description: 'Enter price per kg in hryvna.',
+    description: 'Enter the money paid in hryvna.',
     type: Number,
   })
-  readonly price: number
+  readonly paidMoney: number
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 250,
+    description:
+      'Enter the amount of the delivery containers by 1.7 kg, provided by the client.',
+    type: Number,
+  })
+  readonly delContainer1_7In
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 250,
+    description:
+      'Enter amount of the delivery containers by 1.7 kg, taken by the client.',
+    type: Number,
+  })
+  readonly delContainer1_7Out
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 250,
+    description:
+      'Enter the amount of the delivery containers by 0.5 kg, provided by the client.',
+    type: Number,
+  })
+  readonly delContainer0_5In
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 250,
+    description:
+      'Enter the amount of the delivery containers by 0.5 kg, taken by the client.',
+    type: Number,
+  })
+  readonly delContainer0_5Out
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 250,
+    description:
+      'Enter the amount of the delivery containers by 0.4 kg, provided by the client.',
+    type: Number,
+  })
+  readonly delContainer0_4In
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 250,
+    description:
+      'Enter the amount of the delivery containers by 0.4 kg, taken by the client.',
+    type: Number,
+  })
+  readonly delContainer0_4Out
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 250,
+    description:
+      'Enter the amount of the Schoeller delivery containers, provided by the client.',
+    type: Number,
+  })
+  readonly delContainerSchoellerIn
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 250,
+    description:
+      'Enter the amount of the Schoeller delivery containers, taken by the client.',
+    type: Number,
+  })
+  readonly delContainerSchoellerOut
+
+  @IsArray()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: [
+      [
+        {
+          batchId: 1,
+          waveId: 1,
+          varietyId: 1,
+          categoryId: 1,
+          storeContainerId: 1,
+          cuttingDate: '2024-03-27',
+          boxQuantity: 2,
+          weight: 5,
+          pricePerBox: 12,
+        },
+      ],
+    ],
+    description:
+      'Enter the array of arrays. Each of inner arrays is a group of offload records, which have same pricePerBox.',
+    type: Array<Array<CreateOffloadRecordDto>>,
+  })
+  readonly offloadRecords
 }

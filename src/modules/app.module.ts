@@ -25,6 +25,8 @@ import { EmployeeModule } from '@mush/modules/employee/employee.module'
 import { FileUploadModule } from '@mush/modules/file-upload/file-upload.module'
 import { PublicFile } from '@mush/modules/file-upload/public-file.entity'
 import { HealthcheckModule } from '@mush/modules/healthcheck/healthcheck.module'
+import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
+import { OffloadRecordModule } from '@mush/modules/offload-record/offload-record.module'
 import { Offload } from '@mush/modules/offload/offload.entity'
 import { OffloadModule } from '@mush/modules/offload/offload.module'
 import { Price } from '@mush/modules/price/price.entity'
@@ -72,6 +74,7 @@ import { AppService } from './app.service'
         Employee,
         User,
         Offload,
+        OffloadRecord,
         Price,
         PublicFile,
         Shift,
@@ -96,6 +99,7 @@ import { AppService } from './app.service'
     DriverModule,
     EmployeeModule,
     OffloadModule,
+    OffloadRecordModule,
     PriceModule,
     ProductModule,
     YieldModule,

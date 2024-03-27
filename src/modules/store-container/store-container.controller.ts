@@ -44,7 +44,7 @@ export class StoreContainerController {
     summary:
       'Get list of all store containers. Role: SUPERADMIN, ADMIN. Permission: READ_STORE_CONTAINERS.',
   })
-  async getAllVarieties(): Promise<StoreContainer[]> {
+  async getAllContainers(): Promise<StoreContainer[]> {
     return this.storeContainerService.findAll()
   }
 
@@ -66,7 +66,7 @@ export class StoreContainerController {
     description: 'Will return the store container data.',
     type: StoreContainer,
   })
-  async createCategory(
+  async createContainer(
     @Body() data: UpdateStoreContainerDto,
   ): Promise<StoreContainer> {
     return this.storeContainerService.createStoreContainer(data)
@@ -95,7 +95,7 @@ export class StoreContainerController {
     description: 'Will return the store container data.',
     type: StoreContainer,
   })
-  async updateVariety(
+  async updateContainer(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateStoreContainerDto,
   ): Promise<StoreContainer> {
@@ -121,7 +121,9 @@ export class StoreContainerController {
     description: 'Will return boolean result.',
     type: Boolean,
   })
-  async removeVariety(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
+  async removeContainer(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Boolean> {
     return this.storeContainerService.removeStoreContainer(id)
   }
 }

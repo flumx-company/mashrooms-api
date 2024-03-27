@@ -52,4 +52,6 @@ export const CError = {
   WRONG_BOX_AMOUNT: `${EError.WRONG_BOX_AMOUNT}: The offload box amount exceeds the correspondent storage box amount.`,
   WRONG_WAVE_ID: `${EError.WRONG_WAVE_ID}: The provided wave id is not related to the provided batch id.`,
   WRONG_CATEGORY_ID: `${EError.WRONG_CATEGORY_ID}: The batch with the provided batch id has no subbatch related to the category with the provided category id.`,
+  //NOTE cutting error
+  BOX_QUANTITY_EXCEEDS_LIMIT: `${EError.BOX_QUANTITY_EXCEEDS_LIMIT}: The box quantity must be integer, minimum 1, maximum 99999.`,
 }

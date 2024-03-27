@@ -43,7 +43,18 @@ export class ClientService {
   }
 
   async createClient(
-    { firstName, lastName, patronymic, nickname, phone }: CreateClientDto,
+    {
+      firstName,
+      lastName,
+      patronymic,
+      nickname,
+      phone,
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    }: CreateClientDto,
     files: BufferedFile[],
   ): Promise<Client> {
     const foundClientByPhone = await this.findClientByPhone(phone)
@@ -66,6 +77,11 @@ export class ClientService {
       patronymic,
       nickname,
       phone,
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
       files: fileListData || [],
     })
 
@@ -74,7 +90,18 @@ export class ClientService {
 
   async updateClient(
     id: number,
-    { firstName, lastName, patronymic, nickname, phone }: UpdateClientDto,
+    {
+      firstName,
+      lastName,
+      patronymic,
+      nickname,
+      phone,
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    }: UpdateClientDto,
   ): Promise<Client> {
     const [foundClientById, foundClientByPhone]: Nullable<Client>[] =
       await Promise.all([
@@ -100,6 +127,44 @@ export class ClientService {
       patronymic,
       nickname,
       phone,
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    })
+
+    return this.clientRepository.save(updatedClient)
+  }
+
+  async updateClientDebt({
+    id,
+    moneyDebt,
+    delContainer1_7Debt,
+    delContainer0_5Debt,
+    delContainer0_4Debt,
+    delContainerSchoellerDebt,
+  }: {
+    id: number
+    moneyDebt: number
+    delContainer1_7Debt: number
+    delContainer0_5Debt: number
+    delContainer0_4Debt: number
+    delContainerSchoellerDebt: number
+  }) {
+    const foundClientById: Client = await this.findClientById(id)
+
+    if (!foundClientById) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const updatedClient: Client = this.clientRepository.create({
+      ...foundClientById,
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
     })
 
     return this.clientRepository.save(updatedClient)
