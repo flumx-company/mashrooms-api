@@ -126,12 +126,12 @@ export class CreateOffloadDto {
           cuttingDate: '2024-03-27',
           boxQuantity: 2,
           weight: 5,
-          pricePerBox: 12,
+          pricePerKg: 12,
         },
       ],
     ],
     description:
-      'Enter the array of arrays. Each of inner arrays is a group of offload records, which have same pricePerBox.',
+      'Enter the array of arrays. Each of inner arrays is a group of offload records, which have same pricePerKg.',
     type: Array<Array<CreateOffloadRecordDto>>,
   })
   readonly offloadRecords

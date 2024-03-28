@@ -60,10 +60,10 @@ export class OffloadRecord extends DatedBasicEntity {
 
   @ApiProperty({
     example: 200,
-    description: 'Price per box in hryvna',
+    description: 'Price per kg.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  pricePerBox: number
+  pricePerKg: number
 
   @ManyToOne(() => Offload, (offload) => offload.offloadRecords, {
     onDelete: 'CASCADE',
@@ -95,10 +95,25 @@ export class OffloadRecord extends DatedBasicEntity {
 
   @ApiProperty({
     example: true,
-    description: 'Weight in kg.',
+    description: 'Brutto weight in kg.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   weight: number
+
+  @ApiProperty({
+    example: 200,
+    description:
+      'Mushroom weight without box weight and store container weight',
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  netWeight: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'Mushroom weight after shrinkage, which is minus 1%',
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  shrinkedNetWeight: number
 
   @ManyToOne(() => Variety, (variety) => variety.offloadRecords, {
     onDelete: 'CASCADE',

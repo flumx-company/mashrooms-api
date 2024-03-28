@@ -57,10 +57,10 @@ export class CreateOffloadRecordDto {
   @Max(99999999)
   @ApiProperty({
     example: 250,
-    description: 'Enter price per kg in hryvna.',
+    description: 'Enter price per kg.',
     type: Number,
   })
-  readonly pricePerBox: number
+  readonly pricePerKg: number
 
   @IsNumber()
   @IsNotEmpty()

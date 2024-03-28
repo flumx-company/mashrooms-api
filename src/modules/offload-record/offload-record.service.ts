@@ -48,11 +48,13 @@ export class OffloadRecordService {
     cuttingDate,
     offload,
     priceId,
-    pricePerBox,
+    pricePerKg,
     storeContainer,
     wave,
     weight,
     variety,
+    netWeight,
+    shrinkedNetWeight,
   }: {
     batch: Partial<Batch>
     boxQuantity: number
@@ -60,11 +62,13 @@ export class OffloadRecordService {
     cuttingDate: Date
     offload: Partial<Offload>
     priceId: number
-    pricePerBox: number
+    pricePerKg: number
     storeContainer: Partial<StoreContainer>
     wave: Partial<Wave>
     weight: number
     variety: Partial<Variety>
+    netWeight: number
+    shrinkedNetWeight: number
   }): Promise<OffloadRecord> {
     const newOffloadRecord: OffloadRecord = this.offloadRecordRepository.create(
       {
@@ -74,11 +78,13 @@ export class OffloadRecordService {
         cuttingDate,
         offload,
         priceId,
-        pricePerBox,
+        pricePerKg,
         storeContainer,
         wave,
         weight,
         variety,
+        netWeight,
+        shrinkedNetWeight,
       },
     )
 

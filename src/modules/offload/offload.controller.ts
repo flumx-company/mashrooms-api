@@ -138,9 +138,9 @@ export class OffloadController {
               "categoryId": 1,
               "storeContainerId": 1,
               "cuttingDate": "2024-03-20", 
-              "amount": 200, 
-              "weight": 500, 
-              "price": 1200 
+              "boxQuantity": 2, 
+              "weight": 50, 
+              "pricePerKg": 12 
             }
           ]
         ]

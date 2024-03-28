@@ -17,8 +17,6 @@ import { CError, Nullable } from '@mush/core/utils'
 
 import { Yield } from './yield.entity'
 
-const boxWeight = 0.4
-
 @Injectable()
 export class YieldService {
   constructor(
@@ -229,12 +227,10 @@ export class YieldService {
     byIdWaves,
     date,
     byBatchIdCategoryIdSubbatches,
-    byIdStoreContainers,
   }: {
     offloadRecords: OffloadRecord[]
     byIdWaves: Record<number, Wave>
     byBatchIdCategoryIdSubbatches: Record<number, Record<number, Subbatch>>
-    byIdStoreContainers: Record<number, StoreContainer>
     date: string
   }) {
     const sortedOffloadRecords = {}
@@ -294,19 +290,12 @@ export class YieldService {
               sortedOffloadRecords[categoryId][waveId][varietyId],
             ).forEach((offloadId) => {
               const {
-                weight,
+                netWeight,
                 boxQuantity,
-                storeContainer,
               }: {
-                weight: number
+                netWeight: number
                 boxQuantity: number
-                storeContainer: StoreContainer
               } = sortedOffloadRecords[categoryId][waveId][varietyId][offloadId]
-              const multipleBoxWeight: number = boxQuantity * boxWeight
-              const containerWeight: number =
-                byIdStoreContainers[storeContainer.id].weight
-              const netWeight: number =
-                weight - multipleBoxWeight - containerWeight
               const percent: number = netWeight / compostWeight
 
               yieldItem.weight = Number.parseFloat(
@@ -339,8 +328,7 @@ export class YieldService {
     const newYields = await Promise.all(
       yieldData.map((yieldDataItem, index) => {
         const previousData: Yield = foundYields[index]
-        let weight: number =
-          yieldDataItem.weight + (previousData ? previousData.weight : 0)
+        let weight: number = yieldDataItem.weight
         let boxQuantity: number = yieldDataItem.boxQuantity
         let percent: number = yieldDataItem.percent
 

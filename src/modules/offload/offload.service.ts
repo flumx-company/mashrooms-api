@@ -32,6 +32,8 @@ import { CreateOffloadDto } from './dto'
 import { Offload } from './offload.entity'
 import { offloadPaginationConfig } from './pagination/index'
 
+const boxWeight = 0.4
+
 @Injectable()
 export class OffloadService {
   constructor(
@@ -121,10 +123,12 @@ export class OffloadService {
       category: Partial<Category>
       cuttingDate: Date
       priceId: number
-      pricePerBox: number
+      pricePerKg: number
       storeContainer: Partial<StoreContainer>
       wave: Partial<Wave>
       weight: number
+      netWeight: number
+      shrinkedNetWeight: number
       variety: Partial<Variety>
     }> = []
     const storageSubtractionData: Array<{
@@ -158,7 +162,7 @@ export class OffloadService {
     }
 
     offloadRecords.forEach((offloadRecordPriceGroup) => {
-      let commonPricePerBox = 0
+      let commonPricePerKg = 0
 
       offloadRecordPriceGroup.forEach((record, index) => {
         const {
@@ -166,18 +170,31 @@ export class OffloadService {
           boxQuantity,
           categoryId,
           cuttingDate,
-          pricePerBox,
+          pricePerKg,
           storeContainerId,
           waveId,
           varietyId,
         } = record
 
         if (!index) {
-          commonPricePerBox = pricePerBox
+          commonPricePerKg = pricePerKg
         }
 
-        if (index && pricePerBox !== commonPricePerBox) {
+        if (index && pricePerKg !== commonPricePerKg) {
           throw new HttpException(CError.WRONG_PRICE, HttpStatus.BAD_REQUEST)
+        }
+
+        if (
+          !batchId ||
+          !boxQuantity ||
+          !categoryId ||
+          !cuttingDate ||
+          !pricePerKg ||
+          !storeContainerId ||
+          !waveId ||
+          !varietyId
+        ) {
+          throw new HttpException(CError.MISSING_OFFLOAD_RECORD_DATA, HttpStatus.BAD_REQUEST)
         }
 
         if (!byIdBatches[batchId]) {
@@ -326,7 +343,7 @@ export class OffloadService {
           boxQuantity,
           categoryId,
           cuttingDate,
-          pricePerBox,
+          pricePerKg,
           storeContainerId,
           waveId,
           weight,
@@ -344,18 +361,27 @@ export class OffloadService {
           )
         }
 
-        priceTotal += pricePerBox * boxQuantity
+        const allBoxWeight = boxQuantity * boxWeight
+        const storeContainerWeight =
+          byIdStoreContainers[storeContainerId]['weight']
+        const netWeight = weight - allBoxWeight - storeContainerWeight
+        const shrinkedNetWeight = netWeight * 0.99
+
+        priceTotal += pricePerKg * shrinkedNetWeight
+
         newOffloadRecordData.push({
           batch: { id: batchId },
           boxQuantity,
           category: { id: categoryId },
           cuttingDate,
           priceId,
-          pricePerBox,
+          pricePerKg,
           storeContainer: { id: storeContainerId },
           wave: { id: waveId },
           weight,
           variety: { id: varietyId },
+          netWeight,
+          shrinkedNetWeight,
         })
       })
     })
@@ -416,7 +442,7 @@ export class OffloadService {
       delContainerSchoellerDebt: delContainerSchoellerNewDebt,
     })
 
-    await Promise.all(
+    const newOffloadRecords = await Promise.all(
       newOffloadRecordData.map((record) =>
         this.offloadRecordService.createOffloadRecord({
           ...record,
@@ -425,27 +451,12 @@ export class OffloadService {
       ),
     )
 
-    const foundTodayOffloadRecords: OffloadRecord[] =
-      await this.offloadRecordService.findAllByDate(today)
-
-    const yieldUpdatingdOffloadRecords: OffloadRecord[] =
-      foundTodayOffloadRecords.filter(({ category, wave, variety }) => {
-        return (
-          byIdCategories[category.id] &&
-          byIdWaves[wave.id] &&
-          byIdVarieties[variety.id]
-        )
-      })
 
     await this.yieldService.createYields({
       date: today,
-      offloadRecords: yieldUpdatingdOffloadRecords,
+      offloadRecords: newOffloadRecords,
       byIdWaves: byIdWaves as Record<number, Wave>,
       byBatchIdCategoryIdSubbatches,
-      byIdStoreContainers: byIdStoreContainers as Record<
-        number,
-        StoreContainer
-      >,
     })
 
     return savedNewOffload
