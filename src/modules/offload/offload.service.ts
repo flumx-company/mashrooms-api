@@ -13,20 +13,26 @@ import { ClientService } from '@mush/modules/client/client.service'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { DriverService } from '@mush/modules/driver/driver.service'
+import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
+import { OffloadRecordService } from '@mush/modules/offload-record/offload-record.service'
 import { Storage } from '@mush/modules/storage/storage.entity'
 import { StorageService } from '@mush/modules/storage/storage.service'
 import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
 import { StoreContainerService } from '@mush/modules/store-container/store-container.service'
+import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Variety } from '@mush/modules/variety/variety.entity'
 import { VarietyService } from '@mush/modules/variety/variety.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
+import { YieldService } from '@mush/modules/yield/yield.service'
 
-import { CError, Nullable } from '@mush/core/utils'
+import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 
 import { CreateOffloadDto } from './dto'
 import { Offload } from './offload.entity'
 import { offloadPaginationConfig } from './pagination/index'
+
+const boxWeight = 0.4
 
 @Injectable()
 export class OffloadService {
@@ -41,6 +47,8 @@ export class OffloadService {
     private readonly categoryService: CategoryService,
     private readonly varietyService: VarietyService,
     private readonly storageService: StorageService,
+    private readonly yieldService: YieldService,
+    private readonly offloadRecordService: OffloadRecordService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Offload>> {
@@ -92,72 +100,127 @@ export class OffloadService {
     clientId: number
     driverId: number
     user: User
-    data: CreateOffloadDto[][]
-  }): Promise<Offload[]> {
+    data: CreateOffloadDto
+  }): Promise<Offload> {
     const [client, driver]: [Nullable<Client>, Nullable<Driver>] =
       await Promise.all([
         this.clientService.findClientById(clientId),
         this.driverService.findDriverById(driverId),
       ])
-    const byIdCategories = {}
-    const byIdBatches = {}
-    const byIdStoreContainers = {}
-    const byIdWaves = {}
-    const byIdVarieties = {}
-    const docId = Date.now()
-    const newOffloadData = []
-    const storageSubtractionData = []
+    const byIdCategories: Record<number, Category | {}> = {}
+    const byIdBatches: Record<number, Batch | {}> = {}
+    const byIdStoreContainers: Record<number, StoreContainer | {}> = {}
+    const byIdWaves: Record<number, Wave | {}> = {}
+    const byIdVarieties: Record<number, Variety | {}> = {}
+    const byBatchIdCategoryIdSubbatches: Record<
+      number,
+      Record<number, Subbatch> | {}
+    > = {}
+    const priceIdBase: number = Date.now()
+    const newOffloadRecordData: Array<{
+      batch: Partial<Batch>
+      boxQuantity: number
+      category: Partial<Category>
+      cuttingDate: Date
+      priceId: number
+      pricePerKg: number
+      storeContainer: Partial<StoreContainer>
+      wave: Partial<Wave>
+      weight: number
+      netWeight: number
+      shrinkedNetWeight: number
+      variety: Partial<Variety>
+    }> = []
+    const storageSubtractionData: Array<{
+      date: Date
+      amount: number
+      waveId: number
+      varietyId: number
+      categoryId: number
+    }> = []
+    const today: string = String(
+      formatDateToDateTime({
+        value: new Date(Date.now()),
+      }),
+    )
+    let priceTotal: number = 0
+    const {
+      offloadRecords,
+      paidMoney,
+      delContainer1_7In,
+      delContainer1_7Out,
+      delContainer0_5In,
+      delContainer0_5Out,
+      delContainer0_4In,
+      delContainer0_4Out,
+      delContainerSchoellerIn,
+      delContainerSchoellerOut,
+    } = data
 
     if (!client || !driver) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    data.forEach((offloadPriceGroup) => {
-      let commonPrice = 0
+    offloadRecords.forEach((offloadRecordPriceGroup) => {
+      let commonPricePerKg = 0
 
-      offloadPriceGroup.forEach((offload, index) => {
+      offloadRecordPriceGroup.forEach((record, index) => {
         const {
-          storeContainerId,
           batchId,
+          boxQuantity,
           categoryId,
+          cuttingDate,
+          pricePerKg,
+          storeContainerId,
           waveId,
           varietyId,
-          price,
-          cuttingDate,
-          amount,
-        } = offload
+        } = record
 
         if (!index) {
-          commonPrice = price
+          commonPricePerKg = pricePerKg
         }
 
-        if (index && price !== commonPrice) {
+        if (index && pricePerKg !== commonPricePerKg) {
           throw new HttpException(CError.WRONG_PRICE, HttpStatus.BAD_REQUEST)
         }
 
+        if (
+          !batchId ||
+          !boxQuantity ||
+          !categoryId ||
+          !cuttingDate ||
+          !pricePerKg ||
+          !storeContainerId ||
+          !waveId ||
+          !varietyId
+        ) {
+          throw new HttpException(CError.MISSING_OFFLOAD_RECORD_DATA, HttpStatus.BAD_REQUEST)
+        }
+
         if (!byIdBatches[batchId]) {
-          byIdBatches[batchId] = batchId
+          byIdBatches[batchId] = {}
+          byBatchIdCategoryIdSubbatches[batchId] = {}
         }
 
         if (!byIdWaves[waveId]) {
-          byIdWaves[waveId] = waveId
+          byIdWaves[waveId] = {}
         }
 
         if (!byIdCategories[categoryId]) {
-          byIdCategories[categoryId] = categoryId
+          byIdCategories[categoryId] = {}
         }
 
         if (!byIdVarieties[varietyId]) {
-          byIdVarieties[varietyId] = varietyId
+          byIdVarieties[varietyId] = {}
         }
 
         if (!byIdStoreContainers[storeContainerId]) {
-          byIdStoreContainers[storeContainerId] = storeContainerId
+          byIdStoreContainers[storeContainerId] = {}
         }
 
         storageSubtractionData.push({
           date: cuttingDate,
-          amount,
+          amount: boxQuantity,
           waveId,
           varietyId,
           categoryId,
@@ -208,17 +271,20 @@ export class OffloadService {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdCategories).forEach((id) => {
-        byIdCategories[id] = category
-      })
+      byIdCategories[category.id] = category as Category
     })
     foundBatches.forEach((batch) => {
       if (!batch) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdBatches).forEach((id) => {
-        byIdBatches[id] = batch
+      byIdBatches[batch.id] = batch as Batch
+      byBatchIdCategoryIdSubbatches[batch.id] = {}
+
+      batch.subbatches.forEach((subbatch) => {
+        const categoryId = subbatch.category.id
+        byBatchIdCategoryIdSubbatches[batch.id][categoryId] =
+          subbatch as Subbatch
       })
     })
     foundWaves.forEach((wave) => {
@@ -226,27 +292,22 @@ export class OffloadService {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdWaves).forEach((id) => {
-        byIdWaves[id] = wave
-      })
+      byIdWaves[wave.id] = wave as Wave
     })
     foundVarieties.forEach((variety) => {
       if (!variety) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdVarieties).forEach((id) => {
-        byIdVarieties[id] = variety
-      })
+      byIdVarieties[variety.id] = variety as Variety
     })
+
     foundStoreContainers.forEach((container) => {
       if (!container) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       }
 
-      Object.keys(byIdStoreContainers).forEach((id) => {
-        byIdStoreContainers[id] = container
-      })
+      byIdStoreContainers[container.id] = container as StoreContainer
     })
 
     foundStorages.forEach((storage, index) => {
@@ -273,50 +334,132 @@ export class OffloadService {
       }),
     )
 
-    data.forEach((offloadPriceGroup, index) => {
-      const priceId = parseInt(`${docId}${index}`)
+    offloadRecords.forEach((offloadRecordPriceGroup, index) => {
+      const priceId = parseInt(`${priceIdBase}${index}`)
 
-      offloadPriceGroup.forEach((offload) => {
+      offloadRecordPriceGroup.forEach((record) => {
         const {
-          storeContainerId,
           batchId,
+          boxQuantity,
           categoryId,
+          cuttingDate,
+          pricePerKg,
+          storeContainerId,
           waveId,
+          weight,
           varietyId,
-          cuttingDate,
-          amount,
-          price,
-          weight,
-        } = offload
+        } = record
 
-        newOffloadData.push({
-          storeContainer: byIdStoreContainers[storeContainerId],
-          batch: byIdBatches[batchId],
-          category: byIdCategories[categoryId],
-          wave: byIdWaves[waveId],
-          variety: byIdVarieties[varietyId],
+        if ((byIdWaves?.[waveId]?.['batch']?.id as number) !== batchId) {
+          throw new HttpException(CError.WRONG_WAVE_ID, HttpStatus.BAD_REQUEST)
+        }
+
+        if (!byBatchIdCategoryIdSubbatches[batchId][categoryId]) {
+          throw new HttpException(
+            CError.WRONG_CATEGORY_ID,
+            HttpStatus.BAD_REQUEST,
+          )
+        }
+
+        const allBoxWeight = boxQuantity * boxWeight
+        const storeContainerWeight =
+          byIdStoreContainers[storeContainerId]['weight']
+        const netWeight = weight - allBoxWeight - storeContainerWeight
+        const shrinkedNetWeight = netWeight * 0.99
+
+        priceTotal += pricePerKg * shrinkedNetWeight
+
+        newOffloadRecordData.push({
+          batch: { id: batchId },
+          boxQuantity,
+          category: { id: categoryId },
           cuttingDate,
-          amount,
-          price,
-          docId,
           priceId,
-          author: user,
-          client,
-          driver,
+          pricePerKg,
+          storeContainer: { id: storeContainerId },
+          wave: { id: waveId },
           weight,
+          variety: { id: varietyId },
+          netWeight,
+          shrinkedNetWeight,
         })
       })
     })
 
-    const newOffloads: Offload[] = await Promise.all(
-      newOffloadData.map((offload: Offload) =>
-        this.offloadRepository.create(offload),
+    const {
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    } = client
+    const newMoneyDebt = moneyDebt + priceTotal - paidMoney
+    const delContainer1_7NewDebt =
+      delContainer1_7Debt + delContainer1_7Out - delContainer1_7In
+    const delContainer0_5NewDebt =
+      delContainer0_5Debt + delContainer0_5Out - delContainer0_5In
+    const delContainer0_4NewDebt =
+      delContainer0_4Debt + delContainer0_4Out - delContainer0_4In
+    const delContainerSchoellerNewDebt =
+      delContainerSchoellerDebt +
+      delContainerSchoellerOut -
+      delContainerSchoellerIn
+
+    const newOffload: Offload = await this.offloadRepository.create({
+      author: user,
+      client,
+      driver,
+      previousMoneyDebt: moneyDebt,
+      priceTotal,
+      paidMoney,
+      newMoneyDebt: newMoneyDebt,
+      delContainer1_7PreviousDebt: delContainer1_7Debt,
+      delContainer1_7In,
+      delContainer1_7Out,
+      delContainer1_7NewDebt,
+      delContainer0_5PreviousDebt: delContainer0_5Debt,
+      delContainer0_5In,
+      delContainer0_5Out,
+      delContainer0_5NewDebt,
+      delContainer0_4PreviousDebt: delContainer0_4Debt,
+      delContainer0_4In,
+      delContainer0_4Out,
+      delContainer0_4NewDebt,
+      delContainerSchoellerPreviousDebt: delContainerSchoellerDebt,
+      delContainerSchoellerIn,
+      delContainerSchoellerOut,
+      delContainerSchoellerNewDebt,
+    })
+
+    const savedNewOffload = await this.offloadRepository.save(newOffload)
+
+    await this.clientService.updateClientDebt({
+      id: clientId,
+      moneyDebt: newMoneyDebt,
+      delContainer1_7Debt: delContainer1_7NewDebt,
+      delContainer0_5Debt: delContainer0_5NewDebt,
+      delContainer0_4Debt: delContainer0_4NewDebt,
+      delContainerSchoellerDebt: delContainerSchoellerNewDebt,
+    })
+
+    const newOffloadRecords = await Promise.all(
+      newOffloadRecordData.map((record) =>
+        this.offloadRecordService.createOffloadRecord({
+          ...record,
+          offload: { id: savedNewOffload.id },
+        }),
       ),
     )
 
-    return Promise.all(
-      newOffloads.map((offload) => this.offloadRepository.save(offload)),
-    )
+
+    await this.yieldService.createYields({
+      date: today,
+      offloadRecords: newOffloadRecords,
+      byIdWaves: byIdWaves as Record<number, Wave>,
+      byBatchIdCategoryIdSubbatches,
+    })
+
+    return savedNewOffload
   }
 
   async removeOffload(id: number): Promise<Boolean> {

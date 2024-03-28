@@ -1,18 +1,13 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { Batch } from '@mush/modules/batch/batch.entity'
-import { Category } from '@mush/modules/category/category.entity'
 import { Client } from '@mush/modules/client/client.entity'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
-import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
-import { Variety } from '@mush/modules/variety/variety.entity'
-import { Wave } from '@mush/modules/wave/wave.entity'
+import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime } from '@mush/core/utils'
 
 @Entity({ name: 'offloads' })
 export class Offload extends DatedBasicEntity {
@@ -40,96 +35,154 @@ export class Offload extends DatedBasicEntity {
   })
   driver: Driver
 
-  @ManyToOne(
-    () => StoreContainer,
-    (storeContainer) => storeContainer.offloads,
-    {
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-      nullable: false,
-      orphanedRowAction: 'delete',
-    },
-  )
-  storeContainer: StoreContainer
-
-  @ManyToOne(() => Category, (category) => category.offloads, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    nullable: false,
-    orphanedRowAction: 'delete',
-  })
-  category: Category
-
-  @ManyToOne(() => Wave, (wave) => wave.offloads, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    nullable: false,
-    orphanedRowAction: 'delete',
-  })
-  wave: Wave
-
-  @ManyToOne(() => Variety, (variety) => variety.offloads, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    nullable: false,
-    orphanedRowAction: 'delete',
-  })
-  variety: Variety
-
-  @ManyToOne(() => Batch, (batch) => batch.offloads, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    nullable: false,
-    orphanedRowAction: 'delete',
-  })
-  batch: Batch
-
-  @ApiProperty({
-    example: '2024-01-15',
-    description: 'Cutting date',
-  })
-  @Column({
-    type: 'date',
-    transformer: {
-      from: (value: Date) => formatDateToDateTime({ value }),
-      to: (value: string) => new Date(value),
-    },
-  })
-  cuttingDate: Date
-
-  @ApiProperty({
-    example: true,
-    description: 'Weight in kg.',
-  })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  weight: number
-
-  @ApiProperty({
-    example: true,
-    description: 'Box amounnt.',
-  })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  amount: number
+  @OneToMany(() => OffloadRecord, (record) => record.offload)
+  offloadRecords: OffloadRecord[]
 
   @ApiProperty({
     example: 200,
-    description: 'Price in hryvna',
+    description: 'Previous debt of the client in hryvna',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  price: number
+  previousMoneyDebt: number
 
   @ApiProperty({
-    example: true,
-    description: 'Commmon id for all offloads in the document.',
+    example: 200,
+    description: 'Total price of the mushrooms in hryvna',
   })
-  @Column({ type: 'decimal', precision: 15, scale: 0, default: 0 })
-  docId: number
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  priceTotal: number
 
   @ApiProperty({
-    example: true,
+    example: 200,
+    description: 'The money paid in hryvna',
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  paidMoney: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'New debt of the client in hryvna',
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  newMoneyDebt: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'The previous debt of the delivery containers by 1.7 kg.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer1_7PreviousDebt: number
+
+  @ApiProperty({
+    example: 200,
     description:
-      'Commmon id for all offloads in one price group of the document.',
+      'The amount of the delivery containers by 1.7 kg, provided by the client.',
   })
-  @Column({ type: 'decimal', precision: 16, scale: 0, default: 0 })
-  priceId: number
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer1_7In: number
+
+  @ApiProperty({
+    example: 200,
+    description:
+      'The amount of the delivery containers by 1.7 kg, taken by the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer1_7Out: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'The new debt of the delivery containers by 1.7 kg.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer1_7NewDebt: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'The previous debt of the delivery containers by 0.5 kg.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_5PreviousDebt: number
+
+  @ApiProperty({
+    example: 200,
+    description:
+      'The amount of the delivery containers by 0.5 kg, provided by the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_5In: number
+
+  @ApiProperty({
+    example: 200,
+    description:
+      'The amount of the delivery containers by 0.5 kg, taken by the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_5Out: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'The new debt of the delivery containers by 0.5 kg.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_5NewDebt: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'The previous debt of the delivery containers by 0.4 kg.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_4PreviousDebt: number
+
+  @ApiProperty({
+    example: 200,
+    description:
+      'The amount of the delivery containers by 0.4 kg, provided by the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_4In: number
+
+  @ApiProperty({
+    example: 200,
+    description:
+      'The amount of the delivery containers by 0.4 kg, taken by the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_4Out: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'The new debt of the delivery containers by 0.4 kg.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_4NewDebt: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'The previous debt of the Schoeller delivery containers.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainerSchoellerPreviousDebt: number
+
+  @ApiProperty({
+    example: 200,
+    description:
+      'The amount of the Schoeller delivery containers, provided by the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainerSchoellerIn: number
+
+  @ApiProperty({
+    example: 200,
+    description:
+      'The amount of the Schoeller delivery containers, taken by the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainerSchoellerOut: number
+
+  @ApiProperty({
+    example: 200,
+    description: 'The new debt of the Schoeller delivery containers.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainerSchoellerNewDebt: number
 }

@@ -78,6 +78,46 @@ export class Client extends DatedBasicEntity {
   })
   phone: string
 
+  @ApiProperty({
+    example: 0,
+    description:
+      'Money debt in hryvna. Positive number means the client owes money. The negative numver means the company owes money to the client.',
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  moneyDebt: number
+
+  @ApiProperty({
+    example: 0,
+    description:
+      '1.7 kg delivery container debt. Positive number means the client owes money. The negative numver means the company owes money to the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer1_7Debt: number
+
+  @ApiProperty({
+    example: 0,
+    description:
+      '0.5 kg delivery container debt. Positive number means the client owes money. The negative numver means the company owes money to the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_5Debt: number
+
+  @ApiProperty({
+    example: 0,
+    description:
+      '0.4 kg delivery container debt. Positive number means the client owes money. The negative numver means the company owes money to the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainer0_4Debt: number
+
+  @ApiProperty({
+    example: 0,
+    description:
+      'Schoeller delivery container debt. Positive number means the client owes money. The negative numver means the company owes money to the client.',
+  })
+  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
+  delContainerSchoellerDebt: number
+
   @OneToMany(() => Offload, (offload) => offload.client)
   @JoinTable()
   offloads: Offload[]

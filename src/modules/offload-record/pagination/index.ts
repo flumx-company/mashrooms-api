@@ -1,0 +1,1 @@
+export * from './offload-record.pagination.config'

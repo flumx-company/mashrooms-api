@@ -80,7 +80,18 @@ export class CuttingService {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    data.forEach(({ cutterShiftId, loaderShiftId, varietyId }) => {
+    data.forEach(({ cutterShiftId, loaderShiftId, varietyId, boxQuantity }) => {
+      if (
+        boxQuantity > 99999 ||
+        boxQuantity < 1 ||
+        !Number.isInteger(boxQuantity)
+      ) {
+        throw new HttpException(
+          CError.BOX_QUANTITY_EXCEEDS_LIMIT,
+          HttpStatus.BAD_REQUEST,
+        )
+      }
+
       if (!byIdShifts[cutterShiftId]) {
         byIdShifts[cutterShiftId] = cutterShiftId
       }

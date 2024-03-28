@@ -50,4 +50,9 @@ export const CError = {
   WRONG_PRICE: `${EError.WRONG_PRICE}: The price per kg of each price group item should be the same.`,
   WRONG_STORAGE_DATA: `${EError.WRONG_STORAGE_DATA}: There is no storage of the provided date, variety, wave, category.`,
   WRONG_BOX_AMOUNT: `${EError.WRONG_BOX_AMOUNT}: The offload box amount exceeds the correspondent storage box amount.`,
+  WRONG_WAVE_ID: `${EError.WRONG_WAVE_ID}: The provided wave id is not related to the provided batch id.`,
+  WRONG_CATEGORY_ID: `${EError.WRONG_CATEGORY_ID}: The batch with the provided batch id has no subbatch related to the category with the provided category id.`,
+  MISSING_OFFLOAD_RECORD_DATA: `${EError.MISSING_OFFLOAD_RECORD_DATA}: Some necessary offload record data was not provided.`,
+  //NOTE cutting error
+  BOX_QUANTITY_EXCEEDS_LIMIT: `${EError.BOX_QUANTITY_EXCEEDS_LIMIT}: The box quantity must be integer, minimum 1, maximum 99999.`,
 }

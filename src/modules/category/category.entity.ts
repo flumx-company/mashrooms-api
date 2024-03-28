@@ -1,10 +1,9 @@
-import { Column, Entity, Index, ManyToMany, OneToMany } from 'typeorm'
+import { Column, Entity, Index, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
-import { Offload } from '@mush/modules/offload/offload.entity'
-import { Picking } from '@mush/modules/picking/picking.entity'
+import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
 import { Storage } from '@mush/modules/storage/storage.entity'
 import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Yield } from '@mush/modules/yield/yield.entity'
@@ -25,13 +24,10 @@ export class Category extends DatedBasicEntity {
   @Column({ type: 'varchar', length: 255, default: null, nullable: true })
   description: string
 
-  @OneToMany(() => Offload, (offload) => offload.category)
-  offloads: Offload[]
+  @OneToMany(() => OffloadRecord, (offloadRecord) => offloadRecord.category)
+  offloadRecords: OffloadRecord[]
 
-  @ManyToMany(() => Picking, (picking) => picking.categories)
-  pickings: Picking[]
-
-  @ManyToMany(() => Yield, (yieldItem) => yieldItem.categories)
+  @OneToMany(() => Yield, (yieldItem) => yieldItem.category)
   yields: Yield[]
 
   @OneToMany(() => Cutting, (cutting) => cutting.category)

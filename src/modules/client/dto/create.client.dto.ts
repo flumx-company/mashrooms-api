@@ -1,10 +1,13 @@
-import { Exclude } from 'class-transformer'
+import { Exclude, Type } from 'class-transformer'
 import {
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator'
 
@@ -86,4 +89,74 @@ export class CreateClientDto {
   })
   @IsOptional()
   readonly [EFileCategory.CLIENT_FILES]: BufferedFile[]
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @Min(-99999999)
+  @Max(99999999)
+  @ApiProperty({
+    example: 0,
+    nullable: true,
+    description:
+      'Enter the money debt. Positive number means the client owes the company. Negative number means the company owes the client.',
+    type: Number,
+  })
+  readonly moneyDebt: number
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 0,
+    nullable: true,
+    description:
+      'Enter the 1.7 kg delivery container debt. Positive number means the client owes the company. Negative number means the company owes the client.',
+    type: Number,
+  })
+  readonly delContainer1_7Debt: number
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 0,
+    nullable: true,
+    description:
+      'Enter the 0.5 kg delivery container debt. Positive number means the client owes the company. Negative number means the company owes the client.',
+    type: Number,
+  })
+  readonly delContainer0_5Debt: number
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 0,
+    nullable: true,
+    description:
+      'Enter the 0.4 kg delivery container debt. Positive number means the client owes the company. Negative number means the company owes the client.',
+    type: Number,
+  })
+  readonly delContainer0_4Debt: number
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @Min(-99999)
+  @Max(99999)
+  @ApiProperty({
+    example: 0,
+    nullable: true,
+    description:
+      'Enter the Schoeller delivery container debt. Positive number means the client owes the company. Negative number means the company owes the client.',
+    type: Number,
+  })
+  readonly delContainerSchoellerDebt: number
 }

@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany } from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { Offload } from '@mush/modules/offload/offload.entity'
+import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 
@@ -21,12 +21,22 @@ export class StoreContainer extends DatedBasicEntity {
   name: string
 
   @ApiProperty({
+    example: true,
+    description: 'Box quantity.',
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 0, default: 0 })
+  amount: number
+
+  @ApiProperty({
     example: 200,
     description: 'Weight in kg',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   weight: number
 
-  @OneToMany(() => Offload, (offload) => offload.storeContainer)
-  offloads: Offload[]
+  @OneToMany(
+    () => OffloadRecord,
+    (offloadRecord) => offloadRecord.storeContainer,
+  )
+  offloadRecords: OffloadRecord[]
 }
