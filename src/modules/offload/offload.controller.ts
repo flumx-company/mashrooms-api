@@ -13,6 +13,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
@@ -30,7 +31,7 @@ import { Auth, CurrentUser } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'
 
-import { CreateOffloadDto } from './dto'
+import { CreateOffloadDto, EditOffloadDto } from './dto'
 import { Offload } from './offload.entity'
 import { OffloadService } from './offload.service'
 import { offloadPaginationConfig } from './pagination/index'
@@ -184,5 +185,49 @@ export class OffloadController {
   })
   async removeOffload(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
     return this.offloadService.removeOffload(id)
+  }
+
+  @Put(':offloadId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.UPDATE_OFFLOADS,
+  })
+  @ApiOperation({
+    summary:
+      'Close the offload. Role: SUPERADMIN, ADMIN. Permission: UPDATE_OFFLOADS.',
+  })
+  @ApiParam({
+    name: 'offloadId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: `Model to edit an offload. The  
+      {
+        paidMoney: 1000,
+        delContainer1_7In: 0,
+        delContainer1_7Out: 0,
+        delContainer0_5In: 0,
+        delContainer0_5Out: 0,
+        delContainer0_4In: 0,
+        delContainer0_4Out: 0,
+        delContainerSchoellerIn: 0,
+        delContainerSchoellerOut: 0,
+        isClosed: false,
+        closureDescription: "some closure description unless it is not",
+      }
+      `,
+    type: EditOffloadDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the offload data.',
+    type: Offload,
+  })
+  async editOffload(
+    @Param('offloadId', ParseIntPipe) offloadId: number,
+    @Body() data: EditOffloadDto,
+  ): Promise<Offload> {
+    return this.offloadService.editOffload({ offloadId, data })
   }
 }

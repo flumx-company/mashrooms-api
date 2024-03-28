@@ -28,7 +28,7 @@ import { YieldService } from '@mush/modules/yield/yield.service'
 
 import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 
-import { CreateOffloadDto } from './dto'
+import { CreateOffloadDto, EditOffloadDto } from './dto'
 import { Offload } from './offload.entity'
 import { offloadPaginationConfig } from './pagination/index'
 
@@ -57,6 +57,13 @@ export class OffloadService {
 
   findOffloadById(id: number): Promise<Nullable<Offload>> {
     return this.offloadRepository.findOneBy({ id })
+  }
+
+  findOffloadByIdWithClient(id: number): Promise<Nullable<Offload>> {
+    return this.offloadRepository.findOne({
+      where: { id },
+      relations: ['client'],
+    })
   }
 
   findAllByUserId(
@@ -194,7 +201,10 @@ export class OffloadService {
           !waveId ||
           !varietyId
         ) {
-          throw new HttpException(CError.MISSING_OFFLOAD_RECORD_DATA, HttpStatus.BAD_REQUEST)
+          throw new HttpException(
+            CError.MISSING_OFFLOAD_RECORD_DATA,
+            HttpStatus.BAD_REQUEST,
+          )
         }
 
         if (!byIdBatches[batchId]) {
@@ -409,26 +419,16 @@ export class OffloadService {
       author: user,
       client,
       driver,
-      previousMoneyDebt: moneyDebt,
       priceTotal,
       paidMoney,
-      newMoneyDebt: newMoneyDebt,
-      delContainer1_7PreviousDebt: delContainer1_7Debt,
       delContainer1_7In,
       delContainer1_7Out,
-      delContainer1_7NewDebt,
-      delContainer0_5PreviousDebt: delContainer0_5Debt,
       delContainer0_5In,
       delContainer0_5Out,
-      delContainer0_5NewDebt,
-      delContainer0_4PreviousDebt: delContainer0_4Debt,
       delContainer0_4In,
       delContainer0_4Out,
-      delContainer0_4NewDebt,
-      delContainerSchoellerPreviousDebt: delContainerSchoellerDebt,
       delContainerSchoellerIn,
       delContainerSchoellerOut,
-      delContainerSchoellerNewDebt,
     })
 
     const savedNewOffload = await this.offloadRepository.save(newOffload)
@@ -450,7 +450,6 @@ export class OffloadService {
         }),
       ),
     )
-
 
     await this.yieldService.createYields({
       date: today,
@@ -475,5 +474,97 @@ export class OffloadService {
     } catch (e) {
       return false
     }
+  }
+
+  async editOffload({
+    offloadId,
+    data,
+  }: {
+    offloadId: number
+    data: EditOffloadDto
+  }): Promise<Offload> {
+    const foundOffload = await this.offloadRepository
+      .createQueryBuilder('offload')
+      .select()
+      .leftJoinAndSelect('offload.client', 'client')
+      .where('offload.id = :offloadId', { offloadId })
+      .getOne()
+
+    if (!foundOffload) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    console.log({
+      foundOffload,
+    })
+
+    const {
+      paidMoney,
+      delContainer1_7In,
+      delContainer1_7Out,
+      delContainer0_5In,
+      delContainer0_5Out,
+      delContainer0_4In,
+      delContainer0_4Out,
+      delContainerSchoellerIn,
+      delContainerSchoellerOut,
+      isClosed,
+      closureDescription,
+    } = data
+
+    const difference1_7 = delContainer1_7In - delContainer1_7Out
+    const difference0_5 = delContainer0_5In - delContainer0_5Out
+    const difference0_4 = delContainer0_4In - delContainer0_4Out
+    const differencerSchoeller =
+      delContainerSchoellerIn - delContainerSchoellerOut
+
+    const {
+      paidMoney: previousPaidMoney,
+      delContainer1_7In: previous1_7In,
+      delContainer1_7Out: previous1_7Out,
+      delContainer0_5In: previous0_5In,
+      delContainer0_5Out: previous0_5Out,
+      delContainer0_4In: previous0_4In,
+      delContainer0_4Out: previous0_4Out,
+      delContainerSchoellerIn: previousSchoellerIn,
+      delContainerSchoellerOut: previousSchoellerOut,
+    } = foundOffload
+
+    const {
+      id: clientId,
+      moneyDebt: previousMoneyDebt,
+      delContainer1_7Debt: previous1_7Debt,
+      delContainer0_5Debt: previous0_5Debt,
+      delContainer0_4Debt: previous0_4Debt,
+      delContainerSchoellerDebt: previousSchoellerDebt,
+    } = foundOffload.client
+
+    const [updatedOffload, _]: [Offload, Client] = await Promise.all([
+      this.offloadRepository.create({
+        ...foundOffload,
+        isClosed,
+        closureDescription,
+        paidMoney: previousPaidMoney + paidMoney,
+        delContainer1_7In: previous1_7In + delContainer1_7In,
+        delContainer1_7Out: previous1_7Out + delContainer1_7Out,
+        delContainer0_5In: previous0_5In + delContainer0_5In,
+        delContainer0_5Out: previous0_5Out + delContainer0_5Out,
+        delContainer0_4In: previous0_4In + delContainer0_4In,
+        delContainer0_4Out: previous0_4Out + delContainer0_4Out,
+        delContainerSchoellerIn: previousSchoellerIn + delContainerSchoellerIn,
+        delContainerSchoellerOut:
+          delContainerSchoellerOut + previousSchoellerOut,
+      }),
+      this.clientService.updateClientDebt({
+        id: clientId,
+        moneyDebt: previousMoneyDebt - paidMoney,
+        delContainer1_7Debt: previous1_7Debt - difference1_7,
+        delContainer0_5Debt: previous0_5Debt - difference0_5,
+        delContainer0_4Debt: previous0_4Debt - difference0_4,
+        delContainerSchoellerDebt: previousSchoellerDebt - differencerSchoeller,
+      }),
+    ])
+
+    return this.offloadRepository.save(updatedOffload)
   }
 }
