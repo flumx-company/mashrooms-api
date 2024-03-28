@@ -14,11 +14,11 @@ import { Wave } from '../wave/wave.entity'
 @Entity({ name: 'cuttings' })
 export class Cutting extends DatedBasicEntity {
   @ApiProperty({ example: 5, description: 'Box quantity' })
-  @Column({ type: 'decimal', precision: 0, scale: 0, default: 0 })
+  @Column({ type: 'decimal', precision: 10, scale: 0, default: 0 })
   boxQuantity: number
 
   @ApiProperty({ example: 2, description: 'The trip number' })
-  @Column({ type: 'decimal', precision: 0, scale: 0, default: 0 })
+  @Column({ type: 'decimal', precision: 10, scale: 0, default: 0 })
   trip: number
 
   @ManyToOne(() => Category, (category) => category.cuttings, {

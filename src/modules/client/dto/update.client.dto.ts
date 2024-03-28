@@ -72,7 +72,6 @@ export class UpdateClientDto {
   })
   readonly phone: string
 
-  @IsNotEmpty()
   @IsNumber()
   @Min(-99999999)
   @Max(99999999)
@@ -84,7 +83,6 @@ export class UpdateClientDto {
   })
   readonly moneyDebt: number
 
-  @IsNotEmpty()
   @IsNumber()
   @Min(-99999)
   @Max(99999)
@@ -96,7 +94,6 @@ export class UpdateClientDto {
   })
   readonly delContainer1_7Debt: number
 
-  @IsNotEmpty()
   @IsNumber()
   @Min(-99999)
   @Max(99999)
@@ -108,7 +105,6 @@ export class UpdateClientDto {
   })
   readonly delContainer0_5Debt: number
 
-  @IsNotEmpty()
   @IsNumber()
   @Min(-99999)
   @Max(99999)
@@ -120,7 +116,6 @@ export class UpdateClientDto {
   })
   readonly delContainer0_4Debt: number
 
-  @IsNotEmpty()
   @IsNumber()
   @Min(-99999)
   @Max(99999)
