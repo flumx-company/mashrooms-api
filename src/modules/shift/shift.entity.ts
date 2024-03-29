@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 import { Cutting } from '@mush/modules/cutting/cutting.entity'
 import { Employee } from '@mush/modules/employee/employee.entity'
+import { Offload } from '@mush/modules/offload/offload.entity'
 import { Watering } from '@mush/modules/watering/watering.entity'
 import { WorkRecord } from '@mush/modules/work-record/work.record.entity'
 
@@ -67,4 +68,7 @@ export class Shift extends DatedBasicEntity {
 
   @OneToMany(() => Cutting, (cutting) => cutting.loaderShift)
   loadings: Cutting[]
+
+  @OneToMany(() => Offload, (offload) => offload.loaderShift)
+  offloadLoadings: Offload[]
 }

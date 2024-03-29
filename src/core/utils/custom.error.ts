@@ -53,6 +53,7 @@ export const CError = {
   WRONG_WAVE_ID: `${EError.WRONG_WAVE_ID}: The provided wave id is not related to the provided batch id.`,
   WRONG_CATEGORY_ID: `${EError.WRONG_CATEGORY_ID}: The batch with the provided batch id has no subbatch related to the category with the provided category id.`,
   MISSING_OFFLOAD_RECORD_DATA: `${EError.MISSING_OFFLOAD_RECORD_DATA}: Some necessary offload record data was not provided.`,
+  WRONG_DOCUMENT_TYPE: `${EError.WRONG_DOCUMENT_TYPE}: The offload document file can be only of application/pdf type.`,
   //NOTE cutting error
   BOX_QUANTITY_EXCEEDS_LIMIT: `${EError.BOX_QUANTITY_EXCEEDS_LIMIT}: The box quantity must be integer, minimum 1, maximum 99999.`,
 }

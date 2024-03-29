@@ -13,8 +13,12 @@ import { ClientService } from '@mush/modules/client/client.service'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { DriverService } from '@mush/modules/driver/driver.service'
-import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
+import { FileUploadService } from '@mush/modules/file-upload/file-upload.service'
+import { BufferedFile } from '@mush/modules/file-upload/file.model'
+import { PublicFile } from '@mush/modules/file-upload/public-file.entity'
 import { OffloadRecordService } from '@mush/modules/offload-record/offload-record.service'
+import { Shift } from '@mush/modules/shift/shift.entity'
+import { ShiftService } from '@mush/modules/shift/shift.service'
 import { Storage } from '@mush/modules/storage/storage.entity'
 import { StorageService } from '@mush/modules/storage/storage.service'
 import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
@@ -26,6 +30,7 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 import { YieldService } from '@mush/modules/yield/yield.service'
 
+import { EFileCategory } from '@mush/core/enums'
 import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 
 import { CreateOffloadDto, EditOffloadDto } from './dto'
@@ -49,6 +54,8 @@ export class OffloadService {
     private readonly storageService: StorageService,
     private readonly yieldService: YieldService,
     private readonly offloadRecordService: OffloadRecordService,
+    private readonly shiftService: ShiftService,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Offload>> {
@@ -98,22 +105,36 @@ export class OffloadService {
     return paginate(query, this.offloadRepository, config)
   }
 
+  findOffloadByIdWithFiles(id: number): Promise<Nullable<Offload>> {
+    return this.offloadRepository
+      .createQueryBuilder('offload')
+      .leftJoinAndSelect('offload.documents', EFileCategory.OFFLOAD_DOCUMENTS)
+      .where('offload.id = :id', { id })
+      .getOne()
+  }
+
   async createOffload({
     clientId,
     driverId,
+    shiftId,
     user,
     data,
   }: {
     clientId: number
     driverId: number
+    shiftId: number
     user: User
     data: CreateOffloadDto
   }): Promise<Offload> {
-    const [client, driver]: [Nullable<Client>, Nullable<Driver>] =
-      await Promise.all([
-        this.clientService.findClientById(clientId),
-        this.driverService.findDriverById(driverId),
-      ])
+    const [client, driver, shift]: [
+      Nullable<Client>,
+      Nullable<Driver>,
+      Nullable<Shift>,
+    ] = await Promise.all([
+      this.clientService.findClientById(clientId),
+      this.driverService.findDriverById(driverId),
+      this.shiftService.findShiftById(shiftId),
+    ])
     const byIdCategories: Record<number, Category | {}> = {}
     const byIdBatches: Record<number, Batch | {}> = {}
     const byIdStoreContainers: Record<number, StoreContainer | {}> = {}
@@ -151,6 +172,7 @@ export class OffloadService {
       }),
     )
     let priceTotal: number = 0
+    let boxTotalQuantity: number = 0
     const {
       offloadRecords,
       paidMoney,
@@ -164,7 +186,7 @@ export class OffloadService {
       delContainerSchoellerOut,
     } = data
 
-    if (!client || !driver) {
+    if (!client || !driver || !shift) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
@@ -264,7 +286,6 @@ export class OffloadService {
           this.storeContainerService.findStoreContainerById(parseInt(id)),
         ),
       )
-
     const foundStorages: Array<Nullable<Storage>> = await Promise.all(
       storageSubtractionData.map(({ varietyId, waveId, categoryId, date }) => {
         return this.storageService.findByOffloadParameters({
@@ -275,7 +296,6 @@ export class OffloadService {
         })
       }),
     )
-
     foundCategories.forEach((category) => {
       if (!category) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -311,7 +331,6 @@ export class OffloadService {
 
       byIdVarieties[variety.id] = variety as Variety
     })
-
     foundStoreContainers.forEach((container) => {
       if (!container) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -319,7 +338,6 @@ export class OffloadService {
 
       byIdStoreContainers[container.id] = container as StoreContainer
     })
-
     foundStorages.forEach((storage, index) => {
       if (!storage) {
         throw new HttpException(
@@ -376,6 +394,7 @@ export class OffloadService {
           byIdStoreContainers[storeContainerId]['weight']
         const netWeight = weight - allBoxWeight - storeContainerWeight
         const shrinkedNetWeight = netWeight * 0.99
+        boxTotalQuantity += boxQuantity
 
         priceTotal += pricePerKg * shrinkedNetWeight
 
@@ -419,8 +438,10 @@ export class OffloadService {
       author: user,
       client,
       driver,
+      loaderShift: shift,
       priceTotal,
       paidMoney,
+      boxTotalQuantity,
       delContainer1_7In,
       delContainer1_7Out,
       delContainer0_5In,
@@ -429,6 +450,7 @@ export class OffloadService {
       delContainer0_4Out,
       delContainerSchoellerIn,
       delContainerSchoellerOut,
+      documents: [],
     })
 
     const savedNewOffload = await this.offloadRepository.save(newOffload)
@@ -566,5 +588,96 @@ export class OffloadService {
     ])
 
     return this.offloadRepository.save(updatedOffload)
+  }
+
+  async getDocumentsByOffloadId(id: number): Promise<Nullable<PublicFile[]>> {
+    const foundOffload = await this.findOffloadByIdWithFiles(id)
+
+    if (!foundOffload) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    return foundOffload.documents
+  }
+
+  async addOffloadDocuments(
+    id: number,
+    files: BufferedFile[],
+  ): Promise<Nullable<Offload>> {
+    if (!files || !files.length) {
+      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
+    }
+
+    files.forEach(({ mimetype }) => {
+      if (mimetype !== 'application/pdf') {
+        throw new HttpException(
+          CError.WRONG_DOCUMENT_TYPE,
+          HttpStatus.BAD_REQUEST,
+        )
+      }
+    })
+
+    const foundOffload = await this.findOffloadByIdWithFiles(id)
+
+    if (!foundOffload) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const documentListData: PublicFile[] =
+      await this.fileUploadService.uploadPublicFiles(files)
+
+    const updatedEmployee: Offload = this.offloadRepository.create({
+      ...foundOffload,
+      documents: [...foundOffload.documents, ...documentListData],
+    })
+
+    return this.offloadRepository.save(updatedEmployee)
+  }
+
+  async removeOffloadDocument(offloadId: number, documentId: number) {
+    const foundOffload: Nullable<Offload> = await this.findOffloadByIdWithFiles(
+      offloadId,
+    )
+
+    if (!foundOffload) {
+      throw new HttpException(
+        CError.NOT_FOUND_EMPLOYEE_ID,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
+    const foundDocument = foundOffload.documents.find(
+      (doc) => doc.id === documentId,
+    )
+
+    if (!foundDocument) {
+      throw new HttpException(
+        CError.FILE_ID_NOT_RELATED,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
+    try {
+      await this.fileUploadService.deletePublicFile(documentId)
+      const updatedOffloadDocumentList = [...foundOffload.documents]
+      const removedDocumentIndex = updatedOffloadDocumentList.findIndex(
+        (doc) => doc.id === documentId,
+      )
+
+      if (removedDocumentIndex > -1) {
+        updatedOffloadDocumentList.splice(removedDocumentIndex, 1)
+      }
+
+      const updatedEmployee: Offload = this.offloadRepository.create({
+        ...foundOffload,
+        documents: updatedOffloadDocumentList,
+      })
+
+      this.offloadRepository.save(updatedEmployee)
+
+      return true
+    } catch (e) {
+      return false
+    }
   }
 }
