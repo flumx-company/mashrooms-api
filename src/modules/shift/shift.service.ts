@@ -248,10 +248,31 @@ export class ShiftService {
       .createQueryBuilder('shift')
       .where('shift.id = :id', { id })
       .leftJoinAndSelect('shift.employee', 'employee')
+      .leftJoinAndSelect('shift.workRecords', 'workRecords')
+      .leftJoinAndSelect('shift.waterings', 'waterings')
+      .leftJoinAndSelect('shift.cuttings', 'cuttings')
+      .leftJoinAndSelect('shift.loadings', 'loadings')
+      .leftJoinAndSelect('shift.offloadLoadings', 'offloadLoadings')
       .getOne()
 
     if (!foundShift) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { workRecords, waterings, cuttings, loadings, offloadLoadings } =
+      foundShift
+
+    if (
+      workRecords.length ||
+      waterings.length ||
+      cuttings.length ||
+      loadings.length ||
+      offloadLoadings.length
+    ) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     try {

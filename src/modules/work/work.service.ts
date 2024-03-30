@@ -25,6 +25,13 @@ export class WorkService {
     return this.workRepository.findOneBy({ id })
   }
 
+  findWorkByIdWithRelations(id: number): Promise<Nullable<Work>> {
+    return this.workRepository.findOne({
+      where: { id },
+      relations: ['workRecords'],
+    })
+  }
+
   findWorkByTitle(title: string): Promise<Nullable<Work>> {
     return this.workRepository.findOneBy({ title })
   }
@@ -86,10 +93,19 @@ export class WorkService {
   }
 
   async removeWork(id: number): Promise<Boolean> {
-    const foundWork: Nullable<Work> = await this.findWorkById(id)
+    const foundWork: Nullable<Work> = await this.findWorkByIdWithRelations(id)
 
     if (!foundWork) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { workRecords } = foundWork
+
+    if (workRecords.length) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     try {

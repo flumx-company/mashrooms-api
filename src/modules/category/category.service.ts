@@ -22,6 +22,19 @@ export class CategoryService {
     return this.categoryRepository.findOneBy({ id })
   }
 
+  findCategoryByIdWithRelations(id: number): Promise<Nullable<Category>> {
+    return this.categoryRepository.findOne({
+      where: { id },
+      relations: [
+        'offloadRecords',
+        'yields',
+        'cuttings',
+        'subbatches',
+        'storages',
+      ],
+    })
+  }
+
   findCategoryByName(name: string): Promise<Nullable<Category>> {
     return this.categoryRepository.findOneBy({ name })
   }
@@ -87,10 +100,27 @@ export class CategoryService {
   }
 
   async removeCategory(id: number): Promise<Boolean> {
-    const foundCategory: Nullable<Category> = await this.findCategoryById(id)
+    const foundCategory: Nullable<Category> =
+      await this.findCategoryByIdWithRelations(id)
 
     if (!foundCategory) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { offloadRecords, yields, cuttings, subbatches, storages } =
+      foundCategory
+
+    if (
+      offloadRecords.length ||
+      yields.length ||
+      cuttings.length ||
+      subbatches.length ||
+      storages.length
+    ) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     try {

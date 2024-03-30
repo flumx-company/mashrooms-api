@@ -41,12 +41,14 @@ export class EmployeeService {
     return this.employeeRepository.findOneBy({ phone })
   }
 
-  findEmployeeByIdWithFiles(id: number): Promise<Nullable<Employee>> {
+  findEmployeeByIdWithRelations(id: number): Promise<Nullable<Employee>> {
     return this.employeeRepository
       .createQueryBuilder('employee')
       .leftJoinAndSelect('employee.avatars', EFileCategory.EMPLOYEE_AVATARS)
       .where('employee.id = :id', { id })
       .leftJoinAndSelect('employee.documents', EFileCategory.EMPLOYEE_DOCUMENTS)
+      .where('employee.id = :id', { id })
+      .leftJoinAndSelect('employee.shifts', 'shifts')
       .where('employee.id = :id', { id })
       .getOne()
   }
@@ -160,10 +162,19 @@ export class EmployeeService {
 
   async removeEmployee(id: number): Promise<Boolean> {
     const foundEmployee: Nullable<Employee> =
-      await this.findEmployeeByIdWithFiles(id)
+      await this.findEmployeeByIdWithRelations(id)
 
     if (!foundEmployee) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { shifts } = foundEmployee
+
+    if (shifts.length) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     const docIdList = foundEmployee.documents.map((doc) => doc.id)
@@ -183,7 +194,7 @@ export class EmployeeService {
   }
 
   async findEmployeeAvatar(id: number): Promise<StreamableFile> {
-    const foundEmployee = await this.findEmployeeByIdWithFiles(id)
+    const foundEmployee = await this.findEmployeeByIdWithRelations(id)
 
     if (!foundEmployee) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -218,7 +229,7 @@ export class EmployeeService {
       throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
     }
 
-    const foundEmployee = await this.findEmployeeByIdWithFiles(id)
+    const foundEmployee = await this.findEmployeeByIdWithRelations(id)
 
     if (!foundEmployee) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -241,7 +252,7 @@ export class EmployeeService {
   }
 
   async removeEmployeeAvatar(id: number): Promise<boolean> {
-    const foundEmployee: Employee = await this.findEmployeeByIdWithFiles(id)
+    const foundEmployee: Employee = await this.findEmployeeByIdWithRelations(id)
     const avatar: PublicFile = foundEmployee?.avatars?.[0]
 
     if (!foundEmployee) {
@@ -256,7 +267,7 @@ export class EmployeeService {
   }
 
   async getDocumentsByEmployeeId(id: number): Promise<Nullable<PublicFile[]>> {
-    const foundEmployee = await this.findEmployeeByIdWithFiles(id)
+    const foundEmployee = await this.findEmployeeByIdWithRelations(id)
 
     if (!foundEmployee) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -273,7 +284,7 @@ export class EmployeeService {
       throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
     }
 
-    const foundEmployee = await this.findEmployeeByIdWithFiles(id)
+    const foundEmployee = await this.findEmployeeByIdWithRelations(id)
 
     if (!foundEmployee) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -292,7 +303,7 @@ export class EmployeeService {
 
   async removeEmployeeDocument(employeeId: number, documentId: number) {
     const foundEmployee: Nullable<Employee> =
-      await this.findEmployeeByIdWithFiles(employeeId)
+      await this.findEmployeeByIdWithRelations(employeeId)
 
     if (!foundEmployee) {
       throw new HttpException(

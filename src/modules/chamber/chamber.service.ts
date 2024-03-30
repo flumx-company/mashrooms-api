@@ -27,10 +27,10 @@ export class ChamberService {
     return this.chamberRepository.findOneBy({ id })
   }
 
-  findChamberByIdWithBatches(id: number): Promise<Nullable<Chamber>> {
+  findChamberByIdWithRelations(id: number): Promise<Nullable<Chamber>> {
     return this.chamberRepository.findOne({
       where: { id },
-      relations: ['batches'],
+      relations: ['batches', 'workRecords'],
       order: { batches: { id: 'desc' } },
     })
   }
@@ -80,10 +80,20 @@ export class ChamberService {
   }
 
   async removeChamber(id: number): Promise<Boolean> {
-    const foundChamber: Nullable<Chamber> = await this.findChamberById(id)
+    const foundChamber: Nullable<Chamber> =
+      await this.findChamberByIdWithRelations(id)
 
     if (!foundChamber) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { batches, workRecords } = foundChamber
+
+    if (batches.length || workRecords.length) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     try {

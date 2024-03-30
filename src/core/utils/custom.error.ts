@@ -6,6 +6,7 @@ export const CError = {
   WRONG_PASSWORD: `${EError.WRONG_PASSWORD}: The password is wrong.`,
   NO_TOKEN: `${EError.NO_TOKEN}: There is no token in cookies. Nobody is logged in.`,
   NOT_LOGGED_IN: `${EError.NOT_LOGGED_IN}: Nobody is logged in.`,
+  ENTITY_HAS_DEPENDENT_RELATIONS: `${EError.ENTITY_HAS_DEPENDENT_RELATIONS}: There are entities that are dependent on this item. Either remove that dependence first, or choose to edit this item instead of deleting it.`,
   //NOTE: Not found
   NOT_FOUND_ID: `${EError.NOT_FOUND_ID}: An item with this id was not found.`,
   NOT_FOUND_PHONE: `${EError.NOT_FOUND_PHONE}: An item with this phone number was not found.`,

@@ -66,10 +66,10 @@ export class OffloadService {
     return this.offloadRepository.findOneBy({ id })
   }
 
-  findOffloadByIdWithClient(id: number): Promise<Nullable<Offload>> {
+  findOffloadByIdWithRelations(id: number): Promise<Nullable<Offload>> {
     return this.offloadRepository.findOne({
       where: { id },
-      relations: ['client'],
+      relations: ['offloadRecords'],
     })
   }
 
@@ -484,10 +484,20 @@ export class OffloadService {
   }
 
   async removeOffload(id: number): Promise<Boolean> {
-    const foundOffload: Nullable<Offload> = await this.findOffloadById(id)
+    const foundOffload: Nullable<Offload> =
+      await this.findOffloadByIdWithRelations(id)
 
     if (!foundOffload) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { offloadRecords } = foundOffload
+
+    if (offloadRecords.length) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     try {
@@ -515,10 +525,6 @@ export class OffloadService {
     if (!foundOffload) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
-
-    console.log({
-      foundOffload,
-    })
 
     const {
       paidMoney,

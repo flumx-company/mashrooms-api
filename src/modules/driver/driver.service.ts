@@ -26,6 +26,13 @@ export class DriverService {
     return this.driverRepository.findOneBy({ id })
   }
 
+  findDriverByIdWithRelations(id: number): Promise<Nullable<Driver>> {
+    return this.driverRepository.findOne({
+      where: { id },
+      relations: ['offloads'],
+    })
+  }
+
   findDriverByPhone(phone: string): Promise<Nullable<Driver>> {
     return this.driverRepository.findOneBy({ phone })
   }
@@ -88,6 +95,15 @@ export class DriverService {
 
     if (!foundDriver) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { offloads } = foundDriver
+
+    if (offloads.length) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     let response = true
