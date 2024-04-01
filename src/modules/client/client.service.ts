@@ -34,10 +34,11 @@ export class ClientService {
     return this.clientRepository.findOneBy({ phone })
   }
 
-  findClientByIdWithFiles(id: number): Promise<Nullable<Client>> {
+  findClientByIdWithRelations(id: number): Promise<Nullable<Client>> {
     return this.clientRepository
       .createQueryBuilder('client')
       .leftJoinAndSelect('client.files', 'clientFiles')
+      .leftJoinAndSelect('client.offloads', 'offloads')
       .where('client.id = :id', { id })
       .getOne()
   }
@@ -171,10 +172,20 @@ export class ClientService {
   }
 
   async removeClient(id: number): Promise<Boolean> {
-    const foundClient: Nullable<Client> = await this.findClientByIdWithFiles(id)
+    const foundClient: Nullable<Client> =
+      await this.findClientByIdWithRelations(id)
 
     if (!foundClient) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { offloads } = foundClient
+
+    if (offloads.length) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     const fileIdList = foundClient.files.map((file) => file.id)
@@ -203,7 +214,7 @@ export class ClientService {
   }
 
   async getFilesByClientId(id: number): Promise<Nullable<PublicFile[]>> {
-    const foundClient = await this.findClientByIdWithFiles(id)
+    const foundClient = await this.findClientByIdWithRelations(id)
 
     if (!foundClient) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -220,7 +231,7 @@ export class ClientService {
       throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
     }
 
-    const foundClient = await this.findClientByIdWithFiles(id)
+    const foundClient = await this.findClientByIdWithRelations(id)
 
     if (!foundClient) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -238,9 +249,8 @@ export class ClientService {
   }
 
   async removeClientFile(clientId: number, fileId: number) {
-    const foundClient: Nullable<Client> = await this.findClientByIdWithFiles(
-      clientId,
-    )
+    const foundClient: Nullable<Client> =
+      await this.findClientByIdWithRelations(clientId)
 
     if (!foundClient) {
       throw new HttpException(

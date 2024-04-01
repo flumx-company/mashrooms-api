@@ -31,7 +31,6 @@ import { Offload } from '@mush/modules/offload/offload.entity'
 import { OffloadModule } from '@mush/modules/offload/offload.module'
 import { Price } from '@mush/modules/price/price.entity'
 import { PriceModule } from '@mush/modules/price/price.module'
-import { ProductModule } from '@mush/modules/product/product.module'
 import { Shift } from '@mush/modules/shift/shift.entity'
 import { ShiftModule } from '@mush/modules/shift/shift.module'
 import { Storage } from '@mush/modules/storage/storage.entity'
@@ -101,7 +100,6 @@ import { AppService } from './app.service'
     OffloadModule,
     OffloadRecordModule,
     PriceModule,
-    ProductModule,
     YieldModule,
     FileUploadModule,
     HealthcheckModule,

@@ -136,7 +136,7 @@ export class StorageService {
       Nullable<Variety>,
       Nullable<Category>,
     ] = await Promise.all([
-      this.chamberService.findChamberByIdWithBatches(chamberId),
+      this.chamberService.findChamberByIdWithRelations(chamberId),
       this.waveService.findWaveById(waveId),
       this.varietyService.findVarietyById(varietyId),
       this.categoryService.findCategoryById(categoryId),

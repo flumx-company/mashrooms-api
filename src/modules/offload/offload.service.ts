@@ -13,8 +13,12 @@ import { ClientService } from '@mush/modules/client/client.service'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { DriverService } from '@mush/modules/driver/driver.service'
-import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
+import { FileUploadService } from '@mush/modules/file-upload/file-upload.service'
+import { BufferedFile } from '@mush/modules/file-upload/file.model'
+import { PublicFile } from '@mush/modules/file-upload/public-file.entity'
 import { OffloadRecordService } from '@mush/modules/offload-record/offload-record.service'
+import { Shift } from '@mush/modules/shift/shift.entity'
+import { ShiftService } from '@mush/modules/shift/shift.service'
 import { Storage } from '@mush/modules/storage/storage.entity'
 import { StorageService } from '@mush/modules/storage/storage.service'
 import { StoreContainer } from '@mush/modules/store-container/store-container.entity'
@@ -26,9 +30,10 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 import { YieldService } from '@mush/modules/yield/yield.service'
 
+import { EFileCategory } from '@mush/core/enums'
 import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 
-import { CreateOffloadDto } from './dto'
+import { CreateOffloadDto, EditOffloadDto } from './dto'
 import { Offload } from './offload.entity'
 import { offloadPaginationConfig } from './pagination/index'
 
@@ -49,6 +54,8 @@ export class OffloadService {
     private readonly storageService: StorageService,
     private readonly yieldService: YieldService,
     private readonly offloadRecordService: OffloadRecordService,
+    private readonly shiftService: ShiftService,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Offload>> {
@@ -57,6 +64,13 @@ export class OffloadService {
 
   findOffloadById(id: number): Promise<Nullable<Offload>> {
     return this.offloadRepository.findOneBy({ id })
+  }
+
+  findOffloadByIdWithRelations(id: number): Promise<Nullable<Offload>> {
+    return this.offloadRepository.findOne({
+      where: { id },
+      relations: ['offloadRecords'],
+    })
   }
 
   findAllByUserId(
@@ -91,22 +105,36 @@ export class OffloadService {
     return paginate(query, this.offloadRepository, config)
   }
 
+  findOffloadByIdWithFiles(id: number): Promise<Nullable<Offload>> {
+    return this.offloadRepository
+      .createQueryBuilder('offload')
+      .leftJoinAndSelect('offload.documents', EFileCategory.OFFLOAD_DOCUMENTS)
+      .where('offload.id = :id', { id })
+      .getOne()
+  }
+
   async createOffload({
     clientId,
     driverId,
+    shiftId,
     user,
     data,
   }: {
     clientId: number
     driverId: number
+    shiftId: number
     user: User
     data: CreateOffloadDto
   }): Promise<Offload> {
-    const [client, driver]: [Nullable<Client>, Nullable<Driver>] =
-      await Promise.all([
-        this.clientService.findClientById(clientId),
-        this.driverService.findDriverById(driverId),
-      ])
+    const [client, driver, shift]: [
+      Nullable<Client>,
+      Nullable<Driver>,
+      Nullable<Shift>,
+    ] = await Promise.all([
+      this.clientService.findClientById(clientId),
+      this.driverService.findDriverById(driverId),
+      this.shiftService.findShiftById(shiftId),
+    ])
     const byIdCategories: Record<number, Category | {}> = {}
     const byIdBatches: Record<number, Batch | {}> = {}
     const byIdStoreContainers: Record<number, StoreContainer | {}> = {}
@@ -144,6 +172,7 @@ export class OffloadService {
       }),
     )
     let priceTotal: number = 0
+    let boxTotalQuantity: number = 0
     const {
       offloadRecords,
       paidMoney,
@@ -157,7 +186,7 @@ export class OffloadService {
       delContainerSchoellerOut,
     } = data
 
-    if (!client || !driver) {
+    if (!client || !driver || !shift) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
@@ -194,7 +223,10 @@ export class OffloadService {
           !waveId ||
           !varietyId
         ) {
-          throw new HttpException(CError.MISSING_OFFLOAD_RECORD_DATA, HttpStatus.BAD_REQUEST)
+          throw new HttpException(
+            CError.MISSING_OFFLOAD_RECORD_DATA,
+            HttpStatus.BAD_REQUEST,
+          )
         }
 
         if (!byIdBatches[batchId]) {
@@ -254,7 +286,6 @@ export class OffloadService {
           this.storeContainerService.findStoreContainerById(parseInt(id)),
         ),
       )
-
     const foundStorages: Array<Nullable<Storage>> = await Promise.all(
       storageSubtractionData.map(({ varietyId, waveId, categoryId, date }) => {
         return this.storageService.findByOffloadParameters({
@@ -265,7 +296,6 @@ export class OffloadService {
         })
       }),
     )
-
     foundCategories.forEach((category) => {
       if (!category) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -301,7 +331,6 @@ export class OffloadService {
 
       byIdVarieties[variety.id] = variety as Variety
     })
-
     foundStoreContainers.forEach((container) => {
       if (!container) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -309,7 +338,6 @@ export class OffloadService {
 
       byIdStoreContainers[container.id] = container as StoreContainer
     })
-
     foundStorages.forEach((storage, index) => {
       if (!storage) {
         throw new HttpException(
@@ -366,6 +394,7 @@ export class OffloadService {
           byIdStoreContainers[storeContainerId]['weight']
         const netWeight = weight - allBoxWeight - storeContainerWeight
         const shrinkedNetWeight = netWeight * 0.99
+        boxTotalQuantity += boxQuantity
 
         priceTotal += pricePerKg * shrinkedNetWeight
 
@@ -409,26 +438,19 @@ export class OffloadService {
       author: user,
       client,
       driver,
-      previousMoneyDebt: moneyDebt,
+      loaderShift: shift,
       priceTotal,
       paidMoney,
-      newMoneyDebt: newMoneyDebt,
-      delContainer1_7PreviousDebt: delContainer1_7Debt,
+      boxTotalQuantity,
       delContainer1_7In,
       delContainer1_7Out,
-      delContainer1_7NewDebt,
-      delContainer0_5PreviousDebt: delContainer0_5Debt,
       delContainer0_5In,
       delContainer0_5Out,
-      delContainer0_5NewDebt,
-      delContainer0_4PreviousDebt: delContainer0_4Debt,
       delContainer0_4In,
       delContainer0_4Out,
-      delContainer0_4NewDebt,
-      delContainerSchoellerPreviousDebt: delContainerSchoellerDebt,
       delContainerSchoellerIn,
       delContainerSchoellerOut,
-      delContainerSchoellerNewDebt,
+      documents: [],
     })
 
     const savedNewOffload = await this.offloadRepository.save(newOffload)
@@ -451,7 +473,6 @@ export class OffloadService {
       ),
     )
 
-
     await this.yieldService.createYields({
       date: today,
       offloadRecords: newOffloadRecords,
@@ -463,14 +484,203 @@ export class OffloadService {
   }
 
   async removeOffload(id: number): Promise<Boolean> {
-    const foundOffload: Nullable<Offload> = await this.findOffloadById(id)
+    const foundOffload: Nullable<Offload> =
+      await this.findOffloadByIdWithRelations(id)
 
     if (!foundOffload) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
+    const { offloadRecords } = foundOffload
+
+    if (offloadRecords.length) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
     try {
       await this.offloadRepository.remove(foundOffload)
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
+  async editOffload({
+    offloadId,
+    data,
+  }: {
+    offloadId: number
+    data: EditOffloadDto
+  }): Promise<Offload> {
+    const foundOffload = await this.offloadRepository
+      .createQueryBuilder('offload')
+      .select()
+      .leftJoinAndSelect('offload.client', 'client')
+      .where('offload.id = :offloadId', { offloadId })
+      .getOne()
+
+    if (!foundOffload) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const {
+      paidMoney,
+      delContainer1_7In,
+      delContainer1_7Out,
+      delContainer0_5In,
+      delContainer0_5Out,
+      delContainer0_4In,
+      delContainer0_4Out,
+      delContainerSchoellerIn,
+      delContainerSchoellerOut,
+      isClosed,
+      closureDescription,
+    } = data
+
+    const difference1_7 = delContainer1_7In - delContainer1_7Out
+    const difference0_5 = delContainer0_5In - delContainer0_5Out
+    const difference0_4 = delContainer0_4In - delContainer0_4Out
+    const differencerSchoeller =
+      delContainerSchoellerIn - delContainerSchoellerOut
+
+    const {
+      paidMoney: previousPaidMoney,
+      delContainer1_7In: previous1_7In,
+      delContainer1_7Out: previous1_7Out,
+      delContainer0_5In: previous0_5In,
+      delContainer0_5Out: previous0_5Out,
+      delContainer0_4In: previous0_4In,
+      delContainer0_4Out: previous0_4Out,
+      delContainerSchoellerIn: previousSchoellerIn,
+      delContainerSchoellerOut: previousSchoellerOut,
+    } = foundOffload
+
+    const {
+      id: clientId,
+      moneyDebt: previousMoneyDebt,
+      delContainer1_7Debt: previous1_7Debt,
+      delContainer0_5Debt: previous0_5Debt,
+      delContainer0_4Debt: previous0_4Debt,
+      delContainerSchoellerDebt: previousSchoellerDebt,
+    } = foundOffload.client
+
+    const [updatedOffload, _]: [Offload, Client] = await Promise.all([
+      this.offloadRepository.create({
+        ...foundOffload,
+        isClosed,
+        closureDescription,
+        paidMoney: previousPaidMoney + paidMoney,
+        delContainer1_7In: previous1_7In + delContainer1_7In,
+        delContainer1_7Out: previous1_7Out + delContainer1_7Out,
+        delContainer0_5In: previous0_5In + delContainer0_5In,
+        delContainer0_5Out: previous0_5Out + delContainer0_5Out,
+        delContainer0_4In: previous0_4In + delContainer0_4In,
+        delContainer0_4Out: previous0_4Out + delContainer0_4Out,
+        delContainerSchoellerIn: previousSchoellerIn + delContainerSchoellerIn,
+        delContainerSchoellerOut:
+          delContainerSchoellerOut + previousSchoellerOut,
+      }),
+      this.clientService.updateClientDebt({
+        id: clientId,
+        moneyDebt: previousMoneyDebt - paidMoney,
+        delContainer1_7Debt: previous1_7Debt - difference1_7,
+        delContainer0_5Debt: previous0_5Debt - difference0_5,
+        delContainer0_4Debt: previous0_4Debt - difference0_4,
+        delContainerSchoellerDebt: previousSchoellerDebt - differencerSchoeller,
+      }),
+    ])
+
+    return this.offloadRepository.save(updatedOffload)
+  }
+
+  async getDocumentsByOffloadId(id: number): Promise<Nullable<PublicFile[]>> {
+    const foundOffload = await this.findOffloadByIdWithFiles(id)
+
+    if (!foundOffload) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    return foundOffload.documents
+  }
+
+  async addOffloadDocuments(
+    id: number,
+    files: BufferedFile[],
+  ): Promise<Nullable<Offload>> {
+    if (!files || !files.length) {
+      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
+    }
+
+    files.forEach(({ mimetype }) => {
+      if (mimetype !== 'application/pdf') {
+        throw new HttpException(
+          CError.WRONG_DOCUMENT_TYPE,
+          HttpStatus.BAD_REQUEST,
+        )
+      }
+    })
+
+    const foundOffload = await this.findOffloadByIdWithFiles(id)
+
+    if (!foundOffload) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const documentListData: PublicFile[] =
+      await this.fileUploadService.uploadPublicFiles(files)
+
+    const updatedEmployee: Offload = this.offloadRepository.create({
+      ...foundOffload,
+      documents: [...foundOffload.documents, ...documentListData],
+    })
+
+    return this.offloadRepository.save(updatedEmployee)
+  }
+
+  async removeOffloadDocument(offloadId: number, documentId: number) {
+    const foundOffload: Nullable<Offload> = await this.findOffloadByIdWithFiles(
+      offloadId,
+    )
+
+    if (!foundOffload) {
+      throw new HttpException(
+        CError.NOT_FOUND_EMPLOYEE_ID,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
+    const foundDocument = foundOffload.documents.find(
+      (doc) => doc.id === documentId,
+    )
+
+    if (!foundDocument) {
+      throw new HttpException(
+        CError.FILE_ID_NOT_RELATED,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
+    try {
+      await this.fileUploadService.deletePublicFile(documentId)
+      const updatedOffloadDocumentList = [...foundOffload.documents]
+      const removedDocumentIndex = updatedOffloadDocumentList.findIndex(
+        (doc) => doc.id === documentId,
+      )
+
+      if (removedDocumentIndex > -1) {
+        updatedOffloadDocumentList.splice(removedDocumentIndex, 1)
+      }
+
+      const updatedEmployee: Offload = this.offloadRepository.create({
+        ...foundOffload,
+        documents: updatedOffloadDocumentList,
+      })
+
+      this.offloadRepository.save(updatedEmployee)
+
       return true
     } catch (e) {
       return false

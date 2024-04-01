@@ -70,7 +70,7 @@ export class ChamberController {
   async getChamberById(
     @Param('chamberId', ParseIntPipe) chamberId: number,
   ): Promise<Chamber> {
-    return this.chamberService.findChamberByIdWithBatches(chamberId)
+    return this.chamberService.findChamberByIdWithRelations(chamberId)
   }
 
   @Post()

@@ -66,7 +66,7 @@ export class BatchService {
     const [lastBatch, foundChamber]: [Nullable<Batch>, Nullable<Chamber>] =
       await Promise.all([
         this.findLastBatch(),
-        this.chamberService.findChamberByIdWithBatches(chamberId),
+        this.chamberService.findChamberByIdWithRelations(chamberId),
       ])
     const currentYear: number = new Date().getFullYear()
     const dateFrom: string = String(

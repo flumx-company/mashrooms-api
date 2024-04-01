@@ -6,6 +6,7 @@ export const CError = {
   WRONG_PASSWORD: `${EError.WRONG_PASSWORD}: The password is wrong.`,
   NO_TOKEN: `${EError.NO_TOKEN}: There is no token in cookies. Nobody is logged in.`,
   NOT_LOGGED_IN: `${EError.NOT_LOGGED_IN}: Nobody is logged in.`,
+  ENTITY_HAS_DEPENDENT_RELATIONS: `${EError.ENTITY_HAS_DEPENDENT_RELATIONS}: There are entities that are dependent on this item. Either remove that dependence first, or choose to edit this item instead of deleting it.`,
   //NOTE: Not found
   NOT_FOUND_ID: `${EError.NOT_FOUND_ID}: An item with this id was not found.`,
   NOT_FOUND_PHONE: `${EError.NOT_FOUND_PHONE}: An item with this phone number was not found.`,
@@ -53,6 +54,7 @@ export const CError = {
   WRONG_WAVE_ID: `${EError.WRONG_WAVE_ID}: The provided wave id is not related to the provided batch id.`,
   WRONG_CATEGORY_ID: `${EError.WRONG_CATEGORY_ID}: The batch with the provided batch id has no subbatch related to the category with the provided category id.`,
   MISSING_OFFLOAD_RECORD_DATA: `${EError.MISSING_OFFLOAD_RECORD_DATA}: Some necessary offload record data was not provided.`,
+  WRONG_DOCUMENT_TYPE: `${EError.WRONG_DOCUMENT_TYPE}: The offload document file can be only of application/pdf type.`,
   //NOTE cutting error
   BOX_QUANTITY_EXCEEDS_LIMIT: `${EError.BOX_QUANTITY_EXCEEDS_LIMIT}: The box quantity must be integer, minimum 1, maximum 99999.`,
 }

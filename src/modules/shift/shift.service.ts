@@ -26,6 +26,7 @@ export class ShiftService {
       .leftJoinAndSelect('shift.waterings', 'watering')
       .leftJoinAndSelect('shift.cuttings', 'cutting')
       .leftJoinAndSelect('shift.loadings', 'loading')
+      .leftJoinAndSelect('shift.offloadLoadings', 'offloads')
       .leftJoin('workRecord.work', 'work')
       .getMany()
   }
@@ -34,17 +35,26 @@ export class ShiftService {
     return this.shiftRepository
       .createQueryBuilder('shift')
       .where('shift.dateTo IS NULL')
+      .leftJoin('shift.cuttings', 'cutting')
+      .leftJoin('shift.employee', 'employee')
+      .leftJoin('shift.loadings', 'loading')
+      .leftJoin('shift.offloadLoadings', 'offload')
+      .leftJoin('shift.waterings', 'watering')
+      .leftJoin('shift.workRecords', 'workRecord')
+      .leftJoin('workRecord.work', 'work')
       .select([
-        'shift.id',
-        'shift.dateFrom',
-        'shift.dateTo',
+        'cutting.id',
+        'cutting.boxQuantity',
         'employee.id',
         'employee.isActive',
         'employee.firstName',
         'employee.lastName',
         'employee.patronymic',
-        'cutting.id',
-        'cutting.boxQuantity',
+        'offload.id',
+        'offload.boxTotalQuantity',
+        'shift.id',
+        'shift.dateFrom',
+        'shift.dateTo',
         'watering.id',
         'watering.drug',
         'watering.volume',
@@ -57,12 +67,6 @@ export class ShiftService {
         'work.title',
         'work.isRegular',
       ])
-      .leftJoin('shift.employee', 'employee')
-      .leftJoin('shift.cuttings', 'cutting')
-      .leftJoin('shift.loadings', 'loading')
-      .leftJoin('shift.waterings', 'watering')
-      .leftJoin('shift.workRecords', 'workRecord')
-      .leftJoin('workRecord.work', 'work')
       .orderBy('employee.lastName', 'ASC')
       .getMany()
   }
@@ -244,10 +248,31 @@ export class ShiftService {
       .createQueryBuilder('shift')
       .where('shift.id = :id', { id })
       .leftJoinAndSelect('shift.employee', 'employee')
+      .leftJoinAndSelect('shift.workRecords', 'workRecords')
+      .leftJoinAndSelect('shift.waterings', 'waterings')
+      .leftJoinAndSelect('shift.cuttings', 'cuttings')
+      .leftJoinAndSelect('shift.loadings', 'loadings')
+      .leftJoinAndSelect('shift.offloadLoadings', 'offloadLoadings')
       .getOne()
 
     if (!foundShift) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { workRecords, waterings, cuttings, loadings, offloadLoadings } =
+      foundShift
+
+    if (
+      workRecords.length ||
+      waterings.length ||
+      cuttings.length ||
+      loadings.length ||
+      offloadLoadings.length
+    ) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     try {

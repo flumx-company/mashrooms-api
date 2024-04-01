@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -6,8 +13,11 @@ import { Client } from '@mush/modules/client/client.entity'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
+import { Shift } from '@mush/modules/shift/shift.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
+
+import { PublicFile } from '../file-upload/public-file.entity'
 
 @Entity({ name: 'offloads' })
 export class Offload extends DatedBasicEntity {
@@ -35,15 +45,16 @@ export class Offload extends DatedBasicEntity {
   })
   driver: Driver
 
+  @ManyToOne(() => Shift, (shift) => shift.offloadLoadings, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: false,
+    orphanedRowAction: 'delete',
+  })
+  loaderShift: Shift
+
   @OneToMany(() => OffloadRecord, (record) => record.offload)
   offloadRecords: OffloadRecord[]
-
-  @ApiProperty({
-    example: 200,
-    description: 'Previous debt of the client in hryvna',
-  })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  previousMoneyDebt: number
 
   @ApiProperty({
     example: 200,
@@ -58,20 +69,6 @@ export class Offload extends DatedBasicEntity {
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   paidMoney: number
-
-  @ApiProperty({
-    example: 200,
-    description: 'New debt of the client in hryvna',
-  })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  newMoneyDebt: number
-
-  @ApiProperty({
-    example: 200,
-    description: 'The previous debt of the delivery containers by 1.7 kg.',
-  })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  delContainer1_7PreviousDebt: number
 
   @ApiProperty({
     example: 200,
@@ -91,20 +88,6 @@ export class Offload extends DatedBasicEntity {
 
   @ApiProperty({
     example: 200,
-    description: 'The new debt of the delivery containers by 1.7 kg.',
-  })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  delContainer1_7NewDebt: number
-
-  @ApiProperty({
-    example: 200,
-    description: 'The previous debt of the delivery containers by 0.5 kg.',
-  })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  delContainer0_5PreviousDebt: number
-
-  @ApiProperty({
-    example: 200,
     description:
       'The amount of the delivery containers by 0.5 kg, provided by the client.',
   })
@@ -118,20 +101,6 @@ export class Offload extends DatedBasicEntity {
   })
   @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
   delContainer0_5Out: number
-
-  @ApiProperty({
-    example: 200,
-    description: 'The new debt of the delivery containers by 0.5 kg.',
-  })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  delContainer0_5NewDebt: number
-
-  @ApiProperty({
-    example: 200,
-    description: 'The previous debt of the delivery containers by 0.4 kg.',
-  })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  delContainer0_4PreviousDebt: number
 
   @ApiProperty({
     example: 200,
@@ -151,20 +120,6 @@ export class Offload extends DatedBasicEntity {
 
   @ApiProperty({
     example: 200,
-    description: 'The new debt of the delivery containers by 0.4 kg.',
-  })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  delContainer0_4NewDebt: number
-
-  @ApiProperty({
-    example: 200,
-    description: 'The previous debt of the Schoeller delivery containers.',
-  })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  delContainerSchoellerPreviousDebt: number
-
-  @ApiProperty({
-    example: 200,
     description:
       'The amount of the Schoeller delivery containers, provided by the client.',
   })
@@ -180,9 +135,27 @@ export class Offload extends DatedBasicEntity {
   delContainerSchoellerOut: number
 
   @ApiProperty({
-    example: 200,
-    description: 'The new debt of the Schoeller delivery containers.',
+    example: true,
+    description: "User's active status. Boolean value.",
   })
-  @Column({ type: 'decimal', precision: 5, scale: 0, default: 0 })
-  delContainerSchoellerNewDebt: number
+  @Column({ type: 'boolean', default: false, nullable: true })
+  isClosed: boolean
+
+  @ApiProperty({
+    example: 'Offload closure description',
+    description: 'Offload closure description',
+  })
+  @Column({ type: 'varchar', length: 255, default: null, nullable: true })
+  closureDescription: string
+
+  @ApiProperty({
+    example: true,
+    description: 'Box total quantity.',
+  })
+  @Column({ type: 'decimal', precision: 8, scale: 0, default: 0 })
+  boxTotalQuantity: number
+
+  @ManyToMany(() => PublicFile, (publicFile) => publicFile.offloadDocuments)
+  @JoinTable()
+  documents: PublicFile[]
 }

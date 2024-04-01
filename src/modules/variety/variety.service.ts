@@ -22,6 +22,13 @@ export class VarietyService {
     return this.varietyRepository.findOneBy({ id })
   }
 
+  findVarietyByIdWithRelations(id: number): Promise<Nullable<Variety>> {
+    return this.varietyRepository.findOne({
+      where: { id },
+      relations: ['cuttings', 'storages', 'offloadRecords', 'yields'],
+    })
+  }
+
   findVarietyByName(name: string): Promise<Nullable<Variety>> {
     return this.varietyRepository.findOneBy({ name })
   }
@@ -87,10 +94,25 @@ export class VarietyService {
   }
 
   async removeVariety(id: number): Promise<Boolean> {
-    const foundVariety: Nullable<Variety> = await this.findVarietyById(id)
+    const foundVariety: Nullable<Variety> =
+      await this.findVarietyByIdWithRelations(id)
 
     if (!foundVariety) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { cuttings, storages, offloadRecords, yields } = foundVariety
+
+    if (
+      cuttings.length ||
+      storages.length ||
+      offloadRecords.length ||
+      yields.length
+    ) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
     }
 
     try {
