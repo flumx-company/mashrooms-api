@@ -104,7 +104,9 @@ export class PriceController {
     @Param('tenant') tenant: EPriceTenant,
     @Param('date') date: string,
   ): Promise<Price | EmptyObject> {
-    return this.priceService.findPriceByClosestDate({ date, tenant })
+    return this.priceService
+      .findPriceByClosestDate({ date, tenant })
+      .then((response) => response || {})
   }
 
   @Post()

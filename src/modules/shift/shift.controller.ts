@@ -1,13 +1,23 @@
 import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
+
+import {
+  Body,
   Controller,
   Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
+  ApiBody,
   ApiOperation,
   ApiParam,
   ApiParamOptions,
@@ -19,6 +29,8 @@ import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'
 
+import { UpdateShiftDto } from './dto'
+import { shiftPaginationConfig } from './pagination'
 import { Shift } from './shift.entity'
 import { ShiftService } from './shift.service'
 
@@ -46,8 +58,11 @@ export class ShiftController {
     type: Shift,
     isArray: true,
   })
-  async getAllShifts(): Promise<Shift[]> {
-    return this.shiftService.findAll()
+  @ApiPaginationQuery(shiftPaginationConfig)
+  async getAllShifts(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Shift>> {
+    return this.shiftService.findAll(query)
   }
 
   @Get('ongoing')
@@ -92,10 +107,10 @@ export class ShiftController {
   async getEmployeeCurrectShift(
     @Param('employeeId', ParseIntPipe) employeeId: number,
   ): Promise<Shift> {
-    return this.shiftService.findCurrentShiftWithWorkRecords(employeeId)
+    return this.shiftService.runShiftCalculations(employeeId)
   }
 
-  @Post('employee/:id/start')
+  @Post('employee/:employeeId/start')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.CREATE_SHIFTS,
@@ -105,7 +120,7 @@ export class ShiftController {
       'Begin an employee shift. Role: SUPERADMIN, ADMIN. Permission: CREATE_SHIFTS.',
   })
   @ApiParam({
-    name: 'id',
+    name: 'employeeId',
     type: 'number',
     example: 1,
   } as ApiParamOptions)
@@ -115,11 +130,13 @@ export class ShiftController {
       'Will create a new shift and set employee isActive status to true. Returns true on success',
     type: Boolean,
   })
-  async beginShift(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
-    return this.shiftService.beginShift(id)
+  async beginShift(
+    @Param('employeeId', ParseIntPipe) employeeId: number,
+  ): Promise<Boolean> {
+    return this.shiftService.beginShift(employeeId)
   }
 
-  @Post('employee/:id/end')
+  @Post('employee/:employeeId/end')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.UPDATE_SHIFTS,
@@ -129,7 +146,7 @@ export class ShiftController {
       'End an employee shift. Role: SUPERADMIN, ADMIN. Permission: UPDATE_SHIFTS.',
   })
   @ApiParam({
-    name: 'id',
+    name: 'employeeId',
     type: 'number',
     example: 1,
   } as ApiParamOptions)
@@ -139,8 +156,10 @@ export class ShiftController {
       'Will end an ongoing shift and set employee isActive status to false. Returns false on success',
     type: Boolean,
   })
-  async endShift(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
-    return this.shiftService.endShift(id)
+  async endShift(
+    @Param('employeeId', ParseIntPipe) employeeId: number,
+  ): Promise<Boolean> {
+    return this.shiftService.endShift(employeeId)
   }
 
   @Delete('delete/:id')
@@ -159,5 +178,35 @@ export class ShiftController {
   } as ApiParamOptions)
   async removeShift(@Param('id', ParseIntPipe) id: number): Promise<Boolean> {
     return this.shiftService.removeShift(id)
+  }
+
+  @Put(':shiftId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.UPDATE_SHIFTS,
+  })
+  @ApiOperation({
+    summary:
+      'Edit an employee shift. Role: SUPERADMIN, ADMIN. Permission: UPDATE_SHIFTS.',
+  })
+  @ApiParam({
+    name: 'shiftId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: 'Model to update an existing shift.',
+    type: UpdateShiftDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the shift data.',
+    type: Shift,
+  })
+  async editShift(
+    @Param('shiftId', ParseIntPipe) shiftId: number,
+    @Body() data: UpdateShiftDto,
+  ): Promise<Shift> {
+    return this.shiftService.runShiftCalculations(shiftId, data)
   }
 }

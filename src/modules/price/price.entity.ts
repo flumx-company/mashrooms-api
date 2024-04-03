@@ -9,11 +9,11 @@ import { formatDateToDateTime } from '@mush/core/utils'
 @Entity({ name: 'prices' })
 export class Price extends DatedBasicEntity {
   @ApiProperty({
-    example: 'BARREL',
-    description: 'Enum: BARREL, BOX, KITCHEN. Payment entity.',
+    example: 'LITER',
+    description: 'Enum: LITER, MEDICATED_LITER, BOX, KITCHEN. Payment entity.',
   })
   @Index()
-  @Column({ type: 'enum', enum: EPriceTenant, default: EPriceTenant.BARREL })
+  @Column({ type: 'enum', enum: EPriceTenant, default: EPriceTenant.BOX })
   tenant: EPriceTenant
 
   @ApiProperty({

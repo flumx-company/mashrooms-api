@@ -15,7 +15,7 @@ export class CreatePriceDto {
   @IsString()
   @IsEnum(EPriceTenant)
   @ApiProperty({
-    example: EPriceTenant.BARREL,
+    example: EPriceTenant.BOX,
     description: 'Enter the tenant.',
     type: String,
   })
