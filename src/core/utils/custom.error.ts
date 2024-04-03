@@ -57,4 +57,9 @@ export const CError = {
   WRONG_DOCUMENT_TYPE: `${EError.WRONG_DOCUMENT_TYPE}: The offload document file can be only of application/pdf type.`,
   //NOTE cutting error
   BOX_QUANTITY_EXCEEDS_LIMIT: `${EError.BOX_QUANTITY_EXCEEDS_LIMIT}: The box quantity must be integer, minimum 1, maximum 99999.`,
+  //NOTE price error
+  NO_LITER_PRICE: `${EError.NO_LITER_PRICE}: There is no price for a liter on the shift first date or prior to it.`,
+  NO_MEDICATED_LITER_PRICE: `${EError.NO_MEDICATED_LITER_PRICE}: There is no price for a medicated liter on the shift first date or prior to it.`,
+  NO_BOX_PRICE: `${EError.NO_BOX_PRICE}: There is no price for a box on the shift first date or prior to it.`,
+  NO_KITCHEN_PRICE: `${EError.NO_KITCHEN_PRICE}: There is no price for kitchen on the shift first date or prior to it.`,
 }

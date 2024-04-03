@@ -1,4 +1,4 @@
-import { LessThanOrEqual, Repository } from 'typeorm'
+import { Between, LessThanOrEqual, Repository } from 'typeorm'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -60,7 +60,7 @@ export class PriceService {
   }: {
     date: string
     tenant: EPriceTenant
-  }): Promise<Price | EmptyObject> {
+  }): Promise<Price> {
     if (findWrongEnumValue({ $enum: EPriceTenant, value: tenant })) {
       throw new HttpException(CError.INVALID_TENANT, HttpStatus.BAD_REQUEST)
     }
@@ -73,7 +73,15 @@ export class PriceService {
       order: { date: 'DESC' },
     })
 
-    return foundPrice || {}
+    return foundPrice
+  }
+
+  async findAllTenantPricesWithinPeriod({ dateFrom, dateTo }) {
+    return this.priceRepository.find({
+      where: {
+        date: Between(dateFrom, dateTo),
+      },
+    })
   }
 
   async findAllTenantCurrentPrices(): Promise<Array<Price | EmptyObject>> {
@@ -87,6 +95,8 @@ export class PriceService {
         this.findPriceByClosestDate({
           tenant,
           date: today,
+        }).then((response) => {
+          return response || {}
         }),
       )
     })
