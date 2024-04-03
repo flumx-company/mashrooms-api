@@ -104,6 +104,15 @@ export class PriceService {
     return Promise.all(promises)
   }
 
+  async findPriceByDateTenant({ date, tenant }): Promise<Nullable<Price>> {
+    return this.priceRepository.findOne({
+      where: {
+        date,
+        tenant,
+      },
+    })
+  }
+
   async createPrice({
     tenant,
     price,
@@ -113,7 +122,9 @@ export class PriceService {
     price: number
     date: string
   }): Promise<Price> {
+    const foundPrice = await this.findPriceByDateTenant({ tenant, date })
     const newPrice: Price = await this.priceRepository.create({
+      ...(foundPrice || {}),
       tenant,
       price,
       date: `${date} 00:00:00:000`,
