@@ -29,9 +29,11 @@ export class StoreContainerService {
   async createStoreContainer({
     name,
     weight,
+    amount
   }: {
     name: string
-    weight: number
+    weight: number,
+    amount: number
   }): Promise<StoreContainer> {
     const foundStoreContainerByName = await this.findStoreContainerByName(name)
 
@@ -56,9 +58,11 @@ export class StoreContainerService {
     {
       name,
       weight,
+      amount
     }: {
       name: string
-      weight: number
+      weight: number,
+      amount: number
     },
   ): Promise<StoreContainer> {
     const [
@@ -85,6 +89,7 @@ export class StoreContainerService {
         ...foundStoreContainerById,
         name,
         weight,
+        amount
       })
 
     return this.storeContainerRepository.save(updatedStoreContainer)
