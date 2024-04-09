@@ -135,6 +135,7 @@ export class ShiftService {
       .leftJoinAndSelect('shift.loadings', 'loading')
       .leftJoinAndSelect('shift.offloadLoadings', 'offload')
       .leftJoinAndSelect('workRecord.work', 'work')
+      .leftJoinAndSelect('cutting.variety', 'variety')
       .select([
         'shift.id',
         'shift.dateFrom',
@@ -177,6 +178,8 @@ export class ShiftService {
         'offload.id',
         'offload.boxTotalQuantity',
         'offload.createdAt',
+        'variety.id',
+        'variety.isCutterPaid',
       ])
       .where('shift.dateTo IS NULL')
       .andWhere('employee.id = :employeeId', { employeeId })
@@ -202,12 +205,14 @@ export class ShiftService {
       waterings,
       workRecords,
     } = shift
-    const customBonus = isFinite(newShiftData.customBonus)
-      ? newShiftData.customBonus
-      : shift.customBonus
-    const paidAmount = isFinite(newShiftData.paidAmount)
-      ? newShiftData.paidAmount
-      : shift.paidAmount
+    const customBonus =
+      newShiftData && isFinite(newShiftData?.customBonus)
+        ? newShiftData.customBonus
+        : shift.customBonus
+    const paidAmount =
+      newShiftData && isFinite(newShiftData?.paidAmount)
+        ? newShiftData.paidAmount
+        : shift.paidAmount
     const dateFrom = formatDateToDateTime({
       value: new Date(startDate),
       withTime: true,
@@ -312,7 +317,11 @@ export class ShiftService {
       return priceDirectory[tenant][nearestDate]
     }
 
-    cuttings.forEach(({ createdAt, boxQuantity }) => {
+    cuttings.forEach(({ createdAt, boxQuantity, variety }) => {
+      if (!variety.isCutterPaid) {
+        return
+      }
+
       const date = formatDateToDateTime({
         value: createdAt,
         withTime: false,

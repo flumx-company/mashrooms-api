@@ -113,42 +113,42 @@ export class Shift extends DatedBasicEntity {
   kitchenPaymentMethod: EPaymentMethod
 
   @ApiProperty({
-    example: true,
+    example: 0,
     description: 'Kitchen expenses: kitchen price multiplied by dayNumber.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   kitchenExpenses: number
 
   @ApiProperty({
-    example: true,
+    example: 0,
     description: 'The automatically calculated quantity of calendar days.',
   })
   @Column({ type: 'decimal', precision: 3, scale: 0, default: 0 })
   calendarDayNumber: number
 
   @ApiProperty({
-    example: true,
+    example: 0,
     description: 'The automatically calculated quantity of working days.',
   })
   @Column({ type: 'decimal', precision: 3, scale: 0, default: 0 })
   workingDayNumber: number
 
   @ApiProperty({
-    example: true,
+    example: 0,
     description: 'Wages from all works done over the shift.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   wage: number
 
   @ApiProperty({
-    example: true,
+    example: 0,
     description: `This ${process.env.AUTOMATIC_WAGE_BONUS_PERCENT} bonus to the wage is added in case an employee worked ${process.env.AUTOMATIC_WAGE_BONUS_MINIMUM_DAY_AMOUNT} days within the shift.`,
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   bonus: number
 
   @ApiProperty({
-    example: true,
+    example: '',
     description: 'This bonus is given by the employer whenever he decides.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
@@ -167,21 +167,21 @@ export class Shift extends DatedBasicEntity {
   customBonusDescription: string
 
   @ApiProperty({
-    example: true,
+    example: 0,
     description: 'All the wages plus all bonuses minus kitchenExpenses.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   wageTotal: number
 
   @ApiProperty({
-    example: true,
+    example: 0,
     description: 'The amount of money paid to the employee.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   paidAmount: number
 
   @ApiProperty({
-    example: true,
+    example: 0,
     description: 'WageTotal minus paidAmount.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
