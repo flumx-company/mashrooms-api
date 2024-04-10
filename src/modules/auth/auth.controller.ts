@@ -54,13 +54,20 @@ export class AuthController {
     return nextDay
   }
 
+  private setDomainByHost = (hostname:string): void => {
+    const token = process.env.COOKIE_TOKEN_DOMAIN || '';
+    const listOfDomains = token.indexOf(',') ? token.split(',') : [token];
+    const foundDomain = listOfDomains.find(i => i.includes(hostname);
+    this.cookieConfig.domain = convertType(foundDomain) as TDomain
+  }
+  
   private cookieConfig: CookieOptions = {
     httpOnly: convertType(process.env.COOKIE_TOKEN_HTTP_ONLY) as THttpOnly,
     sameSite: process.env.COOKIE_TOKEN_SAME_SITE as TSameSite,
     secure: convertType(process.env.COOKIE_TOKEN_SECURE) as TSecure,
     expires: this.getNextDay(),
     path: convertType(process.env.COOKIE_TOKEN_PATH) as TPath,
-    domain: convertType(process.env.COOKIE_TOKEN_DOMAIN) as TDomain,
+    domain: null,
   }
 
   @Post('login')
@@ -78,6 +85,7 @@ export class AuthController {
     type: User,
   })
   async loginByPhoneAndPassword(
+    @Req() request: ExRequest,
     @Body() loginData: LoginDto,
     @Res({ passthrough: true }) response: ExResponse,
   ): Promise<Nullable<User>> {
@@ -92,6 +100,7 @@ export class AuthController {
       password: loginData.password,
     })
 
+    this.setDomainByHost(request.hostname);
     response.cookie(
       process.env.COOKIE_TOKEN_NAME,
       accessToken,
@@ -114,6 +123,9 @@ export class AuthController {
     @Req() request: ExRequest,
     @Res({ passthrough: true }) response: ExResponse,
   ) {
+
+    this.setDomainByHost(request.hostname);
+    
     let hasToken = Boolean(
       request?.['cookies']?.[process.env.COOKIE_TOKEN_NAME],
     )
