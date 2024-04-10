@@ -57,7 +57,7 @@ export class AuthController {
   private setDomainByHost = (hostname:string): void => {
     const token = process.env.COOKIE_TOKEN_DOMAIN || '';
     const listOfDomains = token.indexOf(',') ? token.split(',') : [token];
-    const foundDomain = listOfDomains.find(i => i.includes(hostname);
+    const foundDomain = listOfDomains.find(i => i.includes(hostname));
     this.cookieConfig.domain = convertType(foundDomain) as TDomain
   }
   
