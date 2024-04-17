@@ -91,7 +91,7 @@ export class DriverService {
   }
 
   async removeDriver(id: number): Promise<Boolean> {
-    const foundDriver: Nullable<Driver> = await this.findDriverById(id)
+    const foundDriver: Nullable<Driver> = await this.findDriverByIdWithRelations(id)
 
     if (!foundDriver) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
