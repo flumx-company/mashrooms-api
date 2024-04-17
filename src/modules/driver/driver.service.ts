@@ -91,7 +91,7 @@ export class DriverService {
   }
 
   async removeDriver(id: number): Promise<Boolean> {
-    const foundDriver: Nullable<Driver> = await this.findDriverById(id)
+    const foundDriver: Nullable<Driver> = await this.findDriverByIdWithRelations(id)
 
     if (!foundDriver) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -99,7 +99,7 @@ export class DriverService {
 
     const { offloads } = foundDriver
 
-    if (offloads.length) {
+    if (offloads?.length) {
       throw new HttpException(
         CError.ENTITY_HAS_DEPENDENT_RELATIONS,
         HttpStatus.BAD_REQUEST,

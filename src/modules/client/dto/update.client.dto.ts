@@ -53,7 +53,6 @@ export class UpdateClientDto {
   @IsString()
   @MaxLength(parseInt(process.env.MAX_NICKNAME_LENGTH))
   @MinLength(1)
-  @IsNotEmpty()
   @ApiProperty({
     example: 'John Johnson',
     description: 'Enter nickname.',
