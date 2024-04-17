@@ -99,7 +99,7 @@ export class DriverService {
 
     const { offloads } = foundDriver
 
-    if (offloads.length) {
+    if (offloads?.length) {
       throw new HttpException(
         CError.ENTITY_HAS_DEPENDENT_RELATIONS,
         HttpStatus.BAD_REQUEST,
