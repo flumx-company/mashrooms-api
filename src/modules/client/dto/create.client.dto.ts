@@ -55,6 +55,7 @@ export class CreateClientDto {
   })
   readonly patronymic: string
 
+  @IsOptional()
   @IsString()
   @MaxLength(parseInt(process.env.MAX_NICKNAME_LENGTH))
   @MinLength(1)
