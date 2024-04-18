@@ -30,14 +30,4 @@ export class UpdateStoreContainerDto {
     type: Number,
   })
   readonly weight: number
-
-  @IsNumber()
-  @IsNotEmpty()
-  @Max(99999999)
-  @ApiProperty({
-    example: 5,
-    description: 'Enter the store container box amount.',
-    type: Number,
-  })
-  readonly amount: number
 }
