@@ -21,13 +21,6 @@ export class StoreContainer extends DatedBasicEntity {
   name: string
 
   @ApiProperty({
-    example: true,
-    description: 'Box quantity.',
-  })
-  @Column({ type: 'decimal', precision: 10, scale: 0, default: 0 })
-  amount: number
-
-  @ApiProperty({
     example: 200,
     description: 'Weight in kg',
   })
