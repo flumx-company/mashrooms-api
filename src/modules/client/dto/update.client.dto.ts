@@ -51,6 +51,7 @@ export class UpdateClientDto {
   })
   readonly patronymic: string
 
+  @IsOptional()
   @IsString()
   @MaxLength(parseInt(process.env.MAX_NICKNAME_LENGTH))
   @MinLength(1)
