@@ -494,8 +494,10 @@ export class ShiftService {
         this.runShiftCalculations(currentShift.id, { dateTo }),
         this.employeeService.updateEmployeeActiveStatus(employeeId, false),
       ])
+      
       return true
-    } catch {
+    } catch (e) {
+      console.log(e)
       return false
     }
   }
