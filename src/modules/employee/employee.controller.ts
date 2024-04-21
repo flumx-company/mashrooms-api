@@ -90,7 +90,7 @@ export class EmployeeController {
     example: 1,
   } as ApiParamOptions)
   async getEmployee(@Param('id', ParseIntPipe) id: number): Promise<Employee> {
-    return this.employeeService.findEmployeeById(id)
+    return this.employeeService.findEmployeeByIdWithRelations(id)
   }
 
   @Post()
