@@ -80,8 +80,10 @@ export class ShiftService {
   ): Promise<Nullable<Shift>> {
     return this.shiftRepository
       .createQueryBuilder('shift')
-      .where('shift.dateTo IS NULL')
       .innerJoinAndSelect('shift.employee', 'employee', 'employee.id = :id', {
+        id: employeeId,
+      })
+      .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
         id: employeeId,
       })
       .getOne()
@@ -92,8 +94,10 @@ export class ShiftService {
   ): Promise<Nullable<Shift>> {
     return this.shiftRepository
       .createQueryBuilder('shift')
-      .where('shift.dateTo IS NULL')
-      .innerJoin('shift.employee', 'employee', 'employee.id = :id', {
+      .innerJoinAndSelect('shift.employee', 'employee', 'employee.id = :id', {
+        id: employeeId,
+      })
+      .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
         id: employeeId,
       })
       .leftJoinAndSelect('shift.workRecords', 'workRecord')
