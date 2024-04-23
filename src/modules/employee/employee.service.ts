@@ -26,6 +26,8 @@ export class EmployeeService {
   constructor(
     @InjectRepository(Employee)
     private employeeRepository: Repository<Employee>,
+    @InjectRepository(PublicFile)
+    private publicFileRepository: Repository<PublicFile>,
     private readonly fileUploadService: FileUploadService,
   ) {}
 
@@ -46,11 +48,25 @@ export class EmployeeService {
       .createQueryBuilder('employee')
       .leftJoinAndSelect('employee.avatars', EFileCategory.EMPLOYEE_AVATARS)
       .where('employee.id = :id', { id })
-      .leftJoinAndSelect('employee.documents', EFileCategory.EMPLOYEE_DOCUMENTS)
-      .where('employee.id = :id', { id })
-      .leftJoinAndSelect('employee.shifts', 'shifts')
-      .where('employee.id = :id', { id })
-      .getOne()
+      // .leftJoinAndSelect('employee.documents', EFileCategory.EMPLOYEE_DOCUMENTS)
+      // .where('employee.id = :id', { id })
+      // .leftJoinAndSelect('employee.shifts', 'shifts')
+      // .where('employee.id = :id', { id })
+      // .getOne()
+  }
+  
+  findEmployeeDocuments(query: PaginateQuery, id: number): Promise<Nullable<PublicFile>> {
+
+    const query = {
+      ...query, 
+      "filter.employeeDocuments.id": id
+    }
+    return paginate(, this.publicFileRepository, {
+      relations: [EFileCategory.EMPLOYEE_DOCUMENTS],
+      employeeDocuments: {
+        ['employeeDocuments.id']: [FilterOperator.EQ],
+      }
+    })
   }
 
   async createEmployee(

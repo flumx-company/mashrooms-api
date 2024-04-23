@@ -450,21 +450,15 @@ export class ShiftService {
         HttpStatus.BAD_REQUEST,
       )
     }
+ 
+    const newShift: Shift = await this.shiftRepository.create({
+      dateFrom,
+      employee,
+    })
 
-    try {
-      const newShift: Shift = await this.shiftRepository.create({
-        dateFrom,
-        employee,
-      })
-
-      await Promise.all([
-        this.shiftRepository.save(newShift),
-        this.employeeService.updateEmployeeActiveStatus(employeeId, true),
-      ])
-      return true
-    } catch {
-      return false
-    }
+    await this.shiftRepository.save(newShift);
+    await this.employeeService.updateEmployeeActiveStatus(employeeId, true)
+    return true
   }
 
   async endShift(employeeId: number) {
@@ -489,17 +483,13 @@ export class ShiftService {
       )
     }
 
-    try {
-      await Promise.all([
-        this.runShiftCalculations(currentShift.id, { dateTo }),
-        this.employeeService.updateEmployeeActiveStatus(employeeId, false),
-      ])
-      
-      return true
-    } catch (e) {
-      console.log(e)
-      return false
-    }
+    
+    await this.runShiftCalculations(currentShift.id, { dateTo })
+
+    await this.employeeService.updateEmployeeActiveStatus(employeeId, false)
+    
+    return true
+   
   }
 
   async removeShift(id: number) {
@@ -534,12 +524,9 @@ export class ShiftService {
       )
     }
 
-    try {
-      this.shiftRepository.remove(foundShift)
-      return true
-    } catch (e) {
-      return false
-    }
+    
+    await this.shiftRepository.remove(foundShift)
+    return true
   }
 
   async findShiftById(id: number): Promise<Nullable<Shift>> {
