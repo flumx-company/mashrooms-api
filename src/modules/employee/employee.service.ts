@@ -57,11 +57,11 @@ export class EmployeeService {
   
   findEmployeeDocuments(query: PaginateQuery, id: number): Promise<Nullable<PublicFile>> {
 
-    const query = {
+    const updatedQuery = {
       ...query, 
       "filter.employeeDocuments.id": id
     }
-    return paginate(, this.publicFileRepository, {
+    return paginate(updatedQuery, this.publicFileRepository, {
       relations: [EFileCategory.EMPLOYEE_DOCUMENTS],
       employeeDocuments: {
         ['employeeDocuments.id']: [FilterOperator.EQ],
