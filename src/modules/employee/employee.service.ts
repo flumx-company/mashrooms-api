@@ -1,4 +1,4 @@
-import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
+import { PaginateQuery, Paginated, paginate, FilterOperator } from 'nestjs-paginate'
 import * as stream from 'stream'
 import { Repository } from 'typeorm'
 
