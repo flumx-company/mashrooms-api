@@ -4,7 +4,8 @@ import {
   Paginate,
   PaginateQuery,
   Paginated,
-  FilterOperator
+  FilterOperator,
+  PaginateConfig
 } from 'nestjs-paginate'
 import * as stream from 'stream'
 
@@ -281,11 +282,11 @@ export class EmployeeController {
     employeeDocuments: {
       ['employeeDocuments.id']: [FilterOperator.EQ],
     }
-  })
+  } as PaginateConfig<PublicFile>)
   async getDocumentsByEmployeeId(
     @Param('id', ParseIntPipe) id: number,
     @Paginate() query: PaginateQuery,
-  ): Promise<Nullable<PublicFile[]>> {
+  ): Promise<Paginated<PublicFile>> {
     return this.employeeService.findEmployeeDocuments(query, id)
   }
 
