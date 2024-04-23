@@ -55,9 +55,10 @@ export class EmployeeService {
       // .getOne()
   }
   
-  findEmployeeDocuments(id: number): Promise<Nullable<PublicFile>> {
+  findEmployeeDocuments(query: PaginateQuery, id: number): Promise<Nullable<PublicFile>> {
 
     const query = {
+      ...query, 
       "filter.employeeDocuments.id": id
     }
     return paginate(, this.publicFileRepository, {
