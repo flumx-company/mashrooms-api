@@ -50,7 +50,9 @@ export class ClientService {
   ): Promise<Paginated<PublicFile>> {
     const updatedQuery = {
       ...query,
-      'filter.clientFiles.id': id,
+      'filter': {
+        "clientFiles.id": id
+      }
     };
     return paginate(updatedQuery, this.publicFileRepository, {
       relations: [EFileCategory.CLIENT_FILES],
