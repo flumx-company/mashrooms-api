@@ -67,7 +67,7 @@ export class EmployeeService {
     };
     return paginate(updatedQuery, this.publicFileRepository, {
       relations: [EFileCategory.EMPLOYEE_DOCUMENTS],
-      sortableColumns: ['employeeDocuments.id'],
+      sortableColumns: ['employeeDocuments.id', 'id'],
       filterableColumns: {
         ['employeeDocuments.id']: [FilterOperator.EQ],
       },
