@@ -260,12 +260,16 @@ export class ClientService {
     const fileListData: PublicFile[] =
       await this.fileUploadService.uploadPublicFiles(clientFiles)
 
-    const updatedClient: Client = this.clientRepository.create({
-      ...foundClient,
-      files: [...foundClient.files, ...fileListData],
-    })
+    const promises = fileListData.map(item => {
+      const data = this.publicFileRepository.create({
+        ...item,
+        clientFiles: [foundClient]
+      })
 
-    return this.clientRepository.save(updatedClient)
+      this.publicFileRepository.save(data);
+    });
+
+    return Promise.all(promises);
   }
 
   async removeClientFile(clientId: number, fileId: number) {
