@@ -269,7 +269,8 @@ export class ClientService {
       this.publicFileRepository.save(data);
     });
 
-    return Promise.all(promises);
+    await Promise.all(promises);
+    return foundClient;
   }
 
   async removeClientFile(clientId: number, fileId: number) {
