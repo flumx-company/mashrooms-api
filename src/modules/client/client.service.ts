@@ -266,7 +266,7 @@ export class ClientService {
         clientFiles: [foundClient]
       })
 
-      this.publicFileRepository.save(data);
+      return this.publicFileRepository.save(data);
     });
 
     await Promise.all(promises);
