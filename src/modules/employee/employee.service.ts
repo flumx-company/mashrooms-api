@@ -313,13 +313,17 @@ export class EmployeeService {
 
     const documentListData: PublicFile[] =
       await this.fileUploadService.uploadPublicFiles(files);
+    const promises = documentListData.map(item => {
+      const data = this.publicFileRepository.create({
+        ...item,
+        employeeDocuments: [foundEmployee]
+      })
 
-    const updatedEmployee: Employee = this.employeeRepository.create({
-      ...foundEmployee,
-      documents: [...foundEmployee.documents, ...documentListData],
+      return this.publicFileRepository.save(data);
     });
 
-    return this.employeeRepository.save(updatedEmployee);
+    await Promise.all(promises);
+    return foundEmployee;
   }
 
   async removeEmployeeDocument(employeeId: number, documentId: number) {
@@ -333,39 +337,7 @@ export class EmployeeService {
       );
     }
 
-    const foundDocument = foundEmployee.documents.find(
-      (doc) => doc.id === documentId,
-    );
-
-    if (!foundDocument) {
-      throw new HttpException(
-        CError.FILE_ID_NOT_RELATED,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    try {
-      await this.fileUploadService.deletePublicFile(documentId);
-      const updatedEmployeeDocumentList = [...foundEmployee.documents];
-      const removedDocumentIndex = updatedEmployeeDocumentList.findIndex(
-        (doc) => doc.id === documentId,
-      );
-
-      if (removedDocumentIndex > -1) {
-        updatedEmployeeDocumentList.splice(removedDocumentIndex, 1);
-      }
-
-      const updatedEmployee: Employee = this.employeeRepository.create({
-        ...foundEmployee,
-        documents: updatedEmployeeDocumentList,
-      });
-
-      this.employeeRepository.save(updatedEmployee);
-
-      return true;
-    } catch (e) {
-      return false;
-    }
+    return this.fileUploadService.deletePublicFile(documentId);
   }
 
   async updateEmployeeActiveStatus(
