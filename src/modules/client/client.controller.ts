@@ -198,7 +198,7 @@ export class ClientController {
   })
   @ApiPaginationQuery({
     relations: [EFileCategory.CLIENT_FILES],
-    sortableColumns: ['clientFiles.id'],
+    sortableColumns: ['clientFiles.id', 'id'],
   } as PaginateConfig<PublicFile>)
   async getDocumentsByEmployeeId(
     @Param('id', ParseIntPipe) id: number,
