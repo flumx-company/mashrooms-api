@@ -3,8 +3,8 @@ import {
   ApiPaginationQuery,
   Paginate,
   PaginateQuery,
-  Paginated,
-} from 'nestjs-paginate'
+  Paginated, FilterOperator, PaginateConfig,
+} from 'nestjs-paginate';
 import * as stream from 'stream'
 
 import {
@@ -196,16 +196,18 @@ export class ClientController {
     summary:
       'Get files related to a client whose id is provided. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENT_FILES.',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Will return files related to a client whose id is provided.',
-    type: PublicFile,
-    isArray: true,
-  })
-  async getFilesByClientId(
+  @ApiPaginationQuery({
+    relations: [EFileCategory.CLIENT_FILES],
+    sortableColumns: ['clientFiles.id'],
+    filterableColumns: {
+      ['clientFiles.id']: [FilterOperator.EQ],
+    },
+  } as PaginateConfig<PublicFile>)
+  async getDocumentsByEmployeeId(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<Nullable<PublicFile[]>> {
-    return this.clientService.getFilesByClientId(id)
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<PublicFile>> {
+    return this.clientService.findClientDocuments(query, id);
   }
 
   @Post(':id/files')
