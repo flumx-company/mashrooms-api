@@ -1,25 +1,25 @@
-import { PaginateQuery, Paginated, paginate, FilterOperator } from 'nestjs-paginate'
-import * as stream from 'stream'
-import { Repository } from 'typeorm'
+import { PaginateQuery, Paginated, paginate, FilterOperator } from 'nestjs-paginate';
+import * as stream from 'stream';
+import { Repository } from 'typeorm';
 
 import {
   HttpException,
   HttpStatus,
   Injectable,
   StreamableFile,
-} from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
-import { EFileCategory } from '@mush/core/enums'
-import { CError, Nullable } from '@mush/core/utils'
+import { EFileCategory } from '@mush/core/enums';
+import { CError, Nullable } from '@mush/core/utils';
 
-import { FileUploadService } from '../file-upload/file-upload.service'
-import { BufferedFile } from '../file-upload/file.model'
-import { PublicFile } from '../file-upload/public-file.entity'
-import { CreateEmployeeDto } from './dto/create.employee.dto'
-import { UpdateEmployeeDto } from './dto/update.employee.dto'
-import { Employee } from './employee.entity'
-import { employeePaginationConfig } from './pagination/employee.pagination.config'
+import { FileUploadService } from '../file-upload/file-upload.service';
+import { BufferedFile } from '../file-upload/file.model';
+import { PublicFile } from '../file-upload/public-file.entity';
+import { CreateEmployeeDto } from './dto/create.employee.dto';
+import { UpdateEmployeeDto } from './dto/update.employee.dto';
+import { Employee } from './employee.entity';
+import { employeePaginationConfig } from './pagination/employee.pagination.config';
 
 @Injectable()
 export class EmployeeService {
@@ -29,44 +29,47 @@ export class EmployeeService {
     @InjectRepository(PublicFile)
     private publicFileRepository: Repository<PublicFile>,
     private readonly fileUploadService: FileUploadService,
-  ) {}
+  ) {
+  }
 
   findAll(query: PaginateQuery): Promise<Paginated<Employee>> {
-    return paginate(query, this.employeeRepository, employeePaginationConfig)
+    return paginate(query, this.employeeRepository, employeePaginationConfig);
   }
 
   findEmployeeById(id: number): Promise<Nullable<Employee>> {
-    return this.employeeRepository.findOneBy({ id })
+    return this.employeeRepository.findOneBy({ id });
   }
 
   findEmployeeByPhone(phone: string): Promise<Nullable<Employee>> {
-    return this.employeeRepository.findOneBy({ phone })
+    return this.employeeRepository.findOneBy({ phone });
   }
 
   findEmployeeByIdWithRelations(id: number): Promise<Nullable<Employee>> {
     return this.employeeRepository
       .createQueryBuilder('employee')
       .leftJoinAndSelect('employee.avatars', EFileCategory.EMPLOYEE_AVATARS)
-      .where('employee.id = :id', { id })
       // .leftJoinAndSelect('employee.documents', EFileCategory.EMPLOYEE_DOCUMENTS)
       // .where('employee.id = :id', { id })
       // .leftJoinAndSelect('employee.shifts', 'shifts')
-      // .where('employee.id = :id', { id })
-      // .getOne()
+      .where('employee.id = :id', { id })
+      .getOne();
   }
-  
-  findEmployeeDocuments(query: PaginateQuery, id: number): Promise<Nullable<PublicFile>> {
 
+  findEmployeeDocuments(
+    query: PaginateQuery,
+    id: number,
+  ): Promise<Paginated<PublicFile>> {
     const updatedQuery = {
-      ...query, 
-      "filter.employeeDocuments.id": id
-    }
+      ...query,
+      'filter.employeeDocuments.id': id,
+    };
     return paginate(updatedQuery, this.publicFileRepository, {
       relations: [EFileCategory.EMPLOYEE_DOCUMENTS],
-      employeeDocuments: {
+      sortableColumns: ['employeeDocuments.id'],
+      filterableColumns: {
         ['employeeDocuments.id']: [FilterOperator.EQ],
-      }
-    })
+      },
+    });
   }
 
   async createEmployee(
@@ -83,33 +86,33 @@ export class EmployeeService {
     }: CreateEmployeeDto,
     files: BufferedFile[],
   ): Promise<Employee> {
-    const foundEmployeeByPhone = await this.findEmployeeByPhone(phone)
-    let avatarData: PublicFile
-    let documentListData: PublicFile[]
+    const foundEmployeeByPhone = await this.findEmployeeByPhone(phone);
+    let avatarData: PublicFile;
+    let documentListData: PublicFile[];
 
     if (foundEmployeeByPhone) {
       throw new HttpException(
         CError.PHONE_ALREADY_EXISTS,
         HttpStatus.BAD_REQUEST,
-      )
+      );
     }
 
     if (files) {
       const avatarFile = files.find(({ fieldname }) => {
-        return fieldname === EFileCategory.EMPLOYEE_AVATARS
-      })
+        return fieldname === EFileCategory.EMPLOYEE_AVATARS;
+      });
 
       const docFiles = files.filter(({ fieldname }) => {
-        return fieldname === EFileCategory.EMPLOYEE_DOCUMENTS
-      })
+        return fieldname === EFileCategory.EMPLOYEE_DOCUMENTS;
+      });
 
       const data = await Promise.all([
         avatarFile ? this.fileUploadService.uploadPublicFile(avatarFile) : null,
         docFiles ? this.fileUploadService.uploadPublicFiles(docFiles) : null,
-      ])
+      ]);
 
-      avatarData = data[0]
-      documentListData = data[1]
+      avatarData = data[0];
+      documentListData = data[1];
     }
 
     const newEmployee: Employee = this.employeeRepository.create({
@@ -125,9 +128,9 @@ export class EmployeeService {
       hasCriminalRecord,
       avatars: avatarData ? [avatarData] : [],
       documents: documentListData || [],
-    })
+    });
 
-    return this.employeeRepository.save(newEmployee)
+    return this.employeeRepository.save(newEmployee);
   }
 
   async updateEmployee(
@@ -147,17 +150,17 @@ export class EmployeeService {
     const [foundEmployeeById, foundEmployeeByPhone] = await Promise.all([
       this.findEmployeeById(id),
       this.findEmployeeByPhone(phone),
-    ])
+    ]);
 
     if (!foundEmployeeById) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
     if (foundEmployeeByPhone && foundEmployeeByPhone.id !== id) {
       throw new HttpException(
         CError.PHONE_ALREADY_EXISTS,
         HttpStatus.BAD_REQUEST,
-      )
+      );
     }
 
     const updatedEmployee: Employee = this.employeeRepository.create({
@@ -171,55 +174,55 @@ export class EmployeeService {
       town,
       isUnreliable,
       hasCriminalRecord,
-    })
+    });
 
-    return this.employeeRepository.save(updatedEmployee)
+    return this.employeeRepository.save(updatedEmployee);
   }
 
   async removeEmployee(id: number): Promise<Boolean> {
     const foundEmployee: Nullable<Employee> =
-      await this.findEmployeeByIdWithRelations(id)
+      await this.findEmployeeByIdWithRelations(id);
 
     if (!foundEmployee) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
-    const { shifts } = foundEmployee
+    const { shifts } = foundEmployee;
 
     if (shifts.length) {
       throw new HttpException(
         CError.ENTITY_HAS_DEPENDENT_RELATIONS,
         HttpStatus.BAD_REQUEST,
-      )
+      );
     }
 
-    const docIdList = foundEmployee.documents.map((doc) => doc.id)
-    const avatarId = foundEmployee.avatars.map((file) => file.id)[0]
+    const docIdList = foundEmployee.documents.map((doc) => doc.id);
+    const avatarId = foundEmployee.avatars.map((file) => file.id)[0];
 
     try {
       await Promise.all([
         this.employeeRepository.remove(foundEmployee),
         docIdList.length && this.fileUploadService.deletePublicFiles(docIdList),
         avatarId && this.fileUploadService.deletePublicFile(avatarId),
-      ])
+      ]);
 
-      return true
+      return true;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   async findEmployeeAvatar(id: number): Promise<StreamableFile> {
-    const foundEmployee = await this.findEmployeeByIdWithRelations(id)
+    const foundEmployee = await this.findEmployeeByIdWithRelations(id);
 
     if (!foundEmployee) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
-    const avatarId = foundEmployee?.avatars?.[0]?.id
+    const avatarId = foundEmployee?.avatars?.[0]?.id;
 
     if (!avatarId) {
-      throw new HttpException(CError.NOT_FOUND_AVATAR, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_AVATAR, HttpStatus.BAD_REQUEST);
     }
 
     const {
@@ -229,12 +232,12 @@ export class EmployeeService {
       await this.fileUploadService.getFile(
         avatarId,
         EFileCategory.EMPLOYEE_AVATARS,
-      )
+      );
 
     return new StreamableFile(stream, {
       disposition: `inline filename="${fileInfo.name}`,
       type: fileInfo.type,
-    })
+    });
   }
 
   async changeEmployeeAvatar(
@@ -242,54 +245,54 @@ export class EmployeeService {
     files: BufferedFile[],
   ): Promise<Nullable<Employee>> {
     if (!files || !files.length) {
-      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST);
     }
 
-    const foundEmployee = await this.findEmployeeByIdWithRelations(id)
+    const foundEmployee = await this.findEmployeeByIdWithRelations(id);
 
     if (!foundEmployee) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
-    const oldAvatar = foundEmployee?.avatars?.[0]
-    const newAvatar = files[0]
+    const oldAvatar = foundEmployee?.avatars?.[0];
+    const newAvatar = files[0];
 
     const [_, newAvatarData]: [boolean, PublicFile] = await Promise.all([
       oldAvatar && this.fileUploadService.deletePublicFile(oldAvatar.id),
       this.fileUploadService.uploadPublicFile(newAvatar),
-    ])
+    ]);
 
     const updatedEmpoyee: Employee = this.employeeRepository.create({
       ...foundEmployee,
       avatars: [newAvatarData],
-    })
+    });
 
-    return this.employeeRepository.save(updatedEmpoyee)
+    return this.employeeRepository.save(updatedEmpoyee);
   }
 
   async removeEmployeeAvatar(id: number): Promise<boolean> {
-    const foundEmployee: Employee = await this.findEmployeeByIdWithRelations(id)
-    const avatar: PublicFile = foundEmployee?.avatars?.[0]
+    const foundEmployee: Employee = await this.findEmployeeByIdWithRelations(id);
+    const avatar: PublicFile = foundEmployee?.avatars?.[0];
 
     if (!foundEmployee) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
     if (!avatar) {
-      throw new HttpException(CError.NOT_FOUND_AVATAR, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_AVATAR, HttpStatus.BAD_REQUEST);
     }
 
-    return this.fileUploadService.deletePublicFile(avatar.id)
+    return this.fileUploadService.deletePublicFile(avatar.id);
   }
 
   async getDocumentsByEmployeeId(id: number): Promise<Nullable<PublicFile[]>> {
-    const foundEmployee = await this.findEmployeeByIdWithRelations(id)
+    const foundEmployee = await this.findEmployeeByIdWithRelations(id);
 
     if (!foundEmployee) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
-    return foundEmployee.documents
+    return foundEmployee.documents;
   }
 
   async addEmployeeDocuments(
@@ -297,69 +300,69 @@ export class EmployeeService {
     files: BufferedFile[],
   ): Promise<Nullable<Employee>> {
     if (!files || !files.length) {
-      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST);
     }
 
-    const foundEmployee = await this.findEmployeeByIdWithRelations(id)
+    const foundEmployee = await this.findEmployeeByIdWithRelations(id);
 
     if (!foundEmployee) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
     const documentListData: PublicFile[] =
-      await this.fileUploadService.uploadPublicFiles(files)
+      await this.fileUploadService.uploadPublicFiles(files);
 
     const updatedEmployee: Employee = this.employeeRepository.create({
       ...foundEmployee,
       documents: [...foundEmployee.documents, ...documentListData],
-    })
+    });
 
-    return this.employeeRepository.save(updatedEmployee)
+    return this.employeeRepository.save(updatedEmployee);
   }
 
   async removeEmployeeDocument(employeeId: number, documentId: number) {
     const foundEmployee: Nullable<Employee> =
-      await this.findEmployeeByIdWithRelations(employeeId)
+      await this.findEmployeeByIdWithRelations(employeeId);
 
     if (!foundEmployee) {
       throw new HttpException(
         CError.NOT_FOUND_EMPLOYEE_ID,
         HttpStatus.BAD_REQUEST,
-      )
+      );
     }
 
     const foundDocument = foundEmployee.documents.find(
       (doc) => doc.id === documentId,
-    )
+    );
 
     if (!foundDocument) {
       throw new HttpException(
         CError.FILE_ID_NOT_RELATED,
         HttpStatus.BAD_REQUEST,
-      )
+      );
     }
 
     try {
-      await this.fileUploadService.deletePublicFile(documentId)
-      const updatedEmployeeDocumentList = [...foundEmployee.documents]
+      await this.fileUploadService.deletePublicFile(documentId);
+      const updatedEmployeeDocumentList = [...foundEmployee.documents];
       const removedDocumentIndex = updatedEmployeeDocumentList.findIndex(
         (doc) => doc.id === documentId,
-      )
+      );
 
       if (removedDocumentIndex > -1) {
-        updatedEmployeeDocumentList.splice(removedDocumentIndex, 1)
+        updatedEmployeeDocumentList.splice(removedDocumentIndex, 1);
       }
 
       const updatedEmployee: Employee = this.employeeRepository.create({
         ...foundEmployee,
         documents: updatedEmployeeDocumentList,
-      })
+      });
 
-      this.employeeRepository.save(updatedEmployee)
+      this.employeeRepository.save(updatedEmployee);
 
-      return true
+      return true;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
@@ -367,17 +370,17 @@ export class EmployeeService {
     id: number,
     isActive: boolean,
   ): Promise<Employee> {
-    const foundEmployee: Nullable<Employee> = await this.findEmployeeById(id)
+    const foundEmployee: Nullable<Employee> = await this.findEmployeeById(id);
 
     if (!foundEmployee) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
     const updatedEmployee: Employee = this.employeeRepository.create({
       ...foundEmployee,
       isActive,
-    })
+    });
 
-    return this.employeeRepository.save(updatedEmployee)
+    return this.employeeRepository.save(updatedEmployee);
   }
 }

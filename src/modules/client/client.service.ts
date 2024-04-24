@@ -1,4 +1,5 @@
-import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
+import { EFileCategory } from '@mush/core/enums';
+import { PaginateQuery, Paginated, paginate, FilterOperator } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
@@ -19,6 +20,8 @@ export class ClientService {
   constructor(
     @InjectRepository(Client)
     private clientRepository: Repository<Client>,
+    @InjectRepository(PublicFile)
+    private publicFileRepository: Repository<PublicFile>,
     private readonly fileUploadService: FileUploadService,
   ) {}
 
@@ -37,10 +40,25 @@ export class ClientService {
   findClientByIdWithRelations(id: number): Promise<Nullable<Client>> {
     return this.clientRepository
       .createQueryBuilder('client')
-      .leftJoinAndSelect('client.files', 'clientFiles')
-      .leftJoinAndSelect('client.offloads', 'offloads')
       .where('client.id = :id', { id })
       .getOne()
+  }
+
+  findClientDocuments(
+    query: PaginateQuery,
+    id: number,
+  ): Promise<Paginated<PublicFile>> {
+    const updatedQuery = {
+      ...query,
+      'filter.clientFiles.id': id,
+    };
+    return paginate(updatedQuery, this.publicFileRepository, {
+      relations: [EFileCategory.CLIENT_FILES],
+      sortableColumns: ['clientFiles.id'],
+      filterableColumns: {
+        ['clientFiles.id']: [FilterOperator.EQ],
+      },
+    });
   }
 
   async createClient(
