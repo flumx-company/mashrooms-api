@@ -61,7 +61,9 @@ export class EmployeeService {
   ): Promise<Paginated<PublicFile>> {
     const updatedQuery = {
       ...query,
-      'filter.employeeDocuments.id': id,
+      'filter': {
+        "employeeDocuments.id": id
+      }
     };
     return paginate(updatedQuery, this.publicFileRepository, {
       relations: [EFileCategory.EMPLOYEE_DOCUMENTS],

@@ -280,9 +280,6 @@ export class EmployeeController {
   @ApiPaginationQuery({
     relations: [EFileCategory.EMPLOYEE_DOCUMENTS],
     sortableColumns: ['employeeDocuments.id'],
-    filterableColumns: {
-      ['employeeDocuments.id']: [FilterOperator.EQ],
-    }
   } as PaginateConfig<PublicFile>)
   async getDocumentsByEmployeeId(
     @Param('id', ParseIntPipe) id: number,
