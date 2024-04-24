@@ -283,37 +283,6 @@ export class ClientService {
         HttpStatus.BAD_REQUEST,
       )
     }
-
-    const foundFile = foundClient.files.find((file) => file.id === fileId)
-
-    if (!foundFile) {
-      throw new HttpException(
-        CError.FILE_ID_NOT_RELATED,
-        HttpStatus.BAD_REQUEST,
-      )
-    }
-
-    try {
-      await this.fileUploadService.deletePublicFile(fileId)
-      const updatedClientFileList = [...foundClient.files]
-      const removedFileIndex = updatedClientFileList.findIndex(
-        (file) => file.id === fileId,
-      )
-
-      if (removedFileIndex > -1) {
-        updatedClientFileList.splice(removedFileIndex, 1)
-      }
-
-      const updatedClient: Client = this.clientRepository.create({
-        ...foundClient,
-        files: updatedClientFileList,
-      })
-
-      this.clientRepository.save(updatedClient)
-
-      return true
-    } catch (e) {
-      return false
-    }
+    return await this.fileUploadService.deletePublicFile(fileId)
   }
 }
