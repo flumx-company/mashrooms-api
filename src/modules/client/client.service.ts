@@ -56,7 +56,7 @@ export class ClientService {
     };
     return paginate(updatedQuery, this.publicFileRepository, {
       relations: [EFileCategory.CLIENT_FILES],
-      sortableColumns: ['clientFiles.id'],
+      sortableColumns: ['clientFiles.id', 'id'],
       filterableColumns: {
         ['clientFiles.id']: [FilterOperator.EQ],
       },
