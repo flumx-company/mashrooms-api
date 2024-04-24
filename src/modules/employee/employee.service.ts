@@ -62,7 +62,7 @@ export class EmployeeService {
     const updatedQuery = {
       ...query,
       'filter': {
-        "employeeDocuments.id": id
+        "employeeDocuments.id": `${id}`
       }
     };
     return paginate(updatedQuery, this.publicFileRepository, {

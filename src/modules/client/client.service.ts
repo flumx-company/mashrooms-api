@@ -51,7 +51,7 @@ export class ClientService {
     const updatedQuery = {
       ...query,
       'filter': {
-        "clientFiles.id": id
+        "clientFiles.id": `${id}`
       }
     };
     return paginate(updatedQuery, this.publicFileRepository, {
