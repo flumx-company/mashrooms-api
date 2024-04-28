@@ -1,5 +1,5 @@
 import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm'
-
+import { PublicFile } from '../file-upload/public-file.entity'
 import { ApiProperty } from '@nestjs/swagger'
 
 import { Chamber } from '@mush/modules/chamber/chamber.entity'
