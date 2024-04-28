@@ -124,7 +124,8 @@ export class OffloadService {
     driverId: number
     shiftId: number
     user: User
-    data: CreateOffloadDto
+    data: CreateOffloadDto,
+    priceTotal: number
   }): Promise<Offload> {
     const [client, driver, shift]: [
       Nullable<Client>,
@@ -171,7 +172,7 @@ export class OffloadService {
         value: new Date(Date.now()),
       }),
     )
-    let priceTotal: number = 0
+    let priceCounted: number = 0
     let boxTotalQuantity: number = 0
     const {
       offloadRecords,
@@ -388,11 +389,10 @@ export class OffloadService {
             HttpStatus.BAD_REQUEST,
           )
         }
-
-        const allBoxWeight = boxQuantity * boxWeight
-        const storeContainerWeight =
-          byIdStoreContainers[storeContainerId]['weight']
-        const netWeight = weight - allBoxWeight - storeContainerWeight
+ 
+        const storeContainerWeight = +byIdStoreContainers[storeContainerId]['weight'] || 1
+        const allBoxWeight = boxQuantity * storeContainerWeight
+        const netWeight = weight - allBoxWeight
         const shrinkedNetWeight = netWeight * 0.99
         boxTotalQuantity += boxQuantity
 
@@ -440,6 +440,7 @@ export class OffloadService {
       driver,
       loaderShift: shift,
       priceTotal,
+      priceCounted,
       paidMoney,
       boxTotalQuantity,
       delContainer1_7In,
