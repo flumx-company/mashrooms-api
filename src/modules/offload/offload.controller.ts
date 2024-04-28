@@ -6,7 +6,7 @@ import {
   Paginated,
 } from 'nestjs-paginate'
 import * as stream from 'stream'
-
+import { Nullable } from '@mush/core/utils'
 import {
   Body,
   Controller,
