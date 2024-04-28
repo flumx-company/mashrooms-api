@@ -25,7 +25,7 @@ export class CreateOffloadDto {
     description: 'Enter the money paid in hryvna.',
     type: Number,
   })
-  readonly totalPrice: number
+  readonly priceTotal: number
 
   @IsNumber()
   @IsNotEmpty()
