@@ -119,6 +119,7 @@ export class OffloadService {
     shiftId,
     user,
     data,
+    priceTotal
   }: {
     clientId: number
     driverId: number
