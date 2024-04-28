@@ -102,7 +102,7 @@ export class OffloadController {
     isArray: true,
   })
   
-  async getAllOffloads(
+  async getOffload(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Nullable<Offload>> {
     return this.offloadService.findOffloadByIdWithRelations(id)
