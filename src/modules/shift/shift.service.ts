@@ -35,43 +35,48 @@ export class ShiftService {
     return paginate(query, this.shiftRepository, shiftPaginationConfig)
   }
 
-  findAllCurrentShifts(): Promise<Shift[]> {
+  findAllCurrentShifts(search: string): Promise<Shift[]> {
+    const isActive: boolean = true;
     return this.shiftRepository
       .createQueryBuilder('shift')
+      //.leftJoin('shift.cuttings', 'cutting')
       .where('shift.dateTo IS NULL')
-      .leftJoin('shift.cuttings', 'cutting')
       .leftJoin('shift.employee', 'employee')
-      .leftJoin('shift.loadings', 'loading')
-      .leftJoin('shift.offloadLoadings', 'offload')
-      .leftJoin('shift.waterings', 'watering')
-      .leftJoin('shift.workRecords', 'workRecord')
-      .leftJoin('workRecord.work', 'work')
-      .select([
-        'cutting.id',
-        'cutting.boxQuantity',
-        'employee.id',
-        'employee.isActive',
-        'employee.firstName',
-        'employee.lastName',
-        'employee.patronymic',
-        'offload.id',
-        'offload.boxTotalQuantity',
-        'shift.id',
-        'shift.dateFrom',
-        'shift.dateTo',
-        'watering.id',
-        'watering.drug',
-        'watering.volume',
-        'workRecord.id',
-        'workRecord.date',
-        'workRecord.percent',
-        'workRecord.percentAmount',
-        'workRecord.reward',
-        'work.id',
-        'work.title',
-        'work.isRegular',
-      ])
-      .orderBy('employee.lastName', 'ASC')
+      .where('shift.employee.isActive AND shift.employee.firstName like :search AND shift.employee.lastName like :search AND shift.employee.patronymic like :search', {
+        isActive,
+        search
+      })
+     // .leftJoin('shift.loadings', 'loading')
+      //.leftJoin('shift.offloadLoadings', 'offload')
+    //  .leftJoin('shift.waterings', 'watering')
+    //  .leftJoin('shift.workRecords', 'workRecord')
+     // .leftJoin('workRecord.work', 'work')
+     // .select([
+      //   'cutting.id',
+      //   'cutting.boxQuantity',
+      //   'employee.id',
+       //  'employee.isActive',
+      //   'employee.firstName',
+       //  'employee.lastName',
+       //  'employee.patronymic',
+      //   'offload.id',
+      //   'offload.boxTotalQuantity',
+     //    'shift.id',
+     //    'shift.dateFrom',
+     //    'shift.dateTo',
+    //     'watering.id',
+ //        'watering.drug',
+   //      'watering.volume',
+    //     'workRecord.id',
+    //     'workRecord.date',
+     //    'workRecord.percent',
+    //     'workRecord.percentAmount',
+   //      'workRecord.reward',
+    //     'work.id',
+    //     'work.title',
+     //    'work.isRegular',
+    //   ])
+     //  .orderBy('employee.lastName', 'ASC')
       .getMany()
   }
 

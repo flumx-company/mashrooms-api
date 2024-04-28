@@ -81,6 +81,33 @@ export class OffloadController {
     return this.offloadService.findAll(query)
   }
 
+  @Get(':id')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_OFFLOADS,
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get list of all offloads. Role: SUPERADMIN, ADMIN. Permission: READ_OFFLOADS. Example of date limit: $btw: 2024-01-01 00:00:00, 2024-01-2 23:59:59 It is important to add hh:mm:ss in date limit for database to return the correct data.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the offload data.',
+    type: Offload,
+    isArray: true,
+  })
+  
+  async getAllOffloads(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Nullable<Offload>> {
+    return this.offloadService.findOffloadByIdWithRelations(id)
+  }
+
   @Get('client/:id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],

@@ -45,4 +45,7 @@ export class PublicFile extends DatedBasicEntity {
 
   @ManyToMany(() => Offload, (offloads) => offloads.documents)
   offloadDocuments: Offload[]
+
+  @ManyToMany(() => Batch, (batch) => batch.documents)
+  batchDocuments: Batch[]
 }
