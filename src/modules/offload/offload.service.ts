@@ -396,7 +396,7 @@ export class OffloadService {
         const shrinkedNetWeight = netWeight * 0.99
         boxTotalQuantity += boxQuantity
 
-        priceTotal += pricePerKg * shrinkedNetWeight
+        priceCounted += pricePerKg * shrinkedNetWeight
 
         newOffloadRecordData.push({
           batch: { id: batchId },

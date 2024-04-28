@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Client } from '@mush/modules/client/client.entity'
 import { Employee } from '@mush/modules/employee/employee.entity'
 import { Offload } from '@mush/modules/offload/offload.entity'
-
+import { Batch } from '@mush/modules/batch/batch.entity'
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'public_file' })
