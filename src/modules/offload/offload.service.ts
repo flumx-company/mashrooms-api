@@ -118,15 +118,13 @@ export class OffloadService {
     driverId,
     shiftId,
     user,
-    data,
-    priceTotal
+    data
   }: {
     clientId: number
     driverId: number
     shiftId: number
     user: User
-    data: CreateOffloadDto,
-    priceTotal: number
+    data: CreateOffloadDto
   }): Promise<Offload> {
     const [client, driver, shift]: [
       Nullable<Client>,
@@ -137,6 +135,7 @@ export class OffloadService {
       this.driverService.findDriverById(driverId),
       this.shiftService.findShiftById(shiftId),
     ])
+    const totalPrice = data.totalPrice;
     const byIdCategories: Record<number, Category | {}> = {}
     const byIdBatches: Record<number, Batch | {}> = {}
     const byIdStoreContainers: Record<number, StoreContainer | {}> = {}
