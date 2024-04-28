@@ -35,7 +35,8 @@ export class ShiftService {
     return paginate(query, this.shiftRepository, shiftPaginationConfig)
   }
 
-  findAllCurrentShifts(isActive: boolean, search: string): Promise<Shift[]> {
+  findAllCurrentShifts(search: string): Promise<Shift[]> {
+    const isActive: boolean = true;
     return this.shiftRepository
       .createQueryBuilder('shift')
       //.leftJoin('shift.cuttings', 'cutting')
