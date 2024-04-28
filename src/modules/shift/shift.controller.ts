@@ -13,6 +13,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Put,
 } from '@nestjs/common'
 import {
