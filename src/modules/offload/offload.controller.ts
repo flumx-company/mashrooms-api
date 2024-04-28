@@ -105,7 +105,7 @@ export class OffloadController {
   async getAllOffloads(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Offload> {
-    return this.offloadService.findOne(id)
+    return this.offloadService.findOffloadByIdWithRelations(id)
   }
 
   @Get('client/:id')
