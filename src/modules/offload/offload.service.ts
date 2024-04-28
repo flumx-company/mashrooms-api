@@ -135,7 +135,7 @@ export class OffloadService {
       this.driverService.findDriverById(driverId),
       this.shiftService.findShiftById(shiftId),
     ])
-    const totalPrice = data.totalPrice;
+    const priceTotal = data.priceTotal;
     const byIdCategories: Record<number, Category | {}> = {}
     const byIdBatches: Record<number, Batch | {}> = {}
     const byIdStoreContainers: Record<number, StoreContainer | {}> = {}
