@@ -18,6 +18,17 @@ export class CreateOffloadDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @Min(-99999999)
+  @Max(99999999)
+  @ApiProperty({
+    example: 250,
+    description: 'Enter the money paid in hryvna.',
+    type: Number,
+  })
+  readonly totalPrice: number
+
+  @IsNumber()
+  @IsNotEmpty()
   @Min(-99999)
   @Max(99999)
   @ApiProperty({
