@@ -69,7 +69,7 @@ export class OffloadService {
   findOffloadByIdWithRelations(id: number): Promise<Nullable<Offload>> {
     return this.offloadRepository.findOne({
       where: { id },
-      relations: ['offloadRecords'],
+      relations: ['offloadRecords', 'author', 'client', 'driver', 'documents', 'loaderShift', 'loaderShift.employee'],
     })
   }
 
