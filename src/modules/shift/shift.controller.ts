@@ -80,8 +80,10 @@ export class ShiftController {
     type: Shift,
     isArray: true,
   })
-  async getAllCurrentShifts(): Promise<Shift[]> {
-    return this.shiftService.findAllCurrentShifts()
+  async getAllCurrentShifts(
+    @Query('search') search: string,
+  ): Promise<Shift[]> {
+    return this.shiftService.findAllCurrentShifts(search);
   }
 
   @Get('ongoing/employee/:employeeId')
