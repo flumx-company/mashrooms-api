@@ -58,6 +58,13 @@ export class Offload extends DatedBasicEntity {
 
   @ApiProperty({
     example: 200,
+    description: 'Total price counted of the mushrooms in hryvna',
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  priceCounted: number
+
+  @ApiProperty({
+    example: 200,
     description: 'Total price of the mushrooms in hryvna',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
