@@ -65,6 +65,31 @@ export class CuttingController {
     return this.cuttingService.findAll(query)
   }
 
+  @Get(':date')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CUTTINGS,
+  })
+  @ApiOperation({
+    summary:
+      'Get list of all cuttings. Role: SUPERADMIN, ADMIN. Permission: READ_CUTTINGS.',
+  })
+  @ApiParam({
+    name: 'date',
+    type: 'string',
+    example: '2025-10-10',
+  } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the cutting list.',
+    type: Cutting[],
+  })
+  async getGroupedByDay(
+    @Param('date') date: string,
+  ): Promise<Cutting[]> {
+    return this.cuttingService.getGroupedByDay(date);
+  }
+
   @Post('category/:categoryId/batch/:batchId/wave/:waveId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
