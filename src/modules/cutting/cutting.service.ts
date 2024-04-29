@@ -43,6 +43,16 @@ export class CuttingService {
     private storageService: StorageService,
   ) {}
 
+  getGroupedByDay(date: string): Promise<Cutting[]> {
+    return this.cuttingRepository
+      .createQueryBuilder('cutting')
+      .where('date = :date', { date })
+      .leftJoin('cutting.batch', 'batch')
+      .leftJoin('batch.chamber', 'chamber')
+      .addGroupBy('batch.chamber')
+      .getRawMany();
+  }
+  
   findAll(query: PaginateQuery): Promise<Paginated<Cutting>> {
     return paginate(query, this.cuttingRepository, cuttingPaginationConfig)
   }
