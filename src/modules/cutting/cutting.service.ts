@@ -46,7 +46,7 @@ export class CuttingService {
   getGroupedByDay(date: string): Promise<Cutting[]> {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
-      .where('date = :date', { date })
+      .where('cutting.createdAt = :date', { date })
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('batch.chamber', 'chamber')
       .addGroupBy('batch.chamber')
