@@ -46,11 +46,13 @@ export class CuttingService {
   getGroupedByDay(date: string): Promise<Cutting[]> {
     return this.cuttingRepository
     .createQueryBuilder('cutting')
-    .select(['batch.chamber', 'COUNT(*) as count', 'chamber'])
+    .select(['batch.chamber', 'COUNT(*) as count', 'chamber', 'category'])
     .leftJoin('cutting.batch', 'batch')
+    .leftJoin('cutting.category', 'category')
     .leftJoin('batch.chamber', 'chamber')
     .where('cutting.createdAt like :date', { date: `${date}%` })
     .groupBy('batch.chamber')
+    .addGroupBy('category.id')
     .getRawMany();
   }
 
