@@ -42,7 +42,7 @@ export class ShiftService {
       //.leftJoin('shift.cuttings', 'cutting')
       .where('shift.dateTo IS NULL')
       .leftJoin('shift.employee', 'employee')
-      .where('shift.employee.isActive AND shift.employee.firstName like :search AND shift.employee.lastName like :search AND shift.employee.patronymic like :search', {
+      .where('employee.isActive AND employee.firstName like :search AND employee.lastName like :search AND employee.patronymic like :search', {
         isActive,
         search
       })
