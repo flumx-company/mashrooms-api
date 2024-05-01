@@ -82,7 +82,7 @@ export class CuttingController {
   @ApiResponse({
     status: 200,
     description: 'Will return the cutting list.',
-    type: Cutting[],
+    type: Array<Cutting>,
   })
   async getGroupedByDay(
     @Param('date') date: string,
