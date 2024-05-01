@@ -39,44 +39,11 @@ export class ShiftService {
     const isActive: boolean = true;
     return this.shiftRepository
       .createQueryBuilder('shift')
-      //.leftJoin('shift.cuttings', 'cutting')
-      .where('shift.dateTo IS NULL')
       .leftJoin('shift.employee', 'employee')
-      .where('employee.isActive = :isActive AND (employee.firstName like :search OR employee.lastName like :search OR employee.patronymic like :search)', {
+      .where('shift.dateTo IS NULL employee.isActive = :isActive AND (employee.firstName like :search OR employee.lastName like :search OR employee.patronymic like :search)', {
         isActive,
-        search
+        search: `${search}%`
       })
-     // .leftJoin('shift.loadings', 'loading')
-      //.leftJoin('shift.offloadLoadings', 'offload')
-    //  .leftJoin('shift.waterings', 'watering')
-    //  .leftJoin('shift.workRecords', 'workRecord')
-     // .leftJoin('workRecord.work', 'work')
-     // .select([
-      //   'cutting.id',
-      //   'cutting.boxQuantity',
-      //   'employee.id',
-       //  'employee.isActive',
-      //   'employee.firstName',
-       //  'employee.lastName',
-       //  'employee.patronymic',
-      //   'offload.id',
-      //   'offload.boxTotalQuantity',
-     //    'shift.id',
-     //    'shift.dateFrom',
-     //    'shift.dateTo',
-    //     'watering.id',
- //        'watering.drug',
-   //      'watering.volume',
-    //     'workRecord.id',
-    //     'workRecord.date',
-     //    'workRecord.percent',
-    //     'workRecord.percentAmount',
-   //      'workRecord.reward',
-    //     'work.id',
-    //     'work.title',
-     //    'work.isRegular',
-    //   ])
-     //  .orderBy('employee.lastName', 'ASC')
       .getMany()
   }
 
