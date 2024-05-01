@@ -48,7 +48,7 @@ export class CuttingService {
     .createQueryBuilder('cutting')
     .select(['cutting.createdAt', 'batch.chamber', 'COUNT(*) as count'])
     .leftJoin('cutting.batch', 'batch')
-    .where('cutting.createdAt = :date', { date })
+    .where('cutting.createdAt = :date', { date: `${date}%` })
     .groupBy('cutting.createdAt')
     .addGroupBy('batch.chamber')
     .getRawMany();
