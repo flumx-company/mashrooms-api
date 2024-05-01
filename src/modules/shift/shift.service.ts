@@ -42,7 +42,7 @@ export class ShiftService {
       .leftJoin('shift.employee', 'employee')
       .where('shift.dateTo IS NULL employee.isActive = :isActive AND (employee.firstName like :search OR employee.lastName like :search OR employee.patronymic like :search)', {
         isActive,
-        search
+        search: `${search}%`
       })
       .getMany()
   }
