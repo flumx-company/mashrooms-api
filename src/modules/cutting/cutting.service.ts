@@ -53,14 +53,22 @@ export class CuttingService {
     .groupBy('batch.chamber')
     .getRawMany();
   }
+
   
-  findAll(date: string, chamber: string, wave:string): Promise<Cutting[]> {
+  findAll(date: string, chamber: string): Promise<Cutting[]> {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
-      .where('cutting.createdAt = :date', { date })
+      .where('cutting.createdAt like :date', { date: `${date}%` })
       .leftJoin('cutting.batch', 'batch')
+      .leftJoin('cutting.wave', 'wave')
+      .leftJoin('cutting.variety', 'variety')
+      .leftJoin('cutting.variety', 'variety')
+      .leftJoin('cutting.cutterShift', 'cutterShift')
+      .leftJoin('cutterShift.employee', 'employee')
+      .leftJoin('cutting.loaderShift', 'loaderShift')
+      .leftJoin('loaderShift.employee', 'employee')
       .leftJoin('batch.chamber', 'chamber')
-      .where('batch.chambert = :chamber AND cutting.wave', { chamber, wave })
+      .where('batch.chambert = :chamber', { chamber })
       .getMany();
   }
 
