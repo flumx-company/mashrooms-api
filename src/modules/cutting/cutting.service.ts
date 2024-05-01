@@ -57,20 +57,20 @@ export class CuttingService {
   }
 
   
-  findAll(date: string, chamber: string): Promise<Cutting[]> {
+  findAll(date: string, chamber: string, category:string): Promise<Cutting[]> {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
       .where('cutting.createdAt like :date', { date: `${date}%` })
-      .leftJoin('cutting.batch', 'batch')
-      .leftJoin('cutting.wave', 'wave')
-      .leftJoin('cutting.variety', 'variety')
-      .leftJoin('cutting.variety', 'variety')
-      .leftJoin('cutting.cutterShift', 'cutterShift')
-      .leftJoin('cutterShift.employee', 'employee')
-      .leftJoin('cutting.loaderShift', 'loaderShift')
-      .leftJoin('loaderShift.employee', 'employee')
-      .leftJoin('batch.chamber', 'chamber')
-      .where('batch.chambert = :chamber', { chamber })
+      .leftJoinAndSelect('cutting.batch', 'batch')
+      .leftJoinAndSelect('cutting.wave', 'wave')
+      .leftJoinAndSelect('cutting.variety', 'variety')
+      .leftJoinAndSelect('cutting.category', 'category')
+      .leftJoinAndSelect('cutting.cutterShift', 'cutterShift')
+      .leftJoinAndSelect('cutterShift.employee', 'employee')
+      .leftJoinAndSelect('cutting.loaderShift', 'loaderShift')
+      .leftJoinAndSelect('loaderShift.employee', 'employee')
+      .leftJoinAndSelect('batch.chamber', 'chamber')
+      .where('chamber.id = :chamber AND category.id = :category', { chamber, category })
       .getMany();
   }
 
