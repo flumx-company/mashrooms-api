@@ -59,7 +59,7 @@ export class CuttingService {
       .where('cutting.createdAt = :date', { date })
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('batch.chamber', 'chamber')
-      .where('batch.chambert = :chamber', { chamber })
+      .where('batch.chambert = :chamber AND cutting.wave', { chamber, wave })
       .getMany();
   }
 
