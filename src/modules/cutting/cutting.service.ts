@@ -66,9 +66,9 @@ export class CuttingService {
       .leftJoinAndSelect('cutting.variety', 'variety')
       .leftJoinAndSelect('cutting.category', 'category')
       .leftJoinAndSelect('cutting.cutterShift', 'cutterShift')
-      .leftJoinAndSelect('cutterShift.employee', 'employee')
+      .leftJoinAndSelect('cutterShift.employee', 'employeeCutter')
       .leftJoinAndSelect('cutting.loaderShift', 'loaderShift')
-      .leftJoinAndSelect('loaderShift.employee', 'employee')
+      .leftJoinAndSelect('loaderShift.employee', 'employeeLoader')
       .leftJoinAndSelect('batch.chamber', 'chamber')
       .where('chamber.id = :chamber AND category.id = :category', { chamber, category })
       .getMany();
