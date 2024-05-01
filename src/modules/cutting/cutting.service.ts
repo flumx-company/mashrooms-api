@@ -45,13 +45,13 @@ export class CuttingService {
 
   getGroupedByDay(date: string): Promise<Cutting[]> {
     return this.cuttingRepository
-      .createQueryBuilder('cutting')
-      .where('cutting.createdAt = :date', { date })
-      .leftJoin('cutting.batch', 'batch')
-      .leftJoin('batch.chamber', 'chamber')
-      .groupBy('cutting.createdAt')
-      .addGroupBy('batch.chamber')
-      .getRawMany();
+    .createQueryBuilder('cutting')
+    .select(['cutting.createdAt', 'batch.chamber', 'COUNT(*) as count'])
+    .leftJoin('cutting.batch', 'batch')
+    .where('cutting.createdAt = :date', { date })
+    .groupBy('cutting.createdAt')
+    .addGroupBy('batch.chamber')
+    .getRawMany();
   }
   
   findAll(date: string, chamber: string, wave:string): Promise<Cutting[]> {
