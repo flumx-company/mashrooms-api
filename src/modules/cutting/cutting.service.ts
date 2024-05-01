@@ -53,8 +53,14 @@ export class CuttingService {
       .getRawMany();
   }
   
-  findAll(query: PaginateQuery): Promise<Paginated<Cutting>> {
-    return paginate(query, this.cuttingRepository, cuttingPaginationConfig)
+  findAll(date: string, chamber: string): Promise<Cutting[]> {
+    return this.cuttingRepository
+      .createQueryBuilder('cutting')
+      .where('cutting.createdAt = :date', { date })
+      .leftJoin('cutting.batch', 'batch')
+      .leftJoin('batch.chamber', 'chamber')
+      .where('batch.chambert = :chamber', { chamber })
+      .getMany();
   }
 
   async createCutting({
