@@ -53,7 +53,7 @@ export class CuttingService {
       .getRawMany();
   }
   
-  findAll(date: string, chamber: string): Promise<Cutting[]> {
+  findAll(date: string, chamber: string, wave:string): Promise<Cutting[]> {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
       .where('cutting.createdAt = :date', { date })
