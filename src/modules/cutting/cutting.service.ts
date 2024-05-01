@@ -49,6 +49,7 @@ export class CuttingService {
       .where('cutting.createdAt = :date', { date })
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('batch.chamber', 'chamber')
+      .groupBy('cutting.createdAt')
       .addGroupBy('batch.chamber')
       .getRawMany();
   }
