@@ -44,7 +44,7 @@ import { cuttingPaginationConfig } from './pagination'
 export class CuttingController {
   constructor(readonly cuttingService: CuttingService) {}
 
-  @Get(':date/:chamber/:wave')
+  @Get(':date/:chamber')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_CUTTINGS,
@@ -60,10 +60,9 @@ export class CuttingController {
   })
   async getAllCuttings(
     @Param('date') date: string,
-    @Param('chamberId') chamberId: string,
-    @Param('waveId') waveId: string,
+    @Param('chamberId') chamberId: string
   ): Promise<Cutting[]> {
-    return this.cuttingService.findAll(date, chamberId, waveId)
+    return this.cuttingService.findAll(date, chamberId)
   }
 
   @Get(':date')
