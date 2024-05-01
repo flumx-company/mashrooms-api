@@ -53,12 +53,10 @@ export class BatchService {
   }
 
   async createBatch({
-    briquetteQuantity,
     waveQuantity,
     chamberId,
     subbatches,
   }: {
-    briquetteQuantity: number
     waveQuantity: number
     chamberId: number
     subbatches: CreateSubbatchDto[]
@@ -109,7 +107,6 @@ export class BatchService {
 
     const newBatch: Batch = await this.batchRepository.create({
       name,
-      briquetteQuantity,
       waveQuantity,
       dateFrom,
       dateTo: null,
@@ -129,7 +126,7 @@ export class BatchService {
 
   async updateBatch(
     id: number,
-    { briquetteQuantity, waveQuantity, subbatches }: UpdateBatchDto,
+    { waveQuantity, subbatches }: UpdateBatchDto,
   ): Promise<Batch> {
     const foundBatch: Nullable<Batch> = await this.findBatchById(id)
 
@@ -145,7 +142,6 @@ export class BatchService {
 
     const updatedBatch: Batch = this.batchRepository.create({
       ...foundBatch,
-      briquetteQuantity,
       waveQuantity,
       subbatches: updatedSubbatches,
     })

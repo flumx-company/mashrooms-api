@@ -28,6 +28,7 @@ export class SubbatchService {
     peatWeight,
     peatLoadDate,
     peatPrice,
+    briquetteQuantity
   }: CreateSubbatchDto): Promise<Subbatch> {
     const category = await this.categoryService.findCategoryById(categoryId)
 
@@ -45,6 +46,7 @@ export class SubbatchService {
       peatWeight,
       peatLoadDate,
       peatPrice,
+      briquetteQuantity
     })
 
     return this.subbatchRepository.save(newSubbatch)
@@ -60,6 +62,7 @@ export class SubbatchService {
     peatWeight,
     peatLoadDate,
     peatPrice,
+    briquetteQuantity
   }: UpdateSubbatchDto) {
     const subbatch = await this.categoryService.findCategoryById(id)
 
@@ -77,6 +80,7 @@ export class SubbatchService {
       peatWeight,
       peatLoadDate,
       peatPrice,
+      briquetteQuantity
     })
 
     return this.subbatchRepository.save(updatedSubbatch)

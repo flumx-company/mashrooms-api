@@ -9,16 +9,6 @@ export class CreateBatchDto {
   @IsNumber()
   @Min(1)
   @ApiProperty({
-    example: 100,
-    description: 'Enter the briquette quantity.',
-    type: Number,
-  })
-  readonly briquetteQuantity: number
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @ApiProperty({
     example: 3,
     description: 'Enter the maximum possible number of waves.',
     type: Number,

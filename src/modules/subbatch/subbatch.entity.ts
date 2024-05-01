@@ -16,6 +16,10 @@ export class Subbatch extends DatedBasicEntity {
   @ManyToOne(() => Category, (category) => category.subbatches)
   category: Category
 
+  @ApiProperty({ example: 100, description: 'Briquette quantity' })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  briquetteQuantity: number
+  
   @ApiProperty({
     example: '2024-01-15',
     description: 'Compost load date',
