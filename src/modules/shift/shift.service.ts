@@ -39,7 +39,7 @@ export class ShiftService {
     const isActive: boolean = true;
     return this.shiftRepository
       .createQueryBuilder('shift')
-      .leftJoin('shift.employee', 'employee')
+      .leftJoinAndSelect('shift.employee', 'employee')
       .where('shift.dateTo IS NULL AND employee.isActive = :isActive AND (employee.firstName like :search OR employee.lastName like :search OR employee.patronymic like :search)', {
         isActive,
         search: `%${search}%`
