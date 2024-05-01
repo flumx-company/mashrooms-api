@@ -44,7 +44,7 @@ import { cuttingPaginationConfig } from './pagination'
 export class CuttingController {
   constructor(readonly cuttingService: CuttingService) {}
 
-  @Get()
+  @Get(':date/:chamber/:wave')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_CUTTINGS,
@@ -53,16 +53,17 @@ export class CuttingController {
     summary:
       'Get list of all cuttings. Role: SUPERADMIN, ADMIN. Permission: READ_CUTTINGS.',
   })
-  @ApiPaginationQuery(cuttingPaginationConfig)
   @ApiResponse({
     status: 200,
     description: 'Will return the cutting list.',
-    type: Paginated<Cutting>,
+    type: Array<Cutting>,
   })
   async getAllCuttings(
-    @Paginate() query: PaginateQuery,
+    @Param('date') date: string,
+    @Param('chamberId') chamberId: string,
+    @Param('waveId') waveId: string,
   ): Promise<Paginated<Cutting>> {
-    return this.cuttingService.findAll(query)
+    return this.cuttingService.findAll(date, chamberId, waveId)
   }
 
   @Get(':date')
