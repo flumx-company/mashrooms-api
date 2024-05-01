@@ -23,10 +23,6 @@ export class Batch extends DatedBasicEntity {
   @Column({ type: 'varchar', length: 8, default: null, nullable: true })
   name: string
 
-  @ApiProperty({ example: 100, description: 'Briquette quantity' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  briquetteQuantity: number
-
   @ApiProperty({
     example: '2024-01-15',
     description: 'Batch start date',
