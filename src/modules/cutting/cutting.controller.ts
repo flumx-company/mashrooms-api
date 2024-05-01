@@ -62,7 +62,7 @@ export class CuttingController {
     @Param('date') date: string,
     @Param('chamberId') chamberId: string,
     @Param('waveId') waveId: string,
-  ): Promise<Paginated<Cutting>> {
+  ): Promise<Cutting[]> {
     return this.cuttingService.findAll(date, chamberId, waveId)
   }
 
