@@ -56,7 +56,7 @@ export class Cutting extends DatedBasicEntity {
   @ManyToOne(() => Shift, (shift) => shift.cuttings, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-    nullable: false,
+    nullable: true,
     orphanedRowAction: 'delete',
   })
   cutterShift: Shift
@@ -72,7 +72,7 @@ export class Cutting extends DatedBasicEntity {
   @ManyToOne(() => Shift, (shift) => shift.cuttings, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-    nullable: false,
+    nullable: true,
     orphanedRowAction: 'delete',
   })
   loaderShift: Shift
