@@ -1,4 +1,4 @@
-import { IsNotEmpty, Max, Min } from 'class-validator'
+import { IsNotEmpty, Max, Min, IsOptional } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -21,6 +21,7 @@ export class CreateCuttingDto {
   })
   readonly trip: number
 
+  @IsOptional()
   @IsNotEmpty()
   @ApiProperty({
     example: 1,
@@ -28,7 +29,8 @@ export class CreateCuttingDto {
     type: Number,
   })
   readonly cutterShiftId: number
-
+  
+  @IsOptional()
   @IsNotEmpty()
   @ApiProperty({
     example: 1,

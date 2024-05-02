@@ -60,7 +60,6 @@ export class CuttingService {
   findAll(date: string, chamber: string, category:string): Promise<Cutting[]> {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
-      .where('cutting.createdAt like :date', { date: `${date}%` })
       .leftJoinAndSelect('cutting.batch', 'batch')
       .leftJoinAndSelect('cutting.wave', 'wave')
       .leftJoinAndSelect('cutting.variety', 'variety')
@@ -70,7 +69,7 @@ export class CuttingService {
       .leftJoinAndSelect('cutting.loaderShift', 'loaderShift')
       .leftJoinAndSelect('loaderShift.employee', 'employeeLoader')
       .leftJoinAndSelect('batch.chamber', 'chamber')
-      .where('chamber.id = :chamber AND category.id = :category', { chamber, category })
+      .where('cutting.createdAt like :date AND chamber.id = :chamber AND category.id = :category', { chamber, category })
       .getMany();
   }
 
