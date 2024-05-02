@@ -69,7 +69,7 @@ export class CuttingService {
       .leftJoinAndSelect('cutting.loaderShift', 'loaderShift')
       .leftJoinAndSelect('loaderShift.employee', 'employeeLoader')
       .leftJoinAndSelect('batch.chamber', 'chamber')
-      .where('cutting.createdAt like :date AND chamber.id = :chamber AND category.id = :category', { chamber, category })
+      .where('cutting.createdAt like :date AND chamber.id = :chamber AND category.id = :category', { chamber, category , date: `${date}%`})
       .getMany();
   }
 
