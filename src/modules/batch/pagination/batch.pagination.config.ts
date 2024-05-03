@@ -1,4 +1,4 @@
-import { FilterOperator, PaginateConfig } from 'nestjs-paginate'
+import { FilterOperator, PaginateConfig, FilterSuffix } from 'nestjs-paginate'
 
 import { Batch } from '../batch.entity'
 
@@ -8,7 +8,7 @@ export const batchPaginationConfig: PaginateConfig<Batch> = {
   defaultSortBy: [['id', 'ASC']],
   relations: ['waves', 'chamber', 'cuttings', 'waterings', 'subbatches'],
   filterableColumns: {
-    dateTo: [FilterOperator.NULL],
+    dateTo: [FilterOperator.NULL, FilterSuffix.NOT],
     dateFrom: [FilterOperator.ILIKE],
     ['chamber.id']: [FilterOperator.EQ],
   },
