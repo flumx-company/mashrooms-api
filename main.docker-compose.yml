@@ -142,7 +142,6 @@ services:
       # - mashrooms-network
 
   de-fi_connect-minio-createbuckets:
-    restart: always
     image: minio/mc
     depends_on:
       - mashrooms-minio
