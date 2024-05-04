@@ -27,7 +27,7 @@ export class Subbatch extends DatedBasicEntity {
   @Column({
     type: 'date',
     default: null,
-    nullable: true
+    nullable: true,
     transformer: {
       from: (value: Date) => {
         return formatDateToDateTime({ value })
