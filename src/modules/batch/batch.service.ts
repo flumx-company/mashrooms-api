@@ -13,12 +13,12 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
 import { CError, Nullable, formatDateToDateTime, pick } from '@mush/core/utils'
-import { Client } from '../client/client.entity';
-import { FileUploadService } from '../file-upload/file-upload.service';
-import { BufferedFile } from '../file-upload/file.model';
-import { PublicFile } from '../file-upload/public-file.entity';
+import { Client } from '@mush/modules/client/client.entity';
+import { FileUploadService } from '@mush/modules/file-upload/file-upload.service';
+import { BufferedFile } from '@mush/modules/file-upload/file.model';
+import { PublicFile } from '@mush/modules/file-upload/public-file.entity';
 
-import { Subbatch } from '../subbatch/subbatch.entity'
+import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Batch } from './batch.entity'
 import { UpdateBatchDto } from './dto'
 import { batchPaginationConfig } from './pagination'
