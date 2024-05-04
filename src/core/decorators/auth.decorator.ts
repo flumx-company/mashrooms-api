@@ -3,9 +3,10 @@ import { ApiUnauthorizedResponse } from '@nestjs/swagger'
 
 import { JwtStrategy } from '@mush/modules/core-module/jwt.strategy'
 
-import { Permission, Roles } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
 import { IsActiveGuard, PermissionGuard, RolesGuard } from '@mush/core/guards'
+import { Permission } from './permission.decorator';
+import { Roles } from './roles.decorator';
 
 type auth = { roles: ERole[]; permission: EPermission }
 
