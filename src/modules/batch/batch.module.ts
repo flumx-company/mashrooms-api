@@ -5,8 +5,8 @@ import { ChamberModule } from '@mush/modules/chamber/chamber.module'
 import { CoreModule } from '@mush/modules/core-module/core.module'
 import { SubbatchModule } from '@mush/modules/subbatch/subbatch.module'
 import { WaveModule } from '@mush/modules/wave/wave.module'
-import { FileUploadModule } from '../file-upload/file-upload.module';
-import { PublicFile } from '../file-upload/public-file.entity';
+import { FileUploadModule } from '../file-upload/file-upload.module'
+import { PublicFile } from '../file-upload/public-file.entity'
 
 import { BatchController } from './batch.controller'
 import { Batch } from './batch.entity'
@@ -15,8 +15,8 @@ import { BatchService } from './batch.service'
 @Module({
   imports: [
     TypeOrmModule.forFeature([Batch, PublicFile]),
-    FileUploadModule,
     CoreModule,
+    FileUploadModule,
     ChamberModule,
     WaveModule,
     SubbatchModule,
