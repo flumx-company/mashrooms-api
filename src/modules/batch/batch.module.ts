@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { ChamberModule } from '@mush/modules/chamber/chamber.module'
@@ -16,7 +16,7 @@ import { BatchService } from './batch.service'
   imports: [
     TypeOrmModule.forFeature([Batch, PublicFile]),
     CoreModule,
-    FileUploadModule,
+    forwardRef(() => FileUploadModule),
     ChamberModule,
     WaveModule,
     SubbatchModule,
