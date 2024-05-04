@@ -1,4 +1,4 @@
-import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm'
+import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { PublicFile } from '../file-upload/public-file.entity'
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -84,6 +84,7 @@ export class Batch extends DatedBasicEntity {
   @OneToMany(() => Yield, (yieldItem) => yieldItem.category)
   yields: Yield[]
 
-  @OneToMany(() => PublicFile, (file) => file.batchDocuments)
+  @ManyToMany(() => PublicFile, (file) => file.batchDocuments)
+  @JoinTable()
   documents: PublicFile[]
 }
