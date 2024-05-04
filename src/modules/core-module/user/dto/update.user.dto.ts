@@ -12,7 +12,7 @@ import {
 
 import { ApiProperty } from '@nestjs/swagger'
 
-import { ToBoolean } from '@mush/core/decorators'
+import { ToBoolean } from '@mush/core/decorators/to.boolean.decorator'
 import { EPermission, EPosition } from '@mush/core/enums'
 import { LATIN_CYRILLIC_LETTER_NAME_REGEX, PHONE_REGEX } from '@mush/core/utils'
 

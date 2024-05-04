@@ -1,7 +1,6 @@
+import { JwtStrategy } from '@mush/modules/core-module';
 import { UseGuards, applyDecorators } from '@nestjs/common'
 import { ApiUnauthorizedResponse } from '@nestjs/swagger'
-
-import { JwtStrategy } from '@mush/modules/core-module/jwt.strategy'
 
 import { EPermission, ERole } from '@mush/core/enums'
 import { IsActiveGuard, PermissionGuard, RolesGuard } from '@mush/core/guards'
