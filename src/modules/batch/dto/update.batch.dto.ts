@@ -5,15 +5,6 @@ import { ApiProperty } from '@nestjs/swagger'
 import { UpdateSubbatchDto } from '@mush/modules/subbatch/dto'
 
 export class UpdateBatchDto {
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @ApiProperty({
-    example: 100,
-    description: 'Enter the briquette quantity.',
-    type: Number,
-  })
-  readonly briquetteQuantity: number
 
   @IsNotEmpty()
   @IsNumber()

@@ -16,7 +16,7 @@ export class Work extends DatedBasicEntity {
   @Index()
   @Column({
     type: 'varchar',
-    length: process.env.MAX_WORK_TITLE,
+    length: 150,
     default: null,
     nullable: true,
   })

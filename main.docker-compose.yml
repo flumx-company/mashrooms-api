@@ -2,6 +2,7 @@ version: "3.8"
 services:
   mashrooms-mysql:
     container_name: ${APP_NAME}-mysql-${APP_ENV}
+    restart: always
     image: 'mysql:8.2.0'
     restart: always
     ports: 
@@ -94,6 +95,7 @@ services:
   mashrooms-redis:
     container_name: ${APP_NAME}-redis-${APP_ENV}
     image: "redis:latest"
+    restart: always
     env_file: .env
     ports:
       - "51527:6379"
@@ -105,6 +107,7 @@ services:
   mashrooms-minio:
     container_name: "${APP_NAME}-minio-${APP_ENV}"
     image: minio/minio
+    restart: always
     restart: always
     volumes:
       - mashrooms-minio-data:/minio-data
