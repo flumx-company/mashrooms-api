@@ -26,12 +26,14 @@ export class Subbatch extends DatedBasicEntity {
   })
   @Column({
     type: 'date',
+    default: null,
+    nullable: true
     transformer: {
       from: (value: Date) => {
         return formatDateToDateTime({ value })
       },
       to: (value: string) => {
-        return new Date(value)
+        return value ? new Date(value) : null;
       },
     },
   })
@@ -45,11 +47,11 @@ export class Subbatch extends DatedBasicEntity {
   compostSupplier: string
 
   @ApiProperty({ example: 100, description: 'Compost weight by kg' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: null, nullable: true })
   compostWeight: number
 
   @ApiProperty({ example: 100, description: 'Compost price' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: null, nullable: true })
   compostPrice: number
 
   @ApiProperty({
@@ -58,6 +60,7 @@ export class Subbatch extends DatedBasicEntity {
   })
   @Column({
     type: 'date',
+    default: null,
     transformer: {
       from: (value: Date) => {
         return formatDateToDateTime({ value })
@@ -77,10 +80,10 @@ export class Subbatch extends DatedBasicEntity {
   peatSupplier: string
 
   @ApiProperty({ example: 100, description: 'Peat weight by kg' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: null, nullable: true })
   peatWeight: number
 
   @ApiProperty({ example: 100, description: 'Peat price' })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: null, nullable: true })
   peatPrice: number
 }
