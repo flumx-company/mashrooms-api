@@ -14,12 +14,12 @@ import { BatchService } from './batch.service'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Batch, PublicFile]),
-    forwardRef(() => CoreModule),
+    forwardRef(() => TypeOrmModule.forFeature([Batch, PublicFile])),
+    forwardRef(() => CoreModule)),
     forwardRef(() => FileUploadModule),
-    ChamberModule,
-    WaveModule,
-    SubbatchModule,
+    forwardRef(() => ChamberModule),
+    forwardRef(() => WaveModule),
+    forwardRef(() => SubbatchModule),
   ],
   controllers: [BatchController],
   providers: [BatchService],
