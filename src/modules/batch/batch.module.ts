@@ -15,7 +15,7 @@ import { BatchService } from './batch.service'
 @Module({
   imports: [
     TypeOrmModule.forFeature([Batch, PublicFile]),
-    CoreModule,
+    forwardRef(() => CoreModule),
     forwardRef(() => FileUploadModule),
     ChamberModule,
     WaveModule,
