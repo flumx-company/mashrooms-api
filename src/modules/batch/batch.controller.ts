@@ -53,7 +53,7 @@ import { AddBatchFilesDto } from './pagination/add.batch.files.dto';
 })
 @Controller(ApiV1('batches'))
 export class BatchController {
-  constructor(readonly batchService: BatchService, private fileUploadService: FileUploadService,) {}
+  constructor(readonly batchService: BatchService, private fileUploadService: FileUploadService) {}
 
   @Get()
   @Auth({
