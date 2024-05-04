@@ -84,6 +84,6 @@ export class Batch extends DatedBasicEntity {
   @OneToMany(() => Yield, (yieldItem) => yieldItem.category)
   yields: Yield[]
 
- // @OneToMany(() => PublicFile, (file) => file.batchDocuments)
- // documents: PublicFile[]
+  @OneToMany(() => PublicFile, (file) => file.batchDocuments)
+  documents: PublicFile[]
 }
