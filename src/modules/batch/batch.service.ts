@@ -251,7 +251,7 @@ export class BatchService {
     const updatedQuery = {
       ...query,
       'filter': {
-        "documents.id": `${id}`
+        "batchDocuments.id": `${id}`
       }
     };
     return paginate(updatedQuery, this.publicFileRepository, {
