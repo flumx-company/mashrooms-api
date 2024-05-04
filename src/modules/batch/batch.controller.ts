@@ -1,13 +1,15 @@
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { Response as ExResponse } from 'express';
 import {
   ApiPaginationQuery,
   Paginate,
   PaginateQuery,
-  Paginated,
-} from 'nestjs-paginate'
+  Paginated, PaginateConfig,
+} from 'nestjs-paginate';
 
 import {
   Body,
-  Controller,
+  Controller, Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -15,28 +17,33 @@ import {
   ParseIntPipe,
   Post,
   Put,
-  Query,
-} from '@nestjs/common'
+  Res, StreamableFile, UploadedFiles, UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiBadGatewayResponse,
-  ApiBody,
+  ApiBody, ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiParamOptions,
   ApiResponse,
   ApiTags,
-} from '@nestjs/swagger'
+} from '@nestjs/swagger';
 
 import { Wave } from '@mush/modules/wave/wave.entity'
 
 import { Auth } from '@mush/core/decorators'
-import { EPermission, ERole } from '@mush/core/enums'
+import { EFileCategory, EPermission, ERole } from '@mush/core/enums';
 import { ApiV1, CError } from '@mush/core/utils'
+import { AddClientFilesDto } from '../client/dto';
+import { FileUploadService } from '../file-upload/file-upload.service';
+import { BufferedFile } from '../file-upload/file.model';
+import { PublicFile } from '../file-upload/public-file.entity';
 
 import { Batch } from './batch.entity'
 import { BatchService } from './batch.service'
 import { CreateBatchDto, UpdateBatchDto } from './dto'
 import { batchPaginationConfig } from './pagination'
+import { AddBatchFilesDto } from './pagination/add.batch.files.dto';
 
 @ApiTags('Batches')
 @ApiBadGatewayResponse({
@@ -45,7 +52,7 @@ import { batchPaginationConfig } from './pagination'
 })
 @Controller(ApiV1('batches'))
 export class BatchController {
-  constructor(readonly batchService: BatchService) {}
+  constructor(readonly batchService: BatchService, private fileUploadService: FileUploadService,) {}
 
   @Get()
   @Auth({
@@ -195,5 +202,154 @@ export class BatchController {
     @Param('batchId', ParseIntPipe) batchId: number,
   ): Promise<Batch> {
     return this.batchService.endBatch(batchId)
+  }
+  @Get(':id/files')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_BATCH_DOCUMENTS,
+  })
+  @ApiOperation({
+    summary:
+      'Get files related to a batch whose id is provided. Role: SUPERADMIN, ADMIN. Permission: READ_BATCH_DOCUMENTS.',
+  })
+  @ApiPaginationQuery({
+    relations: [EFileCategory.BATCH_DOCUMENTS],
+    sortableColumns: ['documents.id', 'id'],
+  } as PaginateConfig<PublicFile>)
+  async getDocumentsByEmployeeId(
+    @Param('id', ParseIntPipe) id: number,
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<PublicFile>> {
+    return this.batchService.findBatchDocuments(query, id);
+  }
+
+  @Post(':id/files')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CREATE_BATCH_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Adds files to the batch whose id is provided. Role: SUPERADMIN, ADMIN. Permission: CREATE_BATCH_FILES.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description:
+      'Model to add new files related to the client whose id is provided.',
+    type: AddBatchFilesDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the client data.',
+    type: Batch,
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor(EFileCategory.BATCH_DOCUMENTS))
+  async addBatchFiles(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: AddClientFilesDto, //NOTE: it needs to be declared here for dto check to run
+    @UploadedFiles() files: BufferedFile[],
+  ): Promise<Batch> {
+    return this.batchService.addBatchFiles(id, files)
+  }
+
+  @Delete(':batchId/file/:fileId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.DELETE_BATCH_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Remove a file with fileId related to the batch whose batchId is provided. Role: SUPERADMIN, ADMIN. Permission: DELETE_BATCH_FILES.',
+  })
+  @ApiParam({
+    name: 'batchId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiParam({
+    name: 'fileId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return boolean result.',
+    type: Boolean,
+  })
+  async removeBatchFile(
+    @Param('batchId', ParseIntPipe) batchId: number,
+    @Param('fileId', ParseIntPipe) fileId: number,
+  ): Promise<Boolean> {
+    return this.batchService.removeClientFile(batchId, fileId)
+  }
+
+  @Get('file/:id')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_BATCH_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Render client file. Role: SUPERADMIN, ADMIN. Permission: READ_BATCH_FILES.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  async getFileById(
+    @Param('id', ParseIntPipe) id: number,
+    @Res({ passthrough: true }) res: ExResponse,
+  ) {
+    const {
+      fileInfo,
+      stream,
+    }: { fileInfo: PublicFile; stream: stream.Readable } =
+      await this.fileUploadService.getFile(id, EFileCategory.CLIENT_FILES)
+
+    return new StreamableFile(stream, {
+      disposition: `inline filename="${fileInfo.name}`,
+      type: fileInfo.type,
+    })
+  }
+
+  @Get('file-dowload/:id')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENT_FILES,
+  })
+  @ApiOperation({
+    summary:
+      'Download client file. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENT_FILES.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  async downloadFileById(
+    @Param('id', ParseIntPipe) id: number,
+    @Res({ passthrough: true }) res: ExResponse,
+  ) {
+    const {
+      fileInfo,
+      stream,
+    }: { fileInfo: PublicFile; stream: stream.Readable } =
+      await this.fileUploadService.getFile(id, EFileCategory.CLIENT_FILES)
+
+    res.set({
+      'Content-Type': fileInfo.type,
+      'Content-Disposition': `attachment; filename=${fileInfo.name}`,
+    })
+
+    return new StreamableFile(stream, {
+      disposition: `inline filename="${fileInfo.name}`,
+      type: fileInfo.type,
+    })
   }
 }

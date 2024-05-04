@@ -1,4 +1,5 @@
-import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
+import { EFileCategory } from '@mush/core/enums';
+import { PaginateQuery, Paginated, paginate, FilterOperator } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
@@ -12,6 +13,10 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
 import { CError, Nullable, formatDateToDateTime, pick } from '@mush/core/utils'
+import { Client } from '../client/client.entity';
+import { FileUploadService } from '../file-upload/file-upload.service';
+import { BufferedFile } from '../file-upload/file.model';
+import { PublicFile } from '../file-upload/public-file.entity';
 
 import { Subbatch } from '../subbatch/subbatch.entity'
 import { Batch } from './batch.entity'
@@ -26,6 +31,9 @@ export class BatchService {
     private readonly chamberService: ChamberService,
     private readonly waveService: WaveService,
     private readonly subbatchService: SubbatchService,
+    @InjectRepository(PublicFile)
+    private publicFileRepository: Repository<PublicFile>,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Batch>> {
@@ -234,5 +242,67 @@ export class BatchService {
     ])
 
     return this.batchRepository.save(updatedBatch)
+  }
+
+  findBatchDocuments(
+    query: PaginateQuery,
+    id: number,
+  ): Promise<Paginated<PublicFile>> {
+    const updatedQuery = {
+      ...query,
+      'filter': {
+        "documents.id": `${id}`
+      }
+    };
+    return paginate(updatedQuery, this.publicFileRepository, {
+      relations: [EFileCategory.BATCH_DOCUMENTS],
+      sortableColumns: ['batchDocuments.id', 'id'],
+      filterableColumns: {
+        ['batchDocuments.id']: [FilterOperator.EQ],
+      },
+    });
+  }
+
+  async addBatchFiles(
+    id: number,
+    batchDocuments: BufferedFile[],
+  ): Promise<Nullable<Batch>> {
+    if (!batchDocuments || !batchDocuments.length) {
+      throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
+    }
+
+    const foundBatch = await this.findBatchById(id)
+
+    if (!foundBatch) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const fileListData: PublicFile[] =
+      await this.fileUploadService.uploadPublicFiles(batchDocuments)
+
+    const promises = fileListData.map(item => {
+      const data = this.publicFileRepository.create({
+        ...item,
+        batchDocuments: [foundBatch]
+      })
+
+      return this.publicFileRepository.save(data);
+    });
+
+    await Promise.all(promises);
+    return foundBatch;
+  }
+
+  async removeClientFile(clientId: number, fileId: number) {
+    const foundClient: Nullable<Batch> =
+      await this.findBatchById(clientId)
+
+    if (!foundClient) {
+      throw new HttpException(
+        CError.NOT_FOUND_CLIENT_ID,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+    return await this.fileUploadService.deletePublicFile(fileId)
   }
 }
