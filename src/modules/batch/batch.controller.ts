@@ -6,6 +6,7 @@ import {
   PaginateQuery,
   Paginated, PaginateConfig,
 } from 'nestjs-paginate';
+import * as stream from 'stream'
 
 import {
   Body,
