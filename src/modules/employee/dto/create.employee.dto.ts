@@ -71,6 +71,7 @@ export class CreateEmployeeDto {
   })
   readonly phone: string
 
+  @IsOptional()
   @IsString()
   @Matches(BANK_CARD_NUMBER_REGEX)
   @Length(parseInt(process.env.MAX_BANK_CARD_NUMBER_LENGTH))
