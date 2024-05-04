@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator'
+import { IsNotEmpty, IsNumber, IsString, Min, IsOptional } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -22,6 +22,7 @@ export class CreateSubbatchDto {
   readonly briquetteQuantity: number
 
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -31,6 +32,7 @@ export class CreateSubbatchDto {
   })
   readonly compostSupplier: string
 
+  @IsOptional()
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
@@ -41,6 +43,7 @@ export class CreateSubbatchDto {
   })
   readonly compostWeight: number
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
@@ -50,6 +53,7 @@ export class CreateSubbatchDto {
   })
   readonly compostLoadDate: string
 
+  @IsOptional()
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
@@ -60,6 +64,7 @@ export class CreateSubbatchDto {
   })
   readonly compostPrice: number
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -69,6 +74,7 @@ export class CreateSubbatchDto {
   })
   readonly peatSupplier: string
 
+  @IsOptional()
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
@@ -79,6 +85,7 @@ export class CreateSubbatchDto {
   })
   readonly peatWeight: number
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
@@ -88,6 +95,7 @@ export class CreateSubbatchDto {
   })
   readonly peatLoadDate: string
 
+  @IsOptional()
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
