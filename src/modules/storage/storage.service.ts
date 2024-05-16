@@ -33,6 +33,16 @@ export class StorageService {
     return paginate(query, this.storageRepository, storagePaginationConfig)
   }
 
+  findCountersFrStorage(): Promise<Storage[]> {
+    return this.storageRepository
+      .createQueryBuilder('storage')
+      .leftJoinAndSelect('storage.variety', 'variety')
+      .leftJoinAndSelect('storage.category', 'category')
+      .groupBy('batch.category')
+      .addGroupBy('category.variety')
+      .getRawMany();
+  }
+
   findAllByBatchId(batchId: number): Promise<Storage[]> {
     return this.storageRepository
       .createQueryBuilder('storage')
