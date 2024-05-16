@@ -58,6 +58,24 @@ export class StorageController {
     return this.storageRepository.findAll(query)
   }
 
+  @Get('counters')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_STORAGES,
+  })
+  @ApiOperation({
+    summary:
+      'Get list of counters for storages. Role: SUPERADMIN, ADMIN. Permission: READ_STORAGES.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the list of storages.',
+    type: Array<Storage>,
+  })
+  async getAllStorages(): Promise<Storage[]> {
+    return this.storageRepository.findCountersFrStorage()
+  }
+
   @Get('batch/:batchId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
