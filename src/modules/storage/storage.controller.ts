@@ -72,7 +72,7 @@ export class StorageController {
     description: 'Will return the list of storages.',
     type: Array<Storage>,
   })
-  async getAllStorages(): Promise<Storage[]> {
+  async getAllStoragesCounters(): Promise<Storage[]> {
     return this.storageRepository.findCountersFrStorage()
   }
 

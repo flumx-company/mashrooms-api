@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, Min,IsOptional } from 'class-validator'
+import { IsNotEmpty, IsNumber, Min,IsOptional, IsString } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 

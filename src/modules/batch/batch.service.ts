@@ -59,16 +59,20 @@ export class BatchService {
       ],
     })
   }
-
+//{
+//    waveQuantity: number
+//    chamberId: number
+//    subbatches: CreateSubbatchDto[]
+//  }
   async createBatch({
     waveQuantity,
     chamberId,
     subbatches,
-  }: {
-    waveQuantity: number
-    chamberId: number
-    subbatches: CreateSubbatchDto[]
-  }): Promise<Batch> {
+    peatSupplier,
+    peatWeight,
+    peatLoadDate,
+    peatPrice,
+  }: any): Promise<Batch> {
     const [lastBatch, foundChamber]: [Nullable<Batch>, Nullable<Chamber>] =
       await Promise.all([
         this.findLastBatch(),
@@ -116,6 +120,10 @@ export class BatchService {
     const newBatch: Batch = await this.batchRepository.create({
       name,
       waveQuantity,
+      peatSupplier,
+      peatWeight,
+      peatLoadDate,
+      peatPrice,
       dateFrom,
       dateTo: null,
       chamber: pick(foundChamber, 'id', 'name'),
@@ -134,7 +142,10 @@ export class BatchService {
 
   async updateBatch(
     id: number,
-    { waveQuantity, subbatches }: UpdateBatchDto,
+    { waveQuantity, subbatches,  peatSupplier,
+      peatWeight,
+      peatLoadDate,
+      peatPrice, }: UpdateBatchDto,
   ): Promise<Batch> {
     const foundBatch: Nullable<Batch> = await this.findBatchById(id)
 
@@ -151,6 +162,10 @@ export class BatchService {
     const updatedBatch: Batch = this.batchRepository.create({
       ...foundBatch,
       waveQuantity,
+       peatSupplier,
+      peatWeight,
+      peatLoadDate,
+      peatPrice,
       subbatches: updatedSubbatches,
     })
 
