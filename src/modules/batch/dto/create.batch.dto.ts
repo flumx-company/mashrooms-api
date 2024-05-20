@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, Min } from 'class-validator'
+import { IsNotEmpty, IsNumber, Min, IsOptional, IsOptional } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -27,7 +27,7 @@ export class CreateBatchDto {
 
   @IsOptional()
   @IsNotEmpty()
-  @IsString()
+  @c()
   @ApiProperty({
     example: 'Peat supplier 1',
     description: 'Enter peat supplier.',
