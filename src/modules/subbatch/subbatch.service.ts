@@ -24,10 +24,6 @@ export class SubbatchService {
     compostWeight,
     compostLoadDate,
     compostPrice,
-    peatSupplier,
-    peatWeight,
-    peatLoadDate,
-    peatPrice,
     briquetteQuantity
   }: CreateSubbatchDto): Promise<Subbatch> {
     const category = await this.categoryService.findCategoryById(categoryId)
@@ -42,10 +38,6 @@ export class SubbatchService {
       compostWeight,
       compostLoadDate,
       compostPrice,
-      peatSupplier,
-      peatWeight,
-      peatLoadDate,
-      peatPrice,
       briquetteQuantity
     })
 
@@ -58,10 +50,7 @@ export class SubbatchService {
     compostWeight,
     compostLoadDate,
     compostPrice,
-    peatSupplier,
-    peatWeight,
-    peatLoadDate,
-    peatPrice,
+
     briquetteQuantity
   }: UpdateSubbatchDto) {
     const subbatch = await this.categoryService.findCategoryById(id)
@@ -76,10 +65,6 @@ export class SubbatchService {
       compostWeight,
       compostLoadDate,
       compostPrice,
-      peatSupplier,
-      peatWeight,
-      peatLoadDate,
-      peatPrice,
       briquetteQuantity
     })
 
