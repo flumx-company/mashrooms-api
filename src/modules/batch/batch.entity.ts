@@ -59,6 +59,40 @@ export class Batch extends DatedBasicEntity {
   })
   dateTo: Date
 
+  
+  @ApiProperty({
+    example: '2024-01-15',
+    description: 'Peat load date',
+  })
+  @Column({
+    type: 'date',
+    default: null,
+    transformer: {
+      from: (value: Date) => {
+        return formatDateToDateTime({ value })
+      },
+      to: (value: string) => {
+        return new Date(value)
+      },
+    },
+  })
+  peatLoadDate: Date
+
+  @ApiProperty({
+    example: 'Peat Supplier 1',
+    description: 'Peat supplier name',
+  })
+  @Column({ type: 'varchar', length: 50, default: null, nullable: true })
+  peatSupplier: string
+
+  @ApiProperty({ example: 100, description: 'Peat weight by kg' })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: null, nullable: true })
+  peatWeight: number
+
+  @ApiProperty({ example: 100, description: 'Peat price' })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: null, nullable: true })
+  peatPrice: number
+
   @ApiProperty({ example: 3, description: 'Maximum wave quantity' })
   @Column({ type: 'decimal', precision: 2, scale: 0, default: 0 })
   waveQuantity: number
