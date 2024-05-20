@@ -59,42 +59,4 @@ export class UpdateSubbatchDto {
     type: Number,
   })
   readonly compostPrice: number
-
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty({
-    example: 'Peat supplier 1',
-    description: 'Enter peat supplier.',
-    type: String,
-  })
-  readonly peatSupplier: string
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @ApiProperty({
-    example: 100,
-    description: 'Enter the peat weight by kg.',
-    type: Number,
-  })
-  readonly peatWeight: number
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-    example: '2024-01-25',
-    description: 'Enter the peat load date.',
-    type: String,
-  })
-  readonly peatLoadDate: string
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @ApiProperty({
-    example: 100,
-    description: 'Enter the peat price.',
-    type: Number,
-  })
-  readonly peatPrice: number
 }

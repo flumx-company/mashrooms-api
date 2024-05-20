@@ -37,6 +37,15 @@ export class ShiftService {
 
   findAllCurrentShifts(search: string): Promise<Shift[]> {
     const isActive: boolean = true;
+
+    if(!search) {
+      return .createQueryBuilder('shift')
+      .leftJoinAndSelect('shift.employee', 'employee')
+      .where('shift.dateTo IS NULL AND employee.isActive = :isActive)', {
+        isActive
+      })
+      .getMany()
+    }
     return this.shiftRepository
       .createQueryBuilder('shift')
       .leftJoinAndSelect('shift.employee', 'employee')

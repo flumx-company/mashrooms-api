@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateCuttingDto {
   @IsNotEmpty()
-  @Min(1)
+  @Min(0)
   @Max(99999)
   @ApiProperty({
     example: 5,
