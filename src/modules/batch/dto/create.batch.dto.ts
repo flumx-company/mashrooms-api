@@ -27,7 +27,7 @@ export class CreateBatchDto {
 
   @IsOptional()
   @IsNotEmpty()
-  @c()
+  @IsString()
   @ApiProperty({
     example: 'Peat supplier 1',
     description: 'Enter peat supplier.',
