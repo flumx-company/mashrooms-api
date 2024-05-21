@@ -36,9 +36,9 @@ export class StorageService {
   findCountersFrStorage(): Promise<Storage[]> {
     return this.storageRepository
       .createQueryBuilder('storage')
-      .select(['SUM(storage.amount) as count', 'category'])
-      .leftJoinAndSelect('storage.variety', 'variety')
-      .leftJoinAndSelect('storage.category', 'category')
+      .select(['SUM(storage.amount) as count', 'category', 'variety])
+      .leftJoin('storage.variety', 'variety')
+      .leftJoin('storage.category', 'category')
       .groupBy('category.id')
       .getRawMany();
   }
