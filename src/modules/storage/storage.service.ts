@@ -38,15 +38,15 @@ export class StorageService {
       .createQueryBuilder('storage')
       .leftJoinAndSelect('storage.variety', 'variety')
       .leftJoinAndSelect('storage.category', 'category')
-      .groupBy('category')
-      .addGroupBy('category.variety')
+      .leftJoinAndSelect('category.variety', 'variety')
+      .groupBy('category.id')
+      .addGroupBy('variety.id')
       .getRawMany();
   }
 
   findAllByBatchId(batchId: number): Promise<Storage[]> {
     return this.storageRepository
       .createQueryBuilder('storage')
-      .select()
       .leftJoinAndSelect('storage.variety', 'variety')
       .leftJoinAndSelect('storage.wave', 'wave')
       .leftJoinAndSelect('storage.category', 'category')
