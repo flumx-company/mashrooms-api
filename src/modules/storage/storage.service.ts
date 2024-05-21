@@ -38,9 +38,7 @@ export class StorageService {
       .createQueryBuilder('storage')
       .leftJoinAndSelect('storage.variety', 'variety')
       .leftJoinAndSelect('storage.category', 'category')
-      .leftJoinAndSelect('category.variety', 'variety')
       .groupBy('category.id')
-      .addGroupBy('category.variety.id')
       .getRawMany();
   }
 
