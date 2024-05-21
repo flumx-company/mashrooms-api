@@ -40,7 +40,7 @@ export class StorageService {
       .leftJoinAndSelect('storage.category', 'category')
       .leftJoinAndSelect('category.variety', 'variety')
       .groupBy('category.id')
-      .addGroupBy('variety.id')
+      .addGroupBy('category.variety.id')
       .getRawMany();
   }
 
