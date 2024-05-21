@@ -38,7 +38,7 @@ export class StorageService {
       .createQueryBuilder('storage')
       .leftJoinAndSelect('storage.variety', 'variety')
       .leftJoinAndSelect('storage.category', 'category')
-      .groupBy('category')
+      .groupBy('category.id')
       .addGroupBy('category.variety')
       .getRawMany();
   }
@@ -46,7 +46,6 @@ export class StorageService {
   findAllByBatchId(batchId: number): Promise<Storage[]> {
     return this.storageRepository
       .createQueryBuilder('storage')
-      .select()
       .leftJoinAndSelect('storage.variety', 'variety')
       .leftJoinAndSelect('storage.wave', 'wave')
       .leftJoinAndSelect('storage.category', 'category')
