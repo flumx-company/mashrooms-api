@@ -33,13 +33,14 @@ export class StorageService {
     return paginate(query, this.storageRepository, storagePaginationConfig)
   }
 
-  findCountersFrStorage(): Promise<Storage[]> {
+  findCountersForStorage(): Promise<Storage[]> {
     return this.storageRepository
       .createQueryBuilder('storage')
-      .select(['SUM(storage.amount) as count', 'category', 'variety', 'category.id'])
+      .select(['SUM(storage.amount) as count','category', 'category.id','variety.id', 'variety' ])
       .leftJoin('storage.variety', 'variety')
       .leftJoin('storage.category', 'category')
       .groupBy('category.id')
+      .addGroupBy('variety.id')
       .getRawMany();
   }
 

@@ -4,20 +4,25 @@ services:
     container_name: ${APP_NAME}-mysql-${APP_ENV}
     image: 'mysql:8.2.0'
     restart: always
-    ports: 
-      - ${MYSQL_TCP_PORT}:3306
-    env_file: 
-      - .env
+    ports:
+      - "3306:3306"
+      - "33060:33060"
+    environment:
+      MYSQL_USER: ruben
+      MYSQL_PASSWORD: secret
+      MYSQL_TCP_PORT: 3306
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: mashrooms-db
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_NODE_HOSTNAME: localhost
     networks:
       - mashrooms-network
-    volumes:
-      - mashrooms-mysql-volume:/var/lib/mysql
-    
+
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"
     restart: always
     ports:
-      - 8080:80
+      - 8081:80
     env_file: 
       - .env
     depends_on:

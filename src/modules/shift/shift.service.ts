@@ -41,7 +41,7 @@ export class ShiftService {
     if(!search) {
       return this.shiftRepository.createQueryBuilder('shift')
       .leftJoinAndSelect('shift.employee', 'employee')
-      .where('shift.dateTo IS NULL AND employee.isActive = :isActive)', {
+      .where('shift.dateTo IS NULL AND employee.isActive = :isActive', {
         isActive
       })
       .getMany()
