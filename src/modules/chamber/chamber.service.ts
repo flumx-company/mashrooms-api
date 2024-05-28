@@ -1,0 +1,107 @@
+import { Repository } from 'typeorm'
+
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+
+import { CError, Nullable } from '@mush/core/utils'
+
+import { Chamber } from './chamber.entity'
+import { UpdateChamberDto } from './dto'
+
+@Injectable()
+export class ChamberService {
+  constructor(
+    @InjectRepository(Chamber)
+    private chamberRepository: Repository<Chamber>,
+  ) {}
+
+  findAll(): Promise<Chamber[]> {
+    return this.chamberRepository.find({
+      order: {
+        name: 'ASC',
+      },
+    })
+  }
+
+  findChamberById(id: number): Promise<Nullable<Chamber>> {
+    return this.chamberRepository.findOneBy({ id })
+  }
+
+  findChamberByIdWithRelations(id: number): Promise<Nullable<Chamber>> {
+    return this.chamberRepository.findOne({
+      where: { id },
+      relations: ['batches', 'workRecords'],
+      order: { batches: { id: 'desc' } },
+    })
+  }
+
+  findChamberByName(name: string): Promise<Nullable<Chamber>> {
+    return this.chamberRepository.findOneBy({ name })
+  }
+
+  async createChamber({
+    name,
+    area,
+  }: {
+    name: string
+    area: number
+  }): Promise<Chamber> {
+    const foundChamber = await this.findChamberByName(name)
+
+    if (foundChamber) {
+      throw new HttpException(
+        CError.NAME_ALREADY_EXISTS,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
+    const newChamber: Chamber = await this.chamberRepository.create({
+      name,
+      area,
+    })
+
+    return this.chamberRepository.save(newChamber)
+  }
+
+  async updateChamber(id: number, { name, area }: UpdateChamberDto) {
+    const foundChamber: Chamber = await this.findChamberById(id)
+
+    if (!foundChamber) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const updatedChamber: Chamber = await this.chamberRepository.create({
+      ...foundChamber,
+      name,
+      area,
+    })
+
+    return this.chamberRepository.save(updatedChamber)
+  }
+
+  async removeChamber(id: number): Promise<Boolean> {
+    const foundChamber: Nullable<Chamber> =
+      await this.findChamberByIdWithRelations(id)
+
+    if (!foundChamber) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const { batches, workRecords } = foundChamber
+
+    if (batches.length || workRecords.length) {
+      throw new HttpException(
+        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
+    try {
+      await this.chamberRepository.remove(foundChamber)
+
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+}

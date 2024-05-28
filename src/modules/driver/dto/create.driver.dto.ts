@@ -1,0 +1,46 @@
+import {
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator'
+
+import { ApiProperty } from '@nestjs/swagger'
+
+import { PHONE_REGEX } from '@mush/core/utils'
+
+export class CreateDriverDto {
+  @IsString()
+  @MaxLength(parseInt(process.env.MAX_FIRST_NAME_LENGTH))
+  @MinLength(1)
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 'John',
+    description: 'Enter first name.',
+    type: String,
+  })
+  readonly firstName: string
+
+  @IsString()
+  @MaxLength(parseInt(process.env.MAX_LAST_NAME_LENGTH))
+  @MinLength(1)
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 'Johnson',
+    description: 'Enter last name.',
+    type: String,
+  })
+  readonly lastName: string
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(parseInt(process.env.MAX_PHONE_LENGTH))
+  @Matches(PHONE_REGEX)
+  @ApiProperty({
+    example: '380681234567',
+    description: 'Enter the phone.',
+    type: String,
+  })
+  readonly phone: string
+}
