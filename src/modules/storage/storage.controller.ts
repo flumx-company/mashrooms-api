@@ -73,7 +73,7 @@ export class StorageController {
     type: Array<Storage>,
   })
   async getAllStoragesCounters(): Promise<Storage[]> {
-    return this.storageRepository.findCountersFrStorage()
+    return this.storageRepository.findCountersForStorage()
   }
 
   @Get('batch/:batchId')

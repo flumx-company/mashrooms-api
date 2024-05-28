@@ -46,7 +46,7 @@ services:
       - mashrooms-phpmyadmin-volume:/var/lib/phpmyadmin
 
   api:
-    image: registry.it-flumx.com/flumx_mushrooms_api:latest
+    build: '.'
     env_file: 
       - .env
     depends_on:
