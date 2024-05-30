@@ -17,7 +17,7 @@ import { LATIN_CYRILLIC_LETTER_TITLE_REGEX } from '@mush/core/utils'
 
 export class UpdateWorkDto {
   @IsString()
-  @MaxLength(parseInt(process.env.MAX_WORK_TITLE))
+  @MaxLength(150)
   @MinLength(1)
   @IsNotEmpty()
   @Matches(LATIN_CYRILLIC_LETTER_TITLE_REGEX)

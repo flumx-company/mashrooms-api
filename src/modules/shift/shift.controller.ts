@@ -210,6 +210,7 @@ export class ShiftController {
     @Param('shiftId', ParseIntPipe) shiftId: number,
     @Body() data: UpdateShiftDto,
   ): Promise<Shift> {
-    return this.shiftService.runShiftCalculations(shiftId, data)
+    const shift = await this.shiftService.findShift(shiftId)
+    return this.shiftService.runShiftCalculations(shift.employee.id, data)
   }
 }

@@ -69,6 +69,17 @@ export class ShiftService {
       })
       .getOne()
   }
+  async findShift(
+    shiftId: number,
+  ): Promise<Nullable<Shift>> {
+    return this.shiftRepository
+      .createQueryBuilder('shift')
+      .leftJoinAndSelect('shift.employee', 'employee')
+      .where('shift.id = :id', {
+        id: shiftId,
+      })
+      .getOne()
+  }
 
   async findCurrentShiftWithEmployeeId(
     employeeId: number,
@@ -464,8 +475,7 @@ export class ShiftService {
       )
     }
 
-    
-    await this.runShiftCalculations(currentShift.id, { dateTo })
+    await this.runShiftCalculations(employeeId, { dateTo })
 
     await this.employeeService.updateEmployeeActiveStatus(employeeId, false)
     
@@ -531,6 +541,6 @@ export class ShiftService {
       )
     }
 
-    return this.runShiftCalculations(currentShift.id)
+    return this.runShiftCalculations(employeeId)
   }
 }
