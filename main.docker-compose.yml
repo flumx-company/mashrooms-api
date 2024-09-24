@@ -107,7 +107,6 @@ services:
     container_name: "${APP_NAME}-minio-${APP_ENV}"
     image: minio/minio
     restart: always
-    restart: always
     volumes:
       - mashrooms-minio-data:/minio-data
     command: 'minio server /minio-data --console-address ":9001"'
