@@ -23,6 +23,7 @@ services:
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"
     restart: always
+    hostname: database
     ports:
       - 51515:80
     env_file: 
