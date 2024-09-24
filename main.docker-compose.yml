@@ -43,7 +43,10 @@ services:
       - 'traefik.http.routers.mashrooms-phpmyadmin.service=mashrooms-phpmyadmin'
       - 'traefik.http.services.mashrooms-phpmyadmin.loadbalancer.server.port=80'
     volumes:
-      - mashrooms-phpmyadmin-volume:/var/lib/phpmyadmin
+      - ./deploy/apache-config.conf:/etc/apache2/conf-available/servername.conf
+    command: >
+      /bin/bash -c "ln -s /etc/apache2/conf-available/servername.conf /etc/apache2/conf-enabled/servername.conf &&
+      apache2-foreground"
 
   api:
     build: '.'
