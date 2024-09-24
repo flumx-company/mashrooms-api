@@ -68,7 +68,7 @@ export class PriceService {
     const foundPrice = await this.priceRepository.findOne({
       where: {
         tenant,
-        date: LessThanOrEqual(new Date(`${date} 00:00:00:000`)),
+        date: LessThanOrEqual(new Date(date)),
       },
       order: { date: 'DESC' },
     })

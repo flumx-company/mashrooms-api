@@ -86,17 +86,15 @@ export class ShiftService {
   ): Promise<Nullable<Shift>> {
     return this.shiftRepository
       .createQueryBuilder('shift')
-      .innerJoinAndSelect('shift.employee', 'employee', 'employee.id = :id', {
-        id: employeeId,
-      })
-      .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
-        id: employeeId,
-      })
+      .innerJoinAndSelect('shift.employee', 'employee')
       .leftJoinAndSelect('shift.workRecords', 'workRecord')
       .leftJoinAndSelect('shift.waterings', 'watering')
       .leftJoinAndSelect('shift.cuttings', 'cutting')
       .leftJoinAndSelect('shift.loadings', 'loading')
+      .leftJoinAndSelect('shift.offloadLoadings', 'offload')
       .leftJoinAndSelect('workRecord.work', 'work')
+      .leftJoinAndSelect('cutting.variety', 'variety')
+      .leftJoinAndSelect('loading.variety', 'varietyForLoading')
       .select([
         'shift.id',
         'shift.dateFrom',
@@ -115,7 +113,13 @@ export class ShiftService {
         'work.id',
         'work.title',
         'work.isRegular',
+        'loading.*',
+        'offload.*',
+        'varietyForLoading.*'
       ])
+      .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
+        id: employeeId,
+      })
       .getOne()
   }
 
@@ -132,6 +136,7 @@ export class ShiftService {
       .leftJoinAndSelect('shift.offloadLoadings', 'offload')
       .leftJoinAndSelect('workRecord.work', 'work')
       .leftJoinAndSelect('cutting.variety', 'variety')
+      .leftJoinAndSelect('loading.variety', 'varietyForLoading')
       .select([
         'shift.id',
         'shift.dateFrom',
@@ -163,8 +168,10 @@ export class ShiftService {
         'cutting.id',
         'cutting.boxQuantity',
         'cutting.createdAt',
+        'cutting.trip',
         'loading.id',
         'loading.boxQuantity',
+        'loading.trip',
         'loading.createdAt',
         'watering.id',
         'watering.drug',
@@ -174,12 +181,91 @@ export class ShiftService {
         'offload.id',
         'offload.boxTotalQuantity',
         'offload.createdAt',
+        'offload.priceTotal',
+        'offload.isClosed',
+        'offload.paidMoney',
         'variety.id',
+        'variety.name',
         'variety.isCutterPaid',
+        'varietyForLoading.id',
+        'varietyForLoading.name',
+        'varietyForLoading.isCutterPaid',
       ])
       .where('shift.dateTo IS NULL')
       .andWhere('employee.id = :employeeId', { employeeId })
       .orderBy('workRecord.date', 'ASC')
+      .getOne()
+  }
+
+  async findShiftWithRelations(
+    shiftId: number,
+  ): Promise<Nullable<Shift>> {
+    return this.shiftRepository
+      .createQueryBuilder('shift')
+      .innerJoin('shift.employee', 'employee')
+      .leftJoinAndSelect('shift.workRecords', 'workRecord')
+      .leftJoinAndSelect('shift.waterings', 'watering')
+      .leftJoinAndSelect('shift.cuttings', 'cutting')
+      .leftJoinAndSelect('shift.loadings', 'loading')
+      .leftJoinAndSelect('shift.offloadLoadings', 'offload')
+      .leftJoinAndSelect('workRecord.work', 'work')
+      .leftJoinAndSelect('cutting.variety', 'variety')
+      .leftJoinAndSelect('loading.variety', 'varietyForLoading')
+      .select([
+        'shift.id',
+        'shift.dateFrom',
+        'shift.dateTo',
+        'shift.returnsKnife',
+        'shift.returnsBedSheets',
+        'shift.returnsWardrobeKey',
+        'shift.paysForKitchen',
+        'shift.kitchenPaymentMethod',
+        'shift.kitchenExpenses',
+        'shift.calendarDayNumber',
+        'shift.workingDayNumber',
+        'shift.wage',
+        'shift.bonus',
+        'shift.customBonus',
+        'shift.customBonusDescription',
+        'shift.wageTotal',
+        'shift.paidAmount',
+        'shift.remainedPayment',
+        'employee.id',
+        'workRecord.id',
+        'workRecord.date',
+        'workRecord.percent',
+        'workRecord.percentAmount',
+        'workRecord.reward',
+        'work.id',
+        'work.title',
+        'work.isRegular',
+        'cutting.id',
+        'cutting.boxQuantity',
+        'cutting.createdAt',
+        'cutting.trip',
+        'loading.id',
+        'loading.boxQuantity',
+        'loading.trip',
+        'loading.createdAt',
+        'watering.id',
+        'watering.drug',
+        'watering.volume',
+        'watering.id',
+        'watering.dateTimeFrom',
+        'offload.id',
+        'offload.boxTotalQuantity',
+        'offload.createdAt',
+        'offload.priceTotal',
+        'offload.isClosed',
+        'offload.paidMoney',
+        'variety.id',
+        'variety.name',
+        'variety.isCutterPaid',
+        'varietyForLoading.id',
+        'varietyForLoading.name',
+        'varietyForLoading.isCutterPaid',
+      ])
+      .where('shift.id = :shiftId', { shiftId })
       .getOne()
   }
 
@@ -230,13 +316,13 @@ export class ShiftService {
 
     const [
       firstLitrePrice,
-      firstMedLitrePrice,
+      // firstMedLitrePrice,
       firstBoxPrice,
       firstKitchenPrice,
       priceChanges,
     ]: [
       Nullable<Price>,
-      Nullable<Price>,
+      // Nullable<Price>,
       Nullable<Price>,
       Nullable<Price>,
       Price[],
@@ -245,10 +331,10 @@ export class ShiftService {
         date: startDate as unknown as string,
         tenant: EPriceTenant.LITER,
       }),
-      this.priceService.findPriceByClosestDate({
-        date: startDate as unknown as string,
-        tenant: EPriceTenant.MEDICATED_LITER,
-      }),
+      // this.priceService.findPriceByClosestDate({
+      //   date: startDate as unknown as string,
+      //   tenant: EPriceTenant.MEDICATED_LITER,
+      // }),
       this.priceService.findPriceByClosestDate({
         date: startDate as unknown as string,
         tenant: EPriceTenant.BOX,
@@ -264,19 +350,19 @@ export class ShiftService {
       }),
     ])
     const hasFirstLitrePrice = Object.keys(firstLitrePrice || []).length
-    const hasFirstMedLitrePrice = Object.keys(firstMedLitrePrice || []).length
+    // const hasFirstMedLitrePrice = Object.keys(firstMedLitrePrice || []).length
     const hasFirstBoxPrice = Object.keys(firstBoxPrice || []).length
     const hasFirstKitchenPrice = Object.keys(firstKitchenPrice || []).length
 
     if (!hasFirstLitrePrice) {
       throw new HttpException(CError.NO_LITER_PRICE, HttpStatus.BAD_REQUEST)
     }
-    if (!hasFirstMedLitrePrice) {
-      throw new HttpException(
-        CError.NO_MEDICATED_LITER_PRICE,
-        HttpStatus.BAD_REQUEST,
-      )
-    }
+    // if (!hasFirstMedLitrePrice) {
+    //   throw new HttpException(
+    //     CError.NO_MEDICATED_LITER_PRICE,
+    //     HttpStatus.BAD_REQUEST,
+    //   )
+    // }
     if (!hasFirstBoxPrice) {
       throw new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST)
     }
@@ -287,9 +373,9 @@ export class ShiftService {
     priceDirectory[EPriceTenant.LITER] = {
       [firstLitrePrice.date as unknown as string]: firstLitrePrice.price,
     }
-    priceDirectory[EPriceTenant.MEDICATED_LITER] = {
-      [firstMedLitrePrice.date as unknown as string]: firstMedLitrePrice.price,
-    }
+    // priceDirectory[EPriceTenant.MEDICATED_LITER] = {
+    //   [firstMedLitrePrice.date as unknown as string]: firstMedLitrePrice.price,
+    // }
     priceDirectory[EPriceTenant.BOX] = {
       [firstBoxPrice.date as unknown as string]: firstBoxPrice.price,
     }
@@ -349,7 +435,8 @@ export class ShiftService {
 
     waterings.forEach(({ dateTimeFrom, drug, volume }) => {
       const date = String(dateTimeFrom).slice(0, 10)
-      const tenant = drug ? EPriceTenant.MEDICATED_LITER : EPriceTenant.LITER
+      // const tenant = drug ? EPriceTenant.MEDICATED_LITER : EPriceTenant.LITER
+      const tenant = EPriceTenant.LITER
       const price = getNearestPrice({ tenant, date })
       const previousValue = wageDirectory?.[date] || 0
       wageDirectory[date] = volume * price + previousValue
@@ -367,7 +454,7 @@ export class ShiftService {
       0,
     )
     let kitchenExpenses = 0
-    let bonus = 0
+    let bonus = newShiftData.bonus || 0
     let wageTotal = 0
     let remainedPayment = 0
 
@@ -375,8 +462,7 @@ export class ShiftService {
       const slicedDate = date.slice(0, 10)
       const slidedDateTo = String(dateTo).slice(0, 10)
       const price = getNearestPrice({ date, tenant: EPriceTenant.KITCHEN })
-
-      kitchenExpenses = kitchenExpenses + price
+      kitchenExpenses = kitchenExpenses + (price || 0)
 
       if (slicedDate !== slidedDateTo) {
         const nextDateDateFormat = new Date(date).setDate(
@@ -401,6 +487,7 @@ export class ShiftService {
     wageTotal = wage + bonus + customBonus - kitchenExpenses
     remainedPayment = wageTotal - paidAmount
 
+
     const updatedShift: Shift = await this.shiftRepository.create({
       ...shift,
       ...(newShiftData || {}),
@@ -414,6 +501,452 @@ export class ShiftService {
     })
 
     return this.shiftRepository.save(updatedShift)
+  }
+
+  async getShiftCalculationsByEmployee(employeeId: number) {
+    const shift: Shift = await this.findCurrentShiftWithRelations(employeeId)
+// console.log(shift)
+    if (!shift) {
+      // throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      console.warn(new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST))
+      return
+    }
+
+    const {
+      dateFrom: startDate,
+      cuttings,
+      loadings,
+      offloadLoadings,
+      waterings,
+      workRecords,
+    } = shift
+    const customBonus =shift.customBonus
+    const paidAmount = shift.paidAmount
+    const dateFrom = formatDateToDateTime({
+      value: new Date(startDate),
+      withTime: true,
+      dateFrom: true,
+    })
+    const dateTo = formatDateToDateTime({
+      value: new Date(),
+      withTime: true,
+      dateFrom: false,
+    })
+    const dateFromTime = new Date(dateFrom).getTime()
+    const dateToTime = new Date(dateTo).getTime()
+    const durationMilisecond = dateToTime - dateFromTime
+    const calendarDayNumber = Math.ceil(
+      durationMilisecond / (1000 * 60 * 60 * 24),
+    )
+    const priceDirectory: object = {}
+    const wageDirectory: Record<string, number> = {}
+    console.log({startDate, dateToTime:dateToTime})
+    const [
+      firstLitrePrice,
+      firstMedLitrePrice,
+      firstBoxPrice,
+      firstKitchenPrice,
+      priceChanges,
+    ]: [
+      Nullable<Price>,
+      Nullable<Price>,
+      Nullable<Price>,
+      Nullable<Price>,
+      Price[],
+    ] = await Promise.all([
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.LITER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.MEDICATED_LITER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX,
+      }),
+
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.KITCHEN,
+      }),
+      this.priceService.findAllTenantPricesWithinPeriod({
+        dateFrom,
+        dateTo,
+      }),
+    ])
+    const hasFirstLitrePrice = Object.keys(firstLitrePrice || []).length
+    const hasFirstBoxPrice = Object.keys(firstBoxPrice || []).length
+    const hasFirstKitchenPrice = Object.keys(firstKitchenPrice || []).length
+
+    if (!hasFirstLitrePrice) {
+      console.warn(new HttpException(CError.NO_LITER_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+    if (!hasFirstBoxPrice) {
+      console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+    if (!hasFirstKitchenPrice) {
+      console.warn(new HttpException(CError.NO_KITCHEN_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+
+    priceDirectory[EPriceTenant.LITER] = {
+      [firstLitrePrice.date as unknown as string]: firstLitrePrice.price,
+    }
+    // priceDirectory[EPriceTenant.MEDICATED_LITER] = {
+    //   [firstMedLitrePrice.date as unknown as string]: firstMedLitrePrice.price,
+    // }
+    priceDirectory[EPriceTenant.BOX] = {
+      [firstBoxPrice.date as unknown as string]: firstBoxPrice.price,
+    }
+    priceDirectory[EPriceTenant.KITCHEN] = {
+      [firstKitchenPrice.date as unknown as string]: firstKitchenPrice.price,
+    }
+
+    priceChanges.forEach(({ tenant, date, price }) => {
+      console.log('6666666',tenant, priceDirectory)
+      priceDirectory[tenant][date] = price
+    })
+
+    const getNearestPrice = ({ tenant, date }) => {
+      let nearestDate
+
+      console.log(tenant)
+      Object.keys(priceDirectory[tenant] || {}).forEach((priceDate) => {
+        if (priceDate && new Date(priceDate) <= new Date(date)) {
+          nearestDate = priceDate
+        }
+      })
+
+      return priceDirectory[tenant][nearestDate]
+    }
+
+    cuttings.forEach(({ createdAt, boxQuantity, variety }) => {
+      if (!variety.isCutterPaid) {
+        return
+      }
+
+      const date = formatDateToDateTime({
+        value: createdAt,
+        withTime: false,
+      }) as unknown as string
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const previousValue = wageDirectory?.[date] || 0
+      wageDirectory[date] = boxQuantity * price + previousValue
+    })
+
+    loadings.forEach(({ createdAt, boxQuantity }) => {
+      const date = formatDateToDateTime({
+        value: createdAt,
+        withTime: false,
+      }) as unknown as string
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const previousValue = wageDirectory?.[date] || 0
+      wageDirectory[date] = boxQuantity * price + previousValue
+    })
+
+    offloadLoadings.forEach(({ boxTotalQuantity, createdAt }) => {
+      const date = formatDateToDateTime({
+        value: createdAt,
+        withTime: false,
+      }) as unknown as string
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const previousValue = wageDirectory?.[date] || 0
+      wageDirectory[date] = boxTotalQuantity * price + previousValue
+    })
+
+    waterings.forEach(({ dateTimeFrom, drug, volume }) => {
+      const date = String(dateTimeFrom).slice(0, 10)
+      const tenant = drug ? EPriceTenant.LITER : EPriceTenant.LITER
+      const price = getNearestPrice({ tenant, date })
+      const previousValue = wageDirectory?.[date] || 0
+      wageDirectory[date] = volume * price + previousValue
+    })
+
+    workRecords.forEach(({ date, percentAmount, reward = 0 }) => {
+      const previousValue = wageDirectory?.[date as unknown as string] || 0
+      wageDirectory[date as unknown as string] =
+        previousValue + percentAmount + reward
+    })
+
+    const workingDayNumber = Object.keys(wageDirectory).length
+    const wage = Object.values(wageDirectory).reduce(
+      (total, dayWage) => total + dayWage,
+      0,
+    )
+    let kitchenExpenses = 0
+    let bonus = shift.bonus || 0
+    let wageTotal = 0
+    let remainedPayment = 0
+
+    const calculateKitchenExpenses = (date: string) => {
+      const slicedDate = date.slice(0, 10)
+      const slidedDateTo = String(dateTo).slice(0, 10)
+      const priceData = getNearestPrice({ date, tenant: EPriceTenant.KITCHEN })
+      console.log(priceData)
+      kitchenExpenses = kitchenExpenses + (priceData?.price || 0)
+
+      if (slicedDate !== slidedDateTo) {
+        const nextDateDateFormat = new Date(date).setDate(
+          new Date(date).getDate() + 1,
+        )
+
+        const nextDate = formatDateToDateTime({
+          value: new Date(nextDateDateFormat),
+          withTime: false,
+        }) as unknown as string
+
+        return calculateKitchenExpenses(nextDate)
+      }
+    }
+
+    calculateKitchenExpenses(dateFrom as unknown as string)
+
+    if (workingDayNumber >= automaticBonusMinimumDayNumber) {
+      bonus = wage * automaticBonusPercent
+    }
+
+    wageTotal = wage + bonus + customBonus - kitchenExpenses
+    remainedPayment = wageTotal - paidAmount
+
+    return {
+      ...shift,
+      kitchenExpenses,
+      calendarDayNumber,
+      workingDayNumber,
+      wage,
+      bonus,
+      wageTotal,
+      remainedPayment,
+      cuttings,
+
+    }
+  }
+
+  async getShiftCalculations(shiftId: number) {
+    const shift: Shift = await this.findShiftWithRelations(shiftId)
+// console.log(shift)
+    if (!shift) {
+      // throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+      console.warn(new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST))
+      return
+    }
+
+    const {
+      dateFrom: startDate,
+      cuttings,
+      loadings,
+      offloadLoadings,
+      waterings,
+      workRecords,
+    } = shift
+    const customBonus =shift.customBonus
+    const paidAmount = shift.paidAmount
+    const dateFrom = formatDateToDateTime({
+      value: new Date(startDate),
+      withTime: true,
+      dateFrom: true,
+    })
+    const dateTo = formatDateToDateTime({
+      value: new Date(),
+      withTime: true,
+      dateFrom: false,
+    })
+    const dateFromTime = new Date(dateFrom).getTime()
+    const dateToTime = new Date(dateTo).getTime()
+    const durationMilisecond = dateToTime - dateFromTime
+    const calendarDayNumber = Math.ceil(
+      durationMilisecond / (1000 * 60 * 60 * 24),
+    )
+    const priceDirectory: object = {}
+    const wageDirectory: Record<string, number> = {}
+    console.log({startDate, dateToTime:dateToTime})
+    const [
+      firstLitrePrice,
+      firstMedLitrePrice,
+      firstBoxPrice,
+      firstKitchenPrice,
+      priceChanges,
+    ]: [
+      Nullable<Price>,
+      Nullable<Price>,
+      Nullable<Price>,
+      Nullable<Price>,
+      Price[],
+    ] = await Promise.all([
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.LITER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.MEDICATED_LITER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX,
+      }),
+
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.KITCHEN,
+      }),
+      this.priceService.findAllTenantPricesWithinPeriod({
+        dateFrom,
+        dateTo,
+      }),
+    ])
+    const hasFirstLitrePrice = Object.keys(firstLitrePrice || []).length
+    const hasFirstBoxPrice = Object.keys(firstBoxPrice || []).length
+    const hasFirstKitchenPrice = Object.keys(firstKitchenPrice || []).length
+
+    if (!hasFirstLitrePrice) {
+      console.warn(new HttpException(CError.NO_LITER_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+    if (!hasFirstBoxPrice) {
+      console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+    if (!hasFirstKitchenPrice) {
+      console.warn(new HttpException(CError.NO_KITCHEN_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+
+    priceDirectory[EPriceTenant.LITER] = {
+      [firstLitrePrice.date as unknown as string]: firstLitrePrice.price,
+    }
+    // priceDirectory[EPriceTenant.MEDICATED_LITER] = {
+    //   [firstMedLitrePrice.date as unknown as string]: firstMedLitrePrice.price,
+    // }
+    priceDirectory[EPriceTenant.BOX] = {
+      [firstBoxPrice.date as unknown as string]: firstBoxPrice.price,
+    }
+    priceDirectory[EPriceTenant.KITCHEN] = {
+      [firstKitchenPrice.date as unknown as string]: firstKitchenPrice.price,
+    }
+
+    priceChanges.forEach(({ tenant, date, price }) => {
+      console.log('6666666',tenant, priceDirectory)
+      priceDirectory[tenant][date] = price
+    })
+
+    const getNearestPrice = ({ tenant, date }) => {
+      let nearestDate
+
+      console.log(tenant)
+      Object.keys(priceDirectory[tenant] || {}).forEach((priceDate) => {
+        if (priceDate && new Date(priceDate) <= new Date(date)) {
+          nearestDate = priceDate
+        }
+      })
+
+      return priceDirectory[tenant][nearestDate]
+    }
+
+    cuttings.forEach(({ createdAt, boxQuantity, variety }) => {
+      if (!variety.isCutterPaid) {
+        return
+      }
+
+      const date = formatDateToDateTime({
+        value: createdAt,
+        withTime: false,
+      }) as unknown as string
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const previousValue = wageDirectory?.[date] || 0
+      wageDirectory[date] = boxQuantity * price + previousValue
+    })
+
+    loadings.forEach(({ createdAt, boxQuantity }) => {
+      const date = formatDateToDateTime({
+        value: createdAt,
+        withTime: false,
+      }) as unknown as string
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const previousValue = wageDirectory?.[date] || 0
+      wageDirectory[date] = boxQuantity * price + previousValue
+    })
+
+    offloadLoadings.forEach(({ boxTotalQuantity, createdAt }) => {
+      const date = formatDateToDateTime({
+        value: createdAt,
+        withTime: false,
+      }) as unknown as string
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const previousValue = wageDirectory?.[date] || 0
+      wageDirectory[date] = boxTotalQuantity * price + previousValue
+    })
+
+    waterings.forEach(({ dateTimeFrom, drug, volume }) => {
+      const date = String(dateTimeFrom).slice(0, 10)
+      const tenant = drug ? EPriceTenant.LITER : EPriceTenant.LITER
+      const price = getNearestPrice({ tenant, date })
+      const previousValue = wageDirectory?.[date] || 0
+      wageDirectory[date] = volume * price + previousValue
+    })
+
+    workRecords.forEach(({ date, percentAmount, reward = 0 }) => {
+      const previousValue = wageDirectory?.[date as unknown as string] || 0
+      wageDirectory[date as unknown as string] =
+        previousValue + percentAmount + reward
+    })
+
+    const workingDayNumber = Object.keys(wageDirectory).length
+    const wage = Object.values(wageDirectory).reduce(
+      (total, dayWage) => total + dayWage,
+      0,
+    )
+    let kitchenExpenses = 0
+    let bonus = shift.bonus || 0
+    let wageTotal = 0
+    let remainedPayment = 0
+
+    const calculateKitchenExpenses = (date: string) => {
+      const slicedDate = date.slice(0, 10)
+      const slidedDateTo = String(dateTo).slice(0, 10)
+      const priceData = getNearestPrice({ date, tenant: EPriceTenant.KITCHEN })
+      console.log(priceData)
+      kitchenExpenses = kitchenExpenses + (priceData?.price || 0)
+
+      if (slicedDate !== slidedDateTo) {
+        const nextDateDateFormat = new Date(date).setDate(
+          new Date(date).getDate() + 1,
+        )
+
+        const nextDate = formatDateToDateTime({
+          value: new Date(nextDateDateFormat),
+          withTime: false,
+        }) as unknown as string
+
+        return calculateKitchenExpenses(nextDate)
+      }
+    }
+
+    calculateKitchenExpenses(dateFrom as unknown as string)
+
+    if (workingDayNumber >= automaticBonusMinimumDayNumber) {
+      bonus = wage * automaticBonusPercent
+    }
+
+    wageTotal = wage + bonus + customBonus - kitchenExpenses
+    remainedPayment = wageTotal - paidAmount
+
+    return {
+      ...shift,
+      kitchenExpenses,
+      calendarDayNumber,
+      workingDayNumber,
+      wage,
+      bonus,
+      wageTotal,
+      remainedPayment,
+      cuttings,
+
+    }
   }
 
   async beginShift(employeeId: number) {

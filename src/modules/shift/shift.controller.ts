@@ -110,7 +110,32 @@ export class ShiftController {
   async getEmployeeCurrectShift(
     @Param('employeeId', ParseIntPipe) employeeId: number,
   ): Promise<Shift> {
-    return this.shiftService.runShiftCalculations(employeeId)
+    return this.shiftService.getShiftCalculationsByEmployee(employeeId)
+  }
+  @Get('employee/:shiftId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_SHIFTS,
+  })
+  @ApiParam({
+    name: 'shiftId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get a shift with employee id and work records related to the shift. Role: SUPERADMIN, ADMIN. Permission: READ_SHIFTS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Will return a shift with employee id and work records related to the shift.',
+    type: Shift,
+  })
+  async getEmployeeShift(
+    @Param('shiftId', ParseIntPipe) shiftId: number,
+  ): Promise<Shift> {
+    return this.shiftService.getShiftCalculations(shiftId)
   }
 
   @Post('employee/:employeeId/start')

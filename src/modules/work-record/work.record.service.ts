@@ -87,7 +87,6 @@ export class WorkRecordService {
         return this.shiftService.findCurrentShiftWithEmployeeId(id)
       }),
     )
-
     if (percentSum !== 1) {
       throw new HttpException(CError.WRONG_PERCENT_SUM, HttpStatus.BAD_REQUEST)
     }

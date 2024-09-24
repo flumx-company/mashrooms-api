@@ -11,6 +11,7 @@ export const TypeORMConfig: TypeOrmModuleOptions = {
   username: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
+  timezone: 'Europe/Kiev',
   //migrations: ['dist/migrations/*{.ts,.js}'],
   autoLoadEntities: true,
   migrationsRun: true,

@@ -337,7 +337,6 @@ export class YieldService {
           boxQuantity += previousData.boxQuantity
           percent += previousData.percent
         }
-
         return this.yieldRepository.create({
           ...(previousData || {}),
           date: yieldDataItem.date,
@@ -347,7 +346,7 @@ export class YieldService {
           wave: yieldDataItem.wave,
           weight,
           boxQuantity,
-          percent,
+          percent: percent / 100,
         })
       }),
     )

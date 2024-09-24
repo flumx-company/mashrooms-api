@@ -15,8 +15,13 @@ services:
       MYSQL_DATABASE: mashrooms-db
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_NODE_HOSTNAME: localhost
+      TZ: "Europe/Kiev"
+    volumes:
+      - ./deploy/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     networks:
       - mashrooms-network
+    command: [ 'mysqld', '--default-time-zone=+03:00' ]
+
 
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"

@@ -212,6 +212,88 @@ export class OffloadController {
     })
   }
 
+  @Post('client/:clientId/driver/:driverId/loader/:shiftId/:offloadId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CREATE_OFFLOADS,
+  })
+  @ApiOperation({
+    summary:
+      'Add a new offload. Role: SUPERADMIN, ADMIN. Permission: CREATE_OFFLOADS.',
+  })
+  @ApiParam({
+    name: 'clientId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiParam({
+    name: 'driverId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiParam({
+    name: 'offloadId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: `Model to add a new offload. 
+      {
+        cuttingDate: '2024-03-27',
+        clientId: 1,
+        driverId: 1,
+        paidMoney: 1000,
+        delContainer1_7In: 0,
+        delContainer1_7Out: 0,
+        delContainer0_5In: 0,
+        delContainer0_5Out: 0,
+        delContainer0_4In: 0,
+        delContainer0_4Out: 0,
+        delContainerSchoellerIn: 0,
+        delContainerSchoellerOut: 0,
+        offloadRecords: [
+          [
+            { 
+              "batchId": 1,
+              "waveId": 1, 
+              "varietyId": 1,
+              "categoryId": 1,
+              "storeContainerId": 1,
+              "cuttingDate": "2024-03-20", 
+              "boxQuantity": 2, 
+              "weight": 50, 
+              "pricePerKg": 12 
+            }
+          ]
+        ]
+      }
+      `,
+    type: CreateOffloadDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the offload data.',
+    type: Offload,
+    isArray: true,
+  })
+  async edOffload(
+    @Param('clientId', ParseIntPipe) clientId: number,
+    @Param('driverId', ParseIntPipe) driverId: number,
+    @Param('shiftId', ParseIntPipe) shiftId: number,
+    @Param('offloadId', ParseIntPipe) offloadId: number,
+    @CurrentUser() user: User,
+    @Body() data: CreateOffloadDto,
+  ): Promise<Offload> {
+    return this.offloadService.createOffload({
+      clientId,
+      driverId,
+      shiftId,
+      offloadId,
+      user,
+      data,
+    })
+  }
+
   @Delete(':id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
@@ -413,5 +495,24 @@ export class OffloadController {
       disposition: `inline filename="${fileInfo.name}`,
       type: fileInfo.type,
     })
+  }
+  @Post('close/:offloadId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CLOSE_OFFLOAD_DOCUMENTS,
+  })
+  @ApiOperation({
+    summary:
+      'Close offload document. Role: SUPERADMIN, ADMIN. Permission: CLOSE_OFFLOAD_DOCUMENTS.',
+  })
+  @ApiParam({
+    name: 'offloadId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  closeOffload(
+    @Param('offloadId', ParseIntPipe) offloadId: number,
+  ) {
+    return this.offloadService.closeOffload(offloadId)
   }
 }

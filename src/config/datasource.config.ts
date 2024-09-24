@@ -13,6 +13,7 @@ export const datasource = new DataSource({
   entities: ['dist/modules/**/*.entity{ .ts,.js}'],
   migrations: ['dist/src/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations_TypeORM',
+  timezone: 'Europe/Kiev',
   extra: {
     decimalNumbers: true,
   },

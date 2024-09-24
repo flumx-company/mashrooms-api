@@ -1,10 +1,10 @@
 import {
   IsBoolean,
   IsEnum,
-  IsNotEmpty,
+  IsNotEmpty, IsOptional,
   IsString,
   MaxLength,
-} from 'class-validator'
+} from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -12,9 +12,9 @@ import { ToBoolean } from '@mush/core/decorators'
 import { EPaymentMethod } from '@mush/core/enums'
 
 export class UpdateShiftDto {
+  @IsOptional()
   @ToBoolean()
   @IsBoolean()
-  @IsNotEmpty()
   @ApiProperty({
     example: false,
     description:
@@ -23,9 +23,9 @@ export class UpdateShiftDto {
   })
   readonly returnsKnife: boolean
 
+  @IsOptional()
   @ToBoolean()
   @IsBoolean()
-  @IsNotEmpty()
   @ApiProperty({
     example: false,
     description:
@@ -34,9 +34,9 @@ export class UpdateShiftDto {
   })
   readonly returnsBedSheets: boolean
 
+  @IsOptional()
   @ToBoolean()
   @IsBoolean()
-  @IsNotEmpty()
   @ApiProperty({
     example: false,
     description:
@@ -45,9 +45,9 @@ export class UpdateShiftDto {
   })
   readonly returnsWardrobeKey: boolean
 
+  @IsOptional()
   @ToBoolean()
   @IsBoolean()
-  @IsNotEmpty()
   @ApiProperty({
     example: false,
     description:
@@ -56,6 +56,7 @@ export class UpdateShiftDto {
   })
   readonly paysForKitchen: boolean
 
+  @IsOptional()
   @IsString()
   @IsEnum(EPaymentMethod)
   @ApiProperty({
@@ -65,7 +66,7 @@ export class UpdateShiftDto {
   })
   readonly kitchenPaymentMethod: EPaymentMethod
 
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     example: 0,
     description: 'This bonus is given by the employer whenever he decides.',
@@ -73,6 +74,7 @@ export class UpdateShiftDto {
   })
   readonly customBonus: number
 
+  @IsOptional()
   @IsString()
   @MaxLength(255)
   @ApiProperty({
@@ -82,11 +84,19 @@ export class UpdateShiftDto {
   })
   readonly customBonusDescription: string
 
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     example: 0,
     description: 'Enter the price.',
     type: Number,
   })
   readonly paidAmount: number
+
+  @IsOptional()
+  @ApiProperty({
+    example: 0,
+    description: 'Enter the bonus.',
+    type: Number,
+  })
+  readonly bonus: number
 }

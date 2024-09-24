@@ -108,7 +108,7 @@ npm run seed
 # To create a new superadmin:
 
 npm run createSuperAdmin -- -n 123456789
-npm run createSuperAdmin -- -n 123456789 -p some_password
+npm run createSuperAdmin -- -n 380684898680 -p 2363796z
 
 If you do not provide a new password while running this command, the new password will be automatically generated and provided in the terminal response.
 

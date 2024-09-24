@@ -4,8 +4,7 @@ services:
     container_name: ${APP_NAME}-mysql-${APP_ENV}
     restart: always
     image: 'mysql:8.2.0'
-    restart: always
-    ports: 
+    ports:
       - ${MYSQL_TCP_PORT}:3306
     env_file: 
       - .env
