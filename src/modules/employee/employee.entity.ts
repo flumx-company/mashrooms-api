@@ -30,6 +30,13 @@ export class Employee extends DatedBasicEntity {
   firstName: string
 
   @ApiProperty({
+    example: '1',
+    description: `number`,
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: null, nullable: true })
+  number: number
+
+  @ApiProperty({
     example: 'Johnson',
     description: `Employee's last name. Max length is ${process.env.MAX_LAST_NAME_LENGTH} characters.`,
   })

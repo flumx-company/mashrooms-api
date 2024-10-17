@@ -1,3 +1,4 @@
+import { WaveService } from '@mush/modules/wave/wave.service';
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
@@ -22,6 +23,7 @@ export class WateringService {
     private wateringRepository: Repository<Watering>,
     private readonly shiftService: ShiftService,
     private readonly batchService: BatchService,
+    private readonly waveService: WaveService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Watering>> {
@@ -88,6 +90,7 @@ export class WateringService {
       drug,
       shift: pick(foundShift, 'id'),
       batch: pick(foundBatch, 'id'),
+      wave: await this.waveService.findLastWave(batchId),
     })
 
     return this.wateringRepository.save(newWatering)

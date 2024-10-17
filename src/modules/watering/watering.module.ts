@@ -1,3 +1,4 @@
+import { WaveModule } from '@mush/modules/wave/wave.module';
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
@@ -15,6 +16,7 @@ import { WateringService } from './watering.service'
     CoreModule,
     ShiftModule,
     BatchModule,
+    WaveModule
   ],
   controllers: [WateringController],
   providers: [WateringService],

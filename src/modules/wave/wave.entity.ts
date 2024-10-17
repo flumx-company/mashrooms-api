@@ -1,4 +1,5 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
+import { Watering } from '@mush/modules/watering/watering.entity';
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -66,4 +67,7 @@ export class Wave extends DatedBasicEntity {
 
   @OneToMany(() => Yield, (yieldItem) => yieldItem.category)
   yields: Yield[]
+
+  @OneToOne(() => Watering, (wave) => wave.wave)
+  watering: Wave
 }

@@ -85,6 +85,7 @@ export class EmployeeService {
       town,
       isUnreliable,
       hasCriminalRecord,
+      number
     }: CreateEmployeeDto,
     files: BufferedFile[],
   ): Promise<Employee> {
@@ -124,6 +125,7 @@ export class EmployeeService {
       phone,
       bankCard,
       region,
+      number,
       town,
       isActive: false,
       isUnreliable,
@@ -147,6 +149,7 @@ export class EmployeeService {
       town,
       isUnreliable,
       hasCriminalRecord,
+      number
     }: UpdateEmployeeDto,
   ): Promise<Employee> {
     const [foundEmployeeById, foundEmployeeByPhone] = await Promise.all([
@@ -165,6 +168,10 @@ export class EmployeeService {
       );
     }
 
+    console.log({
+      "fsdfsdfsdfsdfsdf": number
+    })
+
     const updatedEmployee: Employee = this.employeeRepository.create({
       ...foundEmployeeById,
       firstName,
@@ -176,6 +183,7 @@ export class EmployeeService {
       town,
       isUnreliable,
       hasCriminalRecord,
+      number
     });
 
     return this.employeeRepository.save(updatedEmployee);

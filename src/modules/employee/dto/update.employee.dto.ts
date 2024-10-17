@@ -1,14 +1,14 @@
 import {
   IsBoolean,
   IsEnum,
-  IsNotEmpty,
+  IsNotEmpty, IsNumber,
   IsOptional,
   IsString,
   Length,
   Matches,
   MaxLength,
   MinLength,
-} from 'class-validator'
+} from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -56,6 +56,15 @@ export class UpdateEmployeeDto {
     type: String,
   })
   readonly patronymic: string
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({
+    example: '1',
+    description: 'Номер',
+    type: String,
+  })
+  readonly number: number
 
   @IsString()
   @Matches(PHONE_REGEX)

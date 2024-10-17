@@ -89,7 +89,13 @@ export class ShiftService {
       .innerJoinAndSelect('shift.employee', 'employee')
       .leftJoinAndSelect('shift.workRecords', 'workRecord')
       .leftJoinAndSelect('shift.waterings', 'watering')
+      .leftJoinAndSelect('watering.batch', 'batch')
+      .leftJoinAndSelect('batch.chamber', 'chamber')
+      .leftJoinAndSelect('watering.wave', 'wave')
       .leftJoinAndSelect('shift.cuttings', 'cutting')
+      .leftJoinAndSelect('cutting.batch', 'batchCutting')
+      .leftJoinAndSelect('batch.chamber', 'chamberCutting')
+      .leftJoinAndSelect('cutting.wave', 'waveCutting')
       .leftJoinAndSelect('shift.loadings', 'loading')
       .leftJoinAndSelect('shift.offloadLoadings', 'offload')
       .leftJoinAndSelect('workRecord.work', 'work')
@@ -105,6 +111,13 @@ export class ShiftService {
         'watering.id',
         'watering.drug',
         'watering.volume',
+        'watering.target',
+        'watering.id',
+        'watering.dateTimeFrom',
+        'batch.chamber.name',
+        'wave.order',
+        'batchCutting.chamber.name',
+        'waveCutting.order',
         'workRecord.id',
         'workRecord.date',
         'workRecord.percent',
@@ -132,11 +145,22 @@ export class ShiftService {
       .leftJoinAndSelect('shift.workRecords', 'workRecord')
       .leftJoinAndSelect('shift.waterings', 'watering')
       .leftJoinAndSelect('shift.cuttings', 'cutting')
+      .leftJoinAndSelect('watering.batch', 'batch')
+      .leftJoinAndSelect('batch.chamber', 'chamber')
+      .leftJoinAndSelect('watering.wave', 'wave')
+      .leftJoinAndSelect('cutting.batch', 'batchCutting')
+      .leftJoinAndSelect('batchCutting.chamber', 'chamberCutting')
+      .leftJoinAndSelect('cutting.category', 'categoryCutting')
+      .leftJoinAndSelect('cutting.wave', 'waveCutting')
       .leftJoinAndSelect('shift.loadings', 'loading')
       .leftJoinAndSelect('shift.offloadLoadings', 'offload')
       .leftJoinAndSelect('workRecord.work', 'work')
       .leftJoinAndSelect('cutting.variety', 'variety')
       .leftJoinAndSelect('loading.variety', 'varietyForLoading')
+      .leftJoinAndSelect('loading.batch', 'batchLoading')
+      .leftJoinAndSelect('batchLoading.chamber', 'chamberLoading')
+      .leftJoinAndSelect('loading.category', 'categoryLoading')
+      .leftJoinAndSelect('loading.wave', 'waveLoading')
       .select([
         'shift.id',
         'shift.dateFrom',
@@ -176,8 +200,24 @@ export class ShiftService {
         'watering.id',
         'watering.drug',
         'watering.volume',
+        'watering.target',
         'watering.id',
         'watering.dateTimeFrom',
+        'watering.dateTimeTo',
+        'batch.id',
+        'batchCutting.id',
+        'batchLoading.id',
+        'categoryCutting.id',
+        'categoryLoading.id',
+        'chamber.id',
+        'chamberCutting.id',
+        'chamberLoading.id',
+        'chamber.name',
+        'chamberCutting.name',
+        'chamberLoading.name',
+        'waveCutting.id',
+        'waveCutting.order',
+        'waveLoading.order',
         'offload.id',
         'offload.boxTotalQuantity',
         'offload.createdAt',
@@ -205,6 +245,9 @@ export class ShiftService {
       .innerJoin('shift.employee', 'employee')
       .leftJoinAndSelect('shift.workRecords', 'workRecord')
       .leftJoinAndSelect('shift.waterings', 'watering')
+      .leftJoinAndSelect('watering.batch', 'batch')
+      .leftJoinAndSelect('batch.chamber', 'chamber')
+      .leftJoinAndSelect('watering.wave', 'wave')
       .leftJoinAndSelect('shift.cuttings', 'cutting')
       .leftJoinAndSelect('shift.loadings', 'loading')
       .leftJoinAndSelect('shift.offloadLoadings', 'offload')
@@ -250,8 +293,11 @@ export class ShiftService {
         'watering.id',
         'watering.drug',
         'watering.volume',
+        'watering.target',
         'watering.id',
         'watering.dateTimeFrom',
+        'batch.chamber.name',
+        'wave.order',
         'offload.id',
         'offload.boxTotalQuantity',
         'offload.createdAt',
@@ -433,13 +479,15 @@ export class ShiftService {
       wageDirectory[date] = boxTotalQuantity * price + previousValue
     })
 
-    waterings.forEach(({ dateTimeFrom, drug, volume }) => {
-      const date = String(dateTimeFrom).slice(0, 10)
+    waterings.map((i) => {
+      const date = String(i.dateTimeFrom).slice(0, 10)
       // const tenant = drug ? EPriceTenant.MEDICATED_LITER : EPriceTenant.LITER
       const tenant = EPriceTenant.LITER
       const price = getNearestPrice({ tenant, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = volume * price + previousValue
+      wageDirectory[date] = i.volume * price + previousValue
+      i['price'] = i.volume * price
+      return i;
     })
 
     workRecords.forEach(({ date, percentAmount, reward = 0 }) => {
@@ -494,6 +542,7 @@ export class ShiftService {
       kitchenExpenses,
       calendarDayNumber,
       workingDayNumber,
+      waterings: waterings,
       wage,
       bonus,
       wageTotal,
@@ -607,14 +656,12 @@ export class ShiftService {
     }
 
     priceChanges.forEach(({ tenant, date, price }) => {
-      console.log('6666666',tenant, priceDirectory)
       priceDirectory[tenant][date] = price
     })
 
     const getNearestPrice = ({ tenant, date }) => {
       let nearestDate
 
-      console.log(tenant)
       Object.keys(priceDirectory[tenant] || {}).forEach((priceDate) => {
         if (priceDate && new Date(priceDate) <= new Date(date)) {
           nearestDate = priceDate
@@ -624,52 +671,58 @@ export class ShiftService {
       return priceDirectory[tenant][nearestDate]
     }
 
-    cuttings.forEach(({ createdAt, boxQuantity, variety }) => {
-      if (!variety.isCutterPaid) {
+    cuttings.forEach((i) => {
+      i['price'] = 0
+      if (!i.variety.isCutterPaid) {
         return
       }
 
       const date = formatDateToDateTime({
-        value: createdAt,
+        value: i.createdAt,
         withTime: false,
       }) as unknown as string
       const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = boxQuantity * price + previousValue
+      i['price'] = i.boxQuantity * price
+      wageDirectory[date] = i.boxQuantity * price + previousValue
     })
 
-    loadings.forEach(({ createdAt, boxQuantity }) => {
+    loadings.forEach((i) => {
       const date = formatDateToDateTime({
-        value: createdAt,
+        value: i.createdAt,
         withTime: false,
       }) as unknown as string
       const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = boxQuantity * price + previousValue
+      i['price'] = i.boxQuantity * price
+      wageDirectory[date] = i.boxQuantity * price + previousValue
     })
 
-    offloadLoadings.forEach(({ boxTotalQuantity, createdAt }) => {
+    offloadLoadings.forEach((i) => {
       const date = formatDateToDateTime({
-        value: createdAt,
+        value: i.createdAt,
         withTime: false,
       }) as unknown as string
       const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = boxTotalQuantity * price + previousValue
+      i['price'] = i.boxTotalQuantity * price
+      wageDirectory[date] = i.boxTotalQuantity * price + previousValue
     })
 
-    waterings.forEach(({ dateTimeFrom, drug, volume }) => {
-      const date = String(dateTimeFrom).slice(0, 10)
-      const tenant = drug ? EPriceTenant.LITER : EPriceTenant.LITER
+    waterings.forEach((i) => {
+      const date = String(i.dateTimeFrom).slice(0, 10)
+      const tenant = i.drug ? EPriceTenant.LITER : EPriceTenant.LITER
       const price = getNearestPrice({ tenant, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = volume * price + previousValue
+      i['price'] = i.volume * price
+      wageDirectory[date] = i.volume * price + previousValue
     })
 
-    workRecords.forEach(({ date, percentAmount, reward = 0 }) => {
-      const previousValue = wageDirectory?.[date as unknown as string] || 0
-      wageDirectory[date as unknown as string] =
-        previousValue + percentAmount + reward
+    workRecords.forEach((i) => {
+      const previousValue = wageDirectory?.[i.date as unknown as string] || 0
+      wageDirectory[i.date as unknown as string] =
+        previousValue + i.percentAmount + i.reward
+      i['price'] = i.percentAmount + i.reward
     })
 
     const workingDayNumber = Object.keys(wageDirectory).length
@@ -686,7 +739,6 @@ export class ShiftService {
       const slicedDate = date.slice(0, 10)
       const slidedDateTo = String(dateTo).slice(0, 10)
       const priceData = getNearestPrice({ date, tenant: EPriceTenant.KITCHEN })
-      console.log(priceData)
       kitchenExpenses = kitchenExpenses + (priceData?.price || 0)
 
       if (slicedDate !== slidedDateTo) {
@@ -721,8 +773,11 @@ export class ShiftService {
       bonus,
       wageTotal,
       remainedPayment,
-      cuttings,
-
+      waterings: waterings,
+      workRecords,
+      offloadLoadings,
+      loadings,
+      cuttings
     }
   }
 
