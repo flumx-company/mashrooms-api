@@ -26,7 +26,6 @@ export class CreateBatchDto {
   readonly chamberId: number
 
   @IsOptional()
-  @IsNotEmpty()
   @IsString()
   @ApiProperty({
     example: 'Peat supplier 1',
@@ -37,7 +36,6 @@ export class CreateBatchDto {
 
   @IsOptional()
   @IsNumber()
-  @Min(1)
   @ApiProperty({
     example: 100,
     description: 'Enter the peat weight by kg.',
@@ -56,7 +54,6 @@ export class CreateBatchDto {
 
   @IsOptional()
   @IsNumber()
-  @Min(1)
   @ApiProperty({
     example: 100,
     description: 'Enter the peat price.',

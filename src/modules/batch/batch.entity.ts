@@ -69,12 +69,15 @@ export class Batch extends DatedBasicEntity {
     default: null,
     transformer: {
       from: (value: Date) => {
+        if(!value) return  null
         return formatDateToDateTime({ value })
       },
       to: (value: string) => {
+        if(!value) return  null
         return new Date(value)
       },
     },
+    nullable: true
   })
   peatLoadDate: Date
 

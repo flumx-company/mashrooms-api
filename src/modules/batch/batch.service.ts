@@ -162,7 +162,7 @@ export class BatchService {
     const updatedBatch: Batch = this.batchRepository.create({
       ...foundBatch,
       waveQuantity,
-       peatSupplier,
+      peatSupplier,
       peatWeight,
       peatLoadDate,
       peatPrice,

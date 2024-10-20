@@ -86,38 +86,46 @@ export class ShiftService {
   ): Promise<Nullable<Shift>> {
     return this.shiftRepository
       .createQueryBuilder('shift')
-      .innerJoinAndSelect('shift.employee', 'employee')
+      .innerJoin('shift.employee', 'employee')
       .leftJoinAndSelect('shift.workRecords', 'workRecord')
       .leftJoinAndSelect('shift.waterings', 'watering')
+      .leftJoinAndSelect('shift.cuttings', 'cutting')
       .leftJoinAndSelect('watering.batch', 'batch')
       .leftJoinAndSelect('batch.chamber', 'chamber')
       .leftJoinAndSelect('watering.wave', 'wave')
-      .leftJoinAndSelect('shift.cuttings', 'cutting')
       .leftJoinAndSelect('cutting.batch', 'batchCutting')
-      .leftJoinAndSelect('batch.chamber', 'chamberCutting')
+      .leftJoinAndSelect('batchCutting.chamber', 'chamberCutting')
+      .leftJoinAndSelect('cutting.category', 'categoryCutting')
       .leftJoinAndSelect('cutting.wave', 'waveCutting')
       .leftJoinAndSelect('shift.loadings', 'loading')
       .leftJoinAndSelect('shift.offloadLoadings', 'offload')
       .leftJoinAndSelect('workRecord.work', 'work')
       .leftJoinAndSelect('cutting.variety', 'variety')
       .leftJoinAndSelect('loading.variety', 'varietyForLoading')
+      .leftJoinAndSelect('loading.batch', 'batchLoading')
+      .leftJoinAndSelect('batchLoading.chamber', 'chamberLoading')
+      .leftJoinAndSelect('loading.category', 'categoryLoading')
+      .leftJoinAndSelect('loading.wave', 'waveLoading')
       .select([
         'shift.id',
         'shift.dateFrom',
         'shift.dateTo',
+        'shift.returnsKnife',
+        'shift.returnsBedSheets',
+        'shift.returnsWardrobeKey',
+        'shift.paysForKitchen',
+        'shift.kitchenPaymentMethod',
+        'shift.kitchenExpenses',
+        'shift.calendarDayNumber',
+        'shift.workingDayNumber',
+        'shift.wage',
+        'shift.bonus',
+        'shift.customBonus',
+        'shift.customBonusDescription',
+        'shift.wageTotal',
+        'shift.paidAmount',
+        'shift.remainedPayment',
         'employee.id',
-        'cutting.id',
-        'cutting.boxQuantity',
-        'watering.id',
-        'watering.drug',
-        'watering.volume',
-        'watering.target',
-        'watering.id',
-        'watering.dateTimeFrom',
-        'batch.chamber.name',
-        'wave.order',
-        'batchCutting.chamber.name',
-        'waveCutting.order',
         'workRecord.id',
         'workRecord.date',
         'workRecord.percent',
@@ -126,9 +134,47 @@ export class ShiftService {
         'work.id',
         'work.title',
         'work.isRegular',
-        'loading.*',
-        'offload.*',
-        'varietyForLoading.*'
+        'cutting.id',
+        'cutting.boxQuantity',
+        'cutting.createdAt',
+        'cutting.trip',
+        'loading.id',
+        'loading.boxQuantity',
+        'loading.trip',
+        'loading.createdAt',
+        'watering.id',
+        'watering.drug',
+        'watering.volume',
+        'watering.target',
+        'watering.id',
+        'watering.dateTimeFrom',
+        'watering.dateTimeTo',
+        'batch.id',
+        'batchCutting.id',
+        'batchLoading.id',
+        'categoryCutting.id',
+        'categoryLoading.id',
+        'chamber.id',
+        'chamberCutting.id',
+        'chamberLoading.id',
+        'chamber.name',
+        'chamberCutting.name',
+        'chamberLoading.name',
+        'waveCutting.id',
+        'waveCutting.order',
+        'waveLoading.order',
+        'offload.id',
+        'offload.boxTotalQuantity',
+        'offload.createdAt',
+        'offload.priceTotal',
+        'offload.isClosed',
+        'offload.paidMoney',
+        'variety.id',
+        'variety.name',
+        'variety.isCutterPaid',
+        'varietyForLoading.id',
+        'varietyForLoading.name',
+        'varietyForLoading.isCutterPaid',
       ])
       .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
         id: employeeId,
