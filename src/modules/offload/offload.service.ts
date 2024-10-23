@@ -172,8 +172,8 @@ export class OffloadService {
       storeContainer: Partial<StoreContainer>
       wave: Partial<Wave>
       weight: number
-      netWeight: number
-      shrinkedNetWeight: number
+      // netWeight: number
+      // shrinkedNetWeight: number
       variety: Partial<Variety>
     }> = []
     const storageSubtractionData: Array<{
@@ -368,16 +368,16 @@ export class OffloadService {
       }
     })
 
-    // await Promise.all(
-    //   foundStorages.map(({ id, amount: storedAmount }, index) => {
-    //     const offloadAmount: number = storageSubtractionData[index]?.amount
-    //     const remainedAmount: number = storedAmount - offloadAmount
-    //
-    //     return remainedAmount
-    //       ? this.storageService.updateStorage({ id, amount: remainedAmount })
-    //       : this.storageService.removeStorage(id)
-    //   }),
-    // )
+    await Promise.all(
+      foundStorages.map(({ id, amount: storedAmount }, index) => {
+        const offloadAmount: number = storageSubtractionData[index]?.amount
+        const remainedAmount: number = storedAmount - offloadAmount
+
+        return remainedAmount
+          ? this.storageService.updateStorage({ id, amount: remainedAmount })
+          : this.storageService.removeStorage(id)
+      }),
+    )
 
     offloadRecords.forEach((offloadRecordPriceGroup, index) => {
       const priceId = parseInt(`${priceIdBase}${index}`)
@@ -407,12 +407,11 @@ export class OffloadService {
         }
  
         const storeContainerWeight = +byIdStoreContainers[storeContainerId]['weight'] || 1
-        const allBoxWeight = boxQuantity * storeContainerWeight
-        const netWeight = weight - allBoxWeight
-        const shrinkedNetWeight = netWeight * 0.99
+        // const allBoxWeight = boxQuantity * storeContainerWeight
         boxTotalQuantity += boxQuantity
-
-        priceCounted += pricePerKg * shrinkedNetWeight
+        const sum = (+weight - (+boxQuantity * 0.4) - storeContainerWeight);
+        const curPrice = (sum - (sum / 100)) * pricePerKg
+        priceCounted += curPrice
 
         newOffloadRecordData.push({
           batch: { id: batchId },
@@ -425,8 +424,8 @@ export class OffloadService {
           wave: { id: waveId },
           weight,
           variety: { id: varietyId },
-          netWeight,
-          shrinkedNetWeight,
+          // netWeight,
+          // shrinkedNetWeight,
         })
       })
     })
@@ -495,6 +494,7 @@ export class OffloadService {
         }),
       ),
     )
+
 
     // await this.yieldService.createYields({
     //   date: today,
@@ -748,8 +748,8 @@ export class OffloadService {
       storeContainer: Partial<StoreContainer>
       wave: Partial<Wave>
       weight: number
-      netWeight: number
-      shrinkedNetWeight: number
+      // netWeight: number
+      // shrinkedNetWeight: number
       variety: Partial<Variety>
     }> = []
     const storageSubtractionData: Array<{
@@ -979,12 +979,13 @@ export class OffloadService {
         }
 
         const storeContainerWeight = +byIdStoreContainers[storeContainerId]['weight'] || 1
-        const allBoxWeight = boxQuantity * storeContainerWeight
-        const netWeight = weight - allBoxWeight
-        const shrinkedNetWeight = netWeight * 0.99
-        boxTotalQuantity += boxQuantity
-
-        priceCounted += pricePerKg * shrinkedNetWeight
+        // const allBoxWeight = boxQuantity * storeContainerWeight
+        // const netWeight = weight - allBoxWeight
+        // const shrinkedNetWeight = netWeight * 0.99
+        // boxTotalQuantity += boxQuantity
+        const sum = (+weight - (+boxQuantity * 0.4) - storeContainerWeight);
+        const curPrice = (sum - (sum / 100)) * pricePerKg
+        priceCounted += curPrice
 
         newOffloadRecordData.push({
           batch: { id: batchId },
@@ -997,8 +998,8 @@ export class OffloadService {
           wave: { id: waveId },
           weight,
           variety: { id: varietyId },
-          netWeight,
-          shrinkedNetWeight,
+          // netWeight,
+          // shrinkedNetWeight,
         })
       })
     })
@@ -1150,26 +1151,7 @@ export class OffloadService {
     })
 
 
-    const foundStorages: Array<Nullable<Storage>> = await Promise.all(
-      storageSubtractionData.map(({ varietyId, waveId, categoryId, date }) => {
-        return this.storageService.findByOffloadParameters({
-          varietyId,
-          waveId,
-          categoryId,
-          date,
-        })
-      }),
-    )
-    await Promise.all(
-      foundStorages.map(({ id, amount: storedAmount }, index) => {
-        const offloadAmount: number = storageSubtractionData[index]?.amount
-        const remainedAmount: number = storedAmount - offloadAmount
 
-        return remainedAmount
-          ? this.storageService.updateStorage({ id, amount: remainedAmount })
-          : this.storageService.removeStorage(id)
-      }),
-    )
   }
 
 

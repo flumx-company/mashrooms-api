@@ -1,3 +1,4 @@
+import { ReturnBoxDto } from '@mush/modules/client/dto/return.box.dto';
 import { Response as ExResponse } from 'express'
 import {
   ApiPaginationQuery,
@@ -162,6 +163,36 @@ export class ClientController {
     @Body() data: UpdateClientDto,
   ): Promise<Client> {
     return this.clientService.updateClient(id, data)
+  }
+
+  @Put(':id/return-box')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.UPDATE_CLIENTS_BOX,
+  })
+  @ApiOperation({
+    summary:
+      'Update a client. Role: SUPERADMIN, ADMIN. Permission: UPDATE_CLIENTS_BOX',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: 'Model to update an existing client.',
+    type: UpdateClientDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the client data.',
+    type: Client,
+  })
+  async updateBoxClient(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: ReturnBoxDto,
+  ): Promise<Client> {
+    return this.clientService.updateBoxClient(id, data)
   }
 
   @Delete(':id')

@@ -65,7 +65,7 @@ export class PriceService {
       throw new HttpException(CError.INVALID_TENANT, HttpStatus.BAD_REQUEST)
     }
 
-    const foundPrice = await this.priceRepository.findOne({
+    const foundPriceWithDate = await this.priceRepository.findOne({
       where: {
         tenant,
         date: LessThanOrEqual(new Date(date)),
@@ -73,7 +73,16 @@ export class PriceService {
       order: { date: 'DESC' },
     })
 
-    return foundPrice
+    if(!foundPriceWithDate) {
+      return await this.priceRepository.findOne({
+        where: {
+          tenant,
+        },
+        order: { date: 'DESC' },
+      })
+    }
+
+    return foundPriceWithDate
   }
 
   async findAllTenantPricesWithinPeriod({ dateFrom, dateTo }) {

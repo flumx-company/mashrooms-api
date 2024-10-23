@@ -1,4 +1,5 @@
 import { EFileCategory } from '@mush/core/enums';
+import { ReturnBoxDto } from '@mush/modules/client/dto/return.box.dto';
 import { PaginateQuery, Paginated, paginate, FilterOperator } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
@@ -153,6 +154,39 @@ export class ClientService {
       delContainer0_5Debt,
       delContainer0_4Debt,
       delContainerSchoellerDebt,
+    })
+
+    return this.clientRepository.save(updatedClient)
+  }
+
+  async updateBoxClient(
+    id: number,
+    {
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+    }: ReturnBoxDto,
+  ): Promise<Client> {
+    const [foundClientById]: Nullable<Client>[] =
+      await Promise.all([
+        this.findClientById(id),
+      ])
+
+    if (!foundClientById) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    const updatedClient: Client = this.clientRepository.create({
+      ...foundClientById,
+      delContainer1_7Debt: foundClientById.delContainer1_7Debt
+        ? foundClientById.delContainer1_7Debt - delContainer1_7Debt
+        : -delContainer1_7Debt,
+      delContainer0_5Debt: foundClientById.delContainer0_5Debt
+        ? foundClientById.delContainer0_5Debt - delContainer0_5Debt
+        : -delContainer0_5Debt,
+      delContainer0_4Debt: foundClientById.delContainer0_4Debt
+        ? foundClientById.delContainer0_4Debt - delContainer0_4Debt
+        : -delContainer0_4Debt,
     })
 
     return this.clientRepository.save(updatedClient)

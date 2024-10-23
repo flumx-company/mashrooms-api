@@ -239,10 +239,12 @@ export class ShiftService {
         'cutting.boxQuantity',
         'cutting.createdAt',
         'cutting.trip',
+        'cutting.waveId',
         'loading.id',
         'loading.boxQuantity',
         'loading.trip',
         'loading.createdAt',
+        'loading.waveId',
         'watering.id',
         'watering.drug',
         'watering.volume',
@@ -250,6 +252,7 @@ export class ShiftService {
         'watering.id',
         'watering.dateTimeFrom',
         'watering.dateTimeTo',
+        'watering.waveId',
         'batch.id',
         'batchCutting.id',
         'batchLoading.id',
@@ -261,6 +264,8 @@ export class ShiftService {
         'chamber.name',
         'chamberCutting.name',
         'chamberLoading.name',
+        'wave.id',
+        'wave.order',
         'waveCutting.id',
         'waveCutting.order',
         'waveLoading.order',
@@ -409,29 +414,24 @@ export class ShiftService {
     const [
       firstLitrePrice,
       // firstMedLitrePrice,
-      firstBoxPrice,
       firstKitchenPrice,
       priceChanges,
+      firstBoxCutterPrice,
+      firstBoxOffloadLoaderPrice,
+      firstBoxMushLoaderPrice,
     ]: [
-      Nullable<Price>,
-      // Nullable<Price>,
       Nullable<Price>,
       Nullable<Price>,
       Price[],
+      Nullable<Price>,
+      Nullable<Price>,
+      Nullable<Price>,
+
     ] = await Promise.all([
       this.priceService.findPriceByClosestDate({
         date: startDate as unknown as string,
         tenant: EPriceTenant.LITER,
       }),
-      // this.priceService.findPriceByClosestDate({
-      //   date: startDate as unknown as string,
-      //   tenant: EPriceTenant.MEDICATED_LITER,
-      // }),
-      this.priceService.findPriceByClosestDate({
-        date: startDate as unknown as string,
-        tenant: EPriceTenant.BOX,
-      }),
-
       this.priceService.findPriceByClosestDate({
         date: startDate as unknown as string,
         tenant: EPriceTenant.KITCHEN,
@@ -440,10 +440,25 @@ export class ShiftService {
         dateFrom,
         dateTo,
       }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_CUTTER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_OFFLOAD_LOADER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_MUSH_LOADER,
+      }),
     ])
     const hasFirstLitrePrice = Object.keys(firstLitrePrice || []).length
     // const hasFirstMedLitrePrice = Object.keys(firstMedLitrePrice || []).length
-    const hasFirstBoxPrice = Object.keys(firstBoxPrice || []).length
+
+    const hasFirstBoxCutterPrice = Object.keys(firstBoxCutterPrice || []).length
+    const hasFirstBoxOffloadLoaderPrice = Object.keys(firstBoxOffloadLoaderPrice || []).length
+    const hasFirstBoxMushLoaderPrice = Object.keys(firstBoxMushLoaderPrice || []).length
     const hasFirstKitchenPrice = Object.keys(firstKitchenPrice || []).length
 
     if (!hasFirstLitrePrice) {
@@ -455,7 +470,14 @@ export class ShiftService {
     //     HttpStatus.BAD_REQUEST,
     //   )
     // }
-    if (!hasFirstBoxPrice) {
+    if (!hasFirstBoxCutterPrice) {
+      throw new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST)
+    }
+    if (!hasFirstBoxOffloadLoaderPrice) {
+      throw new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST)
+    }
+
+    if (!hasFirstBoxMushLoaderPrice) {
       throw new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST)
     }
     if (!hasFirstKitchenPrice) {
@@ -464,15 +486,23 @@ export class ShiftService {
 
     priceDirectory[EPriceTenant.LITER] = {
       [firstLitrePrice.date as unknown as string]: firstLitrePrice.price,
+      default: firstLitrePrice.price,
     }
-    // priceDirectory[EPriceTenant.MEDICATED_LITER] = {
-    //   [firstMedLitrePrice.date as unknown as string]: firstMedLitrePrice.price,
-    // }
-    priceDirectory[EPriceTenant.BOX] = {
-      [firstBoxPrice.date as unknown as string]: firstBoxPrice.price,
+    priceDirectory[EPriceTenant.BOX_CUTTER] = {
+      [firstBoxCutterPrice.date as unknown as string]: firstBoxCutterPrice.price,
+      default: firstBoxCutterPrice.price,
+    }
+    priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER] = {
+      [firstBoxOffloadLoaderPrice.date as unknown as string]: firstBoxOffloadLoaderPrice.price,
+      default: firstBoxOffloadLoaderPrice.price
+    }
+    priceDirectory[EPriceTenant.BOX_MUSH_LOADER] = {
+      [firstBoxMushLoaderPrice.date as unknown as string]: firstBoxMushLoaderPrice.price,
+      default:firstBoxMushLoaderPrice.price
     }
     priceDirectory[EPriceTenant.KITCHEN] = {
       [firstKitchenPrice.date as unknown as string]: firstKitchenPrice.price,
+      default: firstKitchenPrice.price,
     }
 
     priceChanges.forEach(({ tenant, date, price }) => {
@@ -482,13 +512,13 @@ export class ShiftService {
     const getNearestPrice = ({ tenant, date }) => {
       let nearestDate
 
-      Object.keys(priceDirectory[tenant]).forEach((priceDate) => {
-        if (new Date(priceDate) <= new Date(date)) {
+      Object.keys(priceDirectory[tenant] || {}).forEach((priceDate) => {
+        if (priceDate && new Date(priceDate) <= new Date(date)) {
           nearestDate = priceDate
         }
       })
 
-      return priceDirectory[tenant][nearestDate]
+      return priceDirectory[tenant][nearestDate] || priceDirectory[tenant].default
     }
 
     cuttings.forEach(({ createdAt, boxQuantity, variety }) => {
@@ -500,7 +530,7 @@ export class ShiftService {
         value: createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_CUTTER, date })
       const previousValue = wageDirectory?.[date] || 0
       wageDirectory[date] = boxQuantity * price + previousValue
     })
@@ -510,7 +540,7 @@ export class ShiftService {
         value: createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_MUSH_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
       wageDirectory[date] = boxQuantity * price + previousValue
     })
@@ -520,7 +550,7 @@ export class ShiftService {
         value: createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
       wageDirectory[date] = boxTotalQuantity * price + previousValue
     })
@@ -635,33 +665,26 @@ export class ShiftService {
     )
     const priceDirectory: object = {}
     const wageDirectory: Record<string, number> = {}
-    console.log({startDate, dateToTime:dateToTime})
+
     const [
       firstLitrePrice,
-      firstMedLitrePrice,
-      firstBoxPrice,
       firstKitchenPrice,
       priceChanges,
+      firstBoxCutterPrice,
+      firstBoxOffloadLoaderPrice,
+      firstBoxMushLoaderPrice,
     ]: [
       Nullable<Price>,
       Nullable<Price>,
-      Nullable<Price>,
-      Nullable<Price>,
       Price[],
+      Nullable<Price>,
+      Nullable<Price>,
+      Nullable<Price>,
     ] = await Promise.all([
       this.priceService.findPriceByClosestDate({
         date: startDate as unknown as string,
         tenant: EPriceTenant.LITER,
       }),
-      this.priceService.findPriceByClosestDate({
-        date: startDate as unknown as string,
-        tenant: EPriceTenant.MEDICATED_LITER,
-      }),
-      this.priceService.findPriceByClosestDate({
-        date: startDate as unknown as string,
-        tenant: EPriceTenant.BOX,
-      }),
-
       this.priceService.findPriceByClosestDate({
         date: startDate as unknown as string,
         tenant: EPriceTenant.KITCHEN,
@@ -670,16 +693,39 @@ export class ShiftService {
         dateFrom,
         dateTo,
       }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_CUTTER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_OFFLOAD_LOADER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_MUSH_LOADER,
+      }),
     ])
     const hasFirstLitrePrice = Object.keys(firstLitrePrice || []).length
-    const hasFirstBoxPrice = Object.keys(firstBoxPrice || []).length
     const hasFirstKitchenPrice = Object.keys(firstKitchenPrice || []).length
+    const hasFirstBoxCutterPrice = Object.keys(firstBoxCutterPrice || []).length
+    const hasFirstBoxOffloadLoaderPrice = Object.keys(firstBoxOffloadLoaderPrice || []).length
+    const hasFirstBoxMushLoaderPrice = Object.keys(firstBoxMushLoaderPrice || []).length
 
     if (!hasFirstLitrePrice) {
       console.warn(new HttpException(CError.NO_LITER_PRICE, HttpStatus.BAD_REQUEST))
       return
     }
-    if (!hasFirstBoxPrice) {
+    if (!hasFirstBoxCutterPrice) {
+      console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+    if (!hasFirstBoxOffloadLoaderPrice) {
+      console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+
+    if (!hasFirstBoxMushLoaderPrice) {
       console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
       return
     }
@@ -690,15 +736,23 @@ export class ShiftService {
 
     priceDirectory[EPriceTenant.LITER] = {
       [firstLitrePrice.date as unknown as string]: firstLitrePrice.price,
+      default: firstLitrePrice.price,
     }
-    // priceDirectory[EPriceTenant.MEDICATED_LITER] = {
-    //   [firstMedLitrePrice.date as unknown as string]: firstMedLitrePrice.price,
-    // }
-    priceDirectory[EPriceTenant.BOX] = {
-      [firstBoxPrice.date as unknown as string]: firstBoxPrice.price,
+    priceDirectory[EPriceTenant.BOX_CUTTER] = {
+      [firstBoxCutterPrice.date as unknown as string]: firstBoxCutterPrice.price,
+      default: firstBoxCutterPrice.price,
+    }
+    priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER] = {
+      [firstBoxOffloadLoaderPrice.date as unknown as string]: firstBoxOffloadLoaderPrice.price,
+      default: firstBoxOffloadLoaderPrice.price
+    }
+    priceDirectory[EPriceTenant.BOX_MUSH_LOADER] = {
+      [firstBoxMushLoaderPrice.date as unknown as string]: firstBoxMushLoaderPrice.price,
+      default:firstBoxMushLoaderPrice.price
     }
     priceDirectory[EPriceTenant.KITCHEN] = {
       [firstKitchenPrice.date as unknown as string]: firstKitchenPrice.price,
+      default: firstKitchenPrice.price,
     }
 
     priceChanges.forEach(({ tenant, date, price }) => {
@@ -714,7 +768,7 @@ export class ShiftService {
         }
       })
 
-      return priceDirectory[tenant][nearestDate]
+      return priceDirectory[tenant][nearestDate] || priceDirectory[tenant].default
     }
 
     cuttings.forEach((i) => {
@@ -727,7 +781,7 @@ export class ShiftService {
         value: i.createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_CUTTER, date })
       const previousValue = wageDirectory?.[date] || 0
       i['price'] = i.boxQuantity * price
       wageDirectory[date] = i.boxQuantity * price + previousValue
@@ -738,7 +792,7 @@ export class ShiftService {
         value: i.createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_MUSH_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
       i['price'] = i.boxQuantity * price
       wageDirectory[date] = i.boxQuantity * price + previousValue
@@ -749,7 +803,7 @@ export class ShiftService {
         value: i.createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
       i['price'] = i.boxTotalQuantity * price
       wageDirectory[date] = i.boxTotalQuantity * price + previousValue
@@ -760,6 +814,10 @@ export class ShiftService {
       const tenant = i.drug ? EPriceTenant.LITER : EPriceTenant.LITER
       const price = getNearestPrice({ tenant, date })
       const previousValue = wageDirectory?.[date] || 0
+      console.log({
+        volume: i.volume,
+        price: price
+      })
       i['price'] = i.volume * price
       wageDirectory[date] = i.volume * price + previousValue
     })
@@ -809,7 +867,6 @@ export class ShiftService {
 
     wageTotal = wage + bonus + customBonus - kitchenExpenses
     remainedPayment = wageTotal - paidAmount
-
     return {
       ...shift,
       kitchenExpenses,
@@ -829,7 +886,6 @@ export class ShiftService {
 
   async getShiftCalculations(shiftId: number) {
     const shift: Shift = await this.findShiftWithRelations(shiftId)
-// console.log(shift)
     if (!shift) {
       // throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       console.warn(new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST))
@@ -864,33 +920,26 @@ export class ShiftService {
     )
     const priceDirectory: object = {}
     const wageDirectory: Record<string, number> = {}
-    console.log({startDate, dateToTime:dateToTime})
+
     const [
       firstLitrePrice,
-      firstMedLitrePrice,
-      firstBoxPrice,
       firstKitchenPrice,
       priceChanges,
+      firstBoxCutterPrice,
+      firstBoxOffloadLoaderPrice,
+      firstBoxMushLoaderPrice,
     ]: [
       Nullable<Price>,
       Nullable<Price>,
-      Nullable<Price>,
-      Nullable<Price>,
       Price[],
+      Nullable<Price>,
+      Nullable<Price>,
+      Nullable<Price>,
     ] = await Promise.all([
       this.priceService.findPriceByClosestDate({
         date: startDate as unknown as string,
         tenant: EPriceTenant.LITER,
       }),
-      this.priceService.findPriceByClosestDate({
-        date: startDate as unknown as string,
-        tenant: EPriceTenant.MEDICATED_LITER,
-      }),
-      this.priceService.findPriceByClosestDate({
-        date: startDate as unknown as string,
-        tenant: EPriceTenant.BOX,
-      }),
-
       this.priceService.findPriceByClosestDate({
         date: startDate as unknown as string,
         tenant: EPriceTenant.KITCHEN,
@@ -899,16 +948,40 @@ export class ShiftService {
         dateFrom,
         dateTo,
       }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_CUTTER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_OFFLOAD_LOADER,
+      }),
+      this.priceService.findPriceByClosestDate({
+        date: startDate as unknown as string,
+        tenant: EPriceTenant.BOX_MUSH_LOADER,
+      }),
     ])
     const hasFirstLitrePrice = Object.keys(firstLitrePrice || []).length
-    const hasFirstBoxPrice = Object.keys(firstBoxPrice || []).length
+    const hasFirstBoxCutterPrice = Object.keys(firstBoxCutterPrice || []).length
+    const hasFirstBoxOffloadLoaderPrice = Object.keys(firstBoxOffloadLoaderPrice || []).length
+    const hasFirstBoxMushLoaderPrice = Object.keys(firstBoxMushLoaderPrice || []).length
     const hasFirstKitchenPrice = Object.keys(firstKitchenPrice || []).length
 
     if (!hasFirstLitrePrice) {
       console.warn(new HttpException(CError.NO_LITER_PRICE, HttpStatus.BAD_REQUEST))
       return
     }
-    if (!hasFirstBoxPrice) {
+
+    if (!hasFirstBoxCutterPrice) {
+      console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+    if (!hasFirstBoxOffloadLoaderPrice) {
+      console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
+      return
+    }
+
+    if (!hasFirstBoxMushLoaderPrice) {
       console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
       return
     }
@@ -919,33 +992,39 @@ export class ShiftService {
 
     priceDirectory[EPriceTenant.LITER] = {
       [firstLitrePrice.date as unknown as string]: firstLitrePrice.price,
+      default: firstLitrePrice.price,
     }
-    // priceDirectory[EPriceTenant.MEDICATED_LITER] = {
-    //   [firstMedLitrePrice.date as unknown as string]: firstMedLitrePrice.price,
-    // }
-    priceDirectory[EPriceTenant.BOX] = {
-      [firstBoxPrice.date as unknown as string]: firstBoxPrice.price,
+    priceDirectory[EPriceTenant.BOX_CUTTER] = {
+      [firstBoxCutterPrice.date as unknown as string]: firstBoxCutterPrice.price,
+      default: firstBoxCutterPrice.price,
+    }
+    priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER] = {
+      [firstBoxOffloadLoaderPrice.date as unknown as string]: firstBoxOffloadLoaderPrice.price,
+      default: firstBoxOffloadLoaderPrice.price
+    }
+    priceDirectory[EPriceTenant.BOX_MUSH_LOADER] = {
+      [firstBoxMushLoaderPrice.date as unknown as string]: firstBoxMushLoaderPrice.price,
+      default:firstBoxMushLoaderPrice.price
     }
     priceDirectory[EPriceTenant.KITCHEN] = {
       [firstKitchenPrice.date as unknown as string]: firstKitchenPrice.price,
+      default: firstKitchenPrice.price,
     }
 
     priceChanges.forEach(({ tenant, date, price }) => {
-      console.log('6666666',tenant, priceDirectory)
       priceDirectory[tenant][date] = price
     })
 
     const getNearestPrice = ({ tenant, date }) => {
       let nearestDate
 
-      console.log(tenant)
       Object.keys(priceDirectory[tenant] || {}).forEach((priceDate) => {
         if (priceDate && new Date(priceDate) <= new Date(date)) {
           nearestDate = priceDate
         }
       })
 
-      return priceDirectory[tenant][nearestDate]
+      return priceDirectory[tenant][nearestDate] || priceDirectory[tenant].default
     }
 
     cuttings.forEach(({ createdAt, boxQuantity, variety }) => {
@@ -957,7 +1036,7 @@ export class ShiftService {
         value: createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_CUTTER, date })
       const previousValue = wageDirectory?.[date] || 0
       wageDirectory[date] = boxQuantity * price + previousValue
     })
@@ -967,7 +1046,7 @@ export class ShiftService {
         value: createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_MUSH_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
       wageDirectory[date] = boxQuantity * price + previousValue
     })
@@ -977,7 +1056,7 @@ export class ShiftService {
         value: createdAt,
         withTime: false,
       }) as unknown as string
-      const price = getNearestPrice({ tenant: EPriceTenant.BOX, date })
+      const price = getNearestPrice({ tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
       wageDirectory[date] = boxTotalQuantity * price + previousValue
     })

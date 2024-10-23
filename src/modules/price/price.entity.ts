@@ -13,7 +13,7 @@ export class Price extends DatedBasicEntity {
     description: 'Enum: LITER, MEDICATED_LITER, BOX, KITCHEN. Payment entity.',
   })
   @Index()
-  @Column({ type: 'enum', enum: EPriceTenant, default: EPriceTenant.BOX })
+  @Column({ type: 'enum', enum: EPriceTenant, nullable: true })
   tenant: EPriceTenant
 
   @ApiProperty({

@@ -100,20 +100,20 @@ export class OffloadRecord extends DatedBasicEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   weight: number
 
-  @ApiProperty({
-    example: 200,
-    description:
-      'Mushroom weight without box weight and store container weight',
-  })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  netWeight: number
-
-  @ApiProperty({
-    example: 200,
-    description: 'Mushroom weight after shrinkage, which is minus 1%',
-  })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  shrinkedNetWeight: number
+  // @ApiProperty({
+  //   example: 200,
+  //   description:
+  //     'Mushroom weight without box weight and store container weight',
+  // })
+  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  // netWeight: number
+  //
+  // @ApiProperty({
+  //   example: 200,
+  //   description: 'Mushroom weight after shrinkage, which is minus 1%',
+  // })
+  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  // shrinkedNetWeight: number
 
   @ManyToOne(() => Variety, (variety) => variety.offloadRecords, {
     onDelete: 'CASCADE',
