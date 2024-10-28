@@ -1,8 +1,9 @@
+import { OffloadService } from '@mush/modules/offload/offload.service';
 import { WaveService } from '@mush/modules/wave/wave.service';
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { Batch } from '@mush/modules/batch/batch.entity'
@@ -21,6 +22,7 @@ export class WateringService {
   constructor(
     @InjectRepository(Watering)
     private wateringRepository: Repository<Watering>,
+    @Inject(forwardRef(() => ShiftService))
     private readonly shiftService: ShiftService,
     private readonly batchService: BatchService,
     private readonly waveService: WaveService,
@@ -28,6 +30,33 @@ export class WateringService {
 
   findAll(query: PaginateQuery): Promise<Paginated<Watering>> {
     return paginate(query, this.wateringRepository, wateringPaginationConfig)
+  }
+
+  getByShift(shiftId: string): any {
+    return  this.wateringRepository
+      .createQueryBuilder('watering')
+      .leftJoinAndSelect('watering.shift', 'shift') // Соединение с таблицей Shift
+      .leftJoinAndSelect('watering.batch', 'batch') // Соединение с таблицей Shift
+      .leftJoinAndSelect('batch.chamber', 'chamber') // Соединение с таблицей Shift
+      .leftJoinAndSelect('watering.wave', 'wave') // Соединение с таблицей Shift
+      .select([
+        'watering.id',          // Поля из основной сущности Offload
+        'watering.drug',    // Дополнительные поля из Offload
+        'watering.target',    // Дополнительные поля из Offload
+        'watering.dateTimeTo',    // Дополнительные поля из Offload
+        'watering.dateTimeTo',    // Дополнительные поля из Offload
+        'watering.dateTimeFrom',    // Дополнительные поля из Offload
+        'watering.volume',    // Дополнительные поля из Offload
+        'shift.id',             // Поля из связанной сущности Shift
+        'wave.id',             // Поля из связанной сущности Shift
+        'wave.order',             // Поля из связанной сущности Shift
+        'batch.id',             // Поля из связанной сущности Shift
+        'chamber.id',             // Поля из связанной сущности Shift
+        'chamber.name',             // Поля из связанной сущности Shift
+      ])
+      .where('shift.id = :shiftId', { shiftId }) // Условие по id Shift
+      .getMany();
+
   }
 
   async findWateringById(id: number): Promise<Nullable<Watering>> {

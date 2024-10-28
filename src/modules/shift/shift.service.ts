@@ -1,8 +1,12 @@
+import { CuttingService } from '@mush/modules/cutting/cutting.service';
+import { OffloadService } from '@mush/modules/offload/offload.service';
+import { WateringService } from '@mush/modules/watering/watering.service';
+import { WorkRecordService } from '@mush/modules/work-record/work.record.service';
 import * as dotenv from 'dotenv'
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { EmployeeService } from '@mush/modules/employee/employee.service'
@@ -28,9 +32,14 @@ export class ShiftService {
     @InjectRepository(Shift)
     private shiftRepository: Repository<Shift>,
     private readonly employeeService: EmployeeService,
+    @Inject(forwardRef(() => CuttingService))
+    private readonly cuttingService: CuttingService,
+    @Inject(forwardRef(() => OffloadService))
+    private readonly offloadService: OffloadService,
+    private readonly wateringService: WateringService,
+    private readonly workRecordService: WorkRecordService,
     private readonly priceService: PriceService,
   ) {}
-
   findAll(query: PaginateQuery): Promise<Paginated<Shift>> {
     return paginate(query, this.shiftRepository, shiftPaginationConfig)
   }
@@ -627,10 +636,54 @@ export class ShiftService {
 
     return this.shiftRepository.save(updatedShift)
   }
+  async getDataStatisticForShift (employeeId: number) {
+    const shift = await this.shiftRepository
+      .createQueryBuilder('shift')
+      .innerJoin('shift.employee', 'employee')
+      .select([
+        'shift.id',
+        'shift.dateFrom',
+        'shift.customBonus',
+        'shift.paidAmount',
+        'employee.id',
+      ])
+      .where('shift.dateTo IS NULL')
+      .andWhere('employee.id = :employeeId', { employeeId })
+      // .orderBy('workRecord.date', 'ASC')
+      .getOne()
+    const [
+      cuttings,
+      loadings,
+      offloadLoadings,
+      waterings,
+      workRecords
+    ]: any = await Promise.all([
+        this.cuttingService.getGroupedByCutterShift(shift.id as any),
+        this.cuttingService.getGroupedByLoaderShift(shift.id as any),
+        this.offloadService.getByShift(shift.id as any),
+        this.wateringService.getByShift(shift.id as any),
+        this.workRecordService.getByShift(shift.id as any),
+    ])
+    return {
+      cuttings,
+      loadings,
+      offloadLoadings,
+      waterings,
+      workRecords,
+      shift
+    }
+  }
 
   async getShiftCalculationsByEmployee(employeeId: number) {
-    const shift: Shift = await this.findCurrentShiftWithRelations(employeeId)
-// console.log(shift)
+
+    const {
+      cuttings,
+      loadings,
+      offloadLoadings,
+      waterings,
+      workRecords,
+      shift
+    } = await this.getDataStatisticForShift(employeeId)
     if (!shift) {
       // throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       console.warn(new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST))
@@ -638,13 +691,10 @@ export class ShiftService {
     }
 
     const {
-      dateFrom: startDate,
-      cuttings,
-      loadings,
-      offloadLoadings,
-      waterings,
-      workRecords,
+      dateFrom: startDate
     } = shift
+
+
     const customBonus =shift.customBonus
     const paidAmount = shift.paidAmount
     const dateFrom = formatDateToDateTime({
@@ -773,7 +823,7 @@ export class ShiftService {
 
     cuttings.forEach((i) => {
       i['price'] = 0
-      if (!i.variety.isCutterPaid) {
+      if (!i.isCutterPaid) {
         return
       }
 
@@ -783,8 +833,8 @@ export class ShiftService {
       }) as unknown as string
       const price = getNearestPrice({ tenant: EPriceTenant.BOX_CUTTER, date })
       const previousValue = wageDirectory?.[date] || 0
-      i['price'] = i.boxQuantity * price
-      wageDirectory[date] = i.boxQuantity * price + previousValue
+      i['price'] = i.totalBox * price
+      wageDirectory[date] = i.totalBox * price + previousValue
     })
 
     loadings.forEach((i) => {
@@ -794,8 +844,8 @@ export class ShiftService {
       }) as unknown as string
       const price = getNearestPrice({ tenant: EPriceTenant.BOX_MUSH_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
-      i['price'] = i.boxQuantity * price
-      wageDirectory[date] = i.boxQuantity * price + previousValue
+      i['price'] = i.totalBox * price
+      wageDirectory[date] = i.totalBox * price + previousValue
     })
 
     offloadLoadings.forEach((i) => {
@@ -814,10 +864,6 @@ export class ShiftService {
       const tenant = i.drug ? EPriceTenant.LITER : EPriceTenant.LITER
       const price = getNearestPrice({ tenant, date })
       const previousValue = wageDirectory?.[date] || 0
-      console.log({
-        volume: i.volume,
-        price: price
-      })
       i['price'] = i.volume * price
       wageDirectory[date] = i.volume * price + previousValue
     })
@@ -1027,8 +1073,8 @@ export class ShiftService {
       return priceDirectory[tenant][nearestDate] || priceDirectory[tenant].default
     }
 
-    cuttings.forEach(({ createdAt, boxQuantity, variety }) => {
-      if (!variety.isCutterPaid) {
+    cuttings.forEach(({ createdAt, boxQuantity, isCutterPaid }: any) => {
+      if (!isCutterPaid) {
         return
       }
 

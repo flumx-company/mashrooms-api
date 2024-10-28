@@ -87,6 +87,25 @@ export class OffloadService {
     })
   }
 
+  //
+  getByShift(shiftId: string): any {
+    return  this.offloadRepository
+      .createQueryBuilder('offload')
+      .leftJoinAndSelect('offload.loaderShift', 'loaderShift') // Соединение с таблицей Shift
+      .select([
+        'offload.id',          // Поля из основной сущности Offload
+        'offload.boxTotalQuantity',    // Дополнительные поля из Offload
+        'offload.isClosed',    // Дополнительные поля из Offload
+        'offload.createdAt',    // Дополнительные поля из Offload
+        'offload.paidMoney',    // Дополнительные поля из Offload
+        'offload.priceTotal',    // Дополнительные поля из Offload
+        'loaderShift.id',             // Поля из связанной сущности Shift
+      ])
+      .where('loaderShift.id = :shiftId', { shiftId }) // Условие по id Shift
+      .getMany();
+
+  }
+
   findAllByUserId(
     userId: number,
     query: PaginateQuery,
@@ -547,6 +566,20 @@ export class OffloadService {
 
     if (!foundOffload) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+    }
+
+    if(data.offloadItemsPrices?.length) {
+      const prices = data.offloadItemsPrices.reduce((acc,  cur) => {
+        acc[cur.priceId] = cur.pricePerKg;
+        return acc;
+      }, {})
+      const offloadRecords = await this.offloadRecordService.findByPrices(Object.keys(prices))
+      this.offloadRecordService.updateList(
+        offloadRecords.map((i) => ({
+          ...i,
+          pricePerKg: prices[i.priceId]
+        }))
+      )
     }
 
     const {
@@ -1135,6 +1168,7 @@ export class OffloadService {
       })
 
       storageSubtractionData.push({
+        ...cur,
         date: cur.cuttingDate,
         amount: cur.boxQuantity,
         waveId: cur.wave.id,

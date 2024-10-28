@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm'
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { EmployeeService } from '@mush/modules/employee/employee.service'
@@ -25,6 +25,7 @@ export class WorkRecordService {
     private workRecordRepository: Repository<WorkRecord>,
     private readonly workService: WorkService,
     private readonly employeeService: EmployeeService,
+    @Inject(forwardRef(() => ShiftService))
     private readonly shiftService: ShiftService,
     private readonly chamberService: ChamberService,
   ) {}
@@ -61,6 +62,27 @@ export class WorkRecordService {
       ])
       .orderBy('work.title', 'ASC')
       .getMany()
+  }
+
+  getByShift(shiftId: string): any {
+    return  this.workRecordRepository
+      .createQueryBuilder('workRecord')
+      .leftJoinAndSelect('workRecord.shift', 'shift') // Соединение с таблицей Shift
+      .leftJoinAndSelect('workRecord.work', 'work') // Соединение с таблицей Shift
+      .select([
+        'workRecord.id',          // Поля из основной сущности Offload
+        'workRecord.date',    // Дополнительные поля из Offload
+        'workRecord.percent',    // Дополнительные поля из Offload
+        'workRecord.percentAmount',    // Дополнительные поля из Offload
+        'workRecord.reward',    // Дополнительные поля из Offload
+        'shift.id',             // Поля из связанной сущности Shift
+        'work.id',             // Поля из связанной сущности Shift
+        'work.isRegular',             // Поля из связанной сущности Shift
+        'work.title',             // Поля из связанной сущности Shift
+      ])
+      .where('shift.id = :shiftId', { shiftId }) // Условие по id Shift
+      .getMany();
+
   }
 
   async createWorkRecord(

@@ -289,13 +289,9 @@ export class YieldService {
             Object.keys(
               sortedOffloadRecords[categoryId][waveId][varietyId],
             ).forEach((offloadId) => {
-              const {
-                netWeight,
-                boxQuantity,
-              }: {
-                netWeight: number
-                boxQuantity: number
-              } = sortedOffloadRecords[categoryId][waveId][varietyId][offloadId]
+              const data = sortedOffloadRecords[categoryId][waveId][varietyId][offloadId]
+              const netWeight = data.netWeight || data.weight
+              const boxQuantity = data.boxQuantity || data.boxQuantity
               const percent: number = netWeight / compostWeight
 
               yieldItem.weight = Number.parseFloat(

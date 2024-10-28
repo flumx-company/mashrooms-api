@@ -1,16 +1,23 @@
 import {
   IsBoolean,
   IsNotEmpty,
-  IsNumber,
+  IsNumber, IsOptional,
   IsString,
   Max,
   MaxLength,
   Min,
-} from 'class-validator'
+} from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { ToBoolean } from '@mush/core/decorators'
+export class Item {
+  @ApiProperty({ example: 5, description: 'The name of the item' })
+  priceId: number;
+
+  @ApiProperty({ example: 5, description: 'The quantity of the item' })
+  pricePerKg: number;
+}
 
 export class EditOffloadDto {
   @IsNumber()
@@ -138,4 +145,13 @@ export class EditOffloadDto {
     type: String,
   })
   readonly closureDescription: string
+
+  @IsOptional()
+  @ApiProperty({
+    type: [Item],
+    description: 'Select priceId items to change kg .',
+    required: false,
+  })
+  offloadItemsPrices: Array<Item>
 }
+

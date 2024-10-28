@@ -1,7 +1,7 @@
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { Batch } from '@mush/modules/batch/batch.entity'
@@ -39,6 +39,7 @@ export class CuttingService {
     private varietyService: VarietyService,
     private batchService: BatchService,
     private waveService: WaveService,
+    @Inject(forwardRef(() => ShiftService))
     private shiftService: ShiftService,
     private storageService: StorageService,
   ) {}
@@ -56,6 +57,56 @@ export class CuttingService {
     .addGroupBy('category.id')
     .addGroupBy('variety.id')
     .getRawMany();
+  }
+
+  getGroupedByLoaderShift(shiftId: string): any {
+    return this.cuttingRepository
+      .createQueryBuilder('cutting')
+      .select([
+        'cutting.createdAt as createdAt',
+        'chamberAl.name as chamber',
+        'variety.isCutterPaid as isCutterPaid',
+        'variety.name as varietyName',
+        'MAX(chamberAl.id) as batchId',
+        'MAX(category.id) as categoryId',
+        'SUM(cutting.boxQuantity) as totalBox'
+      ])
+      .leftJoin('cutting.batch', 'batch')
+      .leftJoin('cutting.category', 'category')
+      .leftJoin('cutting.variety', 'variety')
+      .leftJoin('cutting.loaderShift', 'loaderShift')
+      .leftJoin('batch.chamber', 'chamberAl')
+      .where('loaderShift.id = :shiftId', { shiftId: shiftId })
+      .groupBy('cutting.createdAt')
+      .addGroupBy('chamberAl.name')
+      .addGroupBy('variety.isCutterPaid')
+      .addGroupBy('variety.name')
+      .getRawMany();
+  }
+
+  getGroupedByCutterShift(shiftId: string): Promise<Cutting[]> {
+    return this.cuttingRepository
+      .createQueryBuilder('cutting')
+      .select([
+        'cutting.createdAt as createdAt',
+        'chamberAl.name as chamber',
+        'variety.isCutterPaid as isCutterPaid',
+        'variety.name as varietyName',
+        'MAX(chamberAl.id) as batchId',
+        'MAX(category.id) as categoryId',
+        'SUM(cutting.boxQuantity) as totalBox'
+      ])
+      .leftJoin('cutting.batch', 'batch')
+      .leftJoin('cutting.category', 'category')
+      .leftJoin('cutting.variety', 'variety')
+      .leftJoin('cutting.cutterShift', 'cutterShift')
+      .leftJoin('batch.chamber', 'chamberAl')
+      .where('cutterShift.id = :shiftId', { shiftId: shiftId })
+      .groupBy('cutting.createdAt')
+      .addGroupBy('chamberAl.name')
+      .addGroupBy('variety.isCutterPaid')
+      .addGroupBy('variety.name')
+      .getRawMany();
   }
 
   

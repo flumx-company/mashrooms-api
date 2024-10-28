@@ -28,6 +28,18 @@ export class OffloadRecordService {
     )
   }
 
+  async updateList(records: OffloadRecord[]): Promise<OffloadRecord[]> {
+    return Promise.all(records.map(i => {
+      return this.offloadRecordRepository.save(this.offloadRecordRepository.create(i))
+    }))
+  }
+  findByPrices(ids: any): Promise<OffloadRecord[]> {
+    return this.offloadRecordRepository
+      .createQueryBuilder('offloadRecord')
+      .where('offloadRecord.priceId IN (:...ids)', { ids })
+      .getMany();
+  }
+
   findAllByDate(date: string) {
     return this.offloadRecordRepository
       .createQueryBuilder('offload-record')
