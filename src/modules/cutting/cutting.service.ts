@@ -64,11 +64,10 @@ export class CuttingService {
       .createQueryBuilder('cutting')
       .select([
         'cutting.createdAt as createdAt',
-        'chamberAl.name as chamber',
+        'chamberAl.name as chamberName',
+        'category.name as categoryName',
         'variety.isCutterPaid as isCutterPaid',
         'variety.name as varietyName',
-        'MAX(chamberAl.id) as batchId',
-        'MAX(category.id) as categoryId',
         'SUM(cutting.boxQuantity) as totalBox'
       ])
       .leftJoin('cutting.batch', 'batch')
@@ -81,6 +80,7 @@ export class CuttingService {
       .addGroupBy('chamberAl.name')
       .addGroupBy('variety.isCutterPaid')
       .addGroupBy('variety.name')
+      .addGroupBy('category.name')
       .getRawMany();
   }
 
@@ -89,11 +89,10 @@ export class CuttingService {
       .createQueryBuilder('cutting')
       .select([
         'cutting.createdAt as createdAt',
-        'chamberAl.name as chamber',
+        'chamberAl.name as chamberName',
+        'category.name as categoryName',
         'variety.isCutterPaid as isCutterPaid',
         'variety.name as varietyName',
-        'MAX(chamberAl.id) as batchId',
-        'MAX(category.id) as categoryId',
         'SUM(cutting.boxQuantity) as totalBox'
       ])
       .leftJoin('cutting.batch', 'batch')
@@ -106,6 +105,7 @@ export class CuttingService {
       .addGroupBy('chamberAl.name')
       .addGroupBy('variety.isCutterPaid')
       .addGroupBy('variety.name')
+      .addGroupBy('category.name')
       .getRawMany();
   }
 
