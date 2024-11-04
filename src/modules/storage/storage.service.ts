@@ -87,9 +87,12 @@ export class StorageService {
   async findAllTodayStoragesByWaveId({
     waveId,
     categoryId,
+    chamberId
   }: {
     waveId: number
-    categoryId: number
+    categoryId: number,
+    chamberId: number,
+
   }): Promise<object> {
     const today = String(
       formatDateToDateTime({
@@ -101,17 +104,23 @@ export class StorageService {
     const foundStorages = await this.storageRepository
       .createQueryBuilder('storage')
       .leftJoinAndSelect('storage.wave', 'wave')
+      .leftJoinAndSelect('wave.batch', 'batch')
+      .leftJoinAndSelect('batch.chamber', 'chamber')
       .leftJoinAndSelect('storage.variety', 'variety')
       .leftJoinAndSelect('storage.category', 'category')
       .where('storage.date like :date', { date: `%${today}%` })
       .andWhere('wave.id = :waveId', { waveId })
       .andWhere('category.id = :categoryId', { categoryId })
+      .andWhere('chamber.id = :chamberId', { chamberId })
       .select([
         'storage.id',
         'storage.amount',
         'storage.date',
         'variety.id',
         'category.id',
+        'wave.id',
+        'batch.id',
+        'chamber.id',
       ])
       .getMany()
 

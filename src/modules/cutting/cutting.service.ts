@@ -63,12 +63,8 @@ export class CuttingService {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
       .select([
-        'cutting.createdAt as createdAt',
-        'chamberAl.name as chamberName',
-        'category.name as categoryName',
-        'variety.isCutterPaid as isCutterPaid',
-        'variety.name as varietyName',
-        'SUM(cutting.boxQuantity) as totalBox'
+        'SUM(cutting.boxQuantity) as totalBox',
+        'cutting.createdAt as createdAt'
       ])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('cutting.category', 'category')
@@ -77,10 +73,6 @@ export class CuttingService {
       .leftJoin('batch.chamber', 'chamberAl')
       .where('loaderShift.id = :shiftId', { shiftId: shiftId })
       .groupBy('cutting.createdAt')
-      .addGroupBy('chamberAl.name')
-      .addGroupBy('variety.isCutterPaid')
-      .addGroupBy('variety.name')
-      .addGroupBy('category.name')
       .getRawMany();
   }
 
@@ -88,12 +80,8 @@ export class CuttingService {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
       .select([
+        'SUM(cutting.boxQuantity) as totalBox',
         'cutting.createdAt as createdAt',
-        'chamberAl.name as chamberName',
-        'category.name as categoryName',
-        'variety.isCutterPaid as isCutterPaid',
-        'variety.name as varietyName',
-        'SUM(cutting.boxQuantity) as totalBox'
       ])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('cutting.category', 'category')
@@ -101,11 +89,8 @@ export class CuttingService {
       .leftJoin('cutting.cutterShift', 'cutterShift')
       .leftJoin('batch.chamber', 'chamberAl')
       .where('cutterShift.id = :shiftId', { shiftId: shiftId })
+      .andWhere('variety.isCutterPaid = 1')
       .groupBy('cutting.createdAt')
-      .addGroupBy('chamberAl.name')
-      .addGroupBy('variety.isCutterPaid')
-      .addGroupBy('variety.name')
-      .addGroupBy('category.name')
       .getRawMany();
   }
 
@@ -143,17 +128,18 @@ export class CuttingService {
         value: new Date(Date.now()),
       }),
     )
-    const [category, batch, wave, foundTodayStorages]: [
+    const [category, batch, wave]: [
       Category,
       Batch,
       Wave,
-      object,
     ] = await Promise.all([
       this.categoryService.findCategoryById(categoryId),
       this.batchService.findBatchById(batchId),
       this.waveService.findWaveById(waveId),
-      this.storageService.findAllTodayStoragesByWaveId({ waveId, categoryId }),
     ])
+
+    const foundTodayStorages = await this.storageService.findAllTodayStoragesByWaveId({ waveId, categoryId, chamberId: batch.chamber.id });
+
 
     if (!category || !batch || !wave) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)

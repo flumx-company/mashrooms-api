@@ -823,10 +823,6 @@ export class ShiftService {
 
     cuttings.forEach((i) => {
       i['price'] = 0
-      if (!i.isCutterPaid) {
-        return
-      }
-
       const date = formatDateToDateTime({
         value: i.createdAt,
         withTime: false,
@@ -838,6 +834,7 @@ export class ShiftService {
     })
 
     loadings.forEach((i) => {
+
       const date = formatDateToDateTime({
         value: i.createdAt,
         withTime: false,
