@@ -1,9 +1,9 @@
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
-import { Repository } from 'typeorm'
+import { Repository, Transaction } from 'typeorm';
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-
+import { Transactional } from 'typeorm-transactional';
 import { Batch } from '@mush/modules/batch/batch.entity'
 import { BatchService } from '@mush/modules/batch/batch.service'
 import { Category } from '@mush/modules/category/category.entity'
@@ -146,6 +146,7 @@ export class OffloadService {
       .getOne()
   }
 
+  @Transactional()
   async createOffload({
     clientId,
     driverId,
@@ -322,16 +323,16 @@ export class OffloadService {
           this.storeContainerService.findStoreContainerById(parseInt(id)),
         ),
       )
-    const foundStorages: Array<Nullable<Storage>> = await Promise.all(
-      storageSubtractionData.map(({ varietyId, waveId, categoryId, date }) => {
-        return this.storageService.findByOffloadParameters({
-          varietyId,
-          waveId,
-          categoryId,
-          date,
-        })
-      }),
-    )
+    // const foundStorages: Array<Nullable<Storage>> = await Promise.all(
+    //   storageSubtractionData.map(({ varietyId, waveId, categoryId, date }) => {
+    //     return this.storageService.findByOffloadParameters({
+    //       varietyId,
+    //       waveId,
+    //       categoryId,
+    //       date,
+    //     })
+    //   }),
+    // )
     foundCategories.forEach((category) => {
       if (!category) {
         throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -374,7 +375,15 @@ export class OffloadService {
 
       byIdStoreContainers[container.id] = container as StoreContainer
     })
-    foundStorages.forEach((storage, index) => {
+
+    const findStorageAndUpdate = async (data) => {
+      const storage = await this.storageService.findByOffloadParameters({
+        varietyId: data.varietyId,
+        waveId: data.waveId,
+        categoryId: data.categoryId,
+        date: data.date,
+      })
+
       if (!storage) {
         throw new HttpException(
           CError.WRONG_STORAGE_DATA,
@@ -382,21 +391,21 @@ export class OffloadService {
         )
       }
 
-      if (storageSubtractionData[index]?.amount > storage.amount) {
+      if (data?.amount > storage.amount) {
         throw new HttpException(CError.WRONG_BOX_AMOUNT, HttpStatus.BAD_REQUEST)
       }
-    })
 
-    await Promise.all(
-      foundStorages.map(({ id, amount: storedAmount }, index) => {
-        const offloadAmount: number = storageSubtractionData[index]?.amount
-        const remainedAmount: number = storedAmount - offloadAmount
+      const offloadAmount: number = data?.amount
+      const remainedAmount: number = storage.amount - offloadAmount
 
-        return remainedAmount
-          ? this.storageService.updateStorage({ id, amount: remainedAmount })
-          : this.storageService.removeStorage(id)
-      }),
-    )
+      return remainedAmount
+        ? this.storageService.updateStorage({ id: storage.id, amount: remainedAmount })
+        : this.storageService.removeStorage(storage.id)
+    }
+
+    for (let item of storageSubtractionData) {
+      await findStorageAndUpdate(item)
+    }
 
     offloadRecords.forEach((offloadRecordPriceGroup, index) => {
       const priceId = parseInt(`${priceIdBase}${index}`)
@@ -449,24 +458,24 @@ export class OffloadService {
       })
     })
 
-    // const {
-    //   moneyDebt,
-    //   delContainer1_7Debt,
-    //   delContainer0_5Debt,
-    //   delContainer0_4Debt,
-    //   delContainerSchoellerDebt,
-    // } = client
-    // const newMoneyDebt = moneyDebt + priceTotal - paidMoney
-    // const delContainer1_7NewDebt =
-    //   delContainer1_7Debt + delContainer1_7Out - delContainer1_7In
-    // const delContainer0_5NewDebt =
-    //   delContainer0_5Debt + delContainer0_5Out - delContainer0_5In
-    // const delContainer0_4NewDebt =
-    //   delContainer0_4Debt + delContainer0_4Out - delContainer0_4In
-    // const delContainerSchoellerNewDebt =
-    //   delContainerSchoellerDebt +
-    //   delContainerSchoellerOut -
-    //   delContainerSchoellerIn
+    const {
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    } = client
+    const newMoneyDebt = moneyDebt + priceTotal - paidMoney
+    const delContainer1_7NewDebt =
+      delContainer1_7Debt + delContainer1_7Out - delContainer1_7In
+    const delContainer0_5NewDebt =
+      delContainer0_5Debt + delContainer0_5Out - delContainer0_5In
+    const delContainer0_4NewDebt =
+      delContainer0_4Debt + delContainer0_4Out - delContainer0_4In
+    const delContainerSchoellerNewDebt =
+      delContainerSchoellerDebt +
+      delContainerSchoellerOut -
+      delContainerSchoellerIn
 
     const offObj = {
       author: user,
@@ -496,14 +505,14 @@ export class OffloadService {
 
     const savedNewOffload = await this.offloadRepository.save(newOffload)
 
-    // await this.clientService.updateClientDebt({
-    //   id: clientId,
-    //   moneyDebt: newMoneyDebt,
-    //   delContainer1_7Debt: delContainer1_7NewDebt,
-    //   delContainer0_5Debt: delContainer0_5NewDebt,
-    //   delContainer0_4Debt: delContainer0_4NewDebt,
-    //   delContainerSchoellerDebt: delContainerSchoellerNewDebt,
-    // })
+    await this.clientService.updateClientDebt({
+      id: clientId,
+      moneyDebt: newMoneyDebt,
+      delContainer1_7Debt: delContainer1_7NewDebt,
+      delContainer0_5Debt: delContainer0_5NewDebt,
+      delContainer0_4Debt: delContainer0_4NewDebt,
+      delContainerSchoellerDebt: delContainerSchoellerNewDebt,
+    })
 
     const newOffloadRecords = await Promise.all(
       newOffloadRecordData.map((record) =>

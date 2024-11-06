@@ -72,7 +72,7 @@ export class CuttingService {
       .leftJoin('cutting.loaderShift', 'loaderShift')
       .leftJoin('batch.chamber', 'chamberAl')
       .where('loaderShift.id = :shiftId', { shiftId: shiftId })
-      .groupBy('cutting.createdAt')
+      .groupBy('DATE(cutting.createdAt)')
       .getRawMany();
   }
 
@@ -90,7 +90,7 @@ export class CuttingService {
       .leftJoin('batch.chamber', 'chamberAl')
       .where('cutterShift.id = :shiftId', { shiftId: shiftId })
       .andWhere('variety.isCutterPaid = 1')
-      .groupBy('cutting.createdAt')
+      .groupBy('DATE(cutting.createdAt)')
       .getRawMany();
   }
 
