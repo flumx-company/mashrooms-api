@@ -3,7 +3,7 @@ import { Repository, Transaction } from 'typeorm';
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Transactional } from 'typeorm-transactional';
+// import { Transactional } from 'typeorm-transactional';
 import { Batch } from '@mush/modules/batch/batch.entity'
 import { BatchService } from '@mush/modules/batch/batch.service'
 import { Category } from '@mush/modules/category/category.entity'
@@ -146,7 +146,7 @@ export class OffloadService {
       .getOne()
   }
 
-  @Transactional()
+  // @Transactional()
   async createOffload({
     clientId,
     driverId,
