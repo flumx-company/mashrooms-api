@@ -1,3 +1,4 @@
+import { ReturnContainersDto } from '@mush/modules/offload/dto/return.containers.dto';
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate'
 import { Repository, Transaction } from 'typeorm';
 
@@ -1097,11 +1098,11 @@ export class OffloadService {
       .getOne()
     const {
       id: clientId,
-      moneyDebt,
-      delContainer1_7Debt,
-      delContainer0_5Debt,
-      delContainer0_4Debt,
-      delContainerSchoellerDebt,
+      // moneyDebt,
+      // delContainer1_7Debt,
+      // delContainer0_5Debt,
+      // delContainer0_4Debt,
+      // delContainerSchoellerDebt,
     } = foundOffload.client
     const today: string = String(
       formatDateToDateTime({
@@ -1110,36 +1111,36 @@ export class OffloadService {
     )
     const {
       offloadRecords,
-      paidMoney,
-      priceTotal,
-      delContainer1_7In,
-      delContainer1_7Out,
-      delContainer0_5In,
-      delContainer0_5Out,
-      delContainer0_4In,
-      delContainer0_4Out,
-      delContainerSchoellerIn,
-      delContainerSchoellerOut,
+      // paidMoney,
+      // priceTotal,
+      // delContainer1_7In,
+      // delContainer1_7Out,
+      // delContainer0_5In,
+      // delContainer0_5Out,
+      // delContainer0_4In,
+      // delContainer0_4Out,
+      // delContainerSchoellerIn,
+      // delContainerSchoellerOut,
     } = foundOffload
-    const newMoneyDebt = moneyDebt + priceTotal - paidMoney
-    const delContainer1_7NewDebt =
-      delContainer1_7Debt + delContainer1_7Out - delContainer1_7In
-    const delContainer0_5NewDebt =
-      delContainer0_5Debt + delContainer0_5Out - delContainer0_5In
-    const delContainer0_4NewDebt =
-      delContainer0_4Debt + delContainer0_4Out - delContainer0_4In
-    const delContainerSchoellerNewDebt =
-      delContainerSchoellerDebt +
-      delContainerSchoellerOut -
-      delContainerSchoellerIn
-    await this.clientService.updateClientDebt({
-      id: clientId,
-      moneyDebt: newMoneyDebt,
-      delContainer1_7Debt: delContainer1_7NewDebt,
-      delContainer0_5Debt: delContainer0_5NewDebt,
-      delContainer0_4Debt: delContainer0_4NewDebt,
-      delContainerSchoellerDebt: delContainerSchoellerNewDebt,
-    })
+    // const newMoneyDebt = moneyDebt + priceTotal - paidMoney
+    // const delContainer1_7NewDebt =
+    //   delContainer1_7Debt + delContainer1_7Out - delContainer1_7In
+    // const delContainer0_5NewDebt =
+    //   delContainer0_5Debt + delContainer0_5Out - delContainer0_5In
+    // const delContainer0_4NewDebt =
+    //   delContainer0_4Debt + delContainer0_4Out - delContainer0_4In
+    // const delContainerSchoellerNewDebt =
+    //   delContainerSchoellerDebt +
+    //   delContainerSchoellerOut -
+    //   delContainerSchoellerIn
+    // await this.clientService.updateClientDebt({
+    //   id: clientId,
+    //   moneyDebt: newMoneyDebt,
+    //   delContainer1_7Debt: delContainer1_7NewDebt,
+    //   delContainer0_5Debt: delContainer0_5NewDebt,
+    //   delContainer0_4Debt: delContainer0_4NewDebt,
+    //   delContainerSchoellerDebt: delContainerSchoellerNewDebt,
+    // })
     const storageSubtractionData: Array<{
       date: Date
       amount: number
@@ -1192,10 +1193,101 @@ export class OffloadService {
       byIdWaves: byIdWaves as Record<number, Wave>,
       byBatchIdCategoryIdSubbatches,
     })
-
-
-
   }
 
+  async returnPrice(offloadId: number, price: number) {
+    const foundOffload = await this.offloadRepository
+      .createQueryBuilder('offload')
+      .leftJoinAndSelect('offload.client', 'client')
+      .where('offload.id = :offloadId', { offloadId })
+      .getOne()
+    const {
+      id: clientId,
+      moneyDebt,
+      firstName,
+      lastName,
+      patronymic,
+      nickname,
+      phone,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    } = foundOffload.client
+    const {
+      paidMoney,
+    } = foundOffload
+    const newMoneyDebt = moneyDebt - price
+    await this.clientService.updateClient(clientId, {
+      moneyDebt: newMoneyDebt,
+      firstName,
+      lastName,
+      patronymic,
+      nickname,
+      phone,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    })
+    const newOffload: Offload = await this.offloadRepository.create({
+      ...foundOffload,
+      paidMoney: paidMoney + price
+    })
 
+    await this.offloadRepository.save(newOffload);
+  }
+
+  async returnContainers(offloadId: number, {
+    delContainer1_7,
+    delContainer0_5,
+    delContainer0_4,
+    delContainerSchoeller,
+  }: ReturnContainersDto) {
+    const foundOffload = await this.offloadRepository
+      .createQueryBuilder('offload')
+      .leftJoinAndSelect('offload.client', 'client')
+      .where('offload.id = :offloadId', { offloadId })
+      .getOne()
+    const {
+      id: clientId,
+      moneyDebt,
+      delContainer1_7Debt,
+      delContainer0_5Debt,
+      delContainer0_4Debt,
+      delContainerSchoellerDebt,
+    } = foundOffload.client
+
+    const {
+      delContainer0_5In,
+      delContainer0_4In,
+      delContainer1_7In,
+      delContainerSchoellerIn,
+    } = foundOffload
+    const delContainer1_7NewDebt =
+      delContainer1_7Debt - delContainer1_7
+    const delContainer0_5NewDebt =
+      delContainer0_5Debt - delContainer0_5
+    const delContainer0_4NewDebt =
+      delContainer0_4Debt - delContainer0_4
+    const delContainerSchoellerNewDebt =
+      delContainerSchoellerDebt - delContainerSchoeller
+    await this.clientService.updateClientDebt({
+      id: clientId,
+      moneyDebt,
+      delContainer1_7Debt: delContainer1_7NewDebt,
+      delContainer0_5Debt: delContainer0_5NewDebt,
+      delContainer0_4Debt: delContainer0_4NewDebt,
+      delContainerSchoellerDebt: delContainerSchoellerNewDebt,
+    })
+
+    const newOffload: Offload = await this.offloadRepository.create({
+      ...foundOffload,
+      delContainer1_7In: delContainer1_7In + delContainer1_7,
+      delContainer0_5In: delContainer0_5In + delContainer0_5,
+      delContainer0_4In: delContainer0_4In + delContainer0_4,
+      delContainerSchoellerIn: delContainerSchoellerIn + delContainerSchoeller,
+    })
+    await this.offloadRepository.save(newOffload);
+  }
 }

@@ -101,4 +101,6 @@ export class StorageController {
   ): Promise<Storage[]> {
     return this.storageRepository.findAllByBatchId(batchId)
   }
+
+
 }

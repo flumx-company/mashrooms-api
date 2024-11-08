@@ -64,7 +64,7 @@ export class CuttingService {
       .createQueryBuilder('cutting')
       .select([
         'SUM(cutting.boxQuantity) as totalBox',
-        'cutting.createdAt as createdAt'
+        'DATE(cutting.createdAt) as createdAt'
       ])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('cutting.category', 'category')
@@ -72,7 +72,7 @@ export class CuttingService {
       .leftJoin('cutting.loaderShift', 'loaderShift')
       .leftJoin('batch.chamber', 'chamberAl')
       .where('loaderShift.id = :shiftId', { shiftId: shiftId })
-      .groupBy('DATE(cutting.createdAt)')
+      .groupBy('createdAt')
       .getRawMany();
   }
 
@@ -81,7 +81,7 @@ export class CuttingService {
       .createQueryBuilder('cutting')
       .select([
         'SUM(cutting.boxQuantity) as totalBox',
-        'cutting.createdAt as createdAt',
+        'DATE(cutting.createdAt) as createdAt',
       ])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('cutting.category', 'category')
@@ -90,7 +90,7 @@ export class CuttingService {
       .leftJoin('batch.chamber', 'chamberAl')
       .where('cutterShift.id = :shiftId', { shiftId: shiftId })
       .andWhere('variety.isCutterPaid = 1')
-      .groupBy('DATE(cutting.createdAt)')
+      .groupBy('createdAt')
       .getRawMany();
   }
 

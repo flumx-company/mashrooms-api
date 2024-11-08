@@ -1,3 +1,5 @@
+import { ReturnContainersDto } from '@mush/modules/offload/dto/return.containers.dto';
+import { ReturnPriceDto } from '@mush/modules/offload/dto/return.price.dto';
 import { Response as ExResponse } from 'express'
 import {
   ApiPaginationQuery,
@@ -514,5 +516,74 @@ export class OffloadController {
     @Param('offloadId', ParseIntPipe) offloadId: number,
   ) {
     return this.offloadService.closeOffload(offloadId)
+  }
+
+
+  @Put('return-price/:offloadId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.RETURN_OFFLOAD_PRICE,
+  })
+  @ApiOperation({
+    summary:
+      'Return price offload. Role: SUPERADMIN, ADMIN. Permission: RETURN_OFFLOAD_PRICE.',
+  })
+  @ApiParam({
+    name: 'offloadId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: `Model to edit an offload. The  
+      {
+        price: 1000,
+      }
+      `,
+    type: ReturnPriceDto,
+  })
+  @ApiResponse({
+    status: 200,
+  })
+  returnPriceOffload(
+    @Param('offloadId', ParseIntPipe) offloadId: number,
+    @Body() data: ReturnPriceDto,
+  ) {
+    return this.offloadService.returnPrice(offloadId, data.price)
+  }
+
+  @Put('return-containers/:offloadId')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.RETURN_OFFLOAD_CONTAINERS,
+  })
+  @ApiOperation({
+    summary:
+      'Return containers offload. Role: SUPERADMIN, ADMIN. Permission: RETURN_OFFLOAD_CONTAINERS.',
+  })
+  @ApiParam({
+    name: 'offloadId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: `Model to edit an offload. The  
+      {
+        price: 1000,
+        delContainer1_7: 0,
+        delContainer0_5: 0,
+        delContainer0_4: 0,
+        delContainerSchoeller: 0
+      }
+      `,
+    type: ReturnContainersDto,
+  })
+  @ApiResponse({
+    status: 200,
+  })
+  returnContainersOffload(
+    @Param('offloadId', ParseIntPipe) offloadId: number,
+    @Body() data: ReturnContainersDto,
+  ) {
+    return this.offloadService.returnContainers(offloadId, data)
   }
 }
