@@ -5,7 +5,7 @@ import { Watering } from '../watering.entity'
 export const wateringPaginationConfig: PaginateConfig<Watering> = {
   sortableColumns: ['id'],
   searchableColumns: ['dateTimeFrom', 'batch.dateFrom'],
-  defaultSortBy: [['id', 'ASC']],
+  defaultSortBy: [['id', 'DESC']],
   relations: ['shift', 'batch', 'shift.employee', 'batch.chamber'],
   filterableColumns: {
     ['batch.id']: [FilterOperator.EQ],

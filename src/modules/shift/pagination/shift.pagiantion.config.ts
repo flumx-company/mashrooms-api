@@ -14,7 +14,7 @@ export const shiftPaginationConfig: PaginateConfig<Shift> = {
   ],
   sortableColumns: ['id'],
   searchableColumns: ['dateTo', 'employee.id'],
-  defaultSortBy: [['id', 'ASC']],
+  defaultSortBy: [['id', 'DESC']],
   filterableColumns: {
     dateTo: [FilterOperator.ILIKE, FilterOperator.NULL, FilterSuffix.NOT],
     ['employee.id']: [FilterOperator.EQ],

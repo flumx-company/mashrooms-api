@@ -12,7 +12,7 @@ export const offloadRecordPaginationConfig: PaginateConfig<OffloadRecord> = {
     'variety',
   ],
   sortableColumns: ['id', 'createdAt'],
-  defaultSortBy: [['id', 'ASC']],
+  defaultSortBy: [['id', 'DESC']],
   filterableColumns: {
     createdAt: [FilterOperator.ILIKE],
     ['batch.id']: [FilterOperator.EQ],

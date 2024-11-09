@@ -5,7 +5,7 @@ import { Batch } from '../batch.entity'
 export const batchPaginationConfig: PaginateConfig<Batch> = {
   sortableColumns: ['id'],
   searchableColumns: ['chamber.id', 'dateFrom', 'dateTo'],
-  defaultSortBy: [['id', 'ASC']],
+  defaultSortBy: [['id', 'DESC']],
   relations: ['waves', 'chamber', 'cuttings', 'waterings', 'subbatches', 'subbatches.category'],
   filterableColumns: {
     dateTo: [FilterOperator.NULL, FilterSuffix.NOT],

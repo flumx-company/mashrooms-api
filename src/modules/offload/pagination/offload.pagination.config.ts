@@ -5,7 +5,7 @@ import { Offload } from '../offload.entity'
 export const offloadPaginationConfig: PaginateConfig<Offload> = {
   relations: ['author', 'client', 'driver', 'documents', 'loaderShift', 'loaderShift.employee'],
   sortableColumns: ['id', 'author.id', 'client.id', 'driver.id'],
-  defaultSortBy: [['id', 'ASC']],
+  defaultSortBy: [['id', 'DESC']],
   filterableColumns: {
     createdAt: [FilterOperator.ILIKE],
     isClosed: [FilterOperator.EQ],
@@ -14,4 +14,5 @@ export const offloadPaginationConfig: PaginateConfig<Offload> = {
     ['client.id']: [FilterOperator.EQ],
     ['driver.id']: [FilterOperator.EQ],
   },
+
 }

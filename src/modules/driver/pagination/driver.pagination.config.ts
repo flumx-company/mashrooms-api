@@ -5,5 +5,5 @@ import { Driver } from '../driver.entity'
 export const driverPaginationConfig: PaginateConfig<Driver> = {
   sortableColumns: ['id'],
   searchableColumns: ['firstName', 'lastName'],
-  defaultSortBy: [['id', 'ASC']],
+  defaultSortBy: [['id', 'DESC']],
 }
