@@ -594,6 +594,7 @@ export class OffloadService {
 
     const {
       paidMoney,
+      priceTotal,
       delContainer1_7In,
       delContainer1_7Out,
       delContainer0_5In,
@@ -624,14 +625,6 @@ export class OffloadService {
     //   delContainerSchoellerOut: previousSchoellerOut,
     // } = foundOffload
 
-    // const {
-    //   id: clientId,
-    //   moneyDebt: previousMoneyDebt,
-    //   delContainer1_7Debt: previous1_7Debt,
-    //   delContainer0_5Debt: previous0_5Debt,
-    //   delContainer0_4Debt: previous0_4Debt,
-    //   delContainerSchoellerDebt: previousSchoellerDebt,
-    // } = foundOffload.client
 
     const [updatedOffload]: [Offload] = await Promise.all([
       this.offloadRepository.create({
@@ -647,16 +640,14 @@ export class OffloadService {
         delContainer0_4Out: delContainer0_4Out,
         delContainerSchoellerIn: delContainerSchoellerIn,
         delContainerSchoellerOut: delContainerSchoellerOut,
+        priceTotal
       }),
-      // this.clientService.updateClientDebt({
-      //   id: clientId,
-      //   moneyDebt: previousMoneyDebt - paidMoney,
-      //   delContainer1_7Debt: previous1_7Debt - difference1_7,
-      //   delContainer0_5Debt: previous0_5Debt - difference0_5,
-      //   delContainer0_4Debt: previous0_4Debt - difference0_4,
-      //   delContainerSchoellerDebt: previousSchoellerDebt - differencerSchoeller,
-      // }),
     ])
+
+    this.clientService.updateClient(foundOffload.client.id,{
+      ...foundOffload.client,
+      moneyDebt: foundOffload.client.moneyDebt + (foundOffload.priceTotal - priceTotal)
+    })
 
     return this.offloadRepository.save(updatedOffload)
   }

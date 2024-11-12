@@ -84,7 +84,6 @@ export class Watering extends DatedBasicEntity {
   @ManyToOne(() => Batch, (batch) => batch.waterings)
   batch: Batch
 
-  @OneToOne(() => Wave, (wave) => wave.watering)
-  @JoinColumn()
+  @OneToMany(() => Wave, (wave) => wave.watering)
   wave: Wave
 }
