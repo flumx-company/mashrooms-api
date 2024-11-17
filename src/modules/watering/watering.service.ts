@@ -111,7 +111,6 @@ export class WateringService {
       providesMinutes: true,
     })
 
-    console.log(await this.waveService.findLastWave(batchId))
     const newWatering: Watering = this.wateringRepository.create({
       volume,
       dateTimeFrom: updatedDateTimeFrom,

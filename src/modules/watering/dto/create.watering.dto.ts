@@ -24,7 +24,7 @@ export class CreateWateringDto {
 
   @IsDateString()
   @IsNotEmpty()
-  @Matches(YYYY_MM_DD_T_HH_MM_REGEX)
+  // @Matches(YYYY_MM_DD_T_HH_MM_REGEX)
   @ApiProperty({
     example: '2024-03-06T10:15',
     description: 'Enter the date and time of watering start.',
@@ -34,7 +34,7 @@ export class CreateWateringDto {
 
   @IsDateString()
   @IsNotEmpty()
-  @Matches(YYYY_MM_DD_T_HH_MM_REGEX)
+  // @Matches(YYYY_MM_DD_T_HH_MM_REGEX)
   @ApiProperty({
     example: '2024-03-06T10:45',
     description: 'Enter the date and time of watering end.',

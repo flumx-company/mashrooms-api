@@ -68,6 +68,6 @@ export class Wave extends DatedBasicEntity {
   @OneToMany(() => Yield, (yieldItem) => yieldItem.category)
   yields: Yield[]
 
-  @ManyToOne(() => Watering, (wave) => wave.wave)
+  @OneToMany(() => Watering, (wave) => wave.wave)
   watering: Wave
 }

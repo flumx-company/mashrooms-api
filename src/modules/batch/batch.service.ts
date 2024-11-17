@@ -54,6 +54,7 @@ export class BatchService {
         'waves',
         'chamber',
         'waterings',
+        'waterings.wave',
         'subbatches',
         'subbatches.category',
       ],

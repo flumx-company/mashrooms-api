@@ -71,127 +71,78 @@ export class YieldService {
   }
 
   async findAllByWave({ waveId }: { waveId: number }): Promise<object> {
-    const wave: Wave = await this.waveService.findWaveById(waveId)
-    const response = {}
-
-    if (!wave) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-    }
-
     const yields = await this.yieldRepository
       .createQueryBuilder('yield')
-      .select()
-      .leftJoinAndSelect('yield.category', 'category')
-      .leftJoinAndSelect('yield.batch', 'batch')
-      .leftJoinAndSelect('yield.variety', 'variety')
-      .leftJoinAndSelect('yield.wave', 'wave')
+      .select(['batch.chamber','batch.id', 'SUM(yield.weight) as weight','SUM(yield.boxQuantity) as boxQuantity', 'SUM(yield.percent) as percent', 'category', 'variety', 'wave.order', 'batch'])
+      .leftJoin('yield.category', 'category')
+      .leftJoin('yield.batch', 'batch')
+      .leftJoin('yield.variety', 'variety')
+      .leftJoin('yield.wave', 'wave')
       .where('wave.id = :waveId', { waveId })
-      .getMany()
+      .groupBy('wave.order')
+      .addGroupBy('category.id')
+      .addGroupBy('variety.id')
+      .addGroupBy('batch.id')
+      .getRawMany()
 
-    yields.forEach(
-      ({ category, date, variety, weight, boxQuantity, percent }) => {
-        const dateString = `date_${date}`
-        const categoryString = `category_ID_${category.id}_NAME_${category.name}`
-        const varietyString = `variety_ID_${variety.id}_NAME_${variety.name}`
-        const hasDate = response?.[dateString]
-        const hasCategory = response?.[dateString]?.[categoryString]
-        const hasVariety =
-          response?.[dateString]?.[categoryString]?.[varietyString]
-        const hasTotal = response?.[dateString]?.[categoryString]?.total
-
-        if (!hasDate) {
-          response[dateString] = {}
-        }
-
-        if (!hasCategory) {
-          response[dateString][categoryString] = {}
-        }
-
-        if (!hasVariety) {
-          response[dateString][categoryString][varietyString] = {
-            weight,
-            boxQuantity,
-            percent,
-          }
-        }
-
-        if (!hasTotal) {
-          response[dateString][categoryString].total = {
-            weight,
-            boxQuantity,
-            percent,
-          }
-
-          return
-        }
-
-        response[dateString][categoryString].total.weight += weight
-        response[dateString][categoryString].total.boxQuantity += boxQuantity
-        response[dateString][categoryString].total.percent += percent
-      },
-    )
-
-    return response
+    return yields
   }
 
   async findAllByBatch({ batchId }: { batchId: number }) {
-    const batch: Batch = await this.batchService.findBatchById(batchId)
-    const response = { total: {} }
-
-    if (!batch) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-    }
-
     const yields = await this.yieldRepository
       .createQueryBuilder('yield')
-      .select()
-      .leftJoinAndSelect('yield.category', 'category')
-      .leftJoinAndSelect('yield.batch', 'batch')
-      .leftJoinAndSelect('yield.variety', 'variety')
-      .leftJoinAndSelect('yield.wave', 'wave')
+      .select(['batch.chamber','batch.id', 'SUM(yield.weight) as weight','SUM(yield.boxQuantity) as boxQuantity', 'SUM(yield.percent) as percent', 'category', 'variety', 'wave.order', 'batch'])
+      .leftJoin('yield.category', 'category')
+      .leftJoin('yield.batch', 'batch')
+      .leftJoin('yield.variety', 'variety')
+      .leftJoin('yield.wave', 'wave')
       .where('batch.id = :batchId', { batchId })
-      .getMany()
+      .groupBy('wave.order')
+      .addGroupBy('category.id')
+      .addGroupBy('variety.id')
+      .addGroupBy('batch.id')
+      .getRawMany()
 
-    yields.forEach(({ boxQuantity, category, percent, wave, weight }) => {
-      const waveString = `wave_ID_${wave.id}_ORDER_${wave.order}`
-      const categoryString = `category_ID_${category.id}_NAME_${category.name}`
-      const hasWave = response[waveString]
-      const hasWaveCategory = response[waveString]?.[categoryString]
-      const hasTotalCategory = response.total[categoryString]
+    // yields.forEach(({ boxQuantity, category, percent, wave, weight }) => {
+    //   const waveString = `wave_ID_${wave.id}_ORDER_${wave.order}`
+    //   const categoryString = `category_ID_${category.id}_NAME_${category.name}`
+    //   const hasWave = response[waveString]
+    //   const hasWaveCategory = response[waveString]?.[categoryString]
+    //   const hasTotalCategory = response.total[categoryString]
+    //
+    //   if (!hasWave) {
+    //     response[waveString] = {}
+    //   }
+    //
+    //   if (hasWaveCategory) {
+    //     response[waveString][categoryString].boxQuantity += boxQuantity
+    //     response[waveString][categoryString].percent += percent
+    //     response[waveString][categoryString].weight += weight
+    //   }
+    //
+    //   if (!hasWaveCategory) {
+    //     response[waveString][categoryString] = {
+    //       boxQuantity,
+    //       percent,
+    //       weight,
+    //     }
+    //   }
+    //
+    //   if (hasTotalCategory) {
+    //     response.total[categoryString].boxQuantity += boxQuantity
+    //     response.total[categoryString].percent += percent
+    //     response.total[categoryString].weight += weight
+    //     return
+    //   }
+    //
+    //   response.total[categoryString] = {
+    //     boxQuantity,
+    //     percent,
+    //     weight,
+    //   }
+    // })
 
-      if (!hasWave) {
-        response[waveString] = {}
-      }
-
-      if (hasWaveCategory) {
-        response[waveString][categoryString].boxQuantity += boxQuantity
-        response[waveString][categoryString].percent += percent
-        response[waveString][categoryString].weight += weight
-      }
-
-      if (!hasWaveCategory) {
-        response[waveString][categoryString] = {
-          boxQuantity,
-          percent,
-          weight,
-        }
-      }
-
-      if (hasTotalCategory) {
-        response.total[categoryString].boxQuantity += boxQuantity
-        response.total[categoryString].percent += percent
-        response.total[categoryString].weight += weight
-        return
-      }
-
-      response.total[categoryString] = {
-        boxQuantity,
-        percent,
-        weight,
-      }
-    })
-
-    return response
+    return yields
   }
 
   findYieldByOffloadParameters({
@@ -291,11 +242,12 @@ export class YieldService {
             ).forEach((offloadId) => {
               const data = sortedOffloadRecords[categoryId][waveId][varietyId][offloadId]
               const netWeight = data.netWeight || data.weight
-              const boxQuantity = data.boxQuantity || data.boxQuantity
-              const percent: number = netWeight / compostWeight
+              const boxQuantity = data.boxQuantity
+              const percent: number = (netWeight - (boxQuantity * 0.4)) / compostWeight
+              const weight =  (netWeight - (boxQuantity * 0.4))
 
               yieldItem.weight = Number.parseFloat(
-                (yieldItem.weight + netWeight).toFixed(3),
+                (yieldItem.weight + weight).toFixed(3),
               )
               yieldItem.boxQuantity = yieldItem.boxQuantity + boxQuantity
               yieldItem.percent = Number.parseFloat(
@@ -342,7 +294,7 @@ export class YieldService {
           wave: yieldDataItem.wave,
           weight,
           boxQuantity,
-          percent: percent / 100,
+          percent: percent,
         })
       }),
     )
