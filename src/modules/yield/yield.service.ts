@@ -79,10 +79,8 @@ export class YieldService {
       .leftJoin('yield.variety', 'variety')
       .leftJoin('yield.wave', 'wave')
       .where('wave.id = :waveId', { waveId })
-      .groupBy('wave.order')
-      .addGroupBy('category.id')
+      .groupBy('category.id')
       .addGroupBy('variety.id')
-      .addGroupBy('batch.id')
       .getRawMany()
 
     return yields
@@ -100,7 +98,6 @@ export class YieldService {
       .groupBy('wave.order')
       .addGroupBy('category.id')
       .addGroupBy('variety.id')
-      .addGroupBy('batch.id')
       .getRawMany()
 
     // yields.forEach(({ boxQuantity, category, percent, wave, weight }) => {
