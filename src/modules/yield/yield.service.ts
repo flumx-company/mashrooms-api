@@ -73,7 +73,7 @@ export class YieldService {
   async findAllByWave({ waveId }: { waveId: number }): Promise<object> {
     const yields = await this.yieldRepository
       .createQueryBuilder('yield')
-      .select(['batch.chamber','batch.id', 'SUM(yield.weight) as weight','SUM(yield.boxQuantity) as boxQuantity', 'SUM(yield.percent) as percent', 'category', 'variety', 'wave.order'])
+      .select(['SUM(yield.weight) as weight','SUM(yield.boxQuantity) as boxQuantity', 'SUM(yield.percent) as percent', 'category', 'variety', 'wave.order'])
       .leftJoin('yield.category', 'category')
       .leftJoin('yield.batch', 'batch')
       .leftJoin('yield.variety', 'variety')
