@@ -928,7 +928,19 @@ export class ShiftService {
   }
 
   async getShiftCalculations(shiftId: number) {
-    const shift: Shift = await this.findShiftWithRelations(shiftId)
+    const shift = await this.shiftRepository
+      .createQueryBuilder('shift')
+      .innerJoin('shift.employee', 'employee')
+      .select([
+        'shift.id',
+        'shift.dateFrom',
+        'shift.customBonus',
+        'shift.paidAmount',
+        'employee.id',
+      ])
+      .where('shift.dateTo IS NULL')
+      .andWhere('shift.id = :shiftId', { shiftId })
+      .getOne()
     if (!shift) {
       // throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
       console.warn(new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST))
@@ -937,12 +949,20 @@ export class ShiftService {
 
     const {
       dateFrom: startDate,
+    } = shift
+    const [
       cuttings,
       loadings,
       offloadLoadings,
       waterings,
-      workRecords,
-    } = shift
+      workRecords
+    ]: any = await Promise.all([
+      this.cuttingService.getGroupedByCutterShift(shiftId as any),
+      this.cuttingService.getGroupedByLoaderShift(shiftId as any),
+      this.offloadService.getByShift(shiftId as any),
+      this.wateringService.getByShift(shiftId as any),
+      this.workRecordService.getByShift(shiftId as any),
+    ])
     const customBonus =shift.customBonus
     const paidAmount = shift.paidAmount
     const dateFrom = formatDateToDateTime({
@@ -1005,16 +1025,15 @@ export class ShiftService {
       }),
     ])
     const hasFirstLitrePrice = Object.keys(firstLitrePrice || []).length
+    const hasFirstKitchenPrice = Object.keys(firstKitchenPrice || []).length
     const hasFirstBoxCutterPrice = Object.keys(firstBoxCutterPrice || []).length
     const hasFirstBoxOffloadLoaderPrice = Object.keys(firstBoxOffloadLoaderPrice || []).length
     const hasFirstBoxMushLoaderPrice = Object.keys(firstBoxMushLoaderPrice || []).length
-    const hasFirstKitchenPrice = Object.keys(firstKitchenPrice || []).length
 
     if (!hasFirstLitrePrice) {
       console.warn(new HttpException(CError.NO_LITER_PRICE, HttpStatus.BAD_REQUEST))
       return
     }
-
     if (!hasFirstBoxCutterPrice) {
       console.warn(new HttpException(CError.NO_BOX_PRICE, HttpStatus.BAD_REQUEST))
       return
@@ -1070,52 +1089,55 @@ export class ShiftService {
       return priceDirectory[tenant][nearestDate] || priceDirectory[tenant].default
     }
 
-    cuttings.forEach(({ createdAt, boxQuantity, isCutterPaid }: any) => {
-      if (!isCutterPaid) {
-        return
-      }
-
+    cuttings.forEach((i) => {
+      i['price'] = 0
       const date = formatDateToDateTime({
-        value: createdAt,
+        value: i.createdAt,
         withTime: false,
       }) as unknown as string
       const price = getNearestPrice({ tenant: EPriceTenant.BOX_CUTTER, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = boxQuantity * price + previousValue
+      i['price'] = i.totalBox * price
+      wageDirectory[date] = i.totalBox * price + previousValue
     })
 
-    loadings.forEach(({ createdAt, boxQuantity }) => {
+    loadings.forEach((i) => {
+
       const date = formatDateToDateTime({
-        value: createdAt,
+        value: i.createdAt,
         withTime: false,
       }) as unknown as string
       const price = getNearestPrice({ tenant: EPriceTenant.BOX_MUSH_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = boxQuantity * price + previousValue
+      i['price'] = i.totalBox * price
+      wageDirectory[date] = i.totalBox * price + previousValue
     })
 
-    offloadLoadings.forEach(({ boxTotalQuantity, createdAt }) => {
+    offloadLoadings.forEach((i) => {
       const date = formatDateToDateTime({
-        value: createdAt,
+        value: i.createdAt,
         withTime: false,
       }) as unknown as string
       const price = getNearestPrice({ tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = boxTotalQuantity * price + previousValue
+      i['price'] = i.boxTotalQuantity * price
+      wageDirectory[date] = i.boxTotalQuantity * price + previousValue
     })
 
-    waterings.forEach(({ dateTimeFrom, drug, volume }) => {
-      const date = String(dateTimeFrom).slice(0, 10)
-      const tenant = drug ? EPriceTenant.LITER : EPriceTenant.LITER
+    waterings.forEach((i) => {
+      const date = String(i.dateTimeFrom).slice(0, 10)
+      const tenant = i.drug ? EPriceTenant.LITER : EPriceTenant.LITER
       const price = getNearestPrice({ tenant, date })
       const previousValue = wageDirectory?.[date] || 0
-      wageDirectory[date] = volume * price + previousValue
+      i['price'] = i.volume * price
+      wageDirectory[date] = i.volume * price + previousValue
     })
 
-    workRecords.forEach(({ date, percentAmount, reward = 0 }) => {
-      const previousValue = wageDirectory?.[date as unknown as string] || 0
-      wageDirectory[date as unknown as string] =
-        previousValue + percentAmount + reward
+    workRecords.forEach((i) => {
+      const previousValue = wageDirectory?.[i.date as unknown as string] || 0
+      wageDirectory[i.date as unknown as string] =
+        previousValue + i.percentAmount + i.reward
+      i['price'] = i.percentAmount + i.reward
     })
 
     const workingDayNumber = Object.keys(wageDirectory).length
@@ -1132,7 +1154,6 @@ export class ShiftService {
       const slicedDate = date.slice(0, 10)
       const slidedDateTo = String(dateTo).slice(0, 10)
       const priceData = getNearestPrice({ date, tenant: EPriceTenant.KITCHEN })
-      console.log(priceData)
       kitchenExpenses = kitchenExpenses + (priceData?.price || 0)
 
       if (slicedDate !== slidedDateTo) {
@@ -1157,7 +1178,6 @@ export class ShiftService {
 
     wageTotal = wage + bonus + customBonus - kitchenExpenses
     remainedPayment = wageTotal - paidAmount
-
     return {
       ...shift,
       kitchenExpenses,
@@ -1167,8 +1187,11 @@ export class ShiftService {
       bonus,
       wageTotal,
       remainedPayment,
-      cuttings,
-
+      waterings: waterings,
+      workRecords,
+      offloadLoadings,
+      loadings,
+      cuttings
     }
   }
 
