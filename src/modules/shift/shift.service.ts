@@ -938,8 +938,7 @@ export class ShiftService {
         'shift.paidAmount',
         'employee.id',
       ])
-      .where('shift.dateTo IS NULL')
-      .andWhere('shift.id = :shiftId', { shiftId })
+      .where('shift.id = :shiftId', { shiftId })
       .getOne()
     if (!shift) {
       // throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
