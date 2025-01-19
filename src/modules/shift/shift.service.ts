@@ -1231,7 +1231,7 @@ export class ShiftService {
       )
     }
 
-    await this.runShiftCalculations(employeeId, { dateTo })
+    await this.runShiftCalculations(employeeId, { ...currentShift, dateTo })
 
     await this.employeeService.updateEmployeeActiveStatus(employeeId, false)
     
