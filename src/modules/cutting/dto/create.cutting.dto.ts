@@ -21,6 +21,14 @@ export class CreateCuttingDto {
   })
   readonly trip: number
 
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 2,
+    description: 'Enter the record number.',
+    type: Number,
+  })
+  readonly recordNumber: number
+
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty({

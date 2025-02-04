@@ -21,6 +21,10 @@ export class Cutting extends DatedBasicEntity {
   @Column({ type: 'decimal', precision: 10, scale: 0, default: 0 })
   trip: number
 
+  @ApiProperty({ example: 2, description: 'The trip number' })
+  @Column({ type: 'decimal', precision: 10, scale: 0, default: 0 })
+  recordNumber: number
+
   @ManyToOne(() => Category, (category) => category.cuttings, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',

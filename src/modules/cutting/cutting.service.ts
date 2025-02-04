@@ -206,7 +206,7 @@ export class CuttingService {
 
     const createdCuttings = await Promise.all(
       (data || []).map(
-        ({ boxQuantity, trip, varietyId, cutterShiftId, loaderShiftId }) =>
+        ({ boxQuantity, trip, varietyId, cutterShiftId, loaderShiftId, recordNumber }) =>
           this.cuttingRepository.create({
             boxQuantity,
             trip,
@@ -216,6 +216,7 @@ export class CuttingService {
             wave,
             cutterShift: byIdShifts[cutterShiftId],
             loaderShift: byIdShifts[loaderShiftId],
+            recordNumber,
             author: pick(
               author,
               'id',

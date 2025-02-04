@@ -1,10 +1,4 @@
 import { Request as ExRequest } from 'express'
-import {
-  ApiPaginationQuery,
-  Paginate,
-  PaginateQuery,
-  Paginated,
-} from 'nestjs-paginate'
 
 import {
   Body,
