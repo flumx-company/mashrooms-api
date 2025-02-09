@@ -28,7 +28,7 @@ export class BackupService {
   /**
    * Щоденний бекап та очищення старих файлів
    */
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleScheduledBackup() {
     this.logger.log('Starting daily backup process...');
     const backupFile = await this.createBackup();
