@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import { google } from 'googleapis';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as config from '../../../google-drive-key.json';
 
 const execPromise = promisify(exec);
 
@@ -61,7 +62,7 @@ export class BackupService {
   async uploadToGoogleDrive(backupFile: string): Promise<void> {
     try {
       const auth = new google.auth.GoogleAuth({
-        keyFile: '../../../google-drive-key.json',
+        credentials: config,
         scopes: ['https://www.googleapis.com/auth/drive.file'],
       });
 
@@ -96,7 +97,7 @@ export class BackupService {
   async cleanupOldBackupsOnDrive(): Promise<void> {
     try {
       const auth = new google.auth.GoogleAuth({
-        keyFile: '../../../google-drive-key.json',
+        credentials: config,
         scopes: ['https://www.googleapis.com/auth/drive.file'],
       });
 
