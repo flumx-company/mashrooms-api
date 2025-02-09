@@ -54,6 +54,7 @@ import { TypeORMConfig } from '@mush/config'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { BackupModule } from "@mush/modules/backup/backup.module";
 
 @Module({
   imports: [
@@ -111,6 +112,7 @@ import { AppService } from './app.service'
     WorkModule,
     WorkRecordModule,
     VarietyModule,
+    BackupModule
   ],
   controllers: [AppController],
   providers: [AppService],

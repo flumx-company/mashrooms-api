@@ -1,6 +1,6 @@
 # env
 *.env
-
+google-drive-key.json
 # compiled output
 /dist
 /node_modules
