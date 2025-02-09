@@ -905,7 +905,7 @@ export class ShiftService {
     calculateKitchenExpenses(dateFrom as unknown as string)
 
     if (workingDayNumber >= automaticBonusMinimumDayNumber) {
-      bonus = wage * automaticBonusPercent
+      bonus += wage * automaticBonusPercent
     }
 
     wageTotal = wage + bonus + customBonus - kitchenExpenses
