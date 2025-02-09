@@ -112,6 +112,7 @@ export class ShiftController {
   ): Promise<Shift> {
     return this.shiftService.getShiftCalculationsByEmployee(employeeId)
   }
+
   @Get('employee/:shiftId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
