@@ -44,11 +44,8 @@ export class BackupService {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const backupFile = `${this.backupDir}/backup-${timestamp}.sql`;
 
-      const dumpCommand = `mysqldump -h ${this.mysqlContainer} -u ${this.dbUser} -p${this.dbPassword} ${this.dbName} > /tmp/backup.sql`;
+      const dumpCommand = `mysqldump -h ${this.mysqlContainer} -u ${this.dbUser} -p${this.dbPassword} ${this.dbName} > ${backupFile}`;
       await execPromise(dumpCommand);
-
-      // const copyCommand = `docker cp ${this.mysqlContainer}:/tmp/backup.sql ${backupFile}`;
-      // await execPromise(copyCommand);
 
       this.logger.log(`Backup created: ${backupFile}`);
       return backupFile;
