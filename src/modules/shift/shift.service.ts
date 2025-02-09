@@ -644,6 +644,7 @@ export class ShiftService {
         'shift.id',
         'shift.dateFrom',
         'shift.customBonus',
+        'shift.bonus',
         'shift.paidAmount',
         'employee.id',
       ])
