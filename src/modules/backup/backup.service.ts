@@ -27,7 +27,7 @@ export class BackupService {
   /**
    * Щоденний бекап та очищення старих файлів
    */
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async handleScheduledBackup() {
     this.logger.log('Starting daily backup process...');
     const backupFile = await this.createBackup();
@@ -47,8 +47,8 @@ export class BackupService {
       const dumpCommand = `docker exec ${this.mysqlContainer} mysqldump -u ${this.dbUser} -p${this.dbPassword} ${this.dbName} > /tmp/backup.sql`;
       await execPromise(dumpCommand);
 
-      const copyCommand = `docker cp ${this.mysqlContainer}:/tmp/backup.sql ${backupFile}`;
-      await execPromise(copyCommand);
+      // const copyCommand = `docker cp ${this.mysqlContainer}:/tmp/backup.sql ${backupFile}`;
+      // await execPromise(copyCommand);
 
       this.logger.log(`Backup created: ${backupFile}`);
       return backupFile;
