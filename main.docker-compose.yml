@@ -10,7 +10,6 @@ services:
       - .env
     networks:
       - registry_default
-      # - mashrooms-network
     volumes:
       - mashrooms-mysql-volume:/var/lib/mysql
       - ./deploy:/etc/mysql/mysql.conf.d
@@ -24,7 +23,6 @@ services:
   mashrooms-phpmyadmin:
     image: "phpmyadmin/phpmyadmin:latest"
     restart: always
-    hostname: database
     ports:
       - 51515:80
     env_file: 
@@ -35,7 +33,6 @@ services:
       - mashrooms-mysql
     networks:
       - registry_default
-      # - mashrooms-network
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.mashrooms-phpmyadmin.rule=Host(`${API_PHPMYADMIN_DOMAIN_NAME}`) && PathPrefix(`/`)'
@@ -43,11 +40,6 @@ services:
       - 'traefik.http.routers.mashrooms-phpmyadmin.tls.certresolver=myresolver'
       - 'traefik.http.routers.mashrooms-phpmyadmin.service=mashrooms-phpmyadmin'
       - 'traefik.http.services.mashrooms-phpmyadmin.loadbalancer.server.port=80'
-    volumes:
-      - ./deploy/apache-config.conf:/etc/apache2/conf-available/servername.conf
-    command: >
-      /bin/bash -c "ln -s /etc/apache2/conf-available/servername.conf /etc/apache2/conf-enabled/servername.conf &&
-      apache2-foreground"
 
   api:
     build: '.'
@@ -70,7 +62,6 @@ services:
       - 'traefik.http.services.api.loadbalancer.server.port=3000'
     networks:
       - registry_default
-      # - mashrooms-network
 
   mysql-cron-backup:
     image: fradelg/mysql-cron-backup
@@ -142,7 +133,6 @@ services:
       - '51526:9001'
     networks:
       - registry_default
-      # - mashrooms-network
 
   de-fi_connect-minio-createbuckets:
     image: minio/mc
