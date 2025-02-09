@@ -63,30 +63,6 @@ services:
     networks:
       - registry_default
 
-  mysql-cron-backup:
-    image: fradelg/mysql-cron-backup
-    depends_on:
-      - mashrooms-mysql
-    links: 
-      - mashrooms-mysql
-    networks:
-      - registry_default
-      # - mashrooms-network
-    environment:
-      - MYSQL_HOST=mashrooms-mysql
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASS=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MAX_BACKUPS=15
-      - INIT_BACKUP=0
-      # Every day at 03:00
-      - CRON_TIME=0 * * * *
-      # Make it small
-      - GZIP_LEVEL=9
-      # As of MySQL 8.0.21 this is needed
-      - MYSQLDUMP_OPTS=--no-tablespaces
-    restart: unless-stopped
-
   mashrooms-redis:
     container_name: ${APP_NAME}-redis-${APP_ENV}
     image: "redis:latest"
@@ -134,21 +110,6 @@ services:
     networks:
       - registry_default
 
-  de-fi_connect-minio-createbuckets:
-    image: minio/mc
-    depends_on:
-      - mashrooms-minio
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc alias set myminio http://mashrooms-minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD;
-      /usr/bin/mc mb myminio/$AWS_PUBLIC_BUCKET_NAME;
-      /usr/bin/mc anonymous set public myminio/$AWS_PUBLIC_BUCKET_NAME;
-      exit 0;
-      "
-    networks:
-      - registry_default
-      # - mashrooms-network
-
 volumes:
   mashrooms-api-volume:
   mashrooms-mysql-volume:
@@ -158,8 +119,3 @@ volumes:
 networks:
   registry_default:
     external: true
-  # mashrooms-network:
-  #   name: mashrooms-network
-
-# dockehub actions
-# create secrets

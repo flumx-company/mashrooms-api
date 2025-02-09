@@ -20,7 +20,7 @@ services:
       - ./deploy/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     networks:
       - mashrooms-network
-    command: [ 'mysqld', '--default-time-zone=+03:00' ]
+    command: [ 'mysqld', '--default-time-zone=+02:00' ]
 
 
   mashrooms-phpmyadmin:
@@ -81,20 +81,7 @@ services:
       - '51526:9001'
     networks:
       - mashrooms-network
-  
-  de-fi_connect-minio-createbuckets:
-    image: minio/mc
-    depends_on:
-      - mashrooms-minio
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc alias set myminio http://minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD;
-      /usr/bin/mc mb myminio/$AWS_PUBLIC_BUCKET_NAME;
-      /usr/bin/mc anonymous set public myminio/$AWS_PUBLIC_BUCKET_NAME;
-      exit 0;
-      "
-    networks:
-      - mashrooms-network
+
 
 volumes:
   mashrooms-mysql-volume:
