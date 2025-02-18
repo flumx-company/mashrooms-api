@@ -13,7 +13,7 @@ export function Auth({ roles, permission }: Partial<auth>) {
   return applyDecorators(
     Roles(roles),
     Permission(permission),
-    UseGuards(JwtStrategy, IsActiveGuard, RolesGuard, PermissionGuard),
+    UseGuards(JwtStrategy, IsActiveGuard, RolesGuard),// PermissionGuard
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
   )
 }

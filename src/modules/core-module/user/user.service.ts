@@ -299,13 +299,13 @@ export class UserService {
     id: number,
     permissions: EPermission[],
   ): Promise<User> {
-    const [foundUser, wrongPermission]: [Nullable<User>, Nullable<string>] =
+    const [foundUser]: [Nullable<User>] =
       await Promise.all([
         this.findUserById(id),
-        findWrongEnumValue({
-          $enum: EPermission,
-          value: permissions,
-        }),
+        // findWrongEnumValue({
+        //   $enum: EPermission,
+        //   value: permissions,
+        // }),
       ])
 
     if (!foundUser) {
@@ -319,12 +319,12 @@ export class UserService {
       )
     }
 
-    if (wrongPermission) {
-      throw new HttpException(
-        `${CError.INVALID_PERMISSION} ${wrongPermission}`,
-        HttpStatus.BAD_REQUEST,
-      )
-    }
+    // if (wrongPermission) {
+    //   throw new HttpException(
+    //     `${CError.INVALID_PERMISSION} ${wrongPermission}`,
+    //     HttpStatus.BAD_REQUEST,
+    //   )
+    // }
 
     const updatedUser: User = this.userRepository.create({
       ...foundUser,
