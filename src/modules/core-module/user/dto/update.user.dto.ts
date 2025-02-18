@@ -80,8 +80,8 @@ export class UpdateUserDto {
 
   @IsArray()
   @ApiProperty({
-    example: availablePermissions,
-    description: 'Add permissions.',
+    example: [],
+    description: 'Update permissions.',
     type: Array,
   })
   readonly permissions: EPermission[]
