@@ -13,12 +13,14 @@ export class PublicFile extends DatedBasicEntity {
   @Column()
   @ApiProperty({
     example: 'file url',
+    type:'text'
   })
   url: string
 
   @Column()
   @ApiProperty({
     example: 'file key',
+    type:'text'
   })
   key: string
 

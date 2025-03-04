@@ -190,21 +190,30 @@ export class EmployeeService {
   }
 
   async removeEmployee(id: number): Promise<Boolean> {
-    const foundEmployee: Nullable<Employee> =
-      await this.findEmployeeByIdWithRelations(id);
+    const foundEmployee: Nullable<Employee> = this.employeeRepository
+      .createQueryBuilder('employee')
+      //
+      // .where('employee.id = :id', { id })
+      // .leftJoinAndSelect('employee.shifts', 'shifts')
+      .where('employee.id = :id', { id })
+      .leftJoinAndSelect('employee.documents', EFileCategory.EMPLOYEE_DOCUMENTS)
+      .leftJoinAndSelect('employee.avatars', EFileCategory.EMPLOYEE_AVATARS)
+
+      .getOne();
 
     if (!foundEmployee) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
-    const { shifts } = foundEmployee;
 
-    if (shifts.length) {
-      throw new HttpException(
-        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // const { shifts } = foundEmployee;
+    //
+    // if (shifts.length) {
+    //   throw new HttpException(
+    //     CError.ENTITY_HAS_DEPENDENT_RELATIONS,
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
 
     const docIdList = foundEmployee.documents.map((doc) => doc.id);
     const avatarId = foundEmployee.avatars.map((file) => file.id)[0];
