@@ -190,7 +190,7 @@ export class EmployeeService {
   }
 
   async removeEmployee(id: number): Promise<Boolean> {
-    const foundEmployee: Nullable<Employee> = this.employeeRepository
+    const foundEmployee: Nullable<Employee> =  await this.employeeRepository
       .createQueryBuilder('employee')
       //
       // .where('employee.id = :id', { id })
