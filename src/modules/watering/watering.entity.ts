@@ -22,21 +22,8 @@ export class Watering extends DatedBasicEntity {
   })
   @Index()
   @Column({
-    type: 'datetime',
-    transformer: {
-      from: (value: Date) => {
-        return formatDateToDateTime({
-          value,
-          dateFrom: true,
-          withTime: true,
-          providesHours: true,
-          providesMinutes: true,
-        })
-      },
-      to: (value: string) => {
-        return new Date(value)
-      },
-    },
+    type: 'timestamp',
+    default: null,
   })
   dateTimeFrom: Date
 
@@ -45,22 +32,8 @@ export class Watering extends DatedBasicEntity {
     description: 'Wateriing end date time',
   })
   @Column({
-    type: 'datetime',
+    type: 'timestamp',
     default: null,
-    transformer: {
-      from: (value: Date) => {
-        return formatDateToDateTime({
-          value,
-          dateFrom: false,
-          withTime: true,
-          providesHours: true,
-          providesMinutes: true,
-        })
-      },
-      to: (value: string) => {
-        return value ? new Date(value) : value
-      },
-    },
   })
   dateTimeTo: Date
 

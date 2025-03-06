@@ -670,14 +670,14 @@ export class OffloadService {
       throw new HttpException(CError.NO_FILE_PROVIDED, HttpStatus.BAD_REQUEST)
     }
 
-    files.forEach(({ mimetype }) => {
-      if (mimetype !== 'application/pdf') {
-        throw new HttpException(
-          CError.WRONG_DOCUMENT_TYPE,
-          HttpStatus.BAD_REQUEST,
-        )
-      }
-    })
+    // files.forEach(({ mimetype }) => {
+    //   if (mimetype !== 'application/pdf') {
+    //     throw new HttpException(
+    //       CError.WRONG_DOCUMENT_TYPE,
+    //       HttpStatus.BAD_REQUEST,
+    //     )
+    //   }
+    // })
 
     const foundOffload = await this.findOffloadByIdWithFiles(id)
 
