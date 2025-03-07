@@ -143,14 +143,14 @@ export class FileUploadService {
     const fileInfo: PublicFile = await this.publicFilesRepository.findOneBy({
       id,
     })
-    const fileCategoryPattern = new RegExp('^' + category)
-
-    if (!fileCategoryPattern.test(fileInfo.key)) {
-      throw new HttpException(
-        `${CError.FILE_ID_NOT_RELATED_TO_SECTION} ${category}`,
-        HttpStatus.BAD_REQUEST,
-      )
-    }
+    // const fileCategoryPattern = new RegExp('^' + category)
+    //
+    // if (!fileCategoryPattern.test(fileInfo.key)) {
+    //   throw new HttpException(
+    //     `${CError.FILE_ID_NOT_RELATED_TO_SECTION} ${category}`,
+    //     HttpStatus.BAD_REQUEST,
+    //   )
+    // }
 
     if (fileInfo) {
       const stream = this.s3
