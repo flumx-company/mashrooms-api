@@ -73,8 +73,8 @@ export class CreateEmployeeDto {
 
   @IsOptional()
   @IsString()
-  @Matches(BANK_CARD_NUMBER_REGEX)
-  @MaxLength(parseInt(process.env.MAX_BANK_CARD_NUMBER_LENGTH))
+  // @Matches(BANK_CARD_NUMBER_REGEX)
+  // @MaxLength(parseInt(process.env.MAX_BANK_CARD_NUMBER_LENGTH))
   @ApiProperty({
     example: '5375111122223333',
     description: 'Enter the bank card.',
