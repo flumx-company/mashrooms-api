@@ -105,9 +105,9 @@ export class CreateEmployeeDto {
   @IsOptional()
   @IsNumber()
   @ApiProperty({
-    example: '1',
+    example: 1,
     description: 'Номер',
-    type: String,
+    type: Number,
   })
   readonly number: number
 
