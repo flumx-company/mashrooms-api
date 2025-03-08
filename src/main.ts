@@ -23,7 +23,9 @@ async function bootstrap() {
     origin: JSON.parse(process.env.CORS_ORIGIN_ARRAY),
     credentials: convertType(process.env.CORS_WITH_CREDENTIALS) as boolean,
   })
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, transformOptions: {
+      enableImplicitConversion: true, // <- This line here
+    }, }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
   app.use(cookieParser())
   SwaggerModule.setup('api', app, document)
