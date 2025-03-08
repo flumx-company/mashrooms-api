@@ -71,10 +71,10 @@ export class CreateEmployeeDto {
   })
   readonly phone: string
 
+  @IsOptional()
   @IsString()
   @Matches(BANK_CARD_NUMBER_REGEX)
   @MaxLength(parseInt(process.env.MAX_BANK_CARD_NUMBER_LENGTH))
-  @IsOptional()
   @ApiProperty({
     example: '5375111122223333',
     description: 'Enter the bank card.',
@@ -91,10 +91,10 @@ export class CreateEmployeeDto {
   })
   readonly region: ERegion
 
+  @IsOptional()
   @IsString()
   @MaxLength(parseInt(process.env.MAX_TOWN_LENGTH))
   @MinLength(1)
-  @IsOptional()
   @ApiProperty({
     example: 'Нью-Васюкі',
     description: 'Enter the town. Optional',
@@ -102,8 +102,8 @@ export class CreateEmployeeDto {
   })
   readonly town: string
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   @ApiProperty({
     example: '1',
     description: 'Номер',
