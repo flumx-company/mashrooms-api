@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common'
 
 import { ScheduleModule } from "@nestjs/schedule";
-import { BackupService } from "@mush/modules/backup/backup.service";
+import { BackupDatabaseService } from "@mush/modules/backup/backup.database.service";
+import { BackupMinioService } from "@mush/modules/backup/backup.minio.service";
 
 @Module({
   imports: [ScheduleModule.forRoot()],
   controllers: [],
-  providers: [BackupService],
+  providers: [BackupDatabaseService, BackupMinioService],
   exports: [],
 })
 export class BackupModule {}

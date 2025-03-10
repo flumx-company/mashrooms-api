@@ -10,8 +10,8 @@ import * as config from '../../../google-drive-key.json';
 const execPromise = promisify(exec);
 
 @Injectable()
-export class BackupService {
-  private readonly logger = new Logger(BackupService.name);
+export class BackupDatabaseService {
+  private readonly logger = new Logger(BackupDatabaseService.name);
   private readonly dbUser = 'root';
   private readonly dbPassword = process.env.MYSQL_PASSWORD;
   private readonly dbName = process.env.MYSQL_DATABASE;
