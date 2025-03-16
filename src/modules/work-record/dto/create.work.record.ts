@@ -14,7 +14,7 @@ import { YYYY_MM_DD_REGEX } from '@mush/core/utils'
 
 interface WorkRecordEmployee {
   employeeId: number
-  percent: number
+  amount: number
   reward: number
 }
 
@@ -44,8 +44,8 @@ export class CreateWorkRecordDto {
   @ArrayNotEmpty()
   @ApiProperty({
     example: [
-      { employeeId: 1, percent: 0.45, reward: 0 },
-      { employeeId: 1, percent: 0.55, reward: 100 },
+      { employeeId: 1, amount: 100, reward: 0 },
+      { employeeId: 1, amount: 120, reward: 100 },
     ],
     description:
       'Provide an array of objects with employeeId, percent and reward.',

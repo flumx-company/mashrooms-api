@@ -10,7 +10,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 interface WorkRecordEmployee {
   employeeId: number
-  percent: number
+  amount: number
   reward: number
   id: number
 }
@@ -31,8 +31,8 @@ export class UpdateWorkRecordDto {
   @ArrayNotEmpty()
   @ApiProperty({
     example: [
-      { employeeId: 1, percent: 0.45, reward: 0, id: 13 },
-      { employeeId: 1, percent: 0.55, reward: 100, id: 14 },
+      { employeeId: 1, amount: 100, reward: 0, id: 13 },
+      { employeeId: 1, amount: 120, reward: 100, id: 14 },
     ],
     description:
       'Provide an array of objects with employeeId, percent and reward.',

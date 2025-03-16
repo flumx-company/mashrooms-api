@@ -41,8 +41,8 @@ export class WorkRecordService {
       .select([
         'workRecord.id',
         'workRecord.date',
-        'workRecord.percent',
-        'workRecord.percentAmount',
+        // 'workRecord.percent',
+        'workRecord.amount',
         'workRecord.reward',
         'workRecord.recordGroupId',
         'shift.id',
@@ -72,8 +72,8 @@ export class WorkRecordService {
       .select([
         'workRecord.id',          // Поля из основной сущности Offload
         'workRecord.date',    // Дополнительные поля из Offload
-        'workRecord.percent',    // Дополнительные поля из Offload
-        'workRecord.percentAmount',    // Дополнительные поля из Offload
+        // 'workRecord.percent',    // Дополнительные поля из Offload
+        'workRecord.amount',    // Дополнительные поля из Offload
         'workRecord.reward',    // Дополнительные поля из Offload
         'shift.id',             // Поля из связанной сущности Shift
         'work.id',             // Поля из связанной сущности Shift
@@ -89,10 +89,10 @@ export class WorkRecordService {
     workId: number,
     { dividedAmount, date, employees, chamberId }: CreateWorkRecordDto,
   ): Promise<WorkRecord[]> {
-    const percentSum: number = employees.reduce(
-      (accumulator, employee) => accumulator + employee.percent,
-      0,
-    )
+    // const percentSum: number = employees.reduce(
+    //   (accumulator, employee) => accumulator + employee.percent,
+    //   0,
+    // )
     const recordGroupId: number = Date.now()
     const [foundChamber, foundWork]: [Nullable<Chamber>, Nullable<Work>] =
       await Promise.all([
@@ -109,9 +109,9 @@ export class WorkRecordService {
         return this.shiftService.findCurrentShiftWithEmployeeId(id)
       }),
     )
-    if (percentSum !== 1) {
-      throw new HttpException(CError.WRONG_PERCENT_SUM, HttpStatus.BAD_REQUEST)
-    }
+    // if (percentSum !== 1) {
+    //   throw new HttpException(CError.WRONG_PERCENT_SUM, HttpStatus.BAD_REQUEST)
+    // }
 
     if (!foundChamber || !foundWork) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -137,11 +137,10 @@ export class WorkRecordService {
     })
 
     const createdWorkRecords: WorkRecord[] = await Promise.all(
-      employees.map(({ percent, reward }, index) => {
+      employees.map(({  reward, amount }, index) => {
         return this.workRecordRepository.create({
           date,
-          percent,
-          percentAmount: dividedAmount * percent,
+          amount,
           reward,
           work: pick(foundWork, 'id', 'title', 'isRegular'),
           shift: foundShifts[index],
@@ -163,10 +162,10 @@ export class WorkRecordService {
     recordGroupId: number,
     { dividedAmount, employees, chamberId, workId }: UpdateWorkRecordDto,
   ): Promise<WorkRecord[]> {
-    const percentSum = employees.reduce(
-      (accumulator, employee) => accumulator + employee.percent,
-      0,
-    )
+    // const percentSum = employees.reduce(
+    //   (accumulator, employee) => accumulator + employee.percent,
+    //   0,
+    // )
     const [foundChamber, foundWork]: [Nullable<Chamber>, Nullable<Work>] =
       await Promise.all([
         this.chamberService.findChamberById(chamberId),
@@ -195,9 +194,9 @@ export class WorkRecordService {
     )
     const byEmployeeShifts = {}
 
-    if (percentSum !== 1) {
-      throw new HttpException(CError.WRONG_PERCENT_SUM, HttpStatus.BAD_REQUEST)
-    }
+    // if (percentSum !== 1) {
+    //   throw new HttpException(CError.WRONG_PERCENT_SUM, HttpStatus.BAD_REQUEST)
+    // }
 
     if (!foundChamber || !foundWork) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -250,8 +249,7 @@ export class WorkRecordService {
         const updatedRecord: WorkRecord =
           await this.workRecordRepository.create({
             ...foundRecord,
-            percent: updatingData.percent,
-            percentAmount: dividedAmount * updatingData.percent,
+            amount: updatingData.amount,
             reward: updatingData.reward,
             work: foundWork,
             shift: byEmployeeShifts[updatingData.employeeId],

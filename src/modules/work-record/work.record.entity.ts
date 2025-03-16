@@ -31,17 +31,10 @@ export class WorkRecord extends DatedBasicEntity {
 
   @ApiProperty({
     example: true,
-    description: 'Percentage value. Example: 0.15 means 15%.',
-  })
-  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0 })
-  percent: number
-
-  @ApiProperty({
-    example: true,
     description: 'Percentage amount in hryvna.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  percentAmount: number
+  amount: number
 
   @ApiProperty({
     example: true,

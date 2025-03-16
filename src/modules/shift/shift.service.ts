@@ -137,8 +137,8 @@ export class ShiftService {
         'employee.id',
         'workRecord.id',
         'workRecord.date',
-        'workRecord.percent',
-        'workRecord.percentAmount',
+        'workRecord.amount',
+        // 'workRecord.percentAmount',
         'workRecord.reward',
         'work.id',
         'work.title',
@@ -238,8 +238,8 @@ export class ShiftService {
         'employee.id',
         'workRecord.id',
         'workRecord.date',
-        'workRecord.percent',
-        'workRecord.percentAmount',
+        'workRecord.amount',
+        // 'workRecord.percentAmount',
         'workRecord.reward',
         'work.id',
         'work.title',
@@ -336,8 +336,8 @@ export class ShiftService {
         'employee.id',
         'workRecord.id',
         'workRecord.date',
-        'workRecord.percent',
-        'workRecord.percentAmount',
+        'workRecord.amount',
+        // 'workRecord.percentAmount',
         'workRecord.reward',
         'work.id',
         'work.title',
@@ -575,10 +575,10 @@ export class ShiftService {
       return i;
     })
 
-    workRecords.forEach(({ date, percentAmount, reward = 0 }) => {
+    workRecords.forEach(({ date, amount, reward = 0 }) => {
       const previousValue = wageDirectory?.[date as unknown as string] || 0
       wageDirectory[date as unknown as string] =
-        previousValue + percentAmount + reward
+        previousValue + amount + reward
     })
 
     const workingDayNumber = Object.keys(wageDirectory).length
@@ -869,8 +869,8 @@ export class ShiftService {
     workRecords.forEach((i) => {
       const previousValue = wageDirectory?.[i.date as unknown as string] || 0
       wageDirectory[i.date as unknown as string] =
-        previousValue + i.percentAmount + i.reward
-      i['price'] = i.percentAmount + i.reward
+        previousValue + i.amount + i.reward
+      i['price'] = i.amount + i.reward
     })
 
     const workingDayNumber = Object.keys(wageDirectory).length
@@ -1136,8 +1136,8 @@ export class ShiftService {
     workRecords.forEach((i) => {
       const previousValue = wageDirectory?.[i.date as unknown as string] || 0
       wageDirectory[i.date as unknown as string] =
-        previousValue + i.percentAmount + i.reward
-      i['price'] = i.percentAmount + i.reward
+        previousValue + i.amount + i.reward
+      i['price'] = i.amount + i.reward
     })
 
     const workingDayNumber = Object.keys(wageDirectory).length
