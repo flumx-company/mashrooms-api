@@ -20,7 +20,7 @@ services:
       - ./deploy/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     networks:
       - mashrooms-network
-    command: [ 'mysqld', '--default-time-zone=+02:00' ]
+    command: [ 'mysqld', '--default-time-zone=+03:00' ]
 
 
   mashrooms-phpmyadmin:
