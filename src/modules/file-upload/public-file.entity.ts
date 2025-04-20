@@ -10,7 +10,9 @@ import { DatedBasicEntity } from '@mush/core/basic-entities'
 
 @Entity({ name: 'public_file' })
 export class PublicFile extends DatedBasicEntity {
-  @Column()
+  @Column({
+    type:'text'
+  })
   @ApiProperty({
     example: 'file url',
     type:'text'
