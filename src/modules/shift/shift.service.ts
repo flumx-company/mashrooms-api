@@ -18,7 +18,7 @@ import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 
 import { shiftPaginationConfig } from './pagination/shift.pagiantion.config'
 import { Shift } from './shift.entity'
-import dayjs from "dayjs";
+import * as dayjs from 'dayjs';
 
 const automaticBonusMinimumDayNumber = parseInt(
   process.env.AUTOMATIC_WAGE_BONUS_MINIMUM_DAY_AMOUNT,
