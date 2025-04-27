@@ -18,6 +18,7 @@ import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 
 import { shiftPaginationConfig } from './pagination/shift.pagiantion.config'
 import { Shift } from './shift.entity'
+import dayjs from "dayjs";
 
 const automaticBonusMinimumDayNumber = parseInt(
   process.env.AUTOMATIC_WAGE_BONUS_MINIMUM_DAY_AMOUNT,
@@ -824,10 +825,7 @@ export class ShiftService {
 
     cuttings.forEach((i) => {
       i['price'] = 0
-      const date = formatDateToDateTime({
-        value: i.createdAt,
-        withTime: false,
-      }) as unknown as string
+      const date = dayjs(i.createdAt).format('YYYY-MM-DD')
       const price = getNearestPrice({ tenant: EPriceTenant.BOX_CUTTER, date })
       const previousValue = wageDirectory?.[date] || 0
       i['price'] = i.totalBox * price
@@ -835,11 +833,7 @@ export class ShiftService {
     })
 
     loadings.forEach((i) => {
-
-      const date = formatDateToDateTime({
-        value: i.createdAt,
-        withTime: false,
-      }) as unknown as string
+      const date = dayjs(i.createdAt).format('YYYY-MM-DD')
       const price = getNearestPrice({ tenant: EPriceTenant.BOX_MUSH_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
       i['price'] = i.totalBox * price
@@ -847,10 +841,7 @@ export class ShiftService {
     })
 
     offloadLoadings.forEach((i) => {
-      const date = formatDateToDateTime({
-        value: i.createdAt,
-        withTime: false,
-      }) as unknown as string
+      const date = dayjs(i.createdAt).format('YYYY-MM-DD')
       const price = getNearestPrice({ tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date })
       const previousValue = wageDirectory?.[date] || 0
       i['price'] = i.boxTotalQuantity * price
@@ -858,7 +849,7 @@ export class ShiftService {
     })
 
     waterings.forEach((i) => {
-      const date = String(i.dateTimeFrom).slice(0, 10)
+      const date = dayjs(i.createdAt).format('YYYY-MM-DD')
       const tenant = i.drug ? EPriceTenant.LITER : EPriceTenant.LITER
       const price = getNearestPrice({ tenant, date })
       const previousValue = wageDirectory?.[date] || 0
@@ -868,7 +859,8 @@ export class ShiftService {
 
     workRecords.forEach((i) => {
       const previousValue = wageDirectory?.[i.date as unknown as string] || 0
-      wageDirectory[i.date as unknown as string] =
+      const date = dayjs(i.date).format('YYYY-MM-DD')
+      wageDirectory[date] =
         previousValue + i.amount + i.reward
       i['price'] = i.amount + i.reward
     })
