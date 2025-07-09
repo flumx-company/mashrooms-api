@@ -196,6 +196,7 @@ export class OffloadService {
       // netWeight: number
       // shrinkedNetWeight: number
       variety: Partial<Variety>
+      recordName: string
     }> = []
     const storageSubtractionData: Array<{
       date: Date
@@ -222,6 +223,7 @@ export class OffloadService {
       delContainer0_4Out,
       delContainerSchoellerIn,
       delContainerSchoellerOut,
+      notes,
     } = data
 
     if (!client || !driver || !shift) {
@@ -232,6 +234,8 @@ export class OffloadService {
       let commonPricePerKg = 0
 
       offloadRecordPriceGroup.forEach((record, index) => {
+        console.warn('record', record)
+
         const {
           batchId,
           boxQuantity,
@@ -241,6 +245,7 @@ export class OffloadService {
           storeContainerId,
           waveId,
           varietyId,
+          recordName,
         } = record
 
         if (!index) {
@@ -259,7 +264,8 @@ export class OffloadService {
           !pricePerKg ||
           !storeContainerId ||
           !waveId ||
-          !varietyId
+          !varietyId ||
+          !recordName
         ) {
           throw new HttpException(
             CError.MISSING_OFFLOAD_RECORD_DATA,
@@ -422,6 +428,7 @@ export class OffloadService {
           waveId,
           weight,
           varietyId,
+          recordName,
         } = record
 
         if ((byIdWaves?.[waveId]?.['batch']?.id as number) !== batchId) {
@@ -453,6 +460,7 @@ export class OffloadService {
           wave: { id: waveId },
           weight,
           variety: { id: varietyId },
+          recordName,
           // netWeight,
           // shrinkedNetWeight,
         })
@@ -495,6 +503,7 @@ export class OffloadService {
       delContainer0_4Out,
       delContainerSchoellerIn,
       delContainerSchoellerOut,
+      notes,
       documents: [],
       offloadRecords: [],
     }
@@ -514,6 +523,8 @@ export class OffloadService {
       delContainer0_4Debt: delContainer0_4NewDebt,
       delContainerSchoellerDebt: delContainerSchoellerNewDebt,
     })
+
+    console.warn('offload records final', newOffloadRecordData)
 
     const newOffloadRecords = await Promise.all(
       newOffloadRecordData.map((record) =>
@@ -605,6 +616,7 @@ export class OffloadService {
       delContainerSchoellerOut,
       isClosed,
       closureDescription,
+      notes,
     } = data
 
     // const difference1_7 = delContainer1_7In - delContainer1_7Out
@@ -640,7 +652,8 @@ export class OffloadService {
         delContainer0_4Out: delContainer0_4Out,
         delContainerSchoellerIn: delContainerSchoellerIn,
         delContainerSchoellerOut: delContainerSchoellerOut,
-        priceTotal
+        priceTotal,
+        notes,
       }),
     ])
 
@@ -743,334 +756,334 @@ export class OffloadService {
     }
   }
 
-  async editOffloadV2 ({
-    offloadId,
-    data
-  }: {
-    offloadId: number
-    user: User
-    data: CreateOffloadDto
-  }): Promise<Offload> {
-    const foundOffload = await this.offloadRepository
-      .createQueryBuilder('offload')
-      .select()
-      .leftJoinAndSelect('offload.client', 'client')
-      .where('offload.id = :offloadId', { offloadId })
-      .getOne()
-
-    if (!foundOffload) {
-      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-    }
-    const priceTotal = data.priceTotal;
-    const byIdCategories: Record<number, Category | {}> = {}
-    const byIdBatches: Record<number, Batch | {}> = {}
-    const byIdStoreContainers: Record<number, StoreContainer | {}> = {}
-    const byIdWaves: Record<number, Wave | {}> = {}
-    const byIdVarieties: Record<number, Variety | {}> = {}
-    const byBatchIdCategoryIdSubbatches: Record<
-      number,
-      Record<number, Subbatch> | {}
-    > = {}
-    const priceIdBase: number = Date.now()
-    const newOffloadRecordData: Array<{
-      batch: Partial<Batch>
-      boxQuantity: number
-      category: Partial<Category>
-      cuttingDate: Date
-      priceId: number
-      pricePerKg: number
-      storeContainer: Partial<StoreContainer>
-      wave: Partial<Wave>
-      weight: number
-      // netWeight: number
-      // shrinkedNetWeight: number
-      variety: Partial<Variety>
-    }> = []
-    const storageSubtractionData: Array<{
-      date: Date
-      amount: number
-      waveId: number
-      varietyId: number
-      categoryId: number
-    }> = []
-    const today: string = String(
-      formatDateToDateTime({
-        value: new Date(Date.now()),
-      }),
-    )
-    let priceCounted: number = 0
-    let boxTotalQuantity: number = 0
-    const {
-      offloadRecords,
-      paidMoney,
-      delContainer1_7In,
-      delContainer1_7Out,
-      delContainer0_5In,
-      delContainer0_5Out,
-      delContainer0_4In,
-      delContainer0_4Out,
-      delContainerSchoellerIn,
-      delContainerSchoellerOut,
-    } = data
-
-    offloadRecords.forEach((offloadRecordPriceGroup) => {
-      let commonPricePerKg = 0
-
-      offloadRecordPriceGroup.forEach((record, index) => {
-        const {
-          batchId,
-          boxQuantity,
-          categoryId,
-          cuttingDate,
-          pricePerKg,
-          storeContainerId,
-          waveId,
-          varietyId,
-        } = record
-
-        if (!index) {
-          commonPricePerKg = pricePerKg
-        }
-
-        if (index && pricePerKg !== commonPricePerKg) {
-          throw new HttpException(CError.WRONG_PRICE, HttpStatus.BAD_REQUEST)
-        }
-
-        if (
-          !batchId ||
-          !boxQuantity ||
-          !categoryId ||
-          !cuttingDate ||
-          !pricePerKg ||
-          !storeContainerId ||
-          !waveId ||
-          !varietyId
-        ) {
-          throw new HttpException(
-            CError.MISSING_OFFLOAD_RECORD_DATA,
-            HttpStatus.BAD_REQUEST,
-          )
-        }
-
-        if (!byIdBatches[batchId]) {
-          byIdBatches[batchId] = {}
-          byBatchIdCategoryIdSubbatches[batchId] = {}
-        }
-
-        if (!byIdWaves[waveId]) {
-          byIdWaves[waveId] = {}
-        }
-
-        if (!byIdCategories[categoryId]) {
-          byIdCategories[categoryId] = {}
-        }
-
-        if (!byIdVarieties[varietyId]) {
-          byIdVarieties[varietyId] = {}
-        }
-
-        if (!byIdStoreContainers[storeContainerId]) {
-          byIdStoreContainers[storeContainerId] = {}
-        }
-
-        storageSubtractionData.push({
-          date: cuttingDate,
-          amount: boxQuantity,
-          waveId,
-          varietyId,
-          categoryId,
-        })
-      })
-    })
-
-    const foundCategories: Array<Nullable<Category>> = await Promise.all(
-      Object.keys(byIdCategories).map((id) =>
-        this.categoryService.findCategoryById(parseInt(id)),
-      ),
-    )
-    const foundBatches: Array<Nullable<Batch>> = await Promise.all(
-      Object.keys(byIdBatches).map((id) =>
-        this.batchService.findBatchById(parseInt(id)),
-      ),
-    )
-    const foundWaves: Array<Nullable<Wave>> = await Promise.all(
-      Object.keys(byIdWaves).map((id) =>
-        this.waveService.findWaveById(parseInt(id)),
-      ),
-    )
-    const foundVarieties: Array<Nullable<Variety>> = await Promise.all(
-      Object.keys(byIdVarieties).map((id) =>
-        this.varietyService.findVarietyById(parseInt(id)),
-      ),
-    )
-    const foundStoreContainers: Array<Nullable<StoreContainer>> =
-      await Promise.all(
-        Object.keys(byIdStoreContainers).map((id) =>
-          this.storeContainerService.findStoreContainerById(parseInt(id)),
-        ),
-      )
-    const foundStorages: Array<Nullable<Storage>> = await Promise.all(
-      storageSubtractionData.map(({ varietyId, waveId, categoryId, date }) => {
-        return this.storageService.findByOffloadParameters({
-          varietyId,
-          waveId,
-          categoryId,
-          date,
-        })
-      }),
-    )
-    foundCategories.forEach((category) => {
-      if (!category) {
-        throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-      }
-
-      byIdCategories[category.id] = category as Category
-    })
-    foundBatches.forEach((batch) => {
-      if (!batch) {
-        throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-      }
-
-      byIdBatches[batch.id] = batch as Batch
-      byBatchIdCategoryIdSubbatches[batch.id] = {}
-
-      batch.subbatches.forEach((subbatch) => {
-        const categoryId = subbatch.category.id
-        byBatchIdCategoryIdSubbatches[batch.id][categoryId] =
-          subbatch as Subbatch
-      })
-    })
-    foundWaves.forEach((wave) => {
-      if (!wave) {
-        throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-      }
-
-      byIdWaves[wave.id] = wave as Wave
-    })
-    foundVarieties.forEach((variety) => {
-      if (!variety) {
-        throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-      }
-
-      byIdVarieties[variety.id] = variety as Variety
-    })
-    foundStoreContainers.forEach((container) => {
-      if (!container) {
-        throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-      }
-
-      byIdStoreContainers[container.id] = container as StoreContainer
-    })
-    foundStorages.forEach((storage, index) => {
-      if (!storage) {
-        throw new HttpException(
-          CError.WRONG_STORAGE_DATA,
-          HttpStatus.BAD_REQUEST,
-        )
-      }
-
-      if (storageSubtractionData[index]?.amount > storage.amount) {
-        throw new HttpException(CError.WRONG_BOX_AMOUNT, HttpStatus.BAD_REQUEST)
-      }
-    })
-
-    await Promise.all(
-      foundStorages.map(({ id, amount: storedAmount }, index) => {
-        const offloadAmount: number = storageSubtractionData[index]?.amount
-        const remainedAmount: number = storedAmount - offloadAmount
-
-        return remainedAmount
-          ? this.storageService.updateStorage({ id, amount: remainedAmount })
-          : this.storageService.removeStorage(id)
-      }),
-    )
-
-    offloadRecords.forEach((offloadRecordPriceGroup, index) => {
-      const priceId = parseInt(`${priceIdBase}${index}`)
-
-      offloadRecordPriceGroup.forEach((record) => {
-        const {
-          batchId,
-          boxQuantity,
-          categoryId,
-          cuttingDate,
-          pricePerKg,
-          storeContainerId,
-          waveId,
-          weight,
-          varietyId,
-        } = record
-
-        if ((byIdWaves?.[waveId]?.['batch']?.id as number) !== batchId) {
-          throw new HttpException(CError.WRONG_WAVE_ID, HttpStatus.BAD_REQUEST)
-        }
-
-        if (!byBatchIdCategoryIdSubbatches[batchId][categoryId]) {
-          throw new HttpException(
-            CError.WRONG_CATEGORY_ID,
-            HttpStatus.BAD_REQUEST,
-          )
-        }
-
-        const storeContainerWeight = +byIdStoreContainers[storeContainerId]['weight'] || 1
-        // const allBoxWeight = boxQuantity * storeContainerWeight
-        // const netWeight = weight - allBoxWeight
-        // const shrinkedNetWeight = netWeight * 0.99
-        // boxTotalQuantity += boxQuantity
-        const sum = (+weight - (+boxQuantity * 0.4) - storeContainerWeight);
-        const curPrice = (sum - (sum / 100)) * pricePerKg
-        priceCounted += curPrice
-
-        newOffloadRecordData.push({
-          batch: { id: batchId },
-          boxQuantity,
-          category: { id: categoryId },
-          cuttingDate,
-          priceId,
-          pricePerKg,
-          storeContainer: { id: storeContainerId },
-          wave: { id: waveId },
-          weight,
-          variety: { id: varietyId },
-          // netWeight,
-          // shrinkedNetWeight,
-        })
-      })
-    })
-
-
-
-    const newOffload: Offload = await this.offloadRepository.create({
-      ...foundOffload,
-      priceTotal,
-      priceCounted,
-      paidMoney,
-      boxTotalQuantity,
-      delContainer1_7In,
-      delContainer1_7Out,
-      delContainer0_5In,
-      delContainer0_5Out,
-      delContainer0_4In,
-      delContainer0_4Out,
-      delContainerSchoellerIn,
-      delContainerSchoellerOut,
-    })
-
-    const savedNewOffload = await this.offloadRepository.save(newOffload)
-
-    const newOffloadRecords = await Promise.all(
-      newOffloadRecordData.map((record) =>
-        this.offloadRecordService.createOffloadRecord({
-          ...record,
-          offload: { id: savedNewOffload.id },
-        }),
-      ),
-    )
-
-
-
-    return savedNewOffload
-  }
+  // async editOffloadV2 ({
+  //   offloadId,
+  //   data
+  // }: {
+  //   offloadId: number
+  //   user: User
+  //   data: CreateOffloadDto
+  // }): Promise<Offload> {
+  //   const foundOffload = await this.offloadRepository
+  //     .createQueryBuilder('offload')
+  //     .select()
+  //     .leftJoinAndSelect('offload.client', 'client')
+  //     .where('offload.id = :offloadId', { offloadId })
+  //     .getOne()
+  //
+  //   if (!foundOffload) {
+  //     throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+  //   }
+  //   const priceTotal = data.priceTotal;
+  //   const byIdCategories: Record<number, Category | {}> = {}
+  //   const byIdBatches: Record<number, Batch | {}> = {}
+  //   const byIdStoreContainers: Record<number, StoreContainer | {}> = {}
+  //   const byIdWaves: Record<number, Wave | {}> = {}
+  //   const byIdVarieties: Record<number, Variety | {}> = {}
+  //   const byBatchIdCategoryIdSubbatches: Record<
+  //     number,
+  //     Record<number, Subbatch> | {}
+  //   > = {}
+  //   const priceIdBase: number = Date.now()
+  //   const newOffloadRecordData: Array<{
+  //     batch: Partial<Batch>
+  //     boxQuantity: number
+  //     category: Partial<Category>
+  //     cuttingDate: Date
+  //     priceId: number
+  //     pricePerKg: number
+  //     storeContainer: Partial<StoreContainer>
+  //     wave: Partial<Wave>
+  //     weight: number
+  //     // netWeight: number
+  //     // shrinkedNetWeight: number
+  //     variety: Partial<Variety>
+  //   }> = []
+  //   const storageSubtractionData: Array<{
+  //     date: Date
+  //     amount: number
+  //     waveId: number
+  //     varietyId: number
+  //     categoryId: number
+  //   }> = []
+  //   const today: string = String(
+  //     formatDateToDateTime({
+  //       value: new Date(Date.now()),
+  //     }),
+  //   )
+  //   let priceCounted: number = 0
+  //   let boxTotalQuantity: number = 0
+  //   const {
+  //     offloadRecords,
+  //     paidMoney,
+  //     delContainer1_7In,
+  //     delContainer1_7Out,
+  //     delContainer0_5In,
+  //     delContainer0_5Out,
+  //     delContainer0_4In,
+  //     delContainer0_4Out,
+  //     delContainerSchoellerIn,
+  //     delContainerSchoellerOut,
+  //   } = data
+  //
+  //   offloadRecords.forEach((offloadRecordPriceGroup) => {
+  //     let commonPricePerKg = 0
+  //
+  //     offloadRecordPriceGroup.forEach((record, index) => {
+  //       const {
+  //         batchId,
+  //         boxQuantity,
+  //         categoryId,
+  //         cuttingDate,
+  //         pricePerKg,
+  //         storeContainerId,
+  //         waveId,
+  //         varietyId,
+  //       } = record
+  //
+  //       if (!index) {
+  //         commonPricePerKg = pricePerKg
+  //       }
+  //
+  //       if (index && pricePerKg !== commonPricePerKg) {
+  //         throw new HttpException(CError.WRONG_PRICE, HttpStatus.BAD_REQUEST)
+  //       }
+  //
+  //       if (
+  //         !batchId ||
+  //         !boxQuantity ||
+  //         !categoryId ||
+  //         !cuttingDate ||
+  //         !pricePerKg ||
+  //         !storeContainerId ||
+  //         !waveId ||
+  //         !varietyId
+  //       ) {
+  //         throw new HttpException(
+  //           CError.MISSING_OFFLOAD_RECORD_DATA,
+  //           HttpStatus.BAD_REQUEST,
+  //         )
+  //       }
+  //
+  //       if (!byIdBatches[batchId]) {
+  //         byIdBatches[batchId] = {}
+  //         byBatchIdCategoryIdSubbatches[batchId] = {}
+  //       }
+  //
+  //       if (!byIdWaves[waveId]) {
+  //         byIdWaves[waveId] = {}
+  //       }
+  //
+  //       if (!byIdCategories[categoryId]) {
+  //         byIdCategories[categoryId] = {}
+  //       }
+  //
+  //       if (!byIdVarieties[varietyId]) {
+  //         byIdVarieties[varietyId] = {}
+  //       }
+  //
+  //       if (!byIdStoreContainers[storeContainerId]) {
+  //         byIdStoreContainers[storeContainerId] = {}
+  //       }
+  //
+  //       storageSubtractionData.push({
+  //         date: cuttingDate,
+  //         amount: boxQuantity,
+  //         waveId,
+  //         varietyId,
+  //         categoryId,
+  //       })
+  //     })
+  //   })
+  //
+  //   const foundCategories: Array<Nullable<Category>> = await Promise.all(
+  //     Object.keys(byIdCategories).map((id) =>
+  //       this.categoryService.findCategoryById(parseInt(id)),
+  //     ),
+  //   )
+  //   const foundBatches: Array<Nullable<Batch>> = await Promise.all(
+  //     Object.keys(byIdBatches).map((id) =>
+  //       this.batchService.findBatchById(parseInt(id)),
+  //     ),
+  //   )
+  //   const foundWaves: Array<Nullable<Wave>> = await Promise.all(
+  //     Object.keys(byIdWaves).map((id) =>
+  //       this.waveService.findWaveById(parseInt(id)),
+  //     ),
+  //   )
+  //   const foundVarieties: Array<Nullable<Variety>> = await Promise.all(
+  //     Object.keys(byIdVarieties).map((id) =>
+  //       this.varietyService.findVarietyById(parseInt(id)),
+  //     ),
+  //   )
+  //   const foundStoreContainers: Array<Nullable<StoreContainer>> =
+  //     await Promise.all(
+  //       Object.keys(byIdStoreContainers).map((id) =>
+  //         this.storeContainerService.findStoreContainerById(parseInt(id)),
+  //       ),
+  //     )
+  //   const foundStorages: Array<Nullable<Storage>> = await Promise.all(
+  //     storageSubtractionData.map(({ varietyId, waveId, categoryId, date }) => {
+  //       return this.storageService.findByOffloadParameters({
+  //         varietyId,
+  //         waveId,
+  //         categoryId,
+  //         date,
+  //       })
+  //     }),
+  //   )
+  //   foundCategories.forEach((category) => {
+  //     if (!category) {
+  //       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+  //     }
+  //
+  //     byIdCategories[category.id] = category as Category
+  //   })
+  //   foundBatches.forEach((batch) => {
+  //     if (!batch) {
+  //       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+  //     }
+  //
+  //     byIdBatches[batch.id] = batch as Batch
+  //     byBatchIdCategoryIdSubbatches[batch.id] = {}
+  //
+  //     batch.subbatches.forEach((subbatch) => {
+  //       const categoryId = subbatch.category.id
+  //       byBatchIdCategoryIdSubbatches[batch.id][categoryId] =
+  //         subbatch as Subbatch
+  //     })
+  //   })
+  //   foundWaves.forEach((wave) => {
+  //     if (!wave) {
+  //       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+  //     }
+  //
+  //     byIdWaves[wave.id] = wave as Wave
+  //   })
+  //   foundVarieties.forEach((variety) => {
+  //     if (!variety) {
+  //       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+  //     }
+  //
+  //     byIdVarieties[variety.id] = variety as Variety
+  //   })
+  //   foundStoreContainers.forEach((container) => {
+  //     if (!container) {
+  //       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
+  //     }
+  //
+  //     byIdStoreContainers[container.id] = container as StoreContainer
+  //   })
+  //   foundStorages.forEach((storage, index) => {
+  //     if (!storage) {
+  //       throw new HttpException(
+  //         CError.WRONG_STORAGE_DATA,
+  //         HttpStatus.BAD_REQUEST,
+  //       )
+  //     }
+  //
+  //     if (storageSubtractionData[index]?.amount > storage.amount) {
+  //       throw new HttpException(CError.WRONG_BOX_AMOUNT, HttpStatus.BAD_REQUEST)
+  //     }
+  //   })
+  //
+  //   await Promise.all(
+  //     foundStorages.map(({ id, amount: storedAmount }, index) => {
+  //       const offloadAmount: number = storageSubtractionData[index]?.amount
+  //       const remainedAmount: number = storedAmount - offloadAmount
+  //
+  //       return remainedAmount
+  //         ? this.storageService.updateStorage({ id, amount: remainedAmount })
+  //         : this.storageService.removeStorage(id)
+  //     }),
+  //   )
+  //
+  //   offloadRecords.forEach((offloadRecordPriceGroup, index) => {
+  //     const priceId = parseInt(`${priceIdBase}${index}`)
+  //
+  //     offloadRecordPriceGroup.forEach((record) => {
+  //       const {
+  //         batchId,
+  //         boxQuantity,
+  //         categoryId,
+  //         cuttingDate,
+  //         pricePerKg,
+  //         storeContainerId,
+  //         waveId,
+  //         weight,
+  //         varietyId,
+  //       } = record
+  //
+  //       if ((byIdWaves?.[waveId]?.['batch']?.id as number) !== batchId) {
+  //         throw new HttpException(CError.WRONG_WAVE_ID, HttpStatus.BAD_REQUEST)
+  //       }
+  //
+  //       if (!byBatchIdCategoryIdSubbatches[batchId][categoryId]) {
+  //         throw new HttpException(
+  //           CError.WRONG_CATEGORY_ID,
+  //           HttpStatus.BAD_REQUEST,
+  //         )
+  //       }
+  //
+  //       const storeContainerWeight = +byIdStoreContainers[storeContainerId]['weight'] || 1
+  //       // const allBoxWeight = boxQuantity * storeContainerWeight
+  //       // const netWeight = weight - allBoxWeight
+  //       // const shrinkedNetWeight = netWeight * 0.99
+  //       // boxTotalQuantity += boxQuantity
+  //       const sum = (+weight - (+boxQuantity * 0.4) - storeContainerWeight);
+  //       const curPrice = (sum - (sum / 100)) * pricePerKg
+  //       priceCounted += curPrice
+  //
+  //       newOffloadRecordData.push({
+  //         batch: { id: batchId },
+  //         boxQuantity,
+  //         category: { id: categoryId },
+  //         cuttingDate,
+  //         priceId,
+  //         pricePerKg,
+  //         storeContainer: { id: storeContainerId },
+  //         wave: { id: waveId },
+  //         weight,
+  //         variety: { id: varietyId },
+  //         // netWeight,
+  //         // shrinkedNetWeight,
+  //       })
+  //     })
+  //   })
+  //
+  //
+  //
+  //   const newOffload: Offload = await this.offloadRepository.create({
+  //     ...foundOffload,
+  //     priceTotal,
+  //     priceCounted,
+  //     paidMoney,
+  //     boxTotalQuantity,
+  //     delContainer1_7In,
+  //     delContainer1_7Out,
+  //     delContainer0_5In,
+  //     delContainer0_5Out,
+  //     delContainer0_4In,
+  //     delContainer0_4Out,
+  //     delContainerSchoellerIn,
+  //     delContainerSchoellerOut,
+  //   })
+  //
+  //   const savedNewOffload = await this.offloadRepository.save(newOffload)
+  //
+  //   const newOffloadRecords = await Promise.all(
+  //     newOffloadRecordData.map((record) =>
+  //       this.offloadRecordService.createOffloadRecord({
+  //         ...record,
+  //         offload: { id: savedNewOffload.id },
+  //       }),
+  //     ),
+  //   )
+  //
+  //
+  //
+  //   return savedNewOffload
+  // }
 
   async closeOffload (offloadId) {
     const foundOffload = await this.offloadRepository

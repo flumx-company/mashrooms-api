@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsNumber, Max, Min } from 'class-validator'
+import { IsArray, IsNotEmpty, IsNumber, Max, Min, IsString, IsOptional } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -123,12 +123,23 @@ export class CreateOffloadDto {
   })
   readonly delContainerSchoellerOut
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: 'Some notes',
+    description: 'Notes for the offload',
+    type: String,
+    required: false,
+  })
+  readonly notes?: string
+
   @IsArray()
   @IsNotEmpty()
   @ApiProperty({
     example: [
       [
         {
+          recordName: 'Record 1',
           batchId: 1,
           waveId: 1,
           varietyId: 1,

@@ -38,6 +38,13 @@ export class OffloadRecord extends DatedBasicEntity {
   category: Category
 
   @ApiProperty({
+    example: 'Record 1',
+    description: 'Record name.',
+  })
+  @Column({ type: 'text' })
+  recordName: string
+
+  @ApiProperty({
     example: '2024-01-15',
     description: 'Cutting date',
   })

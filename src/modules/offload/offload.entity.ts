@@ -142,6 +142,13 @@ export class Offload extends DatedBasicEntity {
   delContainerSchoellerOut: number
 
   @ApiProperty({
+    example: 'Some notes',
+    description: 'Notes for the offload',
+  })
+  @Column({ type: 'text', nullable: true, default: null })
+  notes: string
+
+  @ApiProperty({
     example: true,
     description: "User's active status. Boolean value.",
   })

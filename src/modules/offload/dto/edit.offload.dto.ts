@@ -137,6 +137,16 @@ export class EditOffloadDto {
   })
   readonly delContainerSchoellerOut
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: 'Some notes',
+    description: 'Notes for the offload',
+    type: String,
+    required: false,
+  })
+  readonly notes?: string
+
   @ToBoolean()
   @IsBoolean()
   @IsNotEmpty()

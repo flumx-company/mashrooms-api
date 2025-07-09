@@ -99,4 +99,12 @@ export class CreateOffloadRecordDto {
     type: Number,
   })
   readonly varietyId: number
+
+  @ApiProperty({
+    example: 'Record 1',
+    description: 'Name of the offload record.',
+    type: String,
+  })
+  @IsNotEmpty()
+  readonly recordName: string
 }

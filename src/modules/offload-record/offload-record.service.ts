@@ -65,7 +65,7 @@ export class OffloadRecordService {
     wave,
     weight,
     variety,
-
+    recordName
   }: {
     batch: Partial<Batch>
     boxQuantity: number
@@ -78,7 +78,7 @@ export class OffloadRecordService {
     wave: Partial<Wave>
     weight: number
     variety: Partial<Variety>
-
+    recordName: Partial<string>
   }): Promise<OffloadRecord> {
     const newOffloadRecord: OffloadRecord = this.offloadRecordRepository.create(
       {
@@ -93,6 +93,7 @@ export class OffloadRecordService {
         wave,
         weight,
         variety,
+        recordName
       },
     )
 

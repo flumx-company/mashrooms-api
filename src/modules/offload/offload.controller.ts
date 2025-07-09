@@ -176,6 +176,7 @@ export class OffloadController {
         offloadRecords: [
           [
             { 
+              "recordName": "recordName",
               "batchId": 1,
               "waveId": 1, 
               "varietyId": 1,
