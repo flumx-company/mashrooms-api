@@ -250,7 +250,7 @@ export class YieldService {
               yieldItem.boxQuantity = yieldItem.boxQuantity + boxQuantity
               yieldItem.percent = Number.parseFloat(
                 (yieldItem.percent + percent).toFixed(5),
-              )
+              ) / 100
             })
 
             yieldData.push(yieldItem)

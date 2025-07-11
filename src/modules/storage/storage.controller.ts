@@ -102,5 +102,40 @@ export class StorageController {
     return this.storageRepository.findAllByBatchId(batchId)
   }
 
+  @Get('total-boxes')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_STORAGES,
+  })
+  @ApiOperation({
+    summary:
+      'Get total number of boxes in storage. Role: SUPERADMIN, ADMIN. Permission: READ_STORAGES.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the total number of boxes in storage.',
+    type: Number,
+  })
+  async getTotalBoxes(): Promise<number> {
+    return this.storageRepository.getTotalBoxes();
+  }
 
+  @Get('group-by-category')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_STORAGES,
+  })
+  @ApiOperation({
+    summary:
+      'Get number of boxes grouped by category. Role: SUPERADMIN, ADMIN. Permission: READ_STORAGES.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the number of boxes grouped by category.',
+    type: Object,
+    isArray: true,
+  })
+  async getBoxesGroupedByCategory(): Promise<{ categoryId: number, total: number }[]> {
+    return this.storageRepository.getBoxesGroupedByCategory();
+  }
 }

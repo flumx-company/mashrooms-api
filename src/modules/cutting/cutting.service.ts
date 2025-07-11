@@ -113,6 +113,21 @@ export class CuttingService {
       .getMany();
   }
 
+  /**
+   * Возвращает все каттинги за указанный chamber и год-месяц (формат YYYY-MM)
+   */
+  async getAllByMonth(chamberId: number, month: string): Promise<Cutting[]> {
+    return this.cuttingRepository
+        .createQueryBuilder('cutting')
+        .select(['DATE(cutting.createdAt) as createdAt'])
+        .leftJoin('cutting.batch', 'batch')
+        .leftJoin('batch.chamber', 'chamber')
+        .where('batch.chamber.id = :chamberId', { chamberId })
+        .andWhere('cutting.createdAt LIKE :month', { month: `${month}%` })
+        .groupBy('createdAt')
+        .getRawMany();
+  }
+
   async createCutting({
     categoryId,
     batchId,

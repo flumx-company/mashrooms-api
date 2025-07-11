@@ -11,6 +11,7 @@ export const wateringPaginationConfig: PaginateConfig<Watering> = {
     ['batch.id']: [FilterOperator.EQ],
     ['shift.employee.id']: [FilterOperator.EQ],
     target: [FilterOperator.EQ],
-    dateTimeFrom: [FilterOperator.ILIKE],
-  },
+    dateTimeFrom: [FilterOperator.GTE],
+    dateTimeTo: [FilterOperator.LTE],
+  }
 }

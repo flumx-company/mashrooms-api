@@ -85,6 +85,37 @@ export class CuttingController {
     return this.cuttingService.getGroupedByDay(date);
   }
 
+  @Get('/month/month/:chamberId/:month')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CUTTINGS,
+  })
+  @ApiOperation({
+    summary:
+      'Get all cuttings for a given chamber and year-month. Role: SUPERADMIN, ADMIN. Permission: READ_CUTTINGS.',
+  })
+  @ApiParam({
+    name: 'chamberId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiParam({
+    name: 'month',
+    type: 'string',
+    example: '2025-10',
+  } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return all cuttings for the given chamber and month.',
+    type: Array<Cutting>,
+  })
+  async getAllByMonth(
+    @Param('chamberId', ParseIntPipe) chamberId: number,
+    @Param('month') month: string,
+  ): Promise<Cutting[]> {
+    return this.cuttingService.getAllByMonth(chamberId, month);
+  }
+
   @Post('category/:categoryId/batch/:batchId/wave/:waveId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],

@@ -230,4 +230,31 @@ export class StorageService {
 
     return response
   }
+
+  /**
+   * Возвращает общее количество ящиков в холодильнике (сумма всех storage.amount)
+   */
+  async getTotalBoxes(): Promise<number> {
+    const result = await this.storageRepository
+      .createQueryBuilder('storage')
+      .select('SUM(storage.amount)', 'total')
+      .getRawOne();
+    return Number(result.total) || 0;
+  }
+
+  /**
+   * Возвращает сгруппированное по категориям количество ящиков с названием категории
+   */
+  async getBoxesGroupedByCategory(): Promise<{ categoryId: number, categoryName: string, total: number }[]> {
+    const result = await this.storageRepository
+      .createQueryBuilder('storage')
+      .leftJoin('storage.category', 'category')
+      .select('storage.categoryId', 'categoryId')
+      .addSelect('category.name', 'categoryName')
+      .addSelect('SUM(storage.amount)', 'total')
+      .groupBy('storage.categoryId')
+      .addGroupBy('category.name')
+      .getRawMany();
+    return result.map(row => ({ categoryId: Number(row.categoryId), categoryName: row.categoryName, total: Number(row.total) }));
+  }
 }
