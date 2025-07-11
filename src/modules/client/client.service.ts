@@ -319,4 +319,17 @@ export class ClientService {
     }
     return await this.fileUploadService.deletePublicFile(fileId)
   }
+
+  /**
+   * Уменьшает долг клиента (moneyDebt) на указанную сумму и возвращает обновлённый долг
+   */
+  async returnClientMoneyDebt(id: number, moneyDebt: number): Promise<number> {
+    const client = await this.findClientById(id);
+    if (!client) {
+      throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
+    }
+    client.moneyDebt = Number(client.moneyDebt) + Math.abs(Number(moneyDebt));
+    await this.clientRepository.save(client);
+    return Number(client.moneyDebt);
+  }
 }

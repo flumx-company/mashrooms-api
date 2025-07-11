@@ -47,6 +47,8 @@ import { AddClientFilesDto } from './dto'
 import { CreateClientDto } from './dto/create.client.dto'
 import { UpdateClientDto } from './dto/update.client.dto'
 import { clientPaginationConfig } from './pagination'
+import { ReturnDebtDto } from './dto/return.debt.dto'
+
 
 @ApiTags('Clients')
 @ApiBadGatewayResponse({
@@ -366,5 +368,35 @@ export class ClientController {
       disposition: `inline filename="${fileInfo.name}`,
       type: fileInfo.type,
     })
+  }
+
+  @Put(':id/return-debt')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENTS,
+  })
+  @ApiOperation({
+    summary:
+      'Return money debt for a client by id. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiBody({
+    description: 'Amount to return (subtract from debt)',
+    type: ReturnDebtDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the updated money debt for the client.',
+    type: Number,
+  })
+  async returnClientMoneyDebt(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: ReturnDebtDto,
+  ): Promise<number> {
+    return this.clientService.returnClientMoneyDebt(id, body.moneyDebt);
   }
 }
