@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
@@ -16,6 +17,7 @@ import {
   ApiParamOptions,
   ApiResponse,
   ApiTags,
+  ApiQuery,
 } from '@nestjs/swagger'
 
 import { Auth } from '@mush/core/decorators'
@@ -46,6 +48,24 @@ export class WorkRecordController {
     type: 'string',
     example: '2020-05-11',
   } as ApiParamOptions)
+  @ApiQuery({
+    name: 'chamberId',
+    required: false,
+    type: Number,
+    description: 'ID камеры (chamber) для фильтрации',
+  })
+  @ApiQuery({
+    name: 'workId',
+    required: false,
+    type: Number,
+    description: 'ID работы (work) для фильтрации',
+  })
+  @ApiQuery({
+    name: 'employeeId',
+    required: false,
+    type: Number,
+    description: 'ID сотрудника (employee) для фильтрации',
+  })
   @ApiOperation({
     summary:
       'Find work records by date. Role: SUPERADMIN, ADMIN. Permission: READ_WORK_RECORDS.',
@@ -56,8 +76,13 @@ export class WorkRecordController {
     type: WorkRecord,
     isArray: true,
   })
-  async getWorkRecordsByDate(@Param('date') date: string) {
-    return this.workRecordService.findAllByDate(date)
+  async getWorkRecordsByDate(
+    @Param('date') date: string,
+    @Query('chamberId') chamberId?: number,
+    @Query('workId') workId?: number,
+    @Query('employeeId') employeeId?: number,
+  ) {
+    return this.workRecordService.findAllByDate(date, { chamberId, workId, employeeId })
   }
 
   @Post('work/:workId')

@@ -102,6 +102,41 @@ export class YieldController {
     })
   }
 
+  @Get('wave/:waveId/:date')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_YIELDS,
+  })
+  @ApiOperation({
+    summary:
+      'Get yields for a specific wave and date. Role: SUPERADMIN, ADMIN. Permission: READ_YIELDS.',
+  })
+  @ApiParam({
+    name: 'waveId',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiParam({
+    name: 'date',
+    type: 'string',
+    example: '2024-03-22',
+  } as ApiParamOptions)
+  @ApiResponse({
+    status: 200,
+    description: 'Will return yields of a specific wave for a specific date.',
+    type: Yield,
+    isArray: true,
+  })
+  async getWaveYieldsByDate(
+    @Param('waveId', ParseIntPipe) waveId: number,
+    @Param('date') date: string,
+  ): Promise<object> {
+    return this.yieldService.findAllByWaveAndDate({
+      waveId,
+      date,
+    })
+  }
+
   @Get('batch/:batchId')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],

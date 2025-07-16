@@ -73,15 +73,85 @@ export class YieldService {
   async findAllByWave({ waveId }: { waveId: number }): Promise<object> {
     const yields = await this.yieldRepository
       .createQueryBuilder('yield')
-      .select(['SUM(yield.weight) as weight','SUM(yield.boxQuantity) as boxQuantity', 'SUM(yield.percent) as percent', 'category', 'variety', 'wave.order'])
+      .select([
+        'SUM(yield.weight) as weight',
+        'SUM(yield.boxQuantity) as boxQuantity',
+        'SUM(yield.percent) as percent',
+        'category.id as category_id',
+        'category.name as category_name',
+        'category.description as category_description',
+        'category.createdAt as category_createdAt',
+        'category.updatedAt as category_updatedAt',
+        'variety.id as variety_id',
+        'variety.name as variety_name',
+        'variety.isCutterPaid as variety_isCutterPaid',
+        'variety.createdAt as variety_createdAt',
+        'variety.updatedAt as variety_updatedAt',
+        'wave.id as wave_id',
+        'wave.order as wave_order',
+        'wave.dateFrom as wave_dateFrom',
+        'wave.dateTo as wave_dateTo',
+        'batch.id as batch_id',
+        'batch.chamber as batch_chamber',
+        'batch.createdAt as batch_createdAt',
+        'batch.updatedAt as batch_updatedAt',
+      ])
       .leftJoin('yield.category', 'category')
       .leftJoin('yield.batch', 'batch')
       .leftJoin('yield.variety', 'variety')
       .leftJoin('yield.wave', 'wave')
       .where('wave.id = :waveId', { waveId })
-      .groupBy('wave.order')
+      .groupBy('wave.id')
+      .addGroupBy('wave.order')
+      .addGroupBy('wave.dateFrom')
+      .addGroupBy('wave.dateTo')
       .addGroupBy('category.id')
       .addGroupBy('variety.id')
+      .addGroupBy('batch.id')
+      .getRawMany()
+
+    return yields
+  }
+
+  async findAllByWaveAndDate({ waveId, date }: { waveId: number; date: string }): Promise<object> {
+    const yields = await this.yieldRepository
+      .createQueryBuilder('yield')
+      .select([
+        'SUM(yield.weight) as weight',
+        'SUM(yield.boxQuantity) as boxQuantity',
+        'SUM(yield.percent) as percent',
+        'category.id as category_id',
+        'category.name as category_name',
+        'category.description as category_description',
+        'category.createdAt as category_createdAt',
+        'category.updatedAt as category_updatedAt',
+        'variety.id as variety_id',
+        'variety.name as variety_name',
+        'variety.isCutterPaid as variety_isCutterPaid',
+        'variety.createdAt as variety_createdAt',
+        'variety.updatedAt as variety_updatedAt',
+        'wave.id as wave_id',
+        'wave.order as wave_order',
+        'wave.dateFrom as wave_dateFrom',
+        'wave.dateTo as wave_dateTo',
+        'batch.id as batch_id',
+        'batch.chamber as batch_chamber',
+        'batch.createdAt as batch_createdAt',
+        'batch.updatedAt as batch_updatedAt',
+      ])
+      .leftJoin('yield.category', 'category')
+      .leftJoin('yield.batch', 'batch')
+      .leftJoin('yield.variety', 'variety')
+      .leftJoin('yield.wave', 'wave')
+      .where('wave.id = :waveId', { waveId })
+      .andWhere("DATE_FORMAT(wave.dateFrom, '%Y-%m-%d') = :date", { date })
+      .groupBy('wave.id')
+      .addGroupBy('wave.order')
+      .addGroupBy('wave.dateFrom')
+      .addGroupBy('wave.dateTo')
+      .addGroupBy('category.id')
+      .addGroupBy('variety.id')
+      .addGroupBy('batch.id')
       .getRawMany()
 
     return yields

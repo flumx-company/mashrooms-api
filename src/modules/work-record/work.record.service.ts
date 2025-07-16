@@ -30,8 +30,8 @@ export class WorkRecordService {
     private readonly chamberService: ChamberService,
   ) {}
 
-  findAllByDate(date): Promise<WorkRecord[]> {
-    return this.workRecordRepository
+  findAllByDate(date, filters: { chamberId?: number; workId?: number; employeeId?: number } = {}): Promise<WorkRecord[]> {
+    const qb = this.workRecordRepository
       .createQueryBuilder('workRecord')
       .where('workRecord.date = :date', { date })
       .leftJoinAndSelect('workRecord.shift', 'shift')
@@ -61,7 +61,18 @@ export class WorkRecordService {
         'chamber.area',
       ])
       .orderBy('work.title', 'ASC')
-      .getMany()
+
+    if (filters.chamberId) {
+      qb.andWhere('chamber.id = :chamberId', { chamberId: filters.chamberId })
+    }
+    if (filters.workId) {
+      qb.andWhere('work.id = :workId', { workId: filters.workId })
+    }
+    if (filters.employeeId) {
+      qb.andWhere('employee.id = :employeeId', { employeeId: filters.employeeId })
+    }
+
+    return qb.getMany()
   }
 
   getByShift(shiftId: string): any {
