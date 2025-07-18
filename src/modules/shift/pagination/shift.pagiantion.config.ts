@@ -5,6 +5,7 @@ import { Shift } from '../shift.entity'
 export const shiftPaginationConfig: PaginateConfig<Shift> = {
   relations: [
     'employee',
+    'bonusShifts',
     // 'workRecords',
     // 'waterings',
     // 'cuttings',
