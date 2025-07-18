@@ -19,6 +19,7 @@ import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 import { shiftPaginationConfig } from './pagination/shift.pagiantion.config'
 import { Shift } from './shift.entity'
 import * as dayjs from 'dayjs';
+import { BonusShiftEntity, CreateBonusShiftDto } from './bonus.shift.entity'
 
 const automaticBonusMinimumDayNumber = parseInt(
   process.env.AUTOMATIC_WAGE_BONUS_MINIMUM_DAY_AMOUNT,
@@ -32,6 +33,8 @@ export class ShiftService {
   constructor(
     @InjectRepository(Shift)
     private shiftRepository: Repository<Shift>,
+    @InjectRepository(BonusShiftEntity)
+    private bonusShiftRepository: Repository<BonusShiftEntity>,
     private readonly employeeService: EmployeeService,
     @Inject(forwardRef(() => CuttingService))
     private readonly cuttingService: CuttingService,
@@ -51,6 +54,7 @@ export class ShiftService {
     if(!search) {
       return this.shiftRepository.createQueryBuilder('shift')
       .leftJoinAndSelect('shift.employee', 'employee')
+      .leftJoinAndSelect('shift.bonusShifts', 'bonusShifts')
       .where('shift.dateTo IS NULL AND employee.isActive = :isActive', {
         isActive
       })
@@ -59,6 +63,7 @@ export class ShiftService {
     return this.shiftRepository
       .createQueryBuilder('shift')
       .leftJoinAndSelect('shift.employee', 'employee')
+      .leftJoinAndSelect('shift.bonusShifts', 'bonusShifts')
       .where('shift.dateTo IS NULL AND employee.isActive = :isActive AND (employee.firstName like :search OR employee.lastName like :search OR employee.patronymic like :search)', {
         isActive,
         search: `%${search}%`
@@ -74,6 +79,7 @@ export class ShiftService {
       .innerJoinAndSelect('shift.employee', 'employee', 'employee.id = :id', {
         id: employeeId,
       })
+      .leftJoinAndSelect('shift.bonusShifts', 'bonusShifts')
       .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
         id: employeeId,
       })
@@ -116,6 +122,7 @@ export class ShiftService {
       .leftJoinAndSelect('batchLoading.chamber', 'chamberLoading')
       .leftJoinAndSelect('loading.category', 'categoryLoading')
       .leftJoinAndSelect('loading.wave', 'waveLoading')
+      .leftJoinAndSelect('shift.bonusShifts', 'bonusShifts')
       .select([
         'shift.id',
         'shift.dateFrom',
@@ -129,7 +136,6 @@ export class ShiftService {
         'shift.calendarDayNumber',
         'shift.workingDayNumber',
         'shift.wage',
-        'shift.bonus',
         'shift.customBonus',
         'shift.customBonusDescription',
         'shift.wageTotal',
@@ -217,6 +223,7 @@ export class ShiftService {
       .leftJoinAndSelect('batchLoading.chamber', 'chamberLoading')
       .leftJoinAndSelect('loading.category', 'categoryLoading')
       .leftJoinAndSelect('loading.wave', 'waveLoading')
+      .leftJoinAndSelect('shift.bonusShifts', 'bonusShifts')
       .select([
         'shift.id',
         'shift.dateFrom',
@@ -230,7 +237,6 @@ export class ShiftService {
         'shift.calendarDayNumber',
         'shift.workingDayNumber',
         'shift.wage',
-        'shift.bonus',
         'shift.customBonus',
         'shift.customBonusDescription',
         'shift.wageTotal',
@@ -328,7 +334,6 @@ export class ShiftService {
         'shift.calendarDayNumber',
         'shift.workingDayNumber',
         'shift.wage',
-        'shift.bonus',
         'shift.customBonus',
         'shift.customBonusDescription',
         'shift.wageTotal',
@@ -588,7 +593,7 @@ export class ShiftService {
       0,
     )
     let kitchenExpenses = 0
-    let bonus = newShiftData.bonus || 0
+    let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
     let wageTotal = 0
     let remainedPayment = 0
 
@@ -630,7 +635,6 @@ export class ShiftService {
       workingDayNumber,
       waterings: waterings,
       wage,
-      bonus,
       wageTotal,
       remainedPayment,
     })
@@ -641,11 +645,12 @@ export class ShiftService {
     const shift = await this.shiftRepository
       .createQueryBuilder('shift')
       .innerJoin('shift.employee', 'employee')
+      .leftJoinAndSelect('shift.bonusShifts', 'bonusShifts')
       .select([
         'shift.id',
         'shift.dateFrom',
         'shift.customBonus',
-        'shift.bonus',
+        'bonusShifts',
         'shift.paidAmount',
         'employee.id',
       ])
@@ -672,7 +677,8 @@ export class ShiftService {
       offloadLoadings,
       waterings,
       workRecords,
-      shift
+      shift,
+      bonusShifts: shift?.bonusShifts || [],
     }
   }
 
@@ -871,7 +877,7 @@ export class ShiftService {
       0,
     )
     let kitchenExpenses = 0
-    let bonus = shift.bonus || 0
+    let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
     let wageTotal = 0
     let remainedPayment = 0
 
@@ -916,7 +922,8 @@ export class ShiftService {
       workRecords,
       offloadLoadings,
       loadings,
-      cuttings
+      cuttings,
+      bonusShifts: shift.bonusShifts || [],
     }
   }
 
@@ -1138,7 +1145,7 @@ export class ShiftService {
       0,
     )
     let kitchenExpenses = 0
-    let bonus = shift.bonus || 0
+    let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
     let wageTotal = 0
     let remainedPayment = 0
 
@@ -1313,5 +1320,17 @@ export class ShiftService {
     }
 
     return this.runShiftCalculations(employeeId)
+  }
+
+  async createBonusForShift(shiftId: number, dto: CreateBonusShiftDto): Promise<BonusShiftEntity> {
+    const shift = await this.shiftRepository.findOne({ where: { id: shiftId } })
+    if (!shift) {
+      throw new Error('Shift not found')
+    }
+    const bonus = this.bonusShiftRepository.create({
+      bonus: dto.bonus,
+      shift,
+    })
+    return this.bonusShiftRepository.save(bonus)
   }
 }

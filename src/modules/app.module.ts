@@ -55,6 +55,7 @@ import { TypeORMConfig } from '@mush/config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { BackupModule } from "@mush/modules/backup/backup.module";
+import {BonusShiftEntity} from "@mush/modules/shift/bonus.shift.entity";
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { BackupModule } from "@mush/modules/backup/backup.module";
         Price,
         PublicFile,
         Shift,
+        BonusShiftEntity,
         Storage,
         StoreContainer,
         Watering,

@@ -50,11 +50,14 @@ import { ChamberModule } from '../chamber/chamber.module';
 import { WorkRecordController } from './work.record.controller';
 import { WorkRecord } from './work.record.entity';
 import { WorkRecordService } from './work.record.service';
+import {BonusShiftEntity} from "@mush/modules/shift/bonus.shift.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      WorkRecord, Shift,
+      WorkRecord,
+      Shift,
+      BonusShiftEntity,
       Employee,
       Cutting,
       Offload,

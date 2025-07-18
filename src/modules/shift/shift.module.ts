@@ -42,10 +42,12 @@ import { ShiftController } from './shift.controller';
 import { Shift } from './shift.entity';
 import { ShiftService } from './shift.service';
 
+import { BonusShiftEntity } from './bonus.shift.entity';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      Shift, Cutting, Offload, Client,
+      Shift, BonusShiftEntity, Cutting, Offload, Client,
       Driver,
       StoreContainer,
       Yield,

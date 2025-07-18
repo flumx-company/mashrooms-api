@@ -43,12 +43,14 @@ import { ShiftModule } from '@mush/modules/shift/shift.module';
 import { WateringController } from './watering.controller';
 import { Watering } from './watering.entity';
 import { WateringService } from './watering.service';
+import {BonusShiftEntity} from "@mush/modules/shift/bonus.shift.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Watering,
       Shift,
+      BonusShiftEntity,
       Employee,
       Cutting,
       Offload,

@@ -7,6 +7,7 @@ import { Employee } from '@mush/modules/employee/employee.entity'
 import { Offload } from '@mush/modules/offload/offload.entity'
 import { Watering } from '@mush/modules/watering/watering.entity'
 import { WorkRecord } from '@mush/modules/work-record/work.record.entity'
+import { BonusShiftEntity } from './bonus.shift.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { EPaymentMethod } from '@mush/core/enums'
@@ -60,6 +61,9 @@ export class Shift extends DatedBasicEntity {
 
   @OneToMany(() => WorkRecord, (workRecord) => workRecord.shift)
   workRecords: WorkRecord[]
+
+  @OneToMany(() => BonusShiftEntity, (bonusShift) => bonusShift.shift)
+  bonusShifts: BonusShiftEntity[]
 
   @OneToMany(() => Watering, (watering) => watering.shift)
   waterings: Watering[]
@@ -139,13 +143,6 @@ export class Shift extends DatedBasicEntity {
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   wage: number
-
-  @ApiProperty({
-    example: 0,
-    description: `This ${process.env.AUTOMATIC_WAGE_BONUS_PERCENT} bonus to the wage is added in case an employee worked ${process.env.AUTOMATIC_WAGE_BONUS_MINIMUM_DAY_AMOUNT} days within the shift.`,
-  })
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  bonus: number
 
   @ApiProperty({
     example: '',

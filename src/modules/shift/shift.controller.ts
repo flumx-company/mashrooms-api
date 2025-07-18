@@ -34,6 +34,7 @@ import { UpdateShiftDto } from './dto'
 import { shiftPaginationConfig } from './pagination'
 import { Shift } from './shift.entity'
 import { ShiftService } from './shift.service'
+import { CreateBonusShiftDto, BonusShiftEntity } from './bonus.shift.entity'
 
 @ApiTags('Shifts')
 @ApiBadGatewayResponse({
@@ -238,5 +239,21 @@ export class ShiftController {
   ): Promise<Shift> {
     const shift = await this.shiftService.findShift(shiftId)
     return this.shiftService.runShiftCalculations(shift.employee.id, data)
+  }
+
+  @Post(':shiftId/bonus')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CREATE_SHIFTS,
+  })
+  @ApiOperation({ summary: 'Create a bonus (advance) for a shift' })
+  @ApiParam({ name: 'shiftId', type: Number, example: 1 })
+  @ApiBody({ type: CreateBonusShiftDto })
+  @ApiResponse({ status: 201, type: BonusShiftEntity })
+  async createBonus(
+    @Param('shiftId', ParseIntPipe) shiftId: number,
+    @Body() dto: CreateBonusShiftDto,
+  ): Promise<BonusShiftEntity> {
+    return this.shiftService.createBonusForShift(shiftId, dto)
   }
 }
