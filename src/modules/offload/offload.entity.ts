@@ -46,9 +46,9 @@ export class Offload extends DatedBasicEntity {
   })
   driver: Driver
 
-  @ManyToMany(() => Shift, { cascade: true })
-  @JoinTable()
-  loaderShifts: Shift[];
+  // @ManyToMany(() => Shift, { cascade: true })
+  // @JoinTable()
+  // loaderShifts: Shift[];
 
   @OneToMany(() => OffloadRecord, (record) => record.offload)
   offloadRecords: OffloadRecord[]

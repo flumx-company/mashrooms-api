@@ -1,9 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
 import { Offload } from './offload.entity';
 import { Shift } from '../shift/shift.entity';
+import {DatedBasicEntity} from "@mush/core/basic-entities";
 
 @Entity()
-export class ShiftOffload {
+export class ShiftOffload  extends DatedBasicEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

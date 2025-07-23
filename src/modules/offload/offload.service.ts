@@ -84,9 +84,11 @@ export class OffloadService {
         'offloadRecords.batch.chamber', 
         'client', 
         'driver', 
-        'documents', 
-        'loaderShifts', 
-        'loaderShifts.employee'
+        'documents',
+          'shiftOffloads.shift',
+          'shiftOffloads.shift.employee',
+        // 'loaderShifts',
+        // 'loaderShifts.employee'
       ],
     })
   }
@@ -95,19 +97,21 @@ export class OffloadService {
   getByShift(shiftId: string): any {
     return  this.offloadRepository
       .createQueryBuilder('offload')
-      .leftJoinAndSelect('offload.loaderShifts', 'loaderShifts') // Соединение с таблицей Shift
+      // .leftJoinAndSelect('offload.loaderShifts', 'loaderShifts')
+      .leftJoinAndSelect('offload.shiftOffloads', 'shiftOffloads')
+      .leftJoinAndSelect('shiftOffloads.shift', 'shift')
       .select([
-        'offload.id',          // Поля из основной сущности Offload
-        'offload.boxTotalQuantity',    // Дополнительные поля из Offload
-        'offload.isClosed',    // Дополнительные поля из Offload
-        'offload.createdAt',    // Дополнительные поля из Offload
-        'offload.paidMoney',    // Дополнительные поля из Offload
-        'offload.priceTotal',    // Дополнительные поля из Offload
-        'loaderShifts.id',             // Поля из связанной сущности Shift
+        'offload.id',
+        'offload.boxTotalQuantity',
+        'offload.isClosed',
+        'offload.createdAt',
+        'offload.paidMoney',
+        'offload.priceTotal',
+        'shiftOffloads',
+        'shiftOffloads.shift.id',
       ])
-      .where('loaderShifts.id = :shiftId', { shiftId }) // Условие по id Shift
+      .where('shiftOffloads.shift.id = :shiftId', { shiftId })
       .getMany();
-
   }
 
   findAllByUserId(
@@ -493,7 +497,7 @@ export class OffloadService {
       author: user,
       client,
       driver,
-      loaderShifts: shifts,
+      shiftOffloads: shifts,
       priceTotal,
       priceCounted,
       paidMoney,

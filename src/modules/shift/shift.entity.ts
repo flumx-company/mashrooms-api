@@ -75,8 +75,8 @@ export class Shift extends DatedBasicEntity {
   @OneToMany(() => Cutting, (cutting) => cutting.loaderShift)
   loadings: Cutting[]
 
-  @OneToMany(() => Offload, (offload) => offload.loaderShifts)
-  offloadLoadings: Offload[]
+  // @OneToMany(() => Offload, (offload) => offload.loaderShifts)
+  // offloadLoadings: Offload[]
 
   @OneToMany(() => ShiftOffload, (shiftOffload) => shiftOffload.shift)
   shiftOffloads: ShiftOffload[];
