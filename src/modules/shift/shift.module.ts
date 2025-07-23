@@ -43,6 +43,7 @@ import { Shift } from './shift.entity';
 import { ShiftService } from './shift.service';
 
 import { BonusShiftEntity } from './bonus.shift.entity';
+import {ShiftOffload} from "@mush/modules/offload/shift-offload.entity";
 
 @Module({
   imports: [
@@ -56,7 +57,8 @@ import { BonusShiftEntity } from './bonus.shift.entity';
       Chamber,
       Watering,
       WorkRecord,
-      PublicFile
+      PublicFile,
+      ShiftOffload
     ]),
     CoreModule,
     EmployeeModule,

@@ -136,6 +136,15 @@ export class CreateOffloadDto {
   @IsArray()
   @IsNotEmpty()
   @ApiProperty({
+    example: [1, 2],
+    description: 'Массив id смен (shift), участвующих в отгрузке',
+    type: [Number],
+  })
+  readonly loaderShiftIds: number[];
+
+  @IsArray()
+  @IsNotEmpty()
+  @ApiProperty({
     example: [
       [
         {

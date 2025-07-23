@@ -1302,6 +1302,11 @@ export class ShiftService {
     return this.shiftRepository.findOneBy({ id })
   }
 
+  async findByIds(ids: number[]): Promise<Shift[]> {
+    if (!ids?.length) return [];
+    return this.shiftRepository.findByIds(ids);
+  }
+
   async getOngoingEmployeeShift(employeeId: number) {
     const [employee, currentShift] = await Promise.all([
       this.employeeService.findEmployeeById(employeeId),

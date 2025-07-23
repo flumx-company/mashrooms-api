@@ -51,6 +51,7 @@ import { WorkRecordController } from './work.record.controller';
 import { WorkRecord } from './work.record.entity';
 import { WorkRecordService } from './work.record.service';
 import {BonusShiftEntity} from "@mush/modules/shift/bonus.shift.entity";
+import {ShiftOffload} from "@mush/modules/offload/shift-offload.entity";
 
 @Module({
   imports: [
@@ -77,7 +78,8 @@ import {BonusShiftEntity} from "@mush/modules/shift/bonus.shift.entity";
       Watering,
       Batch,
       Wave,
-      Subbatch
+      Subbatch,
+      ShiftOffload
     ]),
     CoreModule,
     WorkModule,

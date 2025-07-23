@@ -44,6 +44,7 @@ import { WateringController } from './watering.controller';
 import { Watering } from './watering.entity';
 import { WateringService } from './watering.service';
 import {BonusShiftEntity} from "@mush/modules/shift/bonus.shift.entity";
+import {ShiftOffload} from "@mush/modules/offload/shift-offload.entity";
 
 @Module({
   imports: [
@@ -66,7 +67,8 @@ import {BonusShiftEntity} from "@mush/modules/shift/bonus.shift.entity";
       Yield,
       OffloadRecord,
       Work,
-      Chamber
+      Chamber,
+      ShiftOffload
     ]),
     CoreModule,
     ShiftModule,

@@ -28,6 +28,7 @@ import { HealthcheckModule } from '@mush/modules/healthcheck/healthcheck.module'
 import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
 import { OffloadRecordModule } from '@mush/modules/offload-record/offload-record.module'
 import { Offload } from '@mush/modules/offload/offload.entity'
+import { ShiftOffload } from '@mush/modules/offload/shift-offload.entity'
 import { OffloadModule } from '@mush/modules/offload/offload.module'
 import { Price } from '@mush/modules/price/price.entity'
 import { PriceModule } from '@mush/modules/price/price.module'
@@ -75,6 +76,7 @@ import {BonusShiftEntity} from "@mush/modules/shift/bonus.shift.entity";
         Employee,
         User,
         Offload,
+        ShiftOffload,
         OffloadRecord,
         Price,
         PublicFile,

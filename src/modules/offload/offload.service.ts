@@ -37,6 +37,7 @@ import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 import { CreateOffloadDto, EditOffloadDto } from './dto'
 import { Offload } from './offload.entity'
 import { offloadPaginationConfig } from './pagination/index'
+import { ShiftOffload } from './shift-offload.entity';
 
 const boxWeight = 0.4
 
@@ -45,6 +46,8 @@ export class OffloadService {
   constructor(
     @InjectRepository(Offload)
     private offloadRepository: Repository<Offload>,
+    @InjectRepository(ShiftOffload)
+    private shiftOffloadRepository: Repository<ShiftOffload>,
     private readonly clientService: ClientService,
     private readonly driverService: DriverService,
     private readonly batchService: BatchService,
@@ -82,8 +85,8 @@ export class OffloadService {
         'client', 
         'driver', 
         'documents', 
-        'loaderShift', 
-        'loaderShift.employee'
+        'loaderShifts', 
+        'loaderShifts.employee'
       ],
     })
   }
@@ -92,7 +95,7 @@ export class OffloadService {
   getByShift(shiftId: string): any {
     return  this.offloadRepository
       .createQueryBuilder('offload')
-      .leftJoinAndSelect('offload.loaderShift', 'loaderShift') // Соединение с таблицей Shift
+      .leftJoinAndSelect('offload.loaderShifts', 'loaderShifts') // Соединение с таблицей Shift
       .select([
         'offload.id',          // Поля из основной сущности Offload
         'offload.boxTotalQuantity',    // Дополнительные поля из Offload
@@ -100,9 +103,9 @@ export class OffloadService {
         'offload.createdAt',    // Дополнительные поля из Offload
         'offload.paidMoney',    // Дополнительные поля из Offload
         'offload.priceTotal',    // Дополнительные поля из Offload
-        'loaderShift.id',             // Поля из связанной сущности Shift
+        'loaderShifts.id',             // Поля из связанной сущности Shift
       ])
-      .where('loaderShift.id = :shiftId', { shiftId }) // Условие по id Shift
+      .where('loaderShifts.id = :shiftId', { shiftId }) // Условие по id Shift
       .getMany();
 
   }
@@ -151,26 +154,26 @@ export class OffloadService {
   async createOffload({
     clientId,
     driverId,
-    shiftId,
+    loaderShiftIds,
     user,
     data,
     offloadId
   }: {
     clientId: number
     driverId: number
-    shiftId: number
+    loaderShiftIds: number[]
     user: User
     data: CreateOffloadDto,
     offloadId?: number
   }): Promise<Offload> {
-    const [client, driver, shift]: [
+    const [client, driver, shifts]: [
       Nullable<Client>,
       Nullable<Driver>,
-      Nullable<Shift>,
+      Shift[],
     ] = await Promise.all([
       this.clientService.findClientById(clientId),
       this.driverService.findDriverById(driverId),
-      this.shiftService.findShiftById(shiftId),
+      this.shiftService.findByIds(loaderShiftIds),
     ])
     const priceTotal = data.priceTotal;
     const byIdCategories: Record<number, Category | {}> = {}
@@ -226,7 +229,7 @@ export class OffloadService {
       notes,
     } = data
 
-    if (!client || !driver || !shift) {
+    if (!client || !driver || !shifts.length) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
@@ -490,7 +493,7 @@ export class OffloadService {
       author: user,
       client,
       driver,
-      loaderShift: shift,
+      loaderShifts: shifts,
       priceTotal,
       priceCounted,
       paidMoney,
@@ -542,6 +545,23 @@ export class OffloadService {
     //   byIdWaves: byIdWaves as Record<number, Wave>,
     //   byBatchIdCategoryIdSubbatches,
     // })
+
+    // после создания offload (savedNewOffload)
+    // распределяем boxTotalQuantity между shifts
+    if (shifts.length > 0 && boxTotalQuantity > 0) {
+      const base = Math.floor(boxTotalQuantity / shifts.length);
+      const extra = boxTotalQuantity % shifts.length;
+      for (let i = 0; i < shifts.length; i++) {
+        const qty = base + (i < extra ? 1 : 0);
+        await this.shiftOffloadRepository.save(
+          this.shiftOffloadRepository.create({
+            offload: savedNewOffload,
+            shift: shifts[i],
+            boxQuantity: qty,
+          })
+        );
+      }
+    }
 
     return savedNewOffload
   }

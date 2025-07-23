@@ -17,11 +17,12 @@ import { YieldModule } from '@mush/modules/yield/yield.module'
 
 import { OffloadController } from './offload.controller'
 import { Offload } from './offload.entity'
+import { ShiftOffload } from './shift-offload.entity'
 import { OffloadService } from './offload.service'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Offload]),
+    TypeOrmModule.forFeature([Offload, ShiftOffload]),
     CoreModule,
     ClientModule,
     DriverModule,

@@ -14,6 +14,7 @@ import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { OffloadRecord } from '@mush/modules/offload-record/offload-record.entity'
 import { Shift } from '@mush/modules/shift/shift.entity'
+import { ShiftOffload } from './shift-offload.entity';
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 
@@ -45,16 +46,15 @@ export class Offload extends DatedBasicEntity {
   })
   driver: Driver
 
-  @ManyToOne(() => Shift, (shift) => shift.offloadLoadings, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    nullable: false,
-    orphanedRowAction: 'delete',
-  })
-  loaderShift: Shift
+  @ManyToMany(() => Shift, { cascade: true })
+  @JoinTable()
+  loaderShifts: Shift[];
 
   @OneToMany(() => OffloadRecord, (record) => record.offload)
   offloadRecords: OffloadRecord[]
+
+  @OneToMany(() => ShiftOffload, (shiftOffload) => shiftOffload.offload)
+  shiftOffloads: ShiftOffload[];
 
   @ApiProperty({
     example: 200,
