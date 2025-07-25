@@ -391,17 +391,12 @@ export class ShiftService {
         shiftId: number,
         newShiftData?: Partial<Shift>,
     ): Promise<Shift> {
-        const [shift, shiftOffloadLoadings] = await Promise.all([
-            this.findCurrentShiftWithRelations(shiftId),
-            this.shiftOffloadRepository.find({
-                where: {
-                    shift: {
-                        id: shiftId
-                    }
-                }
-            })
-        ])
-        console.log('pizda', shiftOffloadLoadings)
+        const shift = await this.findCurrentShiftWithRelations(shiftId);
+        const shiftOffloadLoadings = await this.shiftOffloadRepository
+            .createQueryBuilder('shiftOffloads')
+            .leftJoinAndSelect('shiftOffloads.shift', 'shift')
+            .where('shift.id = :shiftId', {shiftId: shift.id})
+            .getMany()
         shift.shiftOffloads = shiftOffloadLoadings;
 
         if (!shift) {
@@ -604,8 +599,6 @@ export class ShiftService {
                 previousValue + amount + reward
         })
 
-        console.log('test', wageDirectory)
-
         const workingDayNumber = Object.keys(wageDirectory).length
         // const wage = Object.values(wageDirectory).reduce(
         //   (total, dayWage) => total + dayWage,
@@ -652,17 +645,6 @@ export class ShiftService {
         wageTotal = wage + bonus + customBonus - kitchenExpenses
         remainedPayment = wageTotal - paidAmount
 
-        console.log('test', {
-            ...shift,
-            ...(newShiftData || {}),
-            kitchenExpenses,
-            calendarDayNumber,
-            workingDayNumber,
-            waterings: waterings,
-            wage,
-            wageTotal,
-            remainedPayment,
-        })
         const updatedShift: Shift = await this.shiftRepository.create({
             ...shift,
             ...(newShiftData || {}),
@@ -675,6 +657,7 @@ export class ShiftService {
             remainedPayment,
         })
 
+        // return {} as any;
         return this.shiftRepository.save(updatedShift)
     }
 
@@ -759,7 +742,6 @@ export class ShiftService {
             durationMilisecond / (1000 * 60 * 60 * 24),
         )
         const priceDirectory: object = {}
-        console.log('pizdec')
         const wageDirectory: Record<string, number> = {}
 
         const [
@@ -965,7 +947,6 @@ export class ShiftService {
     }
 
     async getShiftCalculations(shiftId: number) {
-        console.log('pizdaaaa')
         const shift = await this.shiftRepository
             .createQueryBuilder('shift')
             .innerJoin('shift.employee', 'employee')
