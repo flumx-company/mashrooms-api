@@ -4,6 +4,8 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  IsNumber,
+  IsOptional,
 } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
@@ -31,4 +33,9 @@ export class UpdateVarietyDto {
     type: Boolean,
   })
   readonly isCutterPaid: boolean
+
+  @ApiProperty({ example: 1, description: 'Порядковый номер для сортировки/приоритета' })
+  @IsNumber()
+  @IsOptional()
+  order?: number;
 }

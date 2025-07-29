@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { CError, Nullable } from '@mush/core/utils'
 
 import { Variety } from './variety.entity'
+import { ReorderVarietyDto } from './dto/reorder-variety.dto'
 
 @Injectable()
 export class VarietyService {
@@ -33,13 +34,7 @@ export class VarietyService {
     return this.varietyRepository.findOneBy({ name })
   }
 
-  async createVariety({
-    name,
-    isCutterPaid,
-  }: {
-    name: string
-    isCutterPaid: boolean
-  }): Promise<Variety> {
+  async createVariety({ name, isCutterPaid, order }: { name: string, isCutterPaid: boolean, order?: number }): Promise<Variety> {
     const foundVarietyByName = await this.findVarietyByName(name)
 
     if (foundVarietyByName) {
@@ -52,6 +47,7 @@ export class VarietyService {
     const newVariety: Variety = await this.varietyRepository.create({
       name,
       isCutterPaid,
+      order: order ?? 0,
     })
 
     return this.varietyRepository.save(newVariety)
@@ -59,13 +55,7 @@ export class VarietyService {
 
   async updateVariety(
     id: number,
-    {
-      name,
-      isCutterPaid,
-    }: {
-      name: string
-      isCutterPaid: boolean
-    },
+    { name, isCutterPaid, order }: { name: string, isCutterPaid: boolean, order?: number },
   ): Promise<Variety> {
     const [foundVarietyById, foundVarietyByName]: Nullable<Variety>[] =
       await Promise.all([
@@ -88,6 +78,7 @@ export class VarietyService {
       ...foundVarietyById,
       name,
       isCutterPaid,
+      order: order ?? foundVarietyById.order ?? 0,
     })
 
     return this.varietyRepository.save(updatedVariety)
@@ -122,4 +113,25 @@ export class VarietyService {
       return false
     }
   }
+
+  async getAllSortedByOrder(): Promise<Variety[]> {
+    return this.varietyRepository.find({ order: { order: 'ASC' } });
+  }
+
+  async reorderVarieties(data: ReorderVarietyDto[]): Promise<Variety[]> {
+    const updatedVarieties = [];
+
+    for (const { id, order } of data) {
+      const entity = await this.varietyRepository.preload({ id, order });
+
+      if (!entity) {
+        throw new HttpException(`Variety with ID ${id} not found`, HttpStatus.NOT_FOUND);
+      }
+
+      updatedVarieties.push(entity);
+    }
+
+    return await this.varietyRepository.save(updatedVarieties);
+  }
+
 }

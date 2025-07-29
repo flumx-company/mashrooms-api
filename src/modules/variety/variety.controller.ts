@@ -4,7 +4,7 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseIntPipe, Patch,
   Post,
   Put,
 } from '@nestjs/common'
@@ -23,6 +23,7 @@ import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'
 
 import { UpdateVarietyDto } from './dto'
+import { ReorderVarietyDto } from './dto/reorder-variety.dto'
 import { Variety } from './variety.entity'
 import { VarietyService } from './variety.service'
 
@@ -41,11 +42,15 @@ export class VarietyController {
     permission: EPermission.READ_VARIETIES,
   })
   @ApiOperation({
-    summary:
-      'Get list of all varieties. Role: SUPERADMIN, ADMIN. Permission: READ_VARIETIES.',
+    summary: 'Get list of all varieties. Role: SUPERADMIN, ADMIN. Permission: READ_VARIETIES.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return the list of varieties.',
+    type: [Variety],
   })
   async getAllVarieties(): Promise<Variety[]> {
-    return this.varietyService.findAll()
+    return this.varietyService.getAllSortedByOrder();
   }
 
   @Post()
@@ -98,6 +103,37 @@ export class VarietyController {
     @Body() data: UpdateVarietyDto,
   ): Promise<Variety> {
     return this.varietyService.updateVariety(id, data)
+  }
+
+  @Patch('reorder')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.UPDATE_VARIETIES,
+  })
+  @ApiOperation({
+    summary: 'Update order of multiple varieties. Role: SUPERADMIN, ADMIN. Permission: UPDATE_VARIETIES.',
+  })
+  @ApiBody({
+    description: 'Array of objects with id and new order',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          order: { type: 'number' },
+        },
+        required: ['id', 'order'],
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns updated varieties with new order.',
+    type: [Variety],
+  })
+  reorderVarieties(@Body() data: ReorderVarietyDto[]): Promise<Variety[]> {
+    return this.varietyService.reorderVarieties(data);
   }
 
   @Delete(':id')

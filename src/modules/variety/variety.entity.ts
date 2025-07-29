@@ -23,6 +23,10 @@ export class Variety extends DatedBasicEntity {
   @Column({ type: 'boolean', default: false, nullable: true })
   isCutterPaid: Boolean
 
+  @ApiProperty({ example: 1, description: 'Порядковый номер для сортировки/приоритета' })
+  @Column({ type: 'int', default: 0 })
+  order: number;
+
   @OneToMany(() => Cutting, (cutting) => cutting.variety)
   cuttings: Cutting[]
 
