@@ -1363,4 +1363,31 @@ export class ShiftService {
         });
         return shiftOffloads.reduce((sum, so) => sum + Number(so.boxQuantity), 0);
     }
+
+    async findCurrentShiftBasic(
+      employeeId: number,
+    ): Promise<Nullable<Shift>> {
+      return this.shiftRepository
+        .createQueryBuilder('shift')
+        .innerJoin('shift.employee', 'employee')
+        .select([
+          'shift.id',
+          'shift.dateFrom',
+          'shift.dateTo',
+          'shift.customBonus',
+          'shift.paidAmount',
+          'shift.kitchenExpenses',
+          'shift.calendarDayNumber',
+          'shift.workingDayNumber',
+          'shift.wage',
+          'shift.wageTotal',
+          'shift.remainedPayment',
+          'employee.id',
+          'employee.isActive',
+        ])
+        .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
+          id: employeeId,
+        })
+        .getOne()
+    }
 }

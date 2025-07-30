@@ -117,7 +117,7 @@ export class WorkRecordService {
     )
     const foundShifts: Array<Nullable<Shift>> = await Promise.all(
       foundEmployees.map(({ id }) => {
-        return this.shiftService.findCurrentShiftWithEmployeeId(id)
+        return this.shiftService.findCurrentShiftBasic(id)
       }),
     )
     // if (percentSum !== 1) {
@@ -189,7 +189,7 @@ export class WorkRecordService {
     )
     const foundShifts: Array<Nullable<Shift>> = await Promise.all(
       foundEmployees.map(({ id }) => {
-        return this.shiftService.findCurrentShiftWithEmployeeId(id)
+        return this.shiftService.findCurrentShiftBasic(id)
       }),
     )
     const foundWorkGroupRecords: WorkRecord[] =
