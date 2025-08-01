@@ -1,19 +1,20 @@
 import { Repository } from 'typeorm'
 
-import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Inject, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { Transactional } from 'typeorm-transactional'
 
+import { Chamber } from '@mush/modules/chamber/chamber.entity'
+import { ChamberService } from '@mush/modules/chamber/chamber.service'
+import { Employee } from '@mush/modules/employee/employee.entity'
 import { EmployeeService } from '@mush/modules/employee/employee.service'
+import { Shift } from '@mush/modules/shift/shift.entity'
+import { ShiftService } from '@mush/modules/shift/shift.service'
+import { Work } from '@mush/modules/work/work.entity'
+import { WorkService } from '@mush/modules/work/work.service'
 
 import { CError, Nullable, pick } from '@mush/core/utils'
 
-import { Chamber } from '../chamber/chamber.entity'
-import { ChamberService } from '../chamber/chamber.service'
-import { Employee } from '../employee/employee.entity'
-import { Shift } from '../shift/shift.entity'
-import { ShiftService } from '../shift/shift.service'
-import { Work } from '../work/work.entity'
-import { WorkService } from '../work/work.service'
 import { CreateWorkRecordDto } from './dto'
 import { UpdateWorkRecordDto } from './dto/update.work.record'
 import { WorkRecord } from './work.record.entity'
@@ -96,6 +97,7 @@ export class WorkRecordService {
 
   }
 
+  @Transactional()
   async createWorkRecord(
     workId: number,
     { dividedAmount, date, employees, chamberId }: CreateWorkRecordDto,
@@ -169,6 +171,7 @@ export class WorkRecordService {
     return savedWorkRecords
   }
 
+  @Transactional()
   async updateWorkRecord(
     recordGroupId: number,
     { dividedAmount, employees, chamberId, workId }: UpdateWorkRecordDto,
@@ -275,6 +278,7 @@ export class WorkRecordService {
     return updatedRecords.filter((record) => record)
   }
 
+  @Transactional()
   async removeWorkRecord(recordGroupId: number): Promise<Boolean> {
     const foundWorkGroupRecords: WorkRecord[] =
       await this.workRecordRepository.find({

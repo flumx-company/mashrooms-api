@@ -38,6 +38,7 @@ import { CreateOffloadDto, EditOffloadDto } from './dto'
 import { Offload } from './offload.entity'
 import { offloadPaginationConfig } from './pagination/index'
 import { ShiftOffload } from './shift-offload.entity';
+import {Transactional} from "typeorm-transactional";
 
 const boxWeight = 0.4
 
@@ -154,7 +155,7 @@ export class OffloadService {
       .getOne()
   }
 
-  // @Transactional()
+  @Transactional()
   async createOffload({
     clientId,
     driverId,

@@ -3,6 +3,7 @@ import { Repository } from 'typeorm'
 
 import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
+import { Transactional } from 'typeorm-transactional'
 
 import { Batch } from '@mush/modules/batch/batch.entity'
 import { BatchService } from '@mush/modules/batch/batch.service'
@@ -128,6 +129,7 @@ export class CuttingService {
         .getRawMany();
   }
 
+  @Transactional()
   async createCutting({
     categoryId,
     batchId,

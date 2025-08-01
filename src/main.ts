@@ -4,13 +4,22 @@ import 'module-alias/register'
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { DataSource } from 'typeorm'
+import { addTransactionalDataSource, initializeTransactionalContext } from 'typeorm-transactional'
 
 import { AppModule } from '@mush/modules/app.module'
 
 import { convertType } from './core/utils'
 
 async function bootstrap() {
+  // Инициализация транзакционного контекста
+  initializeTransactionalContext()
+  
   const app = await NestFactory.create(AppModule)
+  
+  // Инициализация typeorm-transactional
+  addTransactionalDataSource(app.get(DataSource))
+  
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Mushrooms')
     .setDescription('Mushrooms API description')

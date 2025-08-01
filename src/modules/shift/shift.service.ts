@@ -21,6 +21,7 @@ import {Shift} from './shift.entity'
 import * as dayjs from 'dayjs';
 import {BonusShiftEntity, CreateBonusShiftDto} from './bonus.shift.entity'
 import {ShiftOffload} from '../offload/shift-offload.entity';
+import { Transactional } from 'typeorm-transactional'
 
 const automaticBonusMinimumDayNumber = parseInt(
     process.env.AUTOMATIC_WAGE_BONUS_MINIMUM_DAY_AMOUNT,
@@ -1212,6 +1213,7 @@ export class ShiftService {
         }
     }
 
+    @Transactional()
     async beginShift(employeeId: number) {
         const dateFrom = formatDateToDateTime({
             value: new Date(Date.now()),
@@ -1249,6 +1251,7 @@ export class ShiftService {
         return true
     }
 
+    @Transactional()
     async endShift(employeeId: number) {
         const dateTo = formatDateToDateTime({
             value: new Date(Date.now()),
@@ -1279,6 +1282,7 @@ export class ShiftService {
 
     }
 
+    @Transactional()
     async removeShift(id: number) {
         const foundShift = await this.shiftRepository
             .createQueryBuilder('shift')
@@ -1345,6 +1349,7 @@ export class ShiftService {
         return this.runShiftCalculations(employeeId)
     }
 
+    @Transactional()
     async createBonusForShift(shiftId: number, dto: CreateBonusShiftDto): Promise<BonusShiftEntity> {
         const shift = await this.shiftRepository.findOne({where: {id: shiftId}})
         if (!shift) {

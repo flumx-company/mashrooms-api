@@ -2,6 +2,7 @@ import { EFileCategory } from '@mush/core/enums';
 import { ReturnBoxDto } from '@mush/modules/client/dto/return.box.dto';
 import { PaginateQuery, Paginated, paginate, FilterOperator } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
+import { Transactional } from 'typeorm-transactional'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -64,6 +65,7 @@ export class ClientService {
     });
   }
 
+  @Transactional()
   async createClient(
     {
       firstName,
@@ -110,6 +112,7 @@ export class ClientService {
     return this.clientRepository.save(newClient)
   }
 
+  @Transactional()
   async updateClient(
     id: number,
     {
@@ -225,6 +228,7 @@ export class ClientService {
     return this.clientRepository.save(updatedClient)
   }
 
+  @Transactional()
   async removeClient(id: number): Promise<Boolean> {
     const foundClient: Nullable<Client> =
       await this.findClientByIdWithRelations(id)
@@ -277,6 +281,7 @@ export class ClientService {
     return foundClient.files
   }
 
+  @Transactional()
   async addClientFiles(
     id: number,
     clientFiles: BufferedFile[],

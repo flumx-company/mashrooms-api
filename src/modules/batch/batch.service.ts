@@ -4,6 +4,7 @@ import { Repository } from 'typeorm'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { Transactional } from 'typeorm-transactional'
 
 import { Chamber } from '@mush/modules/chamber/chamber.entity'
 import { ChamberService } from '@mush/modules/chamber/chamber.service'
@@ -65,6 +66,7 @@ export class BatchService {
 //    chamberId: number
 //    subbatches: CreateSubbatchDto[]
 //  }
+  @Transactional()
   async createBatch({
     waveQuantity,
     chamberId,
@@ -141,6 +143,7 @@ export class BatchService {
     return savedBatch
   }
 
+  @Transactional()
   async updateBatch(
     id: number,
     { waveQuantity, subbatches,  peatSupplier,
@@ -279,6 +282,7 @@ export class BatchService {
     });
   }
 
+  @Transactional()
   async addBatchFiles(
     id: number,
     batchDocuments: BufferedFile[],

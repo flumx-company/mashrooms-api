@@ -1,6 +1,7 @@
 import { PaginateQuery, Paginated, paginate, FilterOperator } from 'nestjs-paginate';
 import * as stream from 'stream';
 import { Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
 
 import {
   HttpException,
@@ -74,6 +75,7 @@ export class EmployeeService {
     });
   }
 
+  @Transactional()
   async createEmployee(
     {
       firstName,
@@ -189,6 +191,7 @@ export class EmployeeService {
     return this.employeeRepository.save(updatedEmployee);
   }
 
+  @Transactional()
   async removeEmployee(id: number): Promise<Boolean> {
     const foundEmployee: Nullable<Employee> =  await this.employeeRepository
       .createQueryBuilder('employee')
@@ -259,6 +262,7 @@ export class EmployeeService {
     });
   }
 
+  @Transactional()
   async changeEmployeeAvatar(
     id: number,
     files: BufferedFile[],
@@ -314,6 +318,7 @@ export class EmployeeService {
     return foundEmployee.documents;
   }
 
+  @Transactional()
   async addEmployeeDocuments(
     id: number,
     files: BufferedFile[],
