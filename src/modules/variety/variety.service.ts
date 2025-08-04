@@ -2,7 +2,6 @@ import { Repository } from 'typeorm'
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Transactional } from 'typeorm-transactional'
 
 import { CError, Nullable } from '@mush/core/utils'
 
@@ -119,7 +118,6 @@ export class VarietyService {
     return this.varietyRepository.find({ order: { order: 'ASC' } });
   }
 
-  @Transactional()
   async reorderVarieties(data: ReorderVarietyDto[]): Promise<Variety[]> {
     const updatedVarieties = [];
 

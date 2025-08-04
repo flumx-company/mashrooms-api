@@ -38,6 +38,25 @@ import { WorkRecordService } from './work.record.service'
 export class WorkRecordController {
   constructor(readonly workRecordService: WorkRecordService) {}
 
+  @Get()
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_WORK_RECORDS,
+  })
+  @ApiOperation({
+    summary:
+      'Get all work records. Role: SUPERADMIN, ADMIN. Permission: READ_WORK_RECORDS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return all work records.',
+    type: WorkRecord,
+    isArray: true,
+  })
+  async getAllWorkRecords() {
+    return this.workRecordService.findAll()
+  }
+
   @Get('work/:date')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],

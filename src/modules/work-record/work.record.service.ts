@@ -76,6 +76,40 @@ export class WorkRecordService {
     return qb.getMany()
   }
 
+  findAll(): Promise<WorkRecord[]> {
+    const qb = this.workRecordRepository
+      .createQueryBuilder('workRecord')
+      .leftJoinAndSelect('workRecord.shift', 'shift')
+      .leftJoinAndSelect('workRecord.work', 'work')
+      .leftJoinAndSelect('workRecord.chamber', 'chamber')
+      .leftJoinAndSelect('shift.employee', 'employee')
+      .select([
+        'workRecord.id',
+        'workRecord.date',
+        'workRecord.amount',
+        'workRecord.reward',
+        'workRecord.recordGroupId',
+        'shift.id',
+        'shift.dateFrom',
+        'shift.dateTo',
+        'employee.id',
+        'employee.firstName',
+        'employee.lastName',
+        'employee.patronymic',
+        'work.id',
+        'work.title',
+        'work.isRegular',
+        'work.price',
+        'chamber.id',
+        'chamber.name',
+        'chamber.area',
+      ])
+      .orderBy('workRecord.date', 'DESC')
+      .addOrderBy('work.title', 'ASC')
+
+    return qb.getMany()
+  }
+
   getByShift(shiftId: string): any {
     return  this.workRecordRepository
       .createQueryBuilder('workRecord')
