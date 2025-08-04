@@ -82,13 +82,24 @@ export class ShiftService {
     ): Promise<Nullable<Shift>> {
         return this.shiftRepository
             .createQueryBuilder('shift')
-            .innerJoinAndSelect('shift.employee', 'employee', 'employee.id = :id', {
+            .innerJoin('shift.employee', 'employee')
+            .leftJoin('shift.bonusShifts', 'bonusShifts')
+            .select([
+                'shift.id',
+                'shift.dateFrom',
+                'shift.dateTo',
+                'employee.id',
+                'employee.firstName',
+                'employee.lastName',
+                'employee.patronymic',
+                'employee.isActive',
+                'bonusShifts.id',
+                'bonusShifts.bonus',
+            ])
+            .where('shift.dateTo IS NULL AND employee.id = :id', {
                 id: employeeId,
             })
-            .leftJoinAndSelect('shift.bonusShifts', 'bonusShifts')
-            .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
-                id: employeeId,
-            })
+            .orderBy('shift.dateFrom', 'DESC') // Добавляем сортировку для лучшей производительности
             .getOne()
     }
 
@@ -1258,29 +1269,35 @@ export class ShiftService {
             dateFrom: false,
             withTime: true,
         }) as Date
-        const [employee, currentShift] = await Promise.all([
-            this.employeeService.findEmployeeById(employeeId),
-            this.findCurrentShiftWithEmployee(employeeId),
-        ])
+        
+        // Оптимизированный запрос - получаем только необходимые данные
+        const currentShift = await this.findCurrentShiftBasic(employeeId)
 
-        if (!employee) {
-            throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
-        }
-
-        if (!employee?.isActive || !currentShift) {
+        if (!currentShift) {
             throw new HttpException(
                 CError.NOT_FOUND_ONGOING_SHIFT,
                 HttpStatus.BAD_REQUEST,
             )
         }
 
-        await this.runShiftCalculations(employeeId, {...currentShift, dateTo})
+        // Проверяем активность сотрудника через смену
+        if (!currentShift.employee.isActive) {
+            throw new HttpException(
+                CError.NOT_FOUND_ONGOING_SHIFT,
+                HttpStatus.BAD_REQUEST,
+            )
+        }
 
+        // Обновляем dateTo в смене
+        await this.shiftRepository.update(currentShift.id, { dateTo })
+
+        // Деактивируем сотрудника
         await this.employeeService.updateEmployeeActiveStatus(employeeId, false)
 
         return true
-
     }
+
+
 
     @Transactional()
     async removeShift(id: number) {
@@ -1379,20 +1396,13 @@ export class ShiftService {
           'shift.id',
           'shift.dateFrom',
           'shift.dateTo',
-          'shift.customBonus',
-          'shift.paidAmount',
-          'shift.kitchenExpenses',
-          'shift.calendarDayNumber',
-          'shift.workingDayNumber',
-          'shift.wage',
-          'shift.wageTotal',
-          'shift.remainedPayment',
           'employee.id',
           'employee.isActive',
         ])
-        .where('shift.dateTo IS NULL AND shift.employee.id = :id', {
+        .where('shift.dateTo IS NULL AND employee.id = :id', {
           id: employeeId,
         })
+        .orderBy('shift.dateFrom', 'DESC') // Добавляем сортировку для лучшей производительности
         .getOne()
     }
 }

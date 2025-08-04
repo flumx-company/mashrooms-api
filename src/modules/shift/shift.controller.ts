@@ -183,7 +183,7 @@ export class ShiftController {
   @ApiResponse({
     status: 200,
     description:
-      'Will end an ongoing shift and set employee isActive status to false. Returns false on success',
+      'Will end an ongoing shift and set employee isActive status to false. Returns true on success',
     type: Boolean,
   })
   async endShift(
