@@ -19,15 +19,22 @@ import {
   ApiTags,
   ApiQuery,
 } from '@nestjs/swagger'
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate'
 
 import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'
 
-import { CreateWorkRecordDto } from './dto'
+import { CreateWorkRecordDto, GroupedWorkRecordResponseDto } from './dto'
 import { UpdateWorkRecordDto } from './dto/update.work.record'
 import { WorkRecord } from './work.record.entity'
 import { WorkRecordService } from './work.record.service'
+import { groupedWorkRecordPaginationConfig } from './pagination'
 
 @ApiTags('Work Records')
 @ApiBadGatewayResponse({
@@ -45,16 +52,19 @@ export class WorkRecordController {
   })
   @ApiOperation({
     summary:
-      'Get all work records. Role: SUPERADMIN, ADMIN. Permission: READ_WORK_RECORDS.',
+      'Get grouped work records with pagination. Role: SUPERADMIN, ADMIN. Permission: READ_WORK_RECORDS.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Will return all work records.',
-    type: WorkRecord,
+    description: 'Will return grouped work records with pagination.',
+    type: GroupedWorkRecordResponseDto,
     isArray: true,
   })
-  async getAllWorkRecords() {
-    return this.workRecordService.findAll()
+  @ApiPaginationQuery(groupedWorkRecordPaginationConfig)
+  async getGroupedWorkRecords(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<GroupedWorkRecordResponseDto>> {
+    return this.workRecordService.getGroupedWorkRecords(query)
   }
 
   @Get('work/:date')

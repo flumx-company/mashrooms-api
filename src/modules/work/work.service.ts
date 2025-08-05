@@ -92,7 +92,7 @@ export class WorkService {
     return this.workRepository.save(updatedWork)
   }
 
-  async removeWork(id: number): Promise<Boolean> {
+    async removeWork(id: number): Promise<Boolean> {
     const foundWork: Nullable<Work> = await this.findWorkByIdWithRelations(id)
 
     if (!foundWork) {

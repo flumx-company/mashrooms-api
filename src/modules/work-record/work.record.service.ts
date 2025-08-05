@@ -3,6 +3,7 @@ import { Repository } from 'typeorm'
 import { HttpException, HttpStatus, Injectable, Inject, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Transactional } from 'typeorm-transactional'
+import { PaginateQuery, Paginated } from 'nestjs-paginate'
 
 import { Chamber } from '@mush/modules/chamber/chamber.entity'
 import { ChamberService } from '@mush/modules/chamber/chamber.service'
@@ -15,7 +16,7 @@ import { WorkService } from '@mush/modules/work/work.service'
 
 import { CError, Nullable, pick } from '@mush/core/utils'
 
-import { CreateWorkRecordDto } from './dto'
+import { CreateWorkRecordDto, GroupedWorkRecordResponseDto } from './dto'
 import { UpdateWorkRecordDto } from './dto/update.work.record'
 import { WorkRecord } from './work.record.entity'
 
@@ -332,5 +333,107 @@ export class WorkRecordService {
     } catch (e) {
       return false
     }
+  }
+
+  async getGroupedWorkRecords(query: PaginateQuery): Promise<Paginated<GroupedWorkRecordResponseDto>> {
+    // Получаем все записи о работах
+    const workRecords = await this.workRecordRepository
+      .createQueryBuilder('workRecord')
+      .leftJoinAndSelect('workRecord.shift', 'shift')
+      .leftJoinAndSelect('workRecord.work', 'work')
+      .leftJoinAndSelect('workRecord.chamber', 'chamber')
+      .leftJoinAndSelect('shift.employee', 'employee')
+      .select([
+        'workRecord.id',
+        'workRecord.date',
+        'workRecord.amount',
+        'workRecord.reward',
+        'workRecord.recordGroupId',
+        'shift.id',
+        'shift.dateFrom',
+        'shift.dateTo',
+        'employee.id',
+        'employee.firstName',
+        'employee.lastName',
+        'employee.patronymic',
+        'work.id',
+        'work.title',
+        'work.isRegular',
+        'work.price',
+        'chamber.id',
+        'chamber.name',
+        'chamber.area',
+      ])
+      .orderBy('workRecord.date', 'DESC')
+      .addOrderBy('work.title', 'ASC')
+      .getMany()
+
+    // Трансформируем данные как в функции на фронтенде
+    const grouped = workRecords.reduce((acc: Record<string, any>, item) => {
+      const key = `${item.work.id}_${item.chamber.id}`
+      const extendedItem = {
+        ...item,
+        employeeId: item.shift?.employee?.id || null
+      }
+
+      if (!acc[key]) {
+        acc[key] = {
+          type: "exist",
+          createdAt: typeof item.date === 'string' ? item.date : item.date.toISOString().split('T')[0],
+          work: item.work,
+          workId: item.work.id,
+          recordGroupId: item.recordGroupId,
+          chamber: item.chamber,
+          chamberId: item.chamber.id,
+          items: [],
+          initialItems: []
+        }
+      }
+
+      acc[key].items.push(extendedItem)
+      acc[key].initialItems.push({ ...extendedItem })
+      return acc
+    }, {})
+
+    // Вычисляем сумму для каждой группы
+    const groupedWithSum: GroupedWorkRecordResponseDto[] = Object.values(grouped).map(group => ({
+      ...group,
+      sum: group.items
+        .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
+        .toFixed(2)
+    }))
+
+    // Применяем пагинацию к группированным данным
+    const page = Number(query.page) || 1
+    const limit = Number(query.limit) || 5
+    const startIndex = (page - 1) * limit
+    const endIndex = startIndex + limit
+
+    const paginatedData: GroupedWorkRecordResponseDto[] = groupedWithSum.slice(startIndex, endIndex)
+
+    const totalPages = Math.ceil(groupedWithSum.length / limit)
+
+    const meta: any = {
+      itemsPerPage: limit,
+      totalItems: groupedWithSum.length,
+      currentPage: page,
+      totalPages,
+      sortBy: query.sortBy || [['createdAt', 'DESC']],
+      searchBy: query.searchBy || [],
+      search: query.search || '',
+      filter: query.filter || {}
+    }
+
+    return {
+      data: paginatedData,
+      meta,
+      links: {
+        first: `?page=1&limit=${limit}`,
+        previous: page > 1 ? `?page=${page - 1}&limit=${limit}` : '',
+        current: `?page=${page}&limit=${limit}`,
+        next: page < totalPages ? `?page=${page + 1}&limit=${limit}` : '',
+        last: `?page=${totalPages}&limit=${limit}`
+      }
+    } as Paginated<GroupedWorkRecordResponseDto>
   }
 }
