@@ -405,7 +405,7 @@ export class WorkRecordService {
 
     // Применяем пагинацию к группированным данным
     const page = Number(query.page) || 1
-    const limit = Number(query.limit) || 5
+    const limit = Number(query.limit) || 10
     const startIndex = (page - 1) * limit
     const endIndex = startIndex + limit
 
