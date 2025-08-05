@@ -553,4 +553,22 @@ export class OffloadController {
   ) {
     return this.offloadService.returnContainers(offloadId, data)
   }
+
+  @Post('update-work-amounts')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.CREATE_OFFLOADS,
+  })
+  @ApiOperation({
+    summary:
+      'Update workAmount for existing ShiftOffload records. Role: SUPERADMIN, ADMIN. Permission: CREATE_OFFLOADS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Work amounts updated successfully.',
+  })
+  async updateWorkAmounts() {
+    await this.offloadService.updateWorkAmountForExistingShiftOffloads();
+    return { message: 'Work amounts updated successfully' };
+  }
 }

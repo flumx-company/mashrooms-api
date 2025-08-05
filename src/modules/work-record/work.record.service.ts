@@ -32,7 +32,7 @@ export class WorkRecordService {
     private readonly chamberService: ChamberService,
   ) {}
 
-  findAllByDate(date, filters: { chamberId?: number; workId?: number; employeeId?: number } = {}): Promise<WorkRecord[]> {
+  findAllByDate(date, filters: { chamberId?: number; workId?: number; shiftId?: number; employeeId?: number; workType?: string; isRegular?: boolean; recordGroupId?: number } = {}): Promise<WorkRecord[]> {
     const qb = this.workRecordRepository
       .createQueryBuilder('workRecord')
       .where('workRecord.date = :date', { date })
@@ -70,8 +70,20 @@ export class WorkRecordService {
     if (filters.workId) {
       qb.andWhere('work.id = :workId', { workId: filters.workId })
     }
+    if (filters.shiftId) {
+      qb.andWhere('shift.id = :shiftId', { shiftId: filters.shiftId })
+    }
     if (filters.employeeId) {
       qb.andWhere('employee.id = :employeeId', { employeeId: filters.employeeId })
+    }
+    if (filters.workType) {
+      qb.andWhere('work.workType = :workType', { workType: filters.workType })
+    }
+    if (filters.isRegular !== undefined) {
+      qb.andWhere('work.isRegular = :isRegular', { isRegular: filters.isRegular })
+    }
+    if (filters.recordGroupId) {
+      qb.andWhere('workRecord.recordGroupId = :recordGroupId', { recordGroupId: filters.recordGroupId })
     }
 
     return qb.getMany()
@@ -336,8 +348,11 @@ export class WorkRecordService {
   }
 
   async getGroupedWorkRecords(query: PaginateQuery): Promise<Paginated<GroupedWorkRecordResponseDto>> {
-    // Получаем все записи о работах
-    const workRecords = await this.workRecordRepository
+    console.log('=== getGroupedWorkRecords ===')
+    console.log('Query object:', JSON.stringify(query, null, 2))
+    
+    // Получаем все записи о работах с фильтрацией
+    const qb = this.workRecordRepository
       .createQueryBuilder('workRecord')
       .leftJoinAndSelect('workRecord.shift', 'shift')
       .leftJoinAndSelect('workRecord.work', 'work')
@@ -364,9 +379,246 @@ export class WorkRecordService {
         'chamber.name',
         'chamber.area',
       ])
-      .orderBy('workRecord.date', 'DESC')
+
+    // Применяем фильтры
+    // Получаем параметры из query напрямую
+    const queryParams = query as any
+    console.log('Raw queryParams:', queryParams)
+    
+    // Пробуем разные способы получения параметров
+    const date = queryParams.date || queryParams.filter?.date
+    const chamberId = (queryParams.chamberId || queryParams.filter?.chamberId) ? Number(queryParams.chamberId || queryParams.filter?.chamberId) : null
+    const workId = (queryParams.workId || queryParams.filter?.workId) ? Number(queryParams.workId || queryParams.filter?.workId) : null
+    const shiftId = (queryParams.shiftId || queryParams.filter?.shiftId) ? Number(queryParams.shiftId || queryParams.filter?.shiftId) : null
+    const employeeId = (queryParams.employeeId || queryParams.filter?.employeeId) ? Number(queryParams.employeeId || queryParams.filter?.employeeId) : null
+    const workType = queryParams.workType || queryParams.filter?.workType
+    const isRegular = (queryParams.isRegular !== undefined || queryParams.filter?.isRegular !== undefined) ? 
+      (queryParams.isRegular === 'true' || queryParams.filter?.isRegular === 'true') : null
+    const recordGroupId = (queryParams.recordGroupId || queryParams.filter?.recordGroupId) ? Number(queryParams.recordGroupId || queryParams.filter?.recordGroupId) : null
+
+    console.log('Extracted filter values:', { 
+      date, 
+      chamberId, 
+      workId, 
+      shiftId, 
+      employeeId, 
+      workType, 
+      isRegular, 
+      recordGroupId 
+    })
+
+    if (date) {
+      console.log('Applying date filter:', date)
+      qb.andWhere('workRecord.date = :date', { date })
+    }
+    
+    if (chamberId) {
+      console.log('Applying chamberId filter:', chamberId)
+      qb.andWhere('chamber.id = :chamberId', { chamberId })
+    }
+    
+    if (workId) {
+      console.log('Applying workId filter:', workId)
+      qb.andWhere('work.id = :workId', { workId })
+    }
+    
+    if (shiftId) {
+      console.log('Applying shiftId filter:', shiftId)
+      qb.andWhere('shift.id = :shiftId', { shiftId })
+    }
+
+    if (employeeId) {
+      console.log('Applying employeeId filter:', employeeId)
+      qb.andWhere('employee.id = :employeeId', { employeeId })
+    }
+
+    if (workType) {
+      console.log('Applying workType filter:', workType)
+      qb.andWhere('work.workType = :workType', { workType })
+    }
+
+    if (isRegular !== null) {
+      console.log('Applying isRegular filter:', isRegular)
+      qb.andWhere('work.isRegular = :isRegular', { isRegular })
+    }
+
+    if (recordGroupId) {
+      console.log('Applying recordGroupId filter:', recordGroupId)
+      qb.andWhere('workRecord.recordGroupId = :recordGroupId', { recordGroupId })
+    }
+
+    qb.orderBy('workRecord.date', 'DESC')
       .addOrderBy('work.title', 'ASC')
-      .getMany()
+
+    console.log('Final SQL Query:', qb.getSql())
+    console.log('SQL Parameters:', qb.getParameters())
+
+    const workRecords = await qb.getMany()
+    console.log('Found workRecords count:', workRecords.length)
+
+    // Трансформируем данные как в функции на фронтенде
+    const grouped = workRecords.reduce((acc: Record<string, any>, item) => {
+      const key = `${item.work.id}_${item.chamber.id}`
+      const extendedItem = {
+        ...item,
+        employeeId: item.shift?.employee?.id || null
+      }
+
+      if (!acc[key]) {
+        acc[key] = {
+          type: "exist",
+          createdAt: typeof item.date === 'string' ? item.date : item.date.toISOString().split('T')[0],
+          work: item.work,
+          workId: item.work.id,
+          recordGroupId: item.recordGroupId,
+          chamber: item.chamber,
+          chamberId: item.chamber.id,
+          items: [],
+          initialItems: []
+        }
+      }
+
+      acc[key].items.push(extendedItem)
+      acc[key].initialItems.push({ ...extendedItem })
+      return acc
+    }, {})
+
+    // Вычисляем сумму для каждой группы
+    const groupedWithSum: GroupedWorkRecordResponseDto[] = Object.values(grouped).map(group => ({
+      ...group,
+      sum: group.items
+        .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
+        .toFixed(2)
+    }))
+
+    // Применяем пагинацию к группированным данным
+    const page = Number(query.page) || 1
+    const limit = Number(query.limit) || 10
+    const startIndex = (page - 1) * limit
+    const endIndex = startIndex + limit
+
+    const paginatedData: GroupedWorkRecordResponseDto[] = groupedWithSum.slice(startIndex, endIndex)
+
+    const totalPages = Math.ceil(groupedWithSum.length / limit)
+
+    const meta: any = {
+      itemsPerPage: limit,
+      totalItems: groupedWithSum.length,
+      currentPage: page,
+      totalPages,
+      sortBy: query.sortBy || [['createdAt', 'DESC']],
+      searchBy: query.searchBy || [],
+      search: query.search || '',
+      filter: query.filter || {}
+    }
+
+    return {
+      data: paginatedData,
+      meta,
+      links: {
+        first: `?page=1&limit=${limit}`,
+        previous: page > 1 ? `?page=${page - 1}&limit=${limit}` : '',
+        current: `?page=${page}&limit=${limit}`,
+        next: page < totalPages ? `?page=${page + 1}&limit=${limit}` : '',
+        last: `?page=${totalPages}&limit=${limit}`
+      }
+    } as Paginated<GroupedWorkRecordResponseDto>
+  }
+
+  async getGroupedWorkRecordsWithFilters(
+    query: PaginateQuery, 
+    filters: {
+      date?: string;
+      chamberId?: number;
+      workId?: number;
+      shiftId?: number;
+      employeeId?: number;
+      workType?: string;
+      isRegular?: boolean;
+      recordGroupId?: number;
+    }
+  ): Promise<Paginated<GroupedWorkRecordResponseDto>> {
+    console.log('=== getGroupedWorkRecordsWithFilters ===')
+    console.log('Filters:', filters)
+    
+    // Получаем все записи о работах с фильтрацией
+    const qb = this.workRecordRepository
+      .createQueryBuilder('workRecord')
+      .leftJoinAndSelect('workRecord.shift', 'shift')
+      .leftJoinAndSelect('workRecord.work', 'work')
+      .leftJoinAndSelect('workRecord.chamber', 'chamber')
+      .leftJoinAndSelect('shift.employee', 'employee')
+      .select([
+        'workRecord.id',
+        'workRecord.date',
+        'workRecord.amount',
+        'workRecord.reward',
+        'workRecord.recordGroupId',
+        'shift.id',
+        'shift.dateFrom',
+        'shift.dateTo',
+        'employee.id',
+        'employee.firstName',
+        'employee.lastName',
+        'employee.patronymic',
+        'work.id',
+        'work.title',
+        'work.isRegular',
+        'work.price',
+        'chamber.id',
+        'chamber.name',
+        'chamber.area',
+      ])
+
+    // Применяем фильтры
+    if (filters.date) {
+      console.log('Applying date filter:', filters.date)
+      qb.andWhere('workRecord.date = :date', { date: filters.date })
+    }
+    
+    if (filters.chamberId) {
+      console.log('Applying chamberId filter:', filters.chamberId)
+      qb.andWhere('chamber.id = :chamberId', { chamberId: filters.chamberId })
+    }
+    
+    if (filters.workId) {
+      console.log('Applying workId filter:', filters.workId)
+      qb.andWhere('work.id = :workId', { workId: filters.workId })
+    }
+    
+    if (filters.shiftId) {
+      console.log('Applying shiftId filter:', filters.shiftId)
+      qb.andWhere('shift.id = :shiftId', { shiftId: filters.shiftId })
+    }
+
+    if (filters.employeeId) {
+      console.log('Applying employeeId filter:', filters.employeeId)
+      qb.andWhere('employee.id = :employeeId', { employeeId: filters.employeeId })
+    }
+
+    if (filters.workType) {
+      console.log('Applying workType filter:', filters.workType)
+      qb.andWhere('work.workType = :workType', { workType: filters.workType })
+    }
+
+    if (filters.isRegular !== undefined) {
+      console.log('Applying isRegular filter:', filters.isRegular)
+      qb.andWhere('work.isRegular = :isRegular', { isRegular: filters.isRegular })
+    }
+
+    if (filters.recordGroupId) {
+      console.log('Applying recordGroupId filter:', filters.recordGroupId)
+      qb.andWhere('workRecord.recordGroupId = :recordGroupId', { recordGroupId: filters.recordGroupId })
+    }
+
+    qb.orderBy('workRecord.date', 'DESC')
+      .addOrderBy('work.title', 'ASC')
+
+    console.log('Final SQL Query:', qb.getSql())
+    console.log('SQL Parameters:', qb.getParameters())
+
+    const workRecords = await qb.getMany()
+    console.log('Found workRecords count:', workRecords.length)
 
     // Трансформируем данные как в функции на фронтенде
     const grouped = workRecords.reduce((acc: Record<string, any>, item) => {

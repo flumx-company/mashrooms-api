@@ -54,6 +54,69 @@ export class WorkRecordController {
     summary:
       'Get grouped work records with pagination. Role: SUPERADMIN, ADMIN. Permission: READ_WORK_RECORDS.',
   })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    type: String,
+    description: 'Дата для фильтрации записей (формат: YYYY-MM-DD)',
+    example: '2025-08-04',
+  })
+  @ApiQuery({
+    name: 'chamberId',
+    required: false,
+    type: Number,
+    description: 'ID камеры (chamber) для фильтрации',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'workId',
+    required: false,
+    type: Number,
+    description: 'ID работы (work) для фильтрации',
+    example: 2,
+  })
+  @ApiQuery({
+    name: 'shiftId',
+    required: false,
+    type: Number,
+    description: 'ID смены (shift) для фильтрации',
+    example: 17,
+  })
+  @ApiQuery({
+    name: 'chamberId',
+    required: false,
+    type: Number,
+    description: 'ID камеры (chamber) для фильтрации',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'employeeId',
+    required: false,
+    type: Number,
+    description: 'ID сотрудника (employee) для фильтрации',
+    example: 5,
+  })
+  @ApiQuery({
+    name: 'workType',
+    required: false,
+    type: String,
+    description: 'Тип работы (WATERING, CUTTING, CUSTOM)',
+    example: 'CUSTOM',
+  })
+  @ApiQuery({
+    name: 'isRegular',
+    required: false,
+    type: Boolean,
+    description: 'Регулярная ли работа (true/false)',
+    example: true,
+  })
+  @ApiQuery({
+    name: 'recordGroupId',
+    required: false,
+    type: Number,
+    description: 'ID группы записей',
+    example: 12345,
+  })
   @ApiResponse({
     status: 200,
     description: 'Will return grouped work records with pagination.',
@@ -63,8 +126,25 @@ export class WorkRecordController {
   @ApiPaginationQuery(groupedWorkRecordPaginationConfig)
   async getGroupedWorkRecords(
     @Paginate() query: PaginateQuery,
+    @Query('date') date?: string,
+    @Query('chamberId') chamberId?: number,
+    @Query('workId') workId?: number,
+    @Query('shiftId') shiftId?: number,
+    @Query('employeeId') employeeId?: number,
+    @Query('workType') workType?: string,
+    @Query('isRegular') isRegular?: boolean,
+    @Query('recordGroupId') recordGroupId?: number,
   ): Promise<Paginated<GroupedWorkRecordResponseDto>> {
-    return this.workRecordService.getGroupedWorkRecords(query)
+    return this.workRecordService.getGroupedWorkRecordsWithFilters(query, {
+      date,
+      chamberId,
+      workId,
+      shiftId,
+      employeeId,
+      workType,
+      isRegular,
+      recordGroupId
+    })
   }
 
   @Get('work/:date')
@@ -90,10 +170,34 @@ export class WorkRecordController {
     description: 'ID работы (work) для фильтрации',
   })
   @ApiQuery({
+    name: 'shiftId',
+    required: false,
+    type: Number,
+    description: 'ID смены (shift) для фильтрации',
+  })
+  @ApiQuery({
     name: 'employeeId',
     required: false,
     type: Number,
     description: 'ID сотрудника (employee) для фильтрации',
+  })
+  @ApiQuery({
+    name: 'workType',
+    required: false,
+    type: String,
+    description: 'Тип работы (WATERING, CUTTING, CUSTOM)',
+  })
+  @ApiQuery({
+    name: 'isRegular',
+    required: false,
+    type: Boolean,
+    description: 'Регулярная ли работа (true/false)',
+  })
+  @ApiQuery({
+    name: 'recordGroupId',
+    required: false,
+    type: Number,
+    description: 'ID группы записей',
   })
   @ApiOperation({
     summary:
@@ -109,9 +213,21 @@ export class WorkRecordController {
     @Param('date') date: string,
     @Query('chamberId') chamberId?: number,
     @Query('workId') workId?: number,
+    @Query('shiftId') shiftId?: number,
     @Query('employeeId') employeeId?: number,
+    @Query('workType') workType?: string,
+    @Query('isRegular') isRegular?: boolean,
+    @Query('recordGroupId') recordGroupId?: number,
   ) {
-    return this.workRecordService.findAllByDate(date, { chamberId, workId, employeeId })
+    return this.workRecordService.findAllByDate(date, { 
+      chamberId, 
+      workId, 
+      shiftId, 
+      employeeId, 
+      workType, 
+      isRegular, 
+      recordGroupId 
+    })
   }
 
   @Post('work/:workId')

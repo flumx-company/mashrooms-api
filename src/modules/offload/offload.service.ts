@@ -18,6 +18,7 @@ import { FileUploadService } from '@mush/modules/file-upload/file-upload.service
 import { BufferedFile } from '@mush/modules/file-upload/file.model'
 import { PublicFile } from '@mush/modules/file-upload/public-file.entity'
 import { OffloadRecordService } from '@mush/modules/offload-record/offload-record.service'
+import { PriceService } from '@mush/modules/price/price.service'
 import { Shift } from '@mush/modules/shift/shift.entity'
 import { ShiftService } from '@mush/modules/shift/shift.service'
 import { Storage } from '@mush/modules/storage/storage.entity'
@@ -31,7 +32,7 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 import { YieldService } from '@mush/modules/yield/yield.service'
 
-import { EFileCategory } from '@mush/core/enums'
+import { EFileCategory, EPriceTenant } from '@mush/core/enums'
 import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
 
 import { CreateOffloadDto, EditOffloadDto } from './dto'
@@ -59,6 +60,7 @@ export class OffloadService {
     private readonly storageService: StorageService,
     private readonly yieldService: YieldService,
     private readonly offloadRecordService: OffloadRecordService,
+    private readonly priceService: PriceService,
     private readonly shiftService: ShiftService,
     private readonly fileUploadService: FileUploadService,
   ) {}
@@ -556,19 +558,68 @@ export class OffloadService {
     if (shifts.length > 0 && boxTotalQuantity > 0) {
       const base = Math.floor(boxTotalQuantity / shifts.length);
       const extra = boxTotalQuantity % shifts.length;
+      
+      // Получаем цену за ящик для погрузчика при выгрузке
+      const today = formatDateToDateTime({
+        value: new Date(),
+        withTime: false,
+      }) as unknown as string;
+      
+      const priceData = await this.priceService.findPriceByClosestDate({
+        tenant: EPriceTenant.BOX_OFFLOAD_LOADER,
+        date: today,
+      });
+      
+      const pricePerBox = priceData?.price || 0;
+      
       for (let i = 0; i < shifts.length; i++) {
         const qty = base + (i < extra ? 1 : 0);
+        const workAmount = qty * pricePerBox;
+        
         await this.shiftOffloadRepository.save(
           this.shiftOffloadRepository.create({
             offload: savedNewOffload,
             shift: shifts[i],
             boxQuantity: qty,
+            workAmount: workAmount,
           })
         );
       }
     }
 
     return savedNewOffload
+  }
+
+  /**
+   * Обновляет поле workAmount для всех существующих записей ShiftOffload
+   */
+  async updateWorkAmountForExistingShiftOffloads(): Promise<void> {
+    const shiftOffloads = await this.shiftOffloadRepository.find({
+      relations: ['offload'],
+    });
+
+    for (const shiftOffload of shiftOffloads) {
+      if (shiftOffload.workAmount === 0 && shiftOffload.boxQuantity > 0) {
+        // Получаем цену за ящик для погрузчика при выгрузке
+        const offloadDate = formatDateToDateTime({
+          value: shiftOffload.offload.createdAt,
+          withTime: false,
+        }) as unknown as string;
+        
+        const priceData = await this.priceService.findPriceByClosestDate({
+          tenant: EPriceTenant.BOX_OFFLOAD_LOADER,
+          date: offloadDate,
+        });
+        
+        const pricePerBox = priceData?.price || 0;
+        const workAmount = shiftOffload.boxQuantity * pricePerBox;
+        
+        await this.shiftOffloadRepository.update(
+          { id: shiftOffload.id },
+          { workAmount: workAmount }
+        );
+      }
+    }
   }
 
   async removeOffload(id: number): Promise<Boolean> {
