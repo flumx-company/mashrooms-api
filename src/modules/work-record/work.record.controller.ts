@@ -147,16 +147,18 @@ export class WorkRecordController {
     })
   }
 
-  @Get('work/:date')
+  @Get('work')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_WORK_RECORDS,
   })
-  @ApiParam({
+  @ApiQuery({
     name: 'date',
-    type: 'string',
-    example: '2020-05-11',
-  } as ApiParamOptions)
+    required: false,
+    type: String,
+    description: 'Дата для фильтрации записей (формат: YYYY-MM-DD)',
+    example: '2025-08-04',
+  })
   @ApiQuery({
     name: 'chamberId',
     required: false,
@@ -201,16 +203,16 @@ export class WorkRecordController {
   })
   @ApiOperation({
     summary:
-      'Find work records by date. Role: SUPERADMIN, ADMIN. Permission: READ_WORK_RECORDS.',
+      'Find work records by filters. Role: SUPERADMIN, ADMIN. Permission: READ_WORK_RECORDS.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Will return the work records of that date.',
+    description: 'Will return the work records by filters.',
     type: WorkRecord,
     isArray: true,
   })
   async getWorkRecordsByDate(
-    @Param('date') date: string,
+    @Query('date') date?: string,
     @Query('chamberId') chamberId?: number,
     @Query('workId') workId?: number,
     @Query('shiftId') shiftId?: number,
