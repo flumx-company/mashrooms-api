@@ -612,10 +612,10 @@ export class ShiftService {
         })
 
         const workingDayNumber = Object.keys(wageDirectory).length
-        // const wage = Object.values(wageDirectory).reduce(
-        //   (total, dayWage) => total + dayWage,
-        //   0,
-        // )
+        const wage = Object.values(wageDirectory).reduce(
+          (total, dayWage) => total + dayWage,
+          0,
+        )
         let kitchenExpenses = 0
         let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
         let wageTotal = 0
@@ -644,17 +644,19 @@ export class ShiftService {
         calculateKitchenExpenses(dateFrom as unknown as string)
 
         // Получаем количество коробок для этой смены
-        const boxQuantity = await this.getBoxQuantityForShift(shiftId);
+        // const boxQuantity = await this.getBoxQuantityForShift(shiftId);
         // Получаем цену за коробку (например, BOX_OFFLOAD_LOADER)
-        const pricePerBox = priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER]?.default || 0;
+        // const pricePerBox = priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER]?.default || 0;
         // Зарплата только по коробкам
-        const wage = boxQuantity * pricePerBox;
+        // const wage = boxQuantity * pricePerBox;
 
         if (workingDayNumber >= automaticBonusMinimumDayNumber) {
             bonus += wage * automaticBonusPercent
         }
 
-        wageTotal = wage + bonus + customBonus - kitchenExpenses
+        // TODO removed kitchen expenses
+        // wageTotal = wage + bonus + customBonus - kitchenExpenses
+        wageTotal = wage + bonus + customBonus
         remainedPayment = wageTotal - paidAmount
 
         const updatedShift: Shift = await this.shiftRepository.create({
@@ -882,8 +884,8 @@ export class ShiftService {
             const date = dayjs(i.createdAt).format('YYYY-MM-DD')
             const price = getNearestPrice({tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date})
             const previousValue = wageDirectory?.[date] || 0
-            i['price'] = i.boxTotalQuantity * price
-            wageDirectory[date] = i.boxTotalQuantity * price + previousValue
+            i['price'] = i.shiftOffloads[0].workAmount
+            wageDirectory[date] = i.shiftOffloads[0].workAmount + previousValue
         })
 
         waterings.forEach((i) => {
@@ -904,9 +906,14 @@ export class ShiftService {
         })
 
         const workingDayNumber = Object.keys(wageDirectory).length
-        const boxQuantity = await this.getBoxQuantityForShift(shift.id); // или shiftId
-        const pricePerBox = priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER]?.default || 0;
-        const wage = boxQuantity * pricePerBox;
+
+        const wage = Object.values(wageDirectory).reduce(
+            (total, dayWage) => total + dayWage,
+            0,
+        )
+        // const boxQuantity = await this.getBoxQuantityForShift(shift.id); // или shiftId
+        // const pricePerBox = priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER]?.default || 0;
+        // const wage = boxQuantity * pricePerBox;
         let kitchenExpenses = 0
         let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
         let wageTotal = 0
@@ -938,7 +945,9 @@ export class ShiftService {
             bonus += wage * automaticBonusPercent
         }
 
-        wageTotal = wage + bonus + customBonus - kitchenExpenses
+        // TODO removed kitchen expenses
+        // wageTotal = wage + bonus + customBonus - kitchenExpenses
+        wageTotal = wage + bonus + customBonus
         remainedPayment = wageTotal - paidAmount
         return {
             ...shift,
@@ -1150,8 +1159,8 @@ export class ShiftService {
             }) as unknown as string
             const price = getNearestPrice({tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date})
             const previousValue = wageDirectory?.[date] || 0
-            i['price'] = i.boxTotalQuantity * price
-            wageDirectory[date] = i.boxTotalQuantity * price + previousValue
+            i['price'] = i.shiftOffloads[0].workAmount
+            wageDirectory[date] = i.shiftOffloads[0].workAmount + previousValue
         })
 
         waterings.forEach((i) => {
@@ -1171,9 +1180,13 @@ export class ShiftService {
         })
 
         const workingDayNumber = Object.keys(wageDirectory).length
-        const boxQuantity = await this.getBoxQuantityForShift(shift.id); // или shiftId
-        const pricePerBox = priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER]?.default || 0;
-        const wage = boxQuantity * pricePerBox;
+        const wage = Object.values(wageDirectory).reduce(
+            (total, dayWage) => total + dayWage,
+            0,
+        )
+        // const boxQuantity = await this.getBoxQuantityForShift(shift.id); // или shiftId
+        // const pricePerBox = priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER]?.default || 0;
+        // const wage = boxQuantity * pricePerBox;
         let kitchenExpenses = 0
         let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
         let wageTotal = 0
@@ -1205,7 +1218,9 @@ export class ShiftService {
             bonus = wage * automaticBonusPercent
         }
 
-        wageTotal = wage + bonus + customBonus - kitchenExpenses
+        // TODO removed kitchen expenses
+        // wageTotal = wage + bonus + customBonus - kitchenExpenses
+        wageTotal = wage + bonus + customBonus
         remainedPayment = wageTotal - paidAmount
         return {
             ...shift,
