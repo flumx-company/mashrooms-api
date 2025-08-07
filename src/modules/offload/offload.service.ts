@@ -500,7 +500,7 @@ export class OffloadService {
       author: user,
       client,
       driver,
-      shiftOffloads: shifts,
+      shiftOffloads: [],
       priceTotal,
       priceCounted,
       paidMoney,
@@ -569,13 +569,13 @@ export class OffloadService {
         tenant: EPriceTenant.BOX_OFFLOAD_LOADER,
         date: today,
       });
-      
+
       const pricePerBox = priceData?.price || 0;
       
       for (let i = 0; i < shifts.length; i++) {
         const qty = base + (i < extra ? 1 : 0);
         const workAmount = qty * pricePerBox;
-        
+
         await this.shiftOffloadRepository.save(
           this.shiftOffloadRepository.create({
             offload: savedNewOffload,
