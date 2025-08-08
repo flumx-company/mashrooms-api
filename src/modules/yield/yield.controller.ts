@@ -1,9 +1,10 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common'
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common'
 import {
   ApiBadGatewayResponse,
   ApiOperation,
   ApiParam,
   ApiParamOptions,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
@@ -31,7 +32,14 @@ export class YieldController {
   })
   @ApiOperation({
     summary:
-      'Get all yields from database grouped by categories with daily summaries. Role: SUPERADMIN, ADMIN. Permission: READ_YIELDS.',
+      'Get all yields from database grouped by categories with daily summaries. Use ?waveId={id} to filter by wave. Role: SUPERADMIN, ADMIN. Permission: READ_YIELDS.',
+  })
+  @ApiQuery({
+    name: 'waveId',
+    type: 'number',
+    example: 1,
+    required: false,
+    description: 'Filter yields by wave ID',
   })
   @ApiResponse({
     status: 200,
@@ -39,8 +47,11 @@ export class YieldController {
     type: Object,
     isArray: true,
   })
-  async getAllYields(): Promise<object[]> {
-    return this.yieldService.findAll()
+  async getAllYields(
+    @Query('waveId') waveId?: string,
+  ): Promise<object[]> {
+    const waveIdNumber = waveId ? parseInt(waveId) : undefined
+    return this.yieldService.findAll(waveIdNumber)
   }
 
   @Get('batch/:batchId/category/:categoryId/wave/:waveId/date/:date')

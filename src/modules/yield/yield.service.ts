@@ -27,7 +27,7 @@ export class YieldService {
     private readonly waveService: WaveService,
   ) {}
 
-  async findAll(): Promise<object[]> {
+  async findAll(waveId?: number): Promise<object[]> {
     // Сначала получаем все сорта
     const allVarieties = await this.yieldRepository
       .createQueryBuilder('yield')
@@ -37,10 +37,18 @@ export class YieldService {
       .addGroupBy('variety.name')
       .getRawMany()
 
-    const yields = await this.yieldRepository
+    const yieldsQuery = this.yieldRepository
       .createQueryBuilder('yield')
       .leftJoinAndSelect('yield.category', 'category')
       .leftJoinAndSelect('yield.variety', 'variety')
+      .leftJoinAndSelect('yield.wave', 'wave')
+
+    // Добавляем фильтр по waveId если передан
+    if (waveId) {
+      yieldsQuery.where('wave.id = :waveId', { waveId })
+    }
+
+    const yields = await yieldsQuery
       .orderBy('category.name', 'ASC')
       .addOrderBy('yield.date', 'ASC')
       .addOrderBy('variety.name', 'ASC')
