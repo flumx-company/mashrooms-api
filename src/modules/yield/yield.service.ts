@@ -27,6 +27,100 @@ export class YieldService {
     private readonly waveService: WaveService,
   ) {}
 
+  async findAll(): Promise<object[]> {
+    // Сначала получаем все сорта
+    const allVarieties = await this.yieldRepository
+      .createQueryBuilder('yield')
+      .select(['variety.id', 'variety.name'])
+      .leftJoin('yield.variety', 'variety')
+      .groupBy('variety.id')
+      .addGroupBy('variety.name')
+      .getRawMany()
+
+    const yields = await this.yieldRepository
+      .createQueryBuilder('yield')
+      .leftJoinAndSelect('yield.category', 'category')
+      .leftJoinAndSelect('yield.variety', 'variety')
+      .orderBy('category.name', 'ASC')
+      .addOrderBy('yield.date', 'ASC')
+      .addOrderBy('variety.name', 'ASC')
+      .getMany()
+
+    // Группируем результаты по категориям и датам
+    const groupedByCategory = {}
+    
+    yields.forEach((yieldData) => {
+
+      const categoryId = yieldData.category.id
+      const categoryName = yieldData.category.name
+      const date = yieldData.date
+      const varietyId = yieldData.variety.id
+      const varietyName = yieldData.variety.name
+      
+      if (!groupedByCategory[categoryId]) {
+        groupedByCategory[categoryId] = {
+          category: {
+            id: categoryId,
+            name: categoryName,
+            description: yieldData.category.description,
+            createdAt: yieldData.category.createdAt,
+            updatedAt: yieldData.category.updatedAt
+          },
+          dailyData: {}
+        }
+      }
+      
+      if (!groupedByCategory[categoryId].dailyData[date]) {
+        groupedByCategory[categoryId].dailyData[date] = {
+          date: date,
+          varieties: {},
+          totals: {
+            weight: 0,
+            boxQuantity: 0
+          }
+        }
+      }
+      
+      // Добавляем данные по сорту
+      groupedByCategory[categoryId].dailyData[date].varieties[varietyName] = {
+        id: varietyId,
+        weight: Number(yieldData.weight) || 0,
+        boxQuantity: Number(yieldData.boxQuantity) || 0
+      }
+      
+      // Суммируем в общие данные за день
+      groupedByCategory[categoryId].dailyData[date].totals.weight += Number(yieldData.weight) || 0
+      groupedByCategory[categoryId].dailyData[date].totals.boxQuantity += Number(yieldData.boxQuantity) || 0
+    })
+
+    // Преобразуем dailyData из объекта в массив и заполняем недостающие сорта
+    Object.keys(groupedByCategory).forEach(categoryId => {
+      const dailyDataArray = []
+      Object.keys(groupedByCategory[categoryId].dailyData).forEach(date => {
+        const dayData = groupedByCategory[categoryId].dailyData[date]
+        
+        // Добавляем все сорта, которых нет в этом дне
+        allVarieties.forEach(variety => {
+          if (!dayData.varieties[variety.variety_name]) {
+            dayData.varieties[variety.variety_name] = {
+              id: variety.variety_id,
+              weight: 0,
+              boxQuantity: 0
+            }
+          }
+        })
+        
+        dayData.totals.weight = Math.round(dayData.totals.weight * 100) / 100
+        dayData.totals.boxQuantity = Math.round(dayData.totals.boxQuantity)
+        
+        dailyDataArray.push(dayData)
+      })
+      groupedByCategory[categoryId].dailyData = dailyDataArray
+    })
+
+    return Object.values(groupedByCategory)
+  }
+
   async findAllByAllParameters({
     date,
     batchId,

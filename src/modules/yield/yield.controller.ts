@@ -24,6 +24,25 @@ import { YieldService } from './yield.service'
 export class YieldController {
   constructor(readonly yieldService: YieldService) {}
 
+  @Get()
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_YIELDS,
+  })
+  @ApiOperation({
+    summary:
+      'Get all yields from database grouped by categories with daily summaries. Role: SUPERADMIN, ADMIN. Permission: READ_YIELDS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return all yields grouped by categories with daily summaries.',
+    type: Object,
+    isArray: true,
+  })
+  async getAllYields(): Promise<object[]> {
+    return this.yieldService.findAll()
+  }
+
   @Get('batch/:batchId/category/:categoryId/wave/:waveId/date/:date')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
