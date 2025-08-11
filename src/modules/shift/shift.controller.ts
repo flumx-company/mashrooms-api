@@ -237,8 +237,7 @@ export class ShiftController {
     @Param('shiftId', ParseIntPipe) shiftId: number,
     @Body() data: UpdateShiftDto,
   ): Promise<Shift> {
-    const shift = await this.shiftService.findShift(shiftId)
-    return this.shiftService.runShiftCalculations(shift.employee.id, data)
+    return this.shiftService.runShiftCalculationsById(shiftId, data)
   }
 
   @Post(':shiftId/bonus')
