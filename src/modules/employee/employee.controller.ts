@@ -77,9 +77,11 @@ export class EmployeeController {
     @Query('isActive') isActive?: number,
   ): Promise<Paginated<Employee>> {
     const mappedQuery: any = { ...query }
-    mappedQuery.filter = {
-      ...(mappedQuery.filter || {}),
-      isActive: String(isActive),
+    if (isActive) {
+      mappedQuery.filter = {
+        ...(mappedQuery.filter || {}),
+        isActive: String(isActive),
+      }
     }
     return this.employeeService.findAll(mappedQuery)
   }
