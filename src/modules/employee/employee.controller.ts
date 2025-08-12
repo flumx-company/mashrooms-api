@@ -16,6 +16,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Query,
   Post,
   Put,
   Res,
@@ -73,8 +74,14 @@ export class EmployeeController {
   @ApiPaginationQuery(employeePaginationConfig)
   async getAllEmployees(
     @Paginate() query: PaginateQuery,
+    @Query('isActive') isActive?: number,
   ): Promise<Paginated<Employee>> {
-    return this.employeeService.findAll(query)
+    const mappedQuery: any = { ...query }
+    mappedQuery.filter = {
+      ...(mappedQuery.filter || {}),
+      isActive: String(isActive),
+    }
+    return this.employeeService.findAll(mappedQuery)
   }
 
   @Get(':id')
