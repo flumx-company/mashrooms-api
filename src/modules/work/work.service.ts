@@ -21,6 +21,12 @@ export class WorkService {
     return paginate(query, this.workRepository, workPaginationConfig)
   }
 
+  findAllWithoutPagination(): Promise<Work[]> {
+    return this.workRepository.find({
+      order: { isRegular: 'DESC', title: 'ASC' },
+    })
+  }
+
   findWorkById(id: number): Promise<Nullable<Work>> {
     return this.workRepository.findOneBy({ id })
   }

@@ -65,6 +65,25 @@ export class WorkController {
     return this.workService.findAll(query)
   }
 
+  @Get('all')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_WORKS,
+  })
+  @ApiOperation({
+    summary:
+      'Get list of all works without pagination. Role: SUPERADMIN, ADMIN. Permission: READ_WORKS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return all works.',
+    type: Work,
+    isArray: true,
+  })
+  async getAllWorksWithoutPagination(): Promise<Work[]> {
+    return this.workService.findAllWithoutPagination()
+  }
+
   @Post()
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
