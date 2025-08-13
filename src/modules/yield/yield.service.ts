@@ -346,7 +346,6 @@ export class YieldService {
   async createYields({
     offloadRecords,
     byIdWaves,
-    date,
     byBatchIdCategoryIdSubbatches,
   }: {
     offloadRecords: OffloadRecord[]
@@ -357,11 +356,13 @@ export class YieldService {
     const sortedOffloadRecords = {}
     const yieldData = []
 
+    // Группируем по category -> wave -> variety -> date -> offloadId
     offloadRecords.forEach((offloadRecord) => {
       const categoryId = offloadRecord.category.id
       const waveId = offloadRecord.wave.id
       const varietyId = offloadRecord.variety.id
       const offloadId = offloadRecord.id
+      const dateKey = String(offloadRecord.cuttingDate).slice(0, 10)
 
       if (!sortedOffloadRecords[categoryId]) {
         sortedOffloadRecords[categoryId] = {}
@@ -375,7 +376,11 @@ export class YieldService {
         sortedOffloadRecords[categoryId][waveId][varietyId] = {}
       }
 
-      sortedOffloadRecords[categoryId][waveId][varietyId][offloadId] =
+      if (!sortedOffloadRecords[categoryId][waveId][varietyId]?.[dateKey]) {
+        sortedOffloadRecords[categoryId][waveId][varietyId][dateKey] = {}
+      }
+
+      sortedOffloadRecords[categoryId][waveId][varietyId][dateKey][offloadId] =
         offloadRecord
     })
 
@@ -387,45 +392,46 @@ export class YieldService {
 
         return Object.keys(sortedOffloadRecords[categoryId][waveId]).forEach(
           (varietyId) => {
-            const yieldItem: {
-              date: string
-              category: object
-              variety: object
-              batch: object
-              wave: object
-              weight: number
-              boxQuantity: number
-              percent: number
-            } = {
-              date,
-              category: { id: parseInt(categoryId) },
-              variety: { id: parseInt(varietyId) },
-              batch: { id: batchId },
-              wave: { id: parseInt(waveId) },
-              weight: 0,
-              boxQuantity: 0,
-              percent: 0,
-            }
+            const byDate = sortedOffloadRecords[categoryId][waveId][varietyId]
+            Object.keys(byDate).forEach((dateKey) => {
+              const yieldItem: {
+                date: string
+                category: object
+                variety: object
+                batch: object
+                wave: object
+                weight: number
+                boxQuantity: number
+                percent: number
+              } = {
+                date: dateKey,
+                category: { id: parseInt(categoryId) },
+                variety: { id: parseInt(varietyId) },
+                batch: { id: batchId },
+                wave: { id: parseInt(waveId) },
+                weight: 0,
+                boxQuantity: 0,
+                percent: 0,
+              }
 
-            Object.keys(
-              sortedOffloadRecords[categoryId][waveId][varietyId],
-            ).forEach((offloadId) => {
-              const data = sortedOffloadRecords[categoryId][waveId][varietyId][offloadId]
-              const netWeight = data.netWeight || data.weight
-              const boxQuantity = data.boxQuantity
-              const percent: number = (netWeight - (boxQuantity * 0.4)) / compostWeight
-              const weight =  (netWeight - (boxQuantity * 0.4))
+              Object.keys(byDate[dateKey]).forEach((offloadId) => {
+                const data = byDate[dateKey][offloadId]
+                const netWeight = data.netWeight || data.weight
+                const boxQuantity = data.boxQuantity
+                const percent: number = (netWeight - (boxQuantity * 0.4) - data.storeContainer.weight) / compostWeight
+                const weight = (netWeight - (boxQuantity * 0.4) - data.storeContainer.weight)
 
-              yieldItem.weight = Number.parseFloat(
-                (yieldItem.weight + weight).toFixed(3),
-              )
-              yieldItem.boxQuantity = yieldItem.boxQuantity + boxQuantity
-              yieldItem.percent = Number.parseFloat(
-                (yieldItem.percent + percent).toFixed(5),
-              ) / 100
+                yieldItem.weight = Number.parseFloat(
+                  (yieldItem.weight + weight).toFixed(3),
+                )
+                yieldItem.boxQuantity = yieldItem.boxQuantity + boxQuantity
+                yieldItem.percent = Number.parseFloat(
+                  (yieldItem.percent + percent).toFixed(5),
+                ) / 100
+              })
+
+              yieldData.push(yieldItem)
             })
-
-            yieldData.push(yieldItem)
           },
         )
       })

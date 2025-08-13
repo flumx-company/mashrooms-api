@@ -215,11 +215,7 @@ export class OffloadService {
       varietyId: number
       categoryId: number
     }> = []
-    const today: string = String(
-      formatDateToDateTime({
-        value: new Date(Date.now()),
-      }),
-    )
+    // date for yield entries will be taken from each offload record's cuttingDate
     let priceCounted: number = 0
     let boxTotalQuantity: number = 0
     const {
@@ -1172,10 +1168,12 @@ export class OffloadService {
       .leftJoinAndSelect('offloadRecords.batch', 'batch')
       .leftJoinAndSelect('offloadRecords.variety', 'variety')
       .leftJoinAndSelect('offloadRecords.category', 'categoryOffload')
+      .leftJoinAndSelect('offloadRecords.storeContainer', 'storeContainer')
       .leftJoinAndSelect('batch.subbatches', 'subbatches')
       .leftJoinAndSelect('subbatches.category', 'category')
       .where('offload.id = :offloadId', { offloadId })
       .getOne()
+    console.log('foundOffload', foundOffload)
     const {
       id: clientId,
       // moneyDebt,
@@ -1268,7 +1266,8 @@ export class OffloadService {
     })
 
     await this.yieldService.createYields({
-      date: today,
+      // date will be derived from offloadRecord.cuttingDate inside service
+      date: '',
       offloadRecords: foundOffload.offloadRecords,
       byIdWaves: byIdWaves as Record<number, Wave>,
       byBatchIdCategoryIdSubbatches,
