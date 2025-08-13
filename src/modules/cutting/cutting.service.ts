@@ -67,7 +67,11 @@ export class CuttingService {
       .createQueryBuilder('cutting')
       .select([
         'SUM(cutting.boxQuantity) as totalBox',
-        'DATE(cutting.createdAt) as createdAt'
+        'DATE(cutting.createdAt) as createdAt',
+        'category.id as "categoryId"',
+        'variety.id as "varietyId"',
+        'batch.id as "batchId"',
+        'chamberAl.id as "chamberId"',
       ])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('cutting.category', 'category')
@@ -76,6 +80,10 @@ export class CuttingService {
       .leftJoin('batch.chamber', 'chamberAl')
       .where('loaderShift.id = :shiftId', { shiftId: shiftId })
       .groupBy('createdAt')
+      .addGroupBy('category.id')
+      .addGroupBy('variety.id')
+      .addGroupBy('batch.id')
+      .addGroupBy('chamberAl.id')
       .getRawMany();
   }
 
@@ -85,6 +93,10 @@ export class CuttingService {
       .select([
         'SUM(cutting.boxQuantity) as totalBox',
         'DATE(cutting.createdAt) as createdAt',
+        'category.id as "categoryId"',
+        'variety.id as "varietyId"',
+        'batch.id as "batchId"',
+        'chamberAl.id as "chamberId"',
       ])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('cutting.category', 'category')
@@ -94,6 +106,10 @@ export class CuttingService {
       .where('cutterShift.id = :shiftId', { shiftId: shiftId })
       .andWhere('variety.isCutterPaid = 1')
       .groupBy('createdAt')
+      .addGroupBy('category.id')
+      .addGroupBy('variety.id')
+      .addGroupBy('batch.id')
+      .addGroupBy('chamberAl.id')
       .getRawMany();
   }
 
