@@ -62,7 +62,8 @@ export class WorkRecordService {
         'chamber.name',
         'chamber.area',
       ])
-      .orderBy('work.title', 'ASC')
+      .orderBy('workRecord.createdAt', 'DESC')
+      .addOrderBy('work.title', 'ASC')
 
     if (filters.chamberId) {
       qb.andWhere('chamber.id = :chamberId', { chamberId: filters.chamberId })
@@ -117,7 +118,8 @@ export class WorkRecordService {
         'chamber.name',
         'chamber.area',
       ])
-      .orderBy('workRecord.date', 'DESC')
+      .orderBy('workRecord.createdAt', 'DESC')
+      .addOrderBy('workRecord.date', 'DESC')
       .addOrderBy('work.title', 'ASC')
 
     return qb.getMany()
