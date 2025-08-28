@@ -35,6 +35,7 @@ import { UpdateWorkRecordDto } from './dto/update.work.record'
 import { WorkRecord } from './work.record.entity'
 import { WorkRecordService } from './work.record.service'
 import { groupedWorkRecordPaginationConfig } from './pagination'
+import * as dayjs from 'dayjs';
 
 @ApiTags('Work Records')
 @ApiBadGatewayResponse({
@@ -221,6 +222,7 @@ export class WorkRecordController {
     @Query('isRegular') isRegular?: boolean,
     @Query('recordGroupId') recordGroupId?: number,
   ) {
+    date = date || dayjs().format('YYYY-MM-DD');
     return this.workRecordService.findAllByDate(date, { 
       chamberId, 
       workId, 
