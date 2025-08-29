@@ -460,7 +460,9 @@ export class WorkRecordService {
 
     // Трансформируем данные как в функции на фронтенде
     const grouped = workRecords.reduce((acc: Record<string, any>, item) => {
-      const key = `${item.work.id}_${item.chamber.id}`
+      // Добавляем дату в ключ группировки, чтобы работы за разные даты не объединялись
+      const itemDate = typeof item.date === 'string' ? item.date : item.date.toISOString().split('T')[0]
+      const key = `${item.work.id}_${item.chamber.id}_${itemDate}`
       const extendedItem = {
         ...item,
         employeeId: item.shift?.employee?.id || null
@@ -469,7 +471,7 @@ export class WorkRecordService {
       if (!acc[key]) {
         acc[key] = {
           type: "exist",
-          createdAt: typeof item.date === 'string' ? item.date : item.date.toISOString().split('T')[0],
+          createdAt: itemDate,
           work: item.work,
           workId: item.work.id,
           recordGroupId: item.recordGroupId,
@@ -624,7 +626,9 @@ export class WorkRecordService {
 
     // Трансформируем данные как в функции на фронтенде
     const grouped = workRecords.reduce((acc: Record<string, any>, item) => {
-      const key = `${item.work.id}_${item.chamber.id}`
+      // Добавляем дату в ключ группировки, чтобы работы за разные даты не объединялись
+      const itemDate = typeof item.date === 'string' ? item.date : item.date.toISOString().split('T')[0]
+      const key = `${item.work.id}_${item.chamber.id}_${itemDate}`
       const extendedItem = {
         ...item,
         employeeId: item.shift?.employee?.id || null
@@ -633,7 +637,7 @@ export class WorkRecordService {
       if (!acc[key]) {
         acc[key] = {
           type: "exist",
-          createdAt: typeof item.date === 'string' ? item.date : item.date.toISOString().split('T')[0],
+          createdAt: itemDate,
           work: item.work,
           workId: item.work.id,
           recordGroupId: item.recordGroupId,
