@@ -729,9 +729,41 @@ export class OffloadService {
       }),
     ])
 
-    this.clientService.updateClient(foundOffload.client.id,{
-      ...foundOffload.client,
-      moneyDebt: foundOffload.client.moneyDebt + (foundOffload.priceTotal - priceTotal)
+    // Правильно пересчитываем долг клиента при изменении цены отгрузки
+    // Сначала вычитаем старую цену отгрузки, затем добавляем новую
+    const oldPriceTotal = foundOffload.priceTotal;
+    const newPriceTotal = priceTotal;
+    
+    // Вычисляем разницу в цене
+    const priceDifference = newPriceTotal - oldPriceTotal;
+    
+    // Обновляем долг клиента: добавляем разницу в цене
+    const newMoneyDebt = foundOffload.client.moneyDebt + priceDifference;
+    
+    // Правильно пересчитываем долги по контейнерам
+    // Вычисляем разницу между новыми и старыми значениями контейнеров
+    const delContainer1_7Difference = (delContainer1_7Out - delContainer1_7In) - 
+      (foundOffload.delContainer1_7Out - foundOffload.delContainer1_7In);
+    const delContainer0_5Difference = (delContainer0_5Out - delContainer0_5In) - 
+      (foundOffload.delContainer0_5Out - foundOffload.delContainer0_5In);
+    const delContainer0_4Difference = (delContainer0_4Out - delContainer0_4In) - 
+      (foundOffload.delContainer0_4Out - foundOffload.delContainer0_4In);
+    const delContainerSchoellerDifference = (delContainerSchoellerOut - delContainerSchoellerIn) - 
+      (foundOffload.delContainerSchoellerOut - foundOffload.delContainerSchoellerIn);
+    
+    // Обновляем долги по контейнерам: добавляем разницу
+    const newDelContainer1_7Debt = foundOffload.client.delContainer1_7Debt + delContainer1_7Difference;
+    const newDelContainer0_5Debt = foundOffload.client.delContainer0_5Debt + delContainer0_5Difference;
+    const newDelContainer0_4Debt = foundOffload.client.delContainer0_4Debt + delContainer0_4Difference;
+    const newDelContainerSchoellerDebt = foundOffload.client.delContainerSchoellerDebt + delContainerSchoellerDifference;
+    
+    this.clientService.updateClientDebt({
+      id: foundOffload.client.id,
+      moneyDebt: newMoneyDebt,
+      delContainer1_7Debt: newDelContainer1_7Debt,
+      delContainer0_5Debt: newDelContainer0_5Debt,
+      delContainer0_4Debt: newDelContainer0_4Debt,
+      delContainerSchoellerDebt: newDelContainerSchoellerDebt,
     })
 
     return this.offloadRepository.save(updatedOffload)
