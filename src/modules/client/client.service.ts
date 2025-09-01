@@ -333,7 +333,11 @@ export class ClientService {
     if (!client) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
-    client.moneyDebt = Number(client.moneyDebt) + Math.abs(Number(moneyDebt));
+    const currentDebt = Number(client.moneyDebt) || 0;
+    const payment = Math.abs(Number(moneyDebt)) || 0;
+    // Reduce debt by payment and do not allow negative debt here
+    const updatedDebt = currentDebt - payment;
+    client.moneyDebt = updatedDebt < 0 ? 0 : updatedDebt;
     await this.clientRepository.save(client);
     return Number(client.moneyDebt);
   }
