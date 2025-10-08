@@ -11,7 +11,7 @@ export const TypeORMConfig: TypeOrmModuleOptions = {
   username: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
-  timezone: 'Europe/Kiev',
+  timezone: '+03:00', // Должен совпадать с MySQL default-time-zone
   //migrations: ['dist/migrations/*{.ts,.js}'],
   autoLoadEntities: true,
   migrationsRun: true,

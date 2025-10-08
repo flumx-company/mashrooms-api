@@ -13,7 +13,7 @@ export const datasource = new DataSource({
   entities: ['dist/modules/**/*.entity{ .ts,.js}'],
   migrations: ['dist/src/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations_TypeORM',
-  timezone: 'Europe/Kiev',
+  timezone: '+03:00', // Должен совпадать с MySQL default-time-zone
   extra: {
     decimalNumbers: true,
   },
