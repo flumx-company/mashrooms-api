@@ -42,6 +42,8 @@ export class ClientService {
   findClientByIdWithRelations(id: number): Promise<Nullable<Client>> {
     return this.clientRepository
       .createQueryBuilder('client')
+      .leftJoinAndSelect('client.offloads', 'offloads')
+      .leftJoinAndSelect('client.files', 'files')
       .where('client.id = :id', { id })
       .getOne()
   }
@@ -237,16 +239,16 @@ export class ClientService {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    const { offloads } = foundClient
+    const { offloads, files } = foundClient
 
-    if (offloads.length) {
+    if (offloads && offloads.length > 0) {
       throw new HttpException(
         CError.ENTITY_HAS_DEPENDENT_RELATIONS,
         HttpStatus.BAD_REQUEST,
       )
     }
 
-    const fileIdList = foundClient.files.map((file) => file.id)
+    const fileIdList = files ? files.map((file) => file.id) : []
 
     try {
       await Promise.all([
