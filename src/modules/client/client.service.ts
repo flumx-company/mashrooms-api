@@ -241,11 +241,10 @@ export class ClientService {
 
     const { offloads, files } = foundClient
 
+    // Проверяем наличие связанных offloads, но не блокируем удаление
+    // так как в базе данных настроено каскадное удаление
     if (offloads && offloads.length > 0) {
-      throw new HttpException(
-        CError.ENTITY_HAS_DEPENDENT_RELATIONS,
-        HttpStatus.BAD_REQUEST,
-      )
+      console.warn(`Warning: Deleting client ${id} will also delete ${offloads.length} related offloads due to cascade delete.`)
     }
 
     const fileIdList = files ? files.map((file) => file.id) : []
@@ -257,8 +256,16 @@ export class ClientService {
           this.fileUploadService.deletePublicFiles(fileIdList),
       ])
 
+      // Логируем успешное удаление с информацией о каскадном удалении
+      if (offloads && offloads.length > 0) {
+        console.log(`Successfully deleted client ${id} and ${offloads.length} related offloads.`)
+      } else {
+        console.log(`Successfully deleted client ${id}.`)
+      }
+
       return true
     } catch (e) {
+      console.error(`Error deleting client ${id}:`, e)
       return false
     }
   }
