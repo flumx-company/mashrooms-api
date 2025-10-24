@@ -12,7 +12,7 @@ const execPromise = promisify(exec);
 @Injectable()
 export class BackupDatabaseService {
   private readonly logger = new Logger(BackupDatabaseService.name);
-  private readonly dbUser = 'root';
+  private readonly dbUser = process.env.MYSQL_USER;
   private readonly dbPassword = process.env.MYSQL_PASSWORD;
   private readonly dbName = process.env.MYSQL_DATABASE;
   private readonly mysqlContainer = process.env.PMA_HOST;
