@@ -7,7 +7,7 @@ import { Variety } from '@mush/modules/variety/variety.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'storages' })
 export class Storage extends DatedBasicEntity {
@@ -23,7 +23,7 @@ export class Storage extends DatedBasicEntity {
         return formatDateToDateTime({ value })
       },
       to: (value: string) => {
-        return new Date(value)
+        return dateOnlyStringToUTCDate(value) as Date
       },
     },
   })

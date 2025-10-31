@@ -10,7 +10,7 @@ import { Variety } from '@mush/modules/variety/variety.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'offload-records' })
 export class OffloadRecord extends DatedBasicEntity {
@@ -52,7 +52,7 @@ export class OffloadRecord extends DatedBasicEntity {
     type: 'date',
     transformer: {
       from: (value: Date) => formatDateToDateTime({ value }),
-      to: (value: string) => new Date(value),
+      to: (value: string) => dateOnlyStringToUTCDate(value) as Date,
     },
   })
   cuttingDate: Date

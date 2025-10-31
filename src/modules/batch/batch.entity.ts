@@ -11,7 +11,7 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 import { Yield } from '@mush/modules/yield/yield.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'batches' })
 export class Batch extends DatedBasicEntity {
@@ -35,7 +35,7 @@ export class Batch extends DatedBasicEntity {
         return formatDateToDateTime({ value, dateFrom: true })
       },
       to: (value: string) => {
-        return new Date(value)
+        return dateOnlyStringToUTCDate(value) as Date
       },
     },
   })
@@ -53,7 +53,7 @@ export class Batch extends DatedBasicEntity {
         return formatDateToDateTime({ value, dateFrom: false })
       },
       to: (value: string) => {
-        return value ? new Date(value) : value
+        return value ? (dateOnlyStringToUTCDate(value) as Date) : value
       },
     },
   })
@@ -74,7 +74,7 @@ export class Batch extends DatedBasicEntity {
       },
       to: (value: string) => {
         if(!value) return  null
-        return new Date(value)
+        return dateOnlyStringToUTCDate(value) as Date
       },
     },
     nullable: true

@@ -3,7 +3,7 @@ import { Column, Entity, Index, ManyToOne } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 import { Chamber } from '../chamber/chamber.entity'
 import { Shift } from '../shift/shift.entity'
@@ -23,7 +23,7 @@ export class WorkRecord extends DatedBasicEntity {
         return formatDateToDateTime({ value, dateFrom: true })
       },
       to: (value: string) => {
-        return new Date(value)
+        return dateOnlyStringToUTCDate(value) as Date
       },
     },
   })

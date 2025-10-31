@@ -12,7 +12,7 @@
 # The following values assume you have at least 32M ram
 
 [mysqld]
-default-time-zone = '+03:00'
+default-time-zone = '+00:00'
 #
 # * Basic Settings
 #

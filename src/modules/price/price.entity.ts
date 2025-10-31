@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { EPriceTenant } from '@mush/core/enums'
-import { formatDateToDateTime } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'prices' })
 export class Price extends DatedBasicEntity {
@@ -32,7 +32,7 @@ export class Price extends DatedBasicEntity {
     type: 'date',
     transformer: {
       from: (value: Date) => formatDateToDateTime({ value }),
-      to: (value: string) => new Date(value),
+      to: (value: string) => dateOnlyStringToUTCDate(value) as Date,
     },
   })
   date: Date

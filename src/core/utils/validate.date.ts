@@ -1,4 +1,5 @@
 import { YYYY_MM_DD_REGEX } from './regex'
+import { dateOnlyStringToUTCDate } from './date.utc'
 
 export const validateDate = (dateString: string) => {
   // NOTE: Invalid format
@@ -6,7 +7,8 @@ export const validateDate = (dateString: string) => {
     return false
   }
 
-  const date = new Date(dateString)
+  const date = dateOnlyStringToUTCDate(dateString)
+  if (!date) return false
   const time = date.getTime()
 
   // NOTE: NaN value, Invalid date

@@ -6,7 +6,7 @@ import { Batch } from '@mush/modules/batch/batch.entity'
 import { Category } from '@mush/modules/category/category.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'subbatch' })
 export class Subbatch extends DatedBasicEntity {
@@ -33,7 +33,7 @@ export class Subbatch extends DatedBasicEntity {
         return formatDateToDateTime({ value })
       },
       to: (value: string) => {
-        return value ? new Date(value) : null;
+        return value ? (dateOnlyStringToUTCDate(value) as Date) : null;
       },
     },
   })

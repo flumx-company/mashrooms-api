@@ -15,9 +15,9 @@ export const formatDateToDateTime = ({
     return value
   }
 
-  const year = value.getFullYear()
-  const month = value.getMonth() + 1
-  const day = value.getDate()
+  const year = value.getUTCFullYear()
+  const month = value.getUTCMonth() + 1
+  const day = value.getUTCDate()
   const monthString = 10 > month ? `0${month}` : month
   const dayString = 10 > day ? `0${day}` : day
 
@@ -25,8 +25,8 @@ export const formatDateToDateTime = ({
     return `${year}-${monthString}-${dayString}`
   }
 
-  const hour = providesHours ? value.getHours() : dateFrom ? '00' : '23'
-  const minute = providesMinutes ? value.getMinutes() : dateFrom ? '00' : '59'
+  const hour = providesHours ? value.getUTCHours() : dateFrom ? '00' : '23'
+  const minute = providesMinutes ? value.getUTCMinutes() : dateFrom ? '00' : '59'
   const second = dateFrom ? '00' : '59'
   const millisecond = dateFrom ? '000' : '999'
 

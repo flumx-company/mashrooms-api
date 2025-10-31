@@ -12,7 +12,7 @@ import { ShiftOffload } from '../offload/shift-offload.entity';
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { EPaymentMethod } from '@mush/core/enums'
-import { formatDateToDateTime } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'shifts' })
 export class Shift extends DatedBasicEntity {
@@ -27,7 +27,7 @@ export class Shift extends DatedBasicEntity {
         return formatDateToDateTime({ value, dateFrom: true })
       },
       to: (value: string) => {
-        return new Date(value)
+        return dateOnlyStringToUTCDate(value) as Date
       },
     },
   })
@@ -46,7 +46,7 @@ export class Shift extends DatedBasicEntity {
         return formatDateToDateTime({ value, dateFrom: false })
       },
       to: (value: string) => {
-        return value ? new Date(value) : value
+        return value ? (dateOnlyStringToUTCDate(value) as Date) : value
       },
     },
   })
