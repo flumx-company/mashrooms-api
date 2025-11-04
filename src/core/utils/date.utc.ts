@@ -1,5 +1,16 @@
-export const dateOnlyStringToUTCDate = (value: string | null): Date | null => {
+export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | null => {
   if (!value) return null
+  if (value instanceof Date) {
+    // If already a Date, extract UTC components and create new UTC date
+    return new Date(Date.UTC(
+      value.getUTCFullYear(),
+      value.getUTCMonth(),
+      value.getUTCDate()
+    ))
+  }
+  if (typeof value !== 'string') {
+    return null
+  }
   // Expecting YYYY-MM-DD
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!match) {

@@ -104,7 +104,7 @@ export class CuttingService {
       .leftJoin('cutting.cutterShift', 'cutterShift')
       .leftJoin('batch.chamber', 'chamberAl')
       .where('cutterShift.id = :shiftId', { shiftId: shiftId })
-      .andWhere('variety.isCutterPaid = 1')
+      // .andWhere('variety.isCutterPaid = 1')
       .groupBy('createdAt')
       .addGroupBy('category.id')
       .addGroupBy('variety.id')
