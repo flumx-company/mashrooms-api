@@ -729,16 +729,20 @@ export class OffloadService {
       }),
     ])
 
-    // Правильно пересчитываем долг клиента при изменении цены отгрузки
-    // Сначала вычитаем старую цену отгрузки, затем добавляем новую
+    // Правильно пересчитываем долг клиента при изменении цены отгрузки и оплаты
+    // Старый долг от этой отгрузки = oldPriceTotal - oldPaidMoney
+    // Новый долг от этой отгрузки = newPriceTotal - newPaidMoney
+    // Изменение долга = (newPriceTotal - newPaidMoney) - (oldPriceTotal - oldPaidMoney)
     const oldPriceTotal = foundOffload.priceTotal;
+    const oldPaidMoney = foundOffload.paidMoney;
     const newPriceTotal = priceTotal;
+    const newPaidMoney = paidMoney;
     
-    // Вычисляем разницу в цене
-    const priceDifference = newPriceTotal - oldPriceTotal;
+    // Вычисляем изменение долга: разница в цене минус разница в оплате
+    const debtChange = (newPriceTotal - newPaidMoney) - (oldPriceTotal - oldPaidMoney);
     
-    // Обновляем долг клиента: добавляем разницу в цене
-    const newMoneyDebt = foundOffload.client.moneyDebt + priceDifference;
+    // Обновляем долг клиента: добавляем изменение долга
+    const newMoneyDebt = foundOffload.client.moneyDebt + debtChange;
     
     // Правильно пересчитываем долги по контейнерам
     // Вычисляем разницу между новыми и старыми значениями контейнеров

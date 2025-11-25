@@ -96,20 +96,10 @@ export class WateringService {
       throw new HttpException(CError.BATCH_ENDED, HttpStatus.BAD_REQUEST)
     }
 
-    const updatedDateTimeFrom = formatDateToDateTime({
-      value: new Date(dateTimeFrom),
-      dateFrom: true,
-      withTime: true,
-      providesHours: true,
-      providesMinutes: true,
-    })
-    const updatedDateTimeTo = formatDateToDateTime({
-      value: new Date(dateTimeTo),
-      dateFrom: true,
-      withTime: true,
-      providesHours: true,
-      providesMinutes: true,
-    })
+    // Frontend sends dates already in UTC format (with 'Z')
+    // So we just parse them as UTC dates without additional conversion
+    const updatedDateTimeFrom = new Date(dateTimeFrom)
+    const updatedDateTimeTo = new Date(dateTimeTo)
 
     const newWatering: Watering = this.wateringRepository.create({
       volume,
