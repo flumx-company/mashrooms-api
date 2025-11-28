@@ -158,6 +158,7 @@ export class ShiftService {
                 'shift.wage',
                 'shift.customBonus',
                 'shift.customBonusDescription',
+                'shift.kitchenManual',
                 'shift.wageTotal',
                 'shift.paidAmount',
                 'shift.remainedPayment',
@@ -259,6 +260,7 @@ export class ShiftService {
                 'shift.wage',
                 'shift.customBonus',
                 'shift.customBonusDescription',
+                'shift.kitchenManual',
                 'shift.wageTotal',
                 'shift.paidAmount',
                 'shift.remainedPayment',
@@ -356,6 +358,7 @@ export class ShiftService {
                 'shift.wage',
                 'shift.customBonus',
                 'shift.customBonusDescription',
+                'shift.kitchenManual',
                 'shift.wageTotal',
                 'shift.paidAmount',
                 'shift.remainedPayment',
@@ -431,6 +434,10 @@ export class ShiftService {
             newShiftData && isFinite(newShiftData?.customBonus)
                 ? newShiftData.customBonus
                 : shift.customBonus
+        const kitchenManual =
+            newShiftData && isFinite(newShiftData?.kitchenManual)
+                ? newShiftData.kitchenManual
+                : shift.kitchenManual
         const paidAmount =
             newShiftData && isFinite(newShiftData?.paidAmount)
                 ? newShiftData.paidAmount
@@ -660,13 +667,14 @@ export class ShiftService {
 
         // TODO removed kitchen expenses
         // wageTotal = wage + bonus + customBonus - kitchenExpenses
-        wageTotal = wage + bonus + customBonus
+        wageTotal = wage + bonus + customBonus - kitchenManual
         remainedPayment = wageTotal - paidAmount
 
         const updatedShift: Shift = await this.shiftRepository.create({
             ...shift,
             ...(newShiftData || {}),
             kitchenExpenses,
+            kitchenManual,
             calendarDayNumber,
             workingDayNumber,
             waterings: waterings,
@@ -696,6 +704,7 @@ export class ShiftService {
                 'shift.dateFrom',
                 'shift.dateTo',
                 'shift.customBonus',
+                'shift.kitchenManual',
                 'shift.paidAmount',
                 'employee.id',
                 'bonusShifts.id',
@@ -714,6 +723,10 @@ export class ShiftService {
             newShiftData && isFinite(newShiftData?.customBonus)
                 ? newShiftData.customBonus
                 : shift.customBonus
+        const kitchenManual =
+            newShiftData && isFinite(newShiftData?.kitchenManual)
+                ? newShiftData.kitchenManual
+                : shift.kitchenManual
         const paidAmount =
             newShiftData && isFinite(newShiftData?.paidAmount)
                 ? newShiftData.paidAmount
@@ -931,13 +944,14 @@ export class ShiftService {
 
         // TODO removed kitchen expenses
         // wageTotal = wage + bonus + customBonus - kitchenExpenses
-        wageTotal = wage + bonus + customBonus
+        wageTotal = wage + bonus + customBonus - kitchenManual
         remainedPayment = wageTotal - paidAmount
 
         const updatedShift: Shift = await this.shiftRepository.create({
             ...shift,
             ...(newShiftData || {}),
             kitchenExpenses,
+            kitchenManual,
             calendarDayNumber,
             workingDayNumber,
             wage,
@@ -957,6 +971,7 @@ export class ShiftService {
                 'shift.id',
                 'shift.dateFrom',
                 'shift.customBonus',
+                'shift.kitchenManual',
                 'bonusShifts',
                 'shift.paidAmount',
                 'employee.id',
@@ -1011,6 +1026,7 @@ export class ShiftService {
 
 
         const customBonus = shift.customBonus
+        const kitchenManual = shift.kitchenManual || 0
         const paidAmount = shift.paidAmount
         const dateFrom = formatDateToDateTime({
             value: new Date(startDate),
@@ -1220,11 +1236,12 @@ export class ShiftService {
 
         // TODO removed kitchen expenses
         // wageTotal = wage + bonus + customBonus - kitchenExpenses
-        wageTotal = wage + bonus + customBonus
+        wageTotal = wage + bonus + customBonus - kitchenManual
         remainedPayment = wageTotal - paidAmount
         return {
             ...shift,
             kitchenExpenses,
+            kitchenManual,
             calendarDayNumber,
             workingDayNumber,
             wage,
@@ -1248,6 +1265,7 @@ export class ShiftService {
                 'shift.id',
                 'shift.dateFrom',
                 'shift.customBonus',
+                'shift.kitchenManual',
                 'shift.paidAmount',
                 'employee.id',
             ])
@@ -1262,6 +1280,9 @@ export class ShiftService {
         const {
             dateFrom: startDate,
         } = shift
+        const customBonus = shift.customBonus
+        const kitchenManual = shift.kitchenManual || 0
+        const paidAmount = shift.paidAmount
         const [
             cuttings,
             loadings,
@@ -1275,8 +1296,6 @@ export class ShiftService {
             this.wateringService.getByShift(shiftId as any),
             this.workRecordService.getByShift(shiftId as any),
         ])
-        const customBonus = shift.customBonus
-        const paidAmount = shift.paidAmount
         const dateFrom = formatDateToDateTime({
             value: new Date(startDate),
             withTime: true,
@@ -1493,11 +1512,12 @@ export class ShiftService {
 
         // TODO removed kitchen expenses
         // wageTotal = wage + bonus + customBonus - kitchenExpenses
-        wageTotal = wage + bonus + customBonus
+        wageTotal = wage + bonus + customBonus - kitchenManual
         remainedPayment = wageTotal - paidAmount
         return {
             ...shift,
             kitchenExpenses,
+            kitchenManual,
             calendarDayNumber,
             workingDayNumber,
             wage,

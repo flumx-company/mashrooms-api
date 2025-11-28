@@ -169,6 +169,13 @@ export class Shift extends DatedBasicEntity {
 
   @ApiProperty({
     example: 0,
+    description: 'Manual kitchen expenses amount that can be set manually.',
+  })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  kitchenManual: number
+
+  @ApiProperty({
+    example: 0,
     description: 'All the wages plus all bonuses minus kitchenExpenses.',
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })

@@ -87,6 +87,14 @@ export class UpdateShiftDto {
   @IsOptional()
   @ApiProperty({
     example: 0,
+    description: 'Manual kitchen expenses amount that can be set manually.',
+    type: Number,
+  })
+  readonly kitchenManual: number
+
+  @IsOptional()
+  @ApiProperty({
+    example: 0,
     description: 'Enter the price.',
     type: Number,
   })
