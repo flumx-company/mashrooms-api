@@ -8,6 +8,7 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger'
@@ -46,6 +47,7 @@ export class UpdateEmployeeDto {
   readonly lastName: string
 
   @IsOptional()
+  @ValidateIf((o, value) => value != null && value !== '' && String(value).trim() !== '')
   @IsString()
   @MaxLength(parseInt(process.env.MAX_PATRONYMIC_LENGTH))
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
@@ -55,7 +57,7 @@ export class UpdateEmployeeDto {
     type: String,
     required: false,
   })
-  readonly patronymic: string
+  readonly patronymic?: string
 
   @IsNumber()
   @IsOptional()
