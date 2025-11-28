@@ -11,7 +11,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger'
 
 import { EWaterTarget } from '@mush/core/enums'
-import { YYYY_MM_DD_T_HH_MM_REGEX } from '@mush/core/utils'
+import { ISO_UTC_REGEX } from '@mush/core/utils'
 
 export class CreateWateringDto {
   @IsNotEmpty()
@@ -24,9 +24,9 @@ export class CreateWateringDto {
 
   @IsDateString()
   @IsNotEmpty()
-  // @Matches(YYYY_MM_DD_T_HH_MM_REGEX)
+  @Matches(ISO_UTC_REGEX)
   @ApiProperty({
-    example: '2024-03-06T10:15',
+    example: '2024-03-06T10:15:00Z',
     description: 'Enter the date and time of watering start.',
     type: String,
   })
@@ -34,9 +34,9 @@ export class CreateWateringDto {
 
   @IsDateString()
   @IsNotEmpty()
-  // @Matches(YYYY_MM_DD_T_HH_MM_REGEX)
+  @Matches(ISO_UTC_REGEX)
   @ApiProperty({
-    example: '2024-03-06T10:45',
+    example: '2024-03-06T10:45:00Z',
     description: 'Enter the date and time of watering end.',
     type: String,
   })

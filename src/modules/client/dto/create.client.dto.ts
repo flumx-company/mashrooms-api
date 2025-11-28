@@ -43,15 +43,15 @@ export class CreateClientDto {
   })
   readonly lastName: string
 
+  @IsOptional()
   @IsString()
   @MaxLength(parseInt(process.env.MAX_PATRONYMIC_LENGTH))
-  @MinLength(1)
-  @IsNotEmpty()
   @Matches(LATIN_CYRILLIC_LETTER_NAME_REGEX)
   @ApiProperty({
     example: 'Johnovic',
     description: 'Enter patronymic.',
     type: String,
+    required: false,
   })
   readonly patronymic: string
 
