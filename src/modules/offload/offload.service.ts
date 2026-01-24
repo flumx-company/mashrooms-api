@@ -77,16 +77,16 @@ export class OffloadService {
     return this.offloadRepository.findOne({
       where: { id },
       relations: [
-        'offloadRecords', 
-        'author', 
+        'offloadRecords',
+        'author',
         'offloadRecords.variety',
         'offloadRecords.wave',
         'offloadRecords.storeContainer',
-        'offloadRecords.category', 
-        'offloadRecords.batch', 
-        'offloadRecords.batch.chamber', 
-        'client', 
-        'driver', 
+        'offloadRecords.category',
+        'offloadRecords.batch',
+        'offloadRecords.batch.chamber',
+        'client',
+        'driver',
         'documents',
           'shiftOffloads.shift',
           'shiftOffloads.shift.employee',
@@ -230,6 +230,7 @@ export class OffloadService {
       delContainerSchoellerIn,
       delContainerSchoellerOut,
       notes,
+      createdAt,
     } = data
 
     if (!client || !driver || !shifts.length) {
@@ -447,7 +448,7 @@ export class OffloadService {
             HttpStatus.BAD_REQUEST,
           )
         }
- 
+
         const storeContainerWeight = +byIdStoreContainers[storeContainerId]['weight'] || 1
         // const allBoxWeight = boxQuantity * storeContainerWeight
         boxTotalQuantity += boxQuantity
@@ -492,7 +493,7 @@ export class OffloadService {
       delContainerSchoellerOut -
       delContainerSchoellerIn
 
-    const offObj = {
+    const offObj: any = {
       author: user,
       client,
       driver,
@@ -514,10 +515,19 @@ export class OffloadService {
       offloadRecords: [],
     }
 
+    // Если передана дата создания, используем её, иначе будет использована текущая дата (автоматически)
+    if (createdAt) {
+      // Преобразуем строку "YYYY-MM-DD" в Date объект
+      // Устанавливаем время на начало дня в UTC
+      const [year, month, day] = createdAt.split('-').map(Number)
+      offObj.createdAt = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0))
+    }
+
     if(offloadId) {
       offObj['id'] = offloadId
     }
-    const newOffload: Offload = await this.offloadRepository.create(offObj)
+
+    const newOffload: Offload = this.offloadRepository.create(offObj) as unknown as Offload
 
     const savedNewOffload = await this.offloadRepository.save(newOffload)
 
@@ -554,20 +564,20 @@ export class OffloadService {
     if (shifts.length > 0 && boxTotalQuantity > 0) {
       const base = Math.floor(boxTotalQuantity / shifts.length);
       const extra = boxTotalQuantity % shifts.length;
-      
+
       // Получаем цену за ящик для погрузчика при выгрузке
       const today = formatDateToDateTime({
         value: new Date(),
         withTime: false,
       }) as unknown as string;
-      
+
       const priceData = await this.priceService.findPriceByClosestDate({
         tenant: EPriceTenant.BOX_OFFLOAD_LOADER,
         date: today,
       });
 
       const pricePerBox = priceData?.price || 0;
-      
+
       for (let i = 0; i < shifts.length; i++) {
         const qty = base + (i < extra ? 1 : 0);
         const workAmount = qty * pricePerBox;
@@ -601,15 +611,15 @@ export class OffloadService {
           value: shiftOffload.offload.createdAt,
           withTime: false,
         }) as unknown as string;
-        
+
         const priceData = await this.priceService.findPriceByClosestDate({
           tenant: EPriceTenant.BOX_OFFLOAD_LOADER,
           date: offloadDate,
         });
-        
+
         const pricePerBox = priceData?.price || 0;
         const workAmount = shiftOffload.boxQuantity * pricePerBox;
-        
+
         await this.shiftOffloadRepository.update(
           { id: shiftOffload.id },
           { workAmount: workAmount }
@@ -737,30 +747,30 @@ export class OffloadService {
     const oldPaidMoney = foundOffload.paidMoney;
     const newPriceTotal = priceTotal;
     const newPaidMoney = paidMoney;
-    
+
     // Вычисляем изменение долга: разница в цене минус разница в оплате
     const debtChange = (newPriceTotal - newPaidMoney) - (oldPriceTotal - oldPaidMoney);
-    
+
     // Обновляем долг клиента: добавляем изменение долга
     const newMoneyDebt = foundOffload.client.moneyDebt + debtChange;
-    
+
     // Правильно пересчитываем долги по контейнерам
     // Вычисляем разницу между новыми и старыми значениями контейнеров
-    const delContainer1_7Difference = (delContainer1_7Out - delContainer1_7In) - 
+    const delContainer1_7Difference = (delContainer1_7Out - delContainer1_7In) -
       (foundOffload.delContainer1_7Out - foundOffload.delContainer1_7In);
-    const delContainer0_5Difference = (delContainer0_5Out - delContainer0_5In) - 
+    const delContainer0_5Difference = (delContainer0_5Out - delContainer0_5In) -
       (foundOffload.delContainer0_5Out - foundOffload.delContainer0_5In);
-    const delContainer0_4Difference = (delContainer0_4Out - delContainer0_4In) - 
+    const delContainer0_4Difference = (delContainer0_4Out - delContainer0_4In) -
       (foundOffload.delContainer0_4Out - foundOffload.delContainer0_4In);
-    const delContainerSchoellerDifference = (delContainerSchoellerOut - delContainerSchoellerIn) - 
+    const delContainerSchoellerDifference = (delContainerSchoellerOut - delContainerSchoellerIn) -
       (foundOffload.delContainerSchoellerOut - foundOffload.delContainerSchoellerIn);
-    
+
     // Обновляем долги по контейнерам: добавляем разницу
     const newDelContainer1_7Debt = foundOffload.client.delContainer1_7Debt + delContainer1_7Difference;
     const newDelContainer0_5Debt = foundOffload.client.delContainer0_5Debt + delContainer0_5Difference;
     const newDelContainer0_4Debt = foundOffload.client.delContainer0_4Debt + delContainer0_4Difference;
     const newDelContainerSchoellerDebt = foundOffload.client.delContainerSchoellerDebt + delContainerSchoellerDifference;
-    
+
     this.clientService.updateClientDebt({
       id: foundOffload.client.id,
       moneyDebt: newMoneyDebt,

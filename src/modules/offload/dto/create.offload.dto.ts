@@ -1,8 +1,9 @@
-import { IsArray, IsNotEmpty, IsNumber, Max, Min, IsString, IsOptional } from 'class-validator'
+import { IsArray, IsNotEmpty, IsNumber, Max, Min, IsString, IsOptional, IsDateString, Matches } from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { CreateOffloadRecordDto } from '@mush/modules/offload-record/dto/create.offload.record.dto'
+import { YYYY_MM_DD_REGEX } from '@mush/core/utils'
 
 export class CreateOffloadDto {
   @IsNumber()
@@ -132,6 +133,17 @@ export class CreateOffloadDto {
     required: false,
   })
   readonly notes?: string
+
+  @IsDateString()
+  @IsOptional()
+  @Matches(YYYY_MM_DD_REGEX)
+  @ApiProperty({
+    example: '2026-01-22',
+    description: 'Date of offload creation. If not provided, current date will be used.',
+    type: String,
+    required: false,
+  })
+  readonly createdAt?: string
 
   @IsArray()
   @IsNotEmpty()
