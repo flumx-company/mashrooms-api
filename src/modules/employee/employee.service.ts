@@ -333,19 +333,27 @@ export class EmployeeService {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST);
     }
 
-    const documentListData: PublicFile[] =
-      await this.fileUploadService.uploadPublicFiles(files);
-    const promises = documentListData.map(item => {
-      const data = this.publicFileRepository.create({
-        ...item,
-        employeeDocuments: [foundEmployee]
-      })
+    try {
+      const documentListData: PublicFile[] =
+        await this.fileUploadService.uploadPublicFiles(files);
+      const promises = documentListData.map(item => {
+        const data = this.publicFileRepository.create({
+          ...item,
+          employeeDocuments: [foundEmployee]
+        })
 
-      return this.publicFileRepository.save(data);
-    });
+        return this.publicFileRepository.save(data);
+      });
 
-    await Promise.all(promises);
-    return foundEmployee;
+      await Promise.all(promises);
+      return foundEmployee;
+    } catch (err) {
+      const message = err?.message ?? String(err);
+      throw new HttpException(
+        { message: 'Upload failed', cause: message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async removeEmployeeDocument(employeeId: number, documentId: number) {
