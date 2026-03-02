@@ -426,7 +426,7 @@ export class YieldService {
                 )
                 yieldItem.boxQuantity = yieldItem.boxQuantity + boxQuantity
                 yieldItem.percent = Number.parseFloat(
-                  (yieldItem.percent + percent.toFixed(5)),
+                  (Number(yieldItem.percent) + Number(percent)).toFixed(5),
                 )
               })
 
@@ -457,9 +457,9 @@ export class YieldService {
         let percent: number = yieldDataItem.percent
 
         if (previousData) {
-          weight += previousData.weight
-          boxQuantity += previousData.boxQuantity
-          percent += previousData.percent
+          weight += Number(previousData.weight)
+          boxQuantity += Number(previousData.boxQuantity)
+          percent += Number(previousData.percent)
         }
         return this.yieldRepository.create({
           ...(previousData || {}),
