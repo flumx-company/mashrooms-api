@@ -14,7 +14,7 @@ import {Price} from '@mush/modules/price/price.entity'
 import {PriceService} from '@mush/modules/price/price.service'
 
 import {EPriceTenant} from '@mush/core/enums'
-import {CError, Nullable, formatDateToDateTime} from '@mush/core/utils'
+import {CError, Nullable, formatDateToDateTime, addOneDayUTC} from '@mush/core/utils'
 
 import {shiftPaginationConfig} from './pagination/shift.pagiantion.config'
 import {Shift} from './shift.entity'
@@ -639,12 +639,8 @@ export class ShiftService {
             kitchenExpenses = kitchenExpenses + (price || 0)
 
             if (slicedDate !== slidedDateTo) {
-                const nextDateDateFormat = new Date(date).setDate(
-                    new Date(date).getDate() + 1,
-                )
-
                 const nextDate = formatDateToDateTime({
-                    value: new Date(nextDateDateFormat),
+                    value: addOneDayUTC(date),
                     withTime: false,
                 }) as unknown as string
 
@@ -923,12 +919,8 @@ export class ShiftService {
             kitchenExpenses = kitchenExpenses + (price || 0)
 
             if (slicedDate !== slidedDateTo) {
-                const nextDateDateFormat = new Date(date).setDate(
-                    new Date(date).getDate() + 1,
-                )
-
                 const nextDate = formatDateToDateTime({
-                    value: new Date(nextDateDateFormat),
+                    value: addOneDayUTC(date),
                     withTime: false,
                 }) as unknown as string
 
@@ -1215,12 +1207,8 @@ export class ShiftService {
             kitchenExpenses = kitchenExpenses + (priceData?.price || 0)
 
             if (slicedDate !== slidedDateTo) {
-                const nextDateDateFormat = new Date(date).setDate(
-                    new Date(date).getDate() + 1,
-                )
-
                 const nextDate = formatDateToDateTime({
-                    value: new Date(nextDateDateFormat),
+                    value: addOneDayUTC(date),
                     withTime: false,
                 }) as unknown as string
 
@@ -1491,12 +1479,8 @@ export class ShiftService {
             kitchenExpenses = kitchenExpenses + (priceData?.price || 0)
 
             if (slicedDate !== slidedDateTo) {
-                const nextDateDateFormat = new Date(date).setDate(
-                    new Date(date).getDate() + 1,
-                )
-
                 const nextDate = formatDateToDateTime({
-                    value: new Date(nextDateDateFormat),
+                    value: addOneDayUTC(date),
                     withTime: false,
                 }) as unknown as string
 
@@ -1576,7 +1560,7 @@ export class ShiftService {
             value: new Date(Date.now()),
             dateFrom: false,
             withTime: true,
-        }) as Date
+        })
         
         // Оптимизированный запрос - получаем только необходимые данные
         const currentShift = await this.findCurrentShiftBasic(employeeId)

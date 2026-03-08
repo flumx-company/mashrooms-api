@@ -8,33 +8,19 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
-const KYIV_TZ = 'Europe/Kiev';
 
 @Entity({ name: 'storages' })
 export class Storage extends DatedBasicEntity {
   @ApiProperty({
     example: '2024-01-15',
-    description: 'Storage date',
+    description: 'Storage date (UTC)',
   })
   @Index()
   @Column({
     type: 'date',
     transformer: {
-      from: (value: Date) => {
-        return dayjs(value).tz(KYIV_TZ).format('YYYY-MM-DD');
-      },
-      to: (value: string) => {
-        // value: "2025-11-29"
-        // интерпретируем как 00:00 по Киеву → конвертим в UTC → сохраняем
-        return dayjs.tz(value, 'YYYY-MM-DD', KYIV_TZ).utc().toDate();
-      },
+      from: (value: Date) => formatDateToDateTime({ value, dateFrom: true }),
+      to: (value: string) => dateOnlyStringToUTCDate(value) as Date,
     },
   })
   date: Date

@@ -11,8 +11,9 @@ export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | nul
   if (typeof value !== 'string') {
     return null
   }
-  // Expecting YYYY-MM-DD
-  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  // YYYY-MM-DD или строка с временем (YYYY-MM-DD HH:mm:...); для колонки date берём только дату
+  const datePart = value.slice(0, 10)
+  const match = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!match) {
     // Fallback: attempt ISO parse; if missing Z, append Z
     const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`
@@ -33,4 +34,31 @@ export const ensureUTCDate = (value: string | Date | null): Date | null => {
   const d = new Date(iso)
   return isNaN(d.getTime()) ? null : d
 }
+
+/** Следующий календарный день в UTC (00:00 UTC). */
+export const addOneDayUTC = (value: string | Date): Date => {
+  const d = dateOnlyStringToUTCDate(value) ?? new Date(value)
+  return new Date(
+    Date.UTC(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      d.getUTCDate() + 1,
+    ),
+  )
+}
+
+/** Вчера 00:00 UTC. */
+export const getYesterdayUTC = (): Date => {
+  const now = new Date()
+  return new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() - 1,
+    ),
+  )
+}
+
+/** Текущий год по UTC (для имён батчей и т.п.). */
+export const getCurrentYearUTC = (): number => new Date().getUTCFullYear()
 

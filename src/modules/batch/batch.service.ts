@@ -13,7 +13,7 @@ import { SubbatchService } from '@mush/modules/subbatch/subbatch.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { CError, Nullable, formatDateToDateTime, pick } from '@mush/core/utils'
+import { CError, Nullable, formatDateToDateTime, pick, getCurrentYearUTC, getYesterdayUTC } from '@mush/core/utils'
 import { Client } from '@mush/modules/client/client.entity';
 import { FileUploadService } from '@mush/modules/file-upload/file-upload.service';
 import { BufferedFile } from '@mush/modules/file-upload/file.model';
@@ -81,7 +81,7 @@ export class BatchService {
         this.findLastBatch(),
         this.chamberService.findChamberByIdWithRelations(chamberId),
       ])
-    const currentYear: number = new Date().getFullYear()
+    const currentYear: number = getCurrentYearUTC()
     const dateFrom: string = String(
       formatDateToDateTime({
         value: new Date(Date.now()),
@@ -204,7 +204,7 @@ export class BatchService {
     )
     const yesterday = String(
       formatDateToDateTime({
-        value: new Date(new Date().setDate(new Date().getDate() - 1)),
+        value: getYesterdayUTC(),
         dateFrom: false,
         withTime: true,
       }),

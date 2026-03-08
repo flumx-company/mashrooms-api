@@ -47,11 +47,16 @@ type TDomain = string | undefined
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  private getNextDay = () => {
-    const nextDay = new Date()
-    nextDay.setDate(new Date().getDate() + 1)
-
-    return nextDay
+  /** Завтра 00:00 UTC (для истечения cookie). */
+  private getNextDay = (): Date => {
+    const now = new Date()
+    return new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 1,
+      ),
+    )
   }
 
   private setDomainByHost = (hostname:string): void => {
