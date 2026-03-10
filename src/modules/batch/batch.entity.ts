@@ -1,5 +1,4 @@
 import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
-import { Transform } from 'class-transformer'
 import { PublicFile } from '../file-upload/public-file.entity'
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -12,7 +11,7 @@ import { Wave } from '@mush/modules/wave/wave.entity'
 import { Yield } from '@mush/modules/yield/yield.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime, dateOnlyStringToUTCDate, formatDateForClient } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'batches' })
 export class Batch extends DatedBasicEntity {
@@ -25,11 +24,10 @@ export class Batch extends DatedBasicEntity {
   name: string
 
   @ApiProperty({
-    example: '15.01.2024',
-    description: 'Batch start date (день.месяц.год)',
+    example: '2024-01-15',
+    description: 'Batch start date',
   })
   @Index()
-  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     transformer: {
@@ -44,10 +42,9 @@ export class Batch extends DatedBasicEntity {
   dateFrom: Date
 
   @ApiProperty({
-    example: '15.01.2024',
-    description: 'Batch end date (день.месяц.год)',
+    example: '2024-01-15',
+    description: 'Batch end date',
   })
-  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     default: null,
@@ -63,10 +60,9 @@ export class Batch extends DatedBasicEntity {
   dateTo: Date
 
   @ApiProperty({
-    example: '15.01.2024',
-    description: 'Peat load date (день.месяц.год)',
+    example: '2024-01-15',
+    description: 'Peat load date',
   })
-  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     default: null,

@@ -1,11 +1,10 @@
 import { Column, Entity, Index } from 'typeorm'
-import { Transform } from 'class-transformer'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { EPriceTenant } from '@mush/core/enums'
-import { formatDateToDateTime, dateOnlyStringToUTCDate, formatDateForClient } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'prices' })
 export class Price extends DatedBasicEntity {
@@ -25,11 +24,10 @@ export class Price extends DatedBasicEntity {
   price: number
 
   @ApiProperty({
-    example: '15.01.2024',
-    description: 'Date (день.месяц.год)',
+    example: '2024-01-15',
+    description: 'Date',
   })
   @Index()
-  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     transformer: {

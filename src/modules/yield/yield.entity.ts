@@ -1,5 +1,4 @@
 import { Column, Entity, ManyToOne } from 'typeorm'
-import { Transform } from 'class-transformer'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -9,7 +8,7 @@ import { Variety } from '@mush/modules/variety/variety.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime, dateOnlyStringToUTCDate, formatDateForClient } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'yields' })
 export class Yield extends DatedBasicEntity {
@@ -26,10 +25,9 @@ export class Yield extends DatedBasicEntity {
   wave: Wave
 
   @ApiProperty({
-    example: '15.01.2024',
-    description: 'date (день.месяц.год)',
+    example: '2024-01-15',
+    description: 'date',
   })
-  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     transformer: {

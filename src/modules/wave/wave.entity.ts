@@ -1,6 +1,5 @@
 import { Watering } from '@mush/modules/watering/watering.entity';
 import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
-import { Transform } from 'class-transformer'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -11,7 +10,7 @@ import { Storage } from '@mush/modules/storage/storage.entity'
 import { Yield } from '@mush/modules/yield/yield.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime, dateOnlyStringToUTCDate, formatDateForClient } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 
 @Entity({ name: 'waves' })
 export class Wave extends DatedBasicEntity {
@@ -20,10 +19,9 @@ export class Wave extends DatedBasicEntity {
   order: number
 
   @ApiProperty({
-    example: '15.01.2024',
-    description: 'Wave start date (день.месяц.год)',
+    example: '2024-01-15',
+    description: 'Wave start date',
   })
-  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     transformer: {
@@ -38,10 +36,9 @@ export class Wave extends DatedBasicEntity {
   dateFrom: Date
 
   @ApiProperty({
-    example: '15.01.2024',
-    description: 'Wave end date (день.месяц.год)',
+    example: '2024-01-15',
+    description: 'Wave end date',
   })
-  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     default: null,

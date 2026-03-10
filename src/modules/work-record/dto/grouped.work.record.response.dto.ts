@@ -18,10 +18,10 @@ export class ShiftDto {
   @ApiProperty({ example: 10 })
   id: number
 
-  @ApiProperty({ example: '28.07.2025', description: 'день.месяц.год' })
+  @ApiProperty({ example: '2025-07-28' })
   dateFrom: string
 
-  @ApiProperty({ example: '29.07.2025', description: 'день.месяц.год' })
+  @ApiProperty({ example: '2025-07-29' })
   dateTo: string
 
   @ApiProperty()
@@ -57,7 +57,7 @@ export class WorkRecordItemDto {
   @ApiProperty({ example: 1 })
   id: number
 
-  @ApiProperty({ example: '29.07.2025', description: 'день.месяц.год' })
+  @ApiProperty({ example: '2025-07-29' })
   date: string
 
   @ApiProperty({ example: 10000 })
@@ -86,7 +86,7 @@ export class GroupedWorkRecordResponseDto {
   @ApiProperty({ example: 'exist' })
   type: string
 
-  @ApiProperty({ example: '29.07.2025', description: 'день.месяц.год' })
+  @ApiProperty({ example: '2025-07-29' })
   createdAt: string
 
   @ApiProperty()

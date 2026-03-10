@@ -14,7 +14,7 @@ import { ShiftService } from '@mush/modules/shift/shift.service'
 import { Work } from '@mush/modules/work/work.entity'
 import { WorkService } from '@mush/modules/work/work.service'
 
-import { CError, Nullable, pick, formatDateForClient } from '@mush/core/utils'
+import { CError, Nullable, pick } from '@mush/core/utils'
 
 import { CreateWorkRecordDto, GroupedWorkRecordResponseDto } from './dto'
 import { UpdateWorkRecordDto } from './dto/update.work.record'
@@ -465,21 +465,13 @@ export class WorkRecordService {
       const key = `${item.work.id}_${item.chamber.id}_${itemDate}`
       const extendedItem = {
         ...item,
-        date: formatDateForClient(item.date) ?? itemDate,
-        shift: item.shift
-          ? {
-              ...item.shift,
-              dateFrom: formatDateForClient(item.shift.dateFrom) ?? item.shift.dateFrom,
-              dateTo: formatDateForClient(item.shift.dateTo) ?? item.shift.dateTo,
-            }
-          : item.shift,
         employeeId: item.shift?.employee?.id || null
       }
 
       if (!acc[key]) {
         acc[key] = {
           type: "exist",
-          createdAt: formatDateForClient(itemDate) ?? itemDate,
+          createdAt: itemDate,
           work: item.work,
           workId: item.work.id,
           recordGroupId: item.recordGroupId,
@@ -639,21 +631,13 @@ export class WorkRecordService {
       const key = `${item.work.id}_${item.chamber.id}_${itemDate}`
       const extendedItem = {
         ...item,
-        date: formatDateForClient(item.date) ?? itemDate,
-        shift: item.shift
-          ? {
-              ...item.shift,
-              dateFrom: formatDateForClient(item.shift.dateFrom) ?? item.shift.dateFrom,
-              dateTo: formatDateForClient(item.shift.dateTo) ?? item.shift.dateTo,
-            }
-          : item.shift,
         employeeId: item.shift?.employee?.id || null
       }
 
       if (!acc[key]) {
         acc[key] = {
           type: "exist",
-          createdAt: formatDateForClient(itemDate) ?? itemDate,
+          createdAt: itemDate,
           work: item.work,
           workId: item.work.id,
           recordGroupId: item.recordGroupId,

@@ -13,25 +13,17 @@ export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | nul
   }
   // YYYY-MM-DD или строка с временем (YYYY-MM-DD HH:mm:...); для колонки date берём только дату
   const datePart = value.slice(0, 10)
-  const isoMatch = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/)
-  if (isoMatch) {
-    const year = parseInt(isoMatch[1], 10)
-    const month = parseInt(isoMatch[2], 10) - 1
-    const day = parseInt(isoMatch[3], 10)
-    return new Date(Date.UTC(year, month, day))
+  const match = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!match) {
+    // Fallback: attempt ISO parse; if missing Z, append Z
+    const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`
+    const d = new Date(iso)
+    return isNaN(d.getTime()) ? null : d
   }
-  // Формат клиента: день.месяц.год (DD.MM.YYYY) или DD/MM/YYYY
-  const dmyMatch = value.match(/^(\d{1,2})[./](\d{1,2})[./](\d{4})$/)
-  if (dmyMatch) {
-    const day = parseInt(dmyMatch[1], 10)
-    const month = parseInt(dmyMatch[2], 10) - 1
-    const year = parseInt(dmyMatch[3], 10)
-    return new Date(Date.UTC(year, month, day))
-  }
-  // Fallback: attempt ISO parse; if missing Z, append Z
-  const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`
-  const d = new Date(iso)
-  return isNaN(d.getTime()) ? null : d
+  const year = parseInt(match[1], 10)
+  const month = parseInt(match[2], 10) - 1
+  const day = parseInt(match[3], 10)
+  return new Date(Date.UTC(year, month, day))
 }
 
 export const ensureUTCDate = (value: string | Date | null): Date | null => {
