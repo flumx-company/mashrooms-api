@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToOne } from 'typeorm'
+import { Transform } from 'class-transformer'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -10,7 +11,7 @@ import { Variety } from '@mush/modules/variety/variety.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate, formatDateForClient } from '@mush/core/utils'
 
 @Entity({ name: 'offload-records' })
 export class OffloadRecord extends DatedBasicEntity {
@@ -45,9 +46,10 @@ export class OffloadRecord extends DatedBasicEntity {
   recordName: string
 
   @ApiProperty({
-    example: '2024-01-15',
-    description: 'Cutting date',
+    example: '15.01.2024',
+    description: 'Cutting date (день.месяц.год)',
   })
+  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     transformer: {

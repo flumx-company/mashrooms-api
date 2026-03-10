@@ -1,4 +1,5 @@
 import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm'
+import { Transform } from 'class-transformer'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -12,14 +13,15 @@ import { ShiftOffload } from '../offload/shift-offload.entity';
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { EPaymentMethod } from '@mush/core/enums'
-import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate, formatDateForClient } from '@mush/core/utils'
 
 @Entity({ name: 'shifts' })
 export class Shift extends DatedBasicEntity {
   @ApiProperty({
-    example: '2024-01-15',
-    description: 'Shift start date',
+    example: '15.01.2024',
+    description: 'Shift start date (день.месяц.год)',
   })
+  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     transformer: {
@@ -34,10 +36,11 @@ export class Shift extends DatedBasicEntity {
   dateFrom: Date
 
   @ApiProperty({
-    example: '2024-01-15',
-    description: 'Shift end date',
+    example: '15.01.2024',
+    description: 'Shift end date (день.месяц.год)',
   })
   @Index()
+  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     default: null,

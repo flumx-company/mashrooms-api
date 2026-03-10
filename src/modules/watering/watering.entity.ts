@@ -1,5 +1,6 @@
 import { Wave } from '@mush/modules/wave/wave.entity';
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { Transform } from 'class-transformer'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -8,7 +9,7 @@ import { Shift } from '@mush/modules/shift/shift.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
 import { EWaterTarget } from '@mush/core/enums'
-import { formatDateToDateTime } from '@mush/core/utils'
+import { formatDateTimeForClient } from '@mush/core/utils'
 
 @Entity({ name: 'waterings' })
 export class Watering extends DatedBasicEntity {
@@ -17,10 +18,11 @@ export class Watering extends DatedBasicEntity {
   volume: number
 
   @ApiProperty({
-    example: '2024-01-15',
-    description: 'Watering start date time',
+    example: '15.01.2024, 10:00',
+    description: 'Watering start date time (день.месяц.год, часы:минуты)',
   })
   @Index()
+  @Transform(({ value }) => (value != null ? formatDateTimeForClient(value) : value))
   @Column({
     type: 'timestamp',
     default: null,
@@ -28,9 +30,10 @@ export class Watering extends DatedBasicEntity {
   dateTimeFrom: Date
 
   @ApiProperty({
-    example: '2024-01-15',
-    description: 'Wateriing end date time',
+    example: '15.01.2024, 10:00',
+    description: 'Watering end date time (день.месяц.год, часы:минуты)',
   })
+  @Transform(({ value }) => (value != null ? formatDateTimeForClient(value) : value))
   @Column({
     type: 'timestamp',
     default: null,

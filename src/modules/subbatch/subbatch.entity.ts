@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToOne } from 'typeorm'
+import { Transform } from 'class-transformer'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -6,7 +7,7 @@ import { Batch } from '@mush/modules/batch/batch.entity'
 import { Category } from '@mush/modules/category/category.entity'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate, formatDateForClient } from '@mush/core/utils'
 
 @Entity({ name: 'subbatch' })
 export class Subbatch extends DatedBasicEntity {
@@ -21,9 +22,10 @@ export class Subbatch extends DatedBasicEntity {
   briquetteQuantity: number
   
   @ApiProperty({
-    example: '2024-01-15',
-    description: 'Compost load date',
+    example: '15.01.2024',
+    description: 'Compost load date (день.месяц.год)',
   })
+  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     default: null,

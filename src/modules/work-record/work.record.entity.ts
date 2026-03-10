@@ -1,9 +1,10 @@
 import { Column, Entity, Index, ManyToOne } from 'typeorm'
+import { Transform } from 'class-transformer'
 
 import { ApiProperty } from '@nestjs/swagger'
 
 import { DatedBasicEntity } from '@mush/core/basic-entities'
-import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
+import { formatDateToDateTime, dateOnlyStringToUTCDate, formatDateForClient } from '@mush/core/utils'
 
 import { Chamber } from '../chamber/chamber.entity'
 import { Shift } from '../shift/shift.entity'
@@ -12,10 +13,11 @@ import { Work } from '../work/work.entity'
 @Entity({ name: 'work-records' })
 export class WorkRecord extends DatedBasicEntity {
   @ApiProperty({
-    example: '2024-01-15',
-    description: 'Work record date',
+    example: '15.01.2024',
+    description: 'Work record date (день.месяц.год)',
   })
   @Index()
+  @Transform(({ value }) => (value != null ? formatDateForClient(value) : value))
   @Column({
     type: 'date',
     transformer: {
