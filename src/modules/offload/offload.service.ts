@@ -551,13 +551,14 @@ export class OffloadService {
       ),
     )
 
-
-    // await this.yieldService.createYields({
-    //   date: today,
-    //   offloadRecords: newOffloadRecords,
-    //   byIdWaves: byIdWaves as Record<number, Wave>,
-    //   byBatchIdCategoryIdSubbatches,
-    // })
+    // Урожайность должна появляться сразу после сохранения отгрузки,
+    // даты берутся из offloadRecord.cuttingDate внутри YieldService.
+    await this.yieldService.createYields({
+      date: '',
+      offloadRecords: newOffloadRecords,
+      byIdWaves: byIdWaves as Record<number, Wave>,
+      byBatchIdCategoryIdSubbatches,
+    })
 
     // после создания offload (savedNewOffload)
     // распределяем boxTotalQuantity между shifts
@@ -1265,59 +1266,12 @@ export class OffloadService {
     //   delContainer0_4Debt: delContainer0_4NewDebt,
     //   delContainerSchoellerDebt: delContainerSchoellerNewDebt,
     // })
-    const storageSubtractionData: Array<{
-      date: Date
-      amount: number
-      waveId: number
-      varietyId: number
-      categoryId: number
-    }> = []
     const newOffload: Offload = await this.offloadRepository.create({
       ...foundOffload,
       isClosed: true
     })
 
     await this.offloadRepository.save(newOffload);
-    const byIdWaves: Record<number, Wave | {}> = offloadRecords.reduce((acc, cur) => {
-      return {
-        ...acc,
-        [cur.wave.id]: cur.wave
-      }
-    }, {})
-    const byBatchIdCategoryIdSubbatches: Record<
-      number,
-      Record<number, Subbatch> | {}
-    > = offloadRecords.reduce((acc, cur) => {
-      return {
-        ...acc,
-        [cur.batch.id]: {}
-      }
-    }, {})
-    offloadRecords.forEach(cur => {
-      const batch = cur.batch;
-      batch.subbatches.forEach((subbatch) => {
-        const categoryId = subbatch.category.id
-        byBatchIdCategoryIdSubbatches[batch.id][categoryId] =
-          subbatch as Subbatch
-      })
-
-      storageSubtractionData.push({
-        ...cur,
-        date: cur.cuttingDate,
-        amount: cur.boxQuantity,
-        waveId: cur.wave.id,
-        varietyId: cur.variety.id,
-        categoryId: cur.category.id,
-      })
-    })
-
-    await this.yieldService.createYields({
-      // date will be derived from offloadRecord.cuttingDate inside service
-      date: '',
-      offloadRecords: foundOffload.offloadRecords,
-      byIdWaves: byIdWaves as Record<number, Wave>,
-      byBatchIdCategoryIdSubbatches,
-    })
   }
 
   async returnPrice(offloadId: number, price: number) {
