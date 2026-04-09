@@ -68,7 +68,15 @@ export class BatchController {
   async getAllBatches(
     @Paginate() query: PaginateQuery,
   ): Promise<Paginated<Batch>> {
-    return this.batchService.findAll(query)
+    // Всегда: сначала камера №1,2,3… (chamber.id), внутри камеры — новее выше.
+    // Иначе клиентский sortBy=id:DESC из query полностью подменяет defaultSortBy в paginate().
+    return this.batchService.findAll({
+      ...query,
+      sortBy: [
+        ['chamber.id', 'ASC'],
+        ['id', 'DESC'],
+      ],
+    })
   }
 
   @Get(':batchId')

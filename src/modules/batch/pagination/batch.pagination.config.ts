@@ -3,9 +3,13 @@ import { FilterOperator, PaginateConfig, FilterSuffix } from 'nestjs-paginate'
 import { Batch } from '../batch.entity'
 
 export const batchPaginationConfig: PaginateConfig<Batch> = {
-  sortableColumns: ['id'],
+  // Сначала по номеру/ид камеры (1, 2, 3…), внутри камеры — новее ниже
+  sortableColumns: ['id', 'chamber.id'],
   searchableColumns: ['chamber.id', 'dateFrom', 'dateTo'],
-  defaultSortBy: [['id', 'DESC']],
+  defaultSortBy: [
+    ['chamber.id', 'ASC'],
+    ['id', 'DESC'],
+  ],
   relations: ['waves', 'chamber', 'cuttings', 'waterings', 'subbatches', 'subbatches.category'],
   filterableColumns: {
     dateTo: [FilterOperator.NULL, FilterSuffix.NOT],
