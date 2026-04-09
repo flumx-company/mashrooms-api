@@ -74,13 +74,20 @@ export class EmployeeController {
   @ApiPaginationQuery(employeePaginationConfig)
   async getAllEmployees(
     @Paginate() query: PaginateQuery,
-    @Query('isActive') isActive?: number,
+    @Query('isActive') isActive?: string,
   ): Promise<Paginated<Employee>> {
     const mappedQuery: any = { ...query }
-    if (isActive) {
-      mappedQuery.filter = {
-        ...(mappedQuery.filter || {}),
-        isActive: String(isActive),
+    if (isActive !== undefined && isActive !== null && String(isActive).trim() !== '') {
+      const normalized = String(isActive).trim().toLowerCase()
+      // MySQL boolean = tinyint: для nestjs-paginate надёжнее сравнивать с 1/0, чем со строками "true"/"false"
+      const eqValue =
+        normalized === '1' || normalized === 'true' ? '1' : normalized === '0' || normalized === 'false' ? '0' : null
+
+      if (eqValue !== null) {
+        mappedQuery.filter = {
+          ...(mappedQuery.filter || {}),
+          isActive: `$eq:${eqValue}`,
+        }
       }
     }
     return this.employeeService.findAll(mappedQuery)
