@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsNumber, Min,IsOptional, IsString } from 'class-validator'
+import {
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -15,6 +22,17 @@ export class UpdateBatchDto {
     type: Number,
   })
   readonly waveQuantity: number
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  @ApiProperty({
+    example: 'Моя партія А',
+    description: 'Custom batch name',
+    type: String,
+    required: false,
+  })
+  readonly name?: string
 
   @IsOptional()
   @IsString()

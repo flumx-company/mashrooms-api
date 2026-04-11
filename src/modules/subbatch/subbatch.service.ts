@@ -50,24 +50,25 @@ export class SubbatchService {
     compostWeight,
     compostLoadDate,
     compostPrice,
-
-    briquetteQuantity
+    briquetteQuantity,
   }: UpdateSubbatchDto) {
-    const subbatch = await this.categoryService.findCategoryById(id)
+    const subbatch = await this.subbatchRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    })
 
     if (!subbatch) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    const updatedSubbatch = this.subbatchRepository.create({
-      ...subbatch,
+    Object.assign(subbatch, {
       compostSupplier,
       compostWeight,
       compostLoadDate,
       compostPrice,
-      briquetteQuantity
+      briquetteQuantity,
     })
 
-    return this.subbatchRepository.save(updatedSubbatch)
+    return this.subbatchRepository.save(subbatch)
   }
 }

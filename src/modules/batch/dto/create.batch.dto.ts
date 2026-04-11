@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsNumber, Min, IsOptional, IsString } from 'class-validator'
+import {
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator'
 
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -24,6 +31,17 @@ export class CreateBatchDto {
     type: Number,
   })
   readonly chamberId: number
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  @ApiProperty({
+    example: '2026-03',
+    description: 'Optional custom batch name; if omitted, auto year-number is used.',
+    type: String,
+    required: false,
+  })
+  readonly name?: string
 
   @IsOptional()
   @IsString()

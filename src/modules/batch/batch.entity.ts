@@ -17,10 +17,10 @@ import { formatDateToDateTime, dateOnlyStringToUTCDate } from '@mush/core/utils'
 export class Batch extends DatedBasicEntity {
   @ApiProperty({
     example: '2024-01',
-    description: 'Batch name',
+    description: 'Batch name (custom label)',
   })
   @Index()
-  @Column({ type: 'varchar', length: 8, default: null, nullable: true })
+  @Column({ type: 'varchar', length: 255, default: null, nullable: true })
   name: string
 
   @ApiProperty({

@@ -21,7 +21,7 @@ import { PublicFile } from '@mush/modules/file-upload/public-file.entity';
 
 import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Batch } from './batch.entity'
-import { UpdateBatchDto } from './dto'
+import { CreateBatchDto, UpdateBatchDto } from './dto'
 import { batchPaginationConfig } from './pagination'
 
 @Injectable()
@@ -39,13 +39,6 @@ export class BatchService {
 
   findAll(query: PaginateQuery): Promise<Paginated<Batch>> {
     return paginate(query, this.batchRepository, batchPaginationConfig)
-  }
-
-  async findLastBatch(): Promise<Batch> {
-    return this.batchRepository
-      .createQueryBuilder('batch')
-      .orderBy('batch.id', 'DESC')
-      .getOne()
   }
 
   async findBatchById(id): Promise<Batch> {
@@ -75,12 +68,10 @@ export class BatchService {
     peatWeight,
     peatLoadDate,
     peatPrice,
-  }: any): Promise<Batch> {
-    const [lastBatch, foundChamber]: [Nullable<Batch>, Nullable<Chamber>] =
-      await Promise.all([
-        this.findLastBatch(),
-        this.chamberService.findChamberByIdWithRelations(chamberId),
-      ])
+    name: customName,
+  }: CreateBatchDto): Promise<Batch> {
+    const foundChamber: Nullable<Chamber> =
+      await this.chamberService.findChamberByIdWithRelations(chamberId)
     const currentYear: number = getCurrentYearUTC()
     const dateFrom: string = String(
       formatDateToDateTime({
@@ -89,15 +80,17 @@ export class BatchService {
         withTime: true,
       }),
     )
-    const lastBatchYear: Nullable<number> =
-      lastBatch && parseInt(lastBatch.name.slice(0, 4))
-    const lastBatchNumber: number =
-      lastBatch && parseInt(lastBatch.name.slice(5, 7))
-    const newBatchNumber: number =
-      lastBatchYear === currentYear ? lastBatchNumber + 1 : 1
+    const batchesThisYear: number = await this.batchRepository
+      .createQueryBuilder('batch')
+      .where('YEAR(batch.dateFrom) = :year', { year: currentYear })
+      .getCount()
+    const newBatchNumber: number = batchesThisYear + 1
     const newBatchNumberValue: string =
       newBatchNumber < 10 ? `0${newBatchNumber}` : String(newBatchNumber)
-    const name: string = `${currentYear}-${newBatchNumberValue}`
+    const defaultName: string = `${currentYear}-${newBatchNumberValue}`
+    const trimmed: string =
+      typeof customName === 'string' ? customName.trim() : ''
+    const name: string = trimmed || defaultName
 
     if (!foundChamber) {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
@@ -146,10 +139,15 @@ export class BatchService {
   @Transactional()
   async updateBatch(
     id: number,
-    { waveQuantity, subbatches,  peatSupplier,
+    {
+      waveQuantity,
+      subbatches,
+      peatSupplier,
       peatWeight,
       peatLoadDate,
-      peatPrice, }: UpdateBatchDto,
+      peatPrice,
+      name,
+    }: UpdateBatchDto,
   ): Promise<Batch> {
     const foundBatch: Nullable<Batch> = await this.findBatchById(id)
 
@@ -170,6 +168,9 @@ export class BatchService {
       peatWeight,
       peatLoadDate,
       peatPrice,
+      ...(name !== undefined
+        ? { name: name.trim() || foundBatch.name }
+        : {}),
       subbatches: updatedSubbatches,
     })
 
