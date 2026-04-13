@@ -45,6 +45,9 @@ services:
     build: '.'
     env_file: 
       - .env
+    environment:
+      # В Docker хост MySQL — имя сервиса из этого compose (не из .env)
+      MYSQL_NODE_HOSTNAME: mashrooms-mysql
     depends_on:
       mashrooms-mysql:
         condition: service_healthy

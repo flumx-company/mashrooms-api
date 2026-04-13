@@ -55,6 +55,7 @@ export class WateringService {
         'chamber.name',             // Поля из связанной сущности Shift
       ])
       .where('shift.id = :shiftId', { shiftId }) // Условие по id Shift
+      .orderBy('watering.dateTimeFrom', 'ASC')
       .getMany();
 
   }

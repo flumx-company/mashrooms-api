@@ -114,6 +114,7 @@ export class OffloadService {
         'shiftOffloads.shift.id',
       ])
       .where('shiftOffloads.shift.id = :shiftId', { shiftId })
+      .orderBy('offload.createdAt', 'ASC')
       .getMany();
   }
 

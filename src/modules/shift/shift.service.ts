@@ -66,6 +66,7 @@ export class ShiftService {
                 .where('shift.dateTo IS NULL AND employee.isActive = :isActive', {
                     isActive
                 })
+                .orderBy('shift.dateFrom', 'DESC')
                 .getMany()
         }
         return this.shiftRepository
@@ -76,6 +77,7 @@ export class ShiftService {
                 isActive,
                 search: `%${search}%`
             })
+            .orderBy('shift.dateFrom', 'DESC')
             .getMany()
     }
 
@@ -628,7 +630,17 @@ export class ShiftService {
           0,
         )
         let kitchenExpenses = 0
-        let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
+        /** Суми з bonus-shifts — це аванси, зменшують суму до виплати. */
+        const advanceTotal = (shift.bonusShifts || []).reduce(
+            (acc, b) => acc + Number(b.bonus),
+            0,
+        )
+        let automaticBonus = 0
+        if (workingDayNumber >= automaticBonusMinimumDayNumber) {
+            automaticBonus = wage * automaticBonusPercent
+        }
+        /** Для відповіді API: аванси + автоматичний бонус (як раніше по полю bonus). */
+        const bonus = advanceTotal + automaticBonus
         let wageTotal = 0
         let remainedPayment = 0
 
@@ -657,13 +669,14 @@ export class ShiftService {
         // Зарплата только по коробкам
         // const wage = boxQuantity * pricePerBox;
 
-        if (workingDayNumber >= automaticBonusMinimumDayNumber) {
-            bonus += wage * automaticBonusPercent
-        }
-
         // TODO removed kitchen expenses
         // wageTotal = wage + bonus + customBonus - kitchenExpenses
-        wageTotal = wage + bonus + customBonus - kitchenManual
+        wageTotal =
+            wage -
+            advanceTotal +
+            automaticBonus +
+            customBonus -
+            kitchenManual
         remainedPayment = wageTotal - paidAmount
 
         const updatedShift: Shift = await this.shiftRepository.create({
@@ -733,8 +746,10 @@ export class ShiftService {
             withTime: true,
             dateFrom: true,
         })
+        const calculationEndDate =
+            shift.dateTo != null ? new Date(shift.dateTo) : new Date()
         const dateTo = formatDateToDateTime({
-            value: new Date(),
+            value: calculationEndDate,
             withTime: true,
             dateFrom: false,
         })
@@ -908,7 +923,15 @@ export class ShiftService {
         )
 
         let kitchenExpenses = 0
-        let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
+        const advanceTotal = (shift.bonusShifts || []).reduce(
+            (acc, b) => acc + Number(b.bonus),
+            0,
+        )
+        let automaticBonus = 0
+        if (workingDayNumber >= automaticBonusMinimumDayNumber) {
+            automaticBonus = wage * automaticBonusPercent
+        }
+        const bonus = advanceTotal + automaticBonus
         let wageTotal = 0
         let remainedPayment = 0
 
@@ -930,13 +953,14 @@ export class ShiftService {
 
         calculateKitchenExpenses(dateFrom as unknown as string)
 
-        if (workingDayNumber >= automaticBonusMinimumDayNumber) {
-            bonus += wage * automaticBonusPercent
-        }
-
         // TODO removed kitchen expenses
         // wageTotal = wage + bonus + customBonus - kitchenExpenses
-        wageTotal = wage + bonus + customBonus - kitchenManual
+        wageTotal =
+            wage -
+            advanceTotal +
+            automaticBonus +
+            customBonus -
+            kitchenManual
         remainedPayment = wageTotal - paidAmount
 
         const updatedShift: Shift = await this.shiftRepository.create({
@@ -1196,7 +1220,15 @@ export class ShiftService {
         // const pricePerBox = priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER]?.default || 0;
         // const wage = boxQuantity * pricePerBox;
         let kitchenExpenses = 0
-        let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
+        const advanceTotal = (shift.bonusShifts || []).reduce(
+            (acc, b) => acc + Number(b.bonus),
+            0,
+        )
+        let automaticBonus = 0
+        if (workingDayNumber >= automaticBonusMinimumDayNumber) {
+            automaticBonus = wage * automaticBonusPercent
+        }
+        const bonus = advanceTotal + automaticBonus
         let wageTotal = 0
         let remainedPayment = 0
 
@@ -1218,13 +1250,14 @@ export class ShiftService {
 
         calculateKitchenExpenses(dateFrom as unknown as string)
 
-        if (workingDayNumber >= automaticBonusMinimumDayNumber) {
-            bonus += wage * automaticBonusPercent
-        }
-
         // TODO removed kitchen expenses
         // wageTotal = wage + bonus + customBonus - kitchenExpenses
-        wageTotal = wage + bonus + customBonus - kitchenManual
+        wageTotal =
+            wage -
+            advanceTotal +
+            automaticBonus +
+            customBonus -
+            kitchenManual
         remainedPayment = wageTotal - paidAmount
         return {
             ...shift,
@@ -1249,13 +1282,18 @@ export class ShiftService {
         const shift = await this.shiftRepository
             .createQueryBuilder('shift')
             .innerJoin('shift.employee', 'employee')
+            .leftJoinAndSelect('shift.bonusShifts', 'bonusShifts')
             .select([
                 'shift.id',
                 'shift.dateFrom',
+                'shift.dateTo',
                 'shift.customBonus',
                 'shift.kitchenManual',
                 'shift.paidAmount',
                 'employee.id',
+                'bonusShifts.id',
+                'bonusShifts.bonus',
+                'bonusShifts.createdAt',
             ])
             .where('shift.id = :shiftId', {shiftId})
             .getOne()
@@ -1289,8 +1327,11 @@ export class ShiftService {
             withTime: true,
             dateFrom: true,
         })
+        /** Закрита вахта — період до dateTo з БД; поточна — до «зараз» (як у getShiftCalculationsByEmployee). */
+        const calculationEndDate =
+            shift.dateTo != null ? new Date(shift.dateTo) : new Date()
         const dateTo = formatDateToDateTime({
-            value: new Date(),
+            value: calculationEndDate,
             withTime: true,
             dateFrom: false,
         })
@@ -1468,7 +1509,15 @@ export class ShiftService {
         // const pricePerBox = priceDirectory[EPriceTenant.BOX_OFFLOAD_LOADER]?.default || 0;
         // const wage = boxQuantity * pricePerBox;
         let kitchenExpenses = 0
-        let bonus = (shift.bonusShifts || []).reduce((acc, b) => acc + Number(b.bonus), 0)
+        const advanceTotal = (shift.bonusShifts || []).reduce(
+            (acc, b) => acc + Number(b.bonus),
+            0,
+        )
+        let automaticBonus = 0
+        if (workingDayNumber >= automaticBonusMinimumDayNumber) {
+            automaticBonus = wage * automaticBonusPercent
+        }
+        const bonus = advanceTotal + automaticBonus
         let wageTotal = 0
         let remainedPayment = 0
 
@@ -1490,13 +1539,14 @@ export class ShiftService {
 
         calculateKitchenExpenses(dateFrom as unknown as string)
 
-        if (workingDayNumber >= automaticBonusMinimumDayNumber) {
-            bonus = wage * automaticBonusPercent
-        }
-
         // TODO removed kitchen expenses
         // wageTotal = wage + bonus + customBonus - kitchenExpenses
-        wageTotal = wage + bonus + customBonus - kitchenManual
+        wageTotal =
+            wage -
+            advanceTotal +
+            automaticBonus +
+            customBonus -
+            kitchenManual
         remainedPayment = wageTotal - paidAmount
         return {
             ...shift,
@@ -1512,7 +1562,8 @@ export class ShiftService {
             workRecords,
             offloadLoadings,
             loadings,
-            cuttings
+            cuttings,
+            bonusShifts: shift.bonusShifts || [],
         }
     }
 

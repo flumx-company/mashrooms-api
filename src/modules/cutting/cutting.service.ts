@@ -84,6 +84,7 @@ export class CuttingService {
       .addGroupBy('variety.id')
       .addGroupBy('batch.id')
       .addGroupBy('chamberAl.id')
+      .orderBy('createdAt', 'ASC')
       .getRawMany();
   }
 
@@ -110,6 +111,7 @@ export class CuttingService {
       .addGroupBy('variety.id')
       .addGroupBy('batch.id')
       .addGroupBy('chamberAl.id')
+      .orderBy('createdAt', 'ASC')
       .getRawMany();
   }
 

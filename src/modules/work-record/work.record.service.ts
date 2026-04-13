@@ -142,6 +142,8 @@ export class WorkRecordService {
         'work.title',             // Поля из связанной сущности Shift
       ])
       .where('shift.id = :shiftId', { shiftId }) // Условие по id Shift
+      .orderBy('workRecord.date', 'ASC')
+      .addOrderBy('work.title', 'ASC')
       .getMany();
 
   }

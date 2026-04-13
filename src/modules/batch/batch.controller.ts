@@ -68,14 +68,30 @@ export class BatchController {
   async getAllBatches(
     @Paginate() query: PaginateQuery,
   ): Promise<Paginated<Batch>> {
-    // Всегда: сначала камера №1,2,3… (chamber.id), внутри камеры — новее выше.
-    // Иначе клиентский sortBy=id:DESC из query полностью подменяет defaultSortBy в paginate().
+    // Важно: принудительно задаём sortBy, иначе клиентский sortBy из query полностью подменяет defaultSortBy.
+    // Требование:
+    // - Открытые: по номеру камеры (ASC), внутри — новее выше (id DESC)
+    // - Закрытые: по "свежести" (id DESC). На практике id коррелирует с датой/временем создания/закрытия.
+    const dateToFilter = (query as any)?.filter?.dateTo
+    const dateToFilterValue = Array.isArray(dateToFilter)
+      ? dateToFilter.join(',')
+      : String(dateToFilter ?? '')
+
+    const isClosedFilter =
+      dateToFilterValue.includes('$not:$null') ||
+      dateToFilterValue.includes('$not:null') ||
+      dateToFilterValue.includes('$not:$eq:$null')
+
+    const sortBy: PaginateQuery['sortBy'] = isClosedFilter
+      ? ([['id', 'DESC']] as any)
+      : ([
+          ['chamber.id', 'ASC'],
+          ['id', 'DESC'],
+        ] as any)
+
     return this.batchService.findAll({
       ...query,
-      sortBy: [
-        ['chamber.id', 'ASC'],
-        ['id', 'DESC'],
-      ],
+      sortBy,
     })
   }
 

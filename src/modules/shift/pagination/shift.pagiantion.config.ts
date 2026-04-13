@@ -13,9 +13,10 @@ export const shiftPaginationConfig: PaginateConfig<Shift> = {
     // 'offloadLoadings',
     // 'workRecords.work',
   ],
-  sortableColumns: ['id'],
+  sortableColumns: ['id', 'dateFrom', 'dateTo'],
   searchableColumns: ['dateTo', 'employee.id'],
-  defaultSortBy: [['id', 'DESC']],
+  /** Хронологічний порядок: новіші вахти вище (сортування по реальній даті, не як рядок). */
+  defaultSortBy: [['dateFrom', 'DESC']],
   filterableColumns: {
     dateTo: [FilterOperator.ILIKE, FilterOperator.NULL, FilterSuffix.NOT],
     ['employee.id']: [FilterOperator.EQ],

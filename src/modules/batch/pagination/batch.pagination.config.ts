@@ -4,7 +4,7 @@ import { Batch } from '../batch.entity'
 
 export const batchPaginationConfig: PaginateConfig<Batch> = {
   // Сначала по номеру/ид камеры (1, 2, 3…), внутри камеры — новее ниже
-  sortableColumns: ['id', 'chamber.id'],
+  sortableColumns: ['id', 'chamber.id', 'dateTo'],
   searchableColumns: ['chamber.id', 'dateFrom', 'dateTo'],
   defaultSortBy: [
     ['chamber.id', 'ASC'],
