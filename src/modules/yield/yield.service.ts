@@ -387,8 +387,9 @@ export class YieldService {
     Object.keys(sortedOffloadRecords).forEach((categoryId) => {
       return Object.keys(sortedOffloadRecords[categoryId]).forEach((waveId) => {
         const batchId = byIdWaves[waveId].batch.id
-        const compostWeight =
-          byBatchIdCategoryIdSubbatches[batchId][categoryId].compostWeight
+        const compostWeightRaw =
+          byBatchIdCategoryIdSubbatches?.[batchId]?.[categoryId]?.compostWeight
+        const compostWeight = Number(compostWeightRaw)
 
         return Object.keys(sortedOffloadRecords[categoryId][waveId]).forEach(
           (varietyId) => {
@@ -416,17 +417,21 @@ export class YieldService {
 
               Object.keys(byDate[dateKey]).forEach((offloadId) => {
                 const data = byDate[dateKey][offloadId]
-                const netWeight = data.netWeight || data.weight
-                const boxQuantity = data.boxQuantity
-                const percent: number = (netWeight - (boxQuantity * 0.4) - data.storeContainer.weight) / compostWeight
-                const weight = (netWeight - (boxQuantity * 0.4) - data.storeContainer.weight)
+                const netWeight = Number(data.netWeight ?? data.weight ?? 0)
+                const boxQuantity = Number(data.boxQuantity ?? 0)
+                const storeContainerWeight = Number(data.storeContainer?.weight ?? 0)
+                const weight = netWeight - (boxQuantity * 0.4) - storeContainerWeight
+                const percent: number =
+                  Number.isFinite(compostWeight) && compostWeight > 0
+                    ? weight / compostWeight
+                    : 0
 
                 yieldItem.weight = Number.parseFloat(
-                  (yieldItem.weight + weight).toFixed(3),
+                  (yieldItem.weight + (Number.isFinite(weight) ? weight : 0)).toFixed(3),
                 )
                 yieldItem.boxQuantity = yieldItem.boxQuantity + boxQuantity
                 yieldItem.percent = Number.parseFloat(
-                  (Number(yieldItem.percent) + Number(percent)).toFixed(5),
+                  (Number(yieldItem.percent) + (Number.isFinite(percent) ? percent : 0)).toFixed(5),
                 )
               })
 
