@@ -335,7 +335,7 @@ export class ClientController {
     })
   }
 
-  @Get('file-dowload/:id')
+  @Get('file-download/:id')
   @Auth({
     roles: [ERole.SUPERADMIN, ERole.ADMIN],
     permission: EPermission.READ_CLIENT_FILES,
