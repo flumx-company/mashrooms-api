@@ -62,3 +62,18 @@ export const getYesterdayUTC = (): Date => {
 /** Текущий год по UTC (для имён батчей и т.п.). */
 export const getCurrentYearUTC = (): number => new Date().getUTCFullYear()
 
+/** Календарная дата YYYY-MM-DD по UTC (для автологики на беке). */
+export const getUtcCalendarDateString = (now: Date = new Date()): string => {
+  const year = now.getUTCFullYear()
+  const month = now.getUTCMonth() + 1
+  const day = now.getUTCDate()
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
+/** Начало текущих UTC-суток (instant для сравнения с updatedAt). */
+export const getUtcDayStart = (now: Date = new Date()): Date => {
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  )
+}
+

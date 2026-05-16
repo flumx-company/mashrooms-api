@@ -18,7 +18,7 @@ import { VarietyService } from '@mush/modules/variety/variety.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { CError, formatDateToDateTime, pick } from '@mush/core/utils'
+import { CError, getUtcCalendarDateString, pick } from '@mush/core/utils'
 
 import { Cutting } from './cutting.entity'
 import { CreateCuttingDto } from './dto'
@@ -160,11 +160,7 @@ export class CuttingService {
     const byVarietyIdStorages = {}
     const byIdShifts = {}
     const byIdVarieties = {}
-    const today = String(
-      formatDateToDateTime({
-        value: new Date(Date.now()),
-      }),
-    )
+    const today = getUtcCalendarDateString()
     const [category, batch, wave]: [
       Category,
       Batch,
@@ -286,6 +282,7 @@ export class CuttingService {
           return this.storageService.updateStorage({
             id,
             amount,
+            date: today,
           })
         }
 

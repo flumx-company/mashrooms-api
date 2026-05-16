@@ -13,7 +13,13 @@ import { VarietyService } from '@mush/modules/variety/variety.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { CError, Nullable, formatDateToDateTime, pick } from '@mush/core/utils'
+import {
+  CError,
+  Nullable,
+  getUtcCalendarDateString,
+  getUtcDayStart,
+  pick,
+} from '@mush/core/utils'
 
 import { storagePaginationConfig } from './pagination'
 import { Storage } from './storage.entity'
@@ -94,11 +100,8 @@ export class StorageService {
     chamberId: number,
 
   }): Promise<object> {
-    const today = String(
-      formatDateToDateTime({
-        value: new Date(Date.now()),
-      }),
-    )
+    const today = getUtcCalendarDateString()
+    const todayStartUtc = getUtcDayStart()
     const byVarietyStorageList = {}
 
     const foundStorages = await this.storageRepository
@@ -108,7 +111,10 @@ export class StorageService {
       .leftJoinAndSelect('batch.chamber', 'chamber')
       .leftJoinAndSelect('storage.variety', 'variety')
       .leftJoinAndSelect('storage.category', 'category')
-      .where('storage.date like :date', { date: `%${today}%` })
+      .where(
+        '(storage.date LIKE :today OR (storage.date < :todayDate AND storage.updatedAt >= :todayStart))',
+        { today: `%${today}%`, todayDate: today, todayStart: todayStartUtc },
+      )
       .andWhere('wave.id = :waveId', { waveId })
       .andWhere('category.id = :categoryId', { categoryId })
       .andWhere('chamber.id = :chamberId', { chamberId })
@@ -116,15 +122,20 @@ export class StorageService {
         'storage.id',
         'storage.amount',
         'storage.date',
+        'storage.updatedAt',
         'variety.id',
         'category.id',
         'wave.id',
         'batch.id',
         'chamber.id',
       ])
+      .orderBy('storage.date', 'DESC')
       .getMany()
 
     foundStorages.forEach(({ variety, amount, id }) => {
+      if (byVarietyStorageList[variety.id]) {
+        return
+      }
       byVarietyStorageList[variety.id] = {
         amount,
         id,
@@ -195,9 +206,11 @@ export class StorageService {
   async updateStorage({
     id,
     amount,
+    date,
   }: {
     id: number
     amount: number
+    date?: string
   }): Promise<Storage> {
     const foundStorage = await this.findById(id)
 
@@ -208,6 +221,7 @@ export class StorageService {
     const newStorage: Storage = await this.storageRepository.create({
       ...foundStorage,
       amount,
+      ...(date ? { date } : {}),
     })
 
     return this.storageRepository.save(newStorage)
