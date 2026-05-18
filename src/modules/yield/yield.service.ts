@@ -13,7 +13,11 @@ import { Subbatch } from '@mush/modules/subbatch/subbatch.entity'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { CError, Nullable } from '@mush/core/utils'
+import {
+  CError,
+  Nullable,
+  normalizeUtcCalendarDateString,
+} from '@mush/core/utils'
 
 import { Yield } from './yield.entity'
 
@@ -140,6 +144,7 @@ export class YieldService {
     categoryId: number
     waveId: number
   }): Promise<Yield[]> {
+    const calendarDate = normalizeUtcCalendarDateString(date) ?? date
     const [batch, category, wave]: [
       batch: Batch,
       category: Category,
@@ -166,7 +171,7 @@ export class YieldService {
         'subbatch',
         `batch.id = subbatch.batchId AND subbatch.categoryId = ${categoryId}`,
       )
-      .where('date = :date', { date })
+      .where('date = :date', { date: calendarDate })
       .andWhere('batch.id = :batchId', { batchId })
       .andWhere('wave.id = :waveId', { waveId })
       .getMany()
@@ -216,6 +221,7 @@ export class YieldService {
   }
 
   async findAllByWaveAndDate({ waveId, date }: { waveId: number; date: string }): Promise<object> {
+    const calendarDate = normalizeUtcCalendarDateString(date) ?? date
     const yields = await this.yieldRepository
       .createQueryBuilder('yield')
       .select([
@@ -246,7 +252,9 @@ export class YieldService {
       .leftJoin('yield.variety', 'variety')
       .leftJoin('yield.wave', 'wave')
       .where('wave.id = :waveId', { waveId })
-      .andWhere("DATE_FORMAT(wave.dateFrom, '%Y-%m-%d') = :date", { date })
+      .andWhere("DATE_FORMAT(wave.dateFrom, '%Y-%m-%d') = :date", {
+        date: calendarDate,
+      })
       .groupBy('wave.id')
       .addGroupBy('wave.order')
       .addGroupBy('wave.dateFrom')

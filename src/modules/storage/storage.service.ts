@@ -17,7 +17,8 @@ import {
   CError,
   Nullable,
   getUtcCalendarDateString,
-  getUtcDayStart,
+  getUtcDayStartForCalendarDate,
+  normalizeUtcCalendarDateString,
   pick,
 } from '@mush/core/utils'
 
@@ -93,15 +94,18 @@ export class StorageService {
   async findAllTodayStoragesByWaveId({
     waveId,
     categoryId,
-    chamberId
+    chamberId,
+    calendarDate,
   }: {
     waveId: number
     categoryId: number,
     chamberId: number,
-
+    calendarDate?: string,
   }): Promise<object> {
-    const today = getUtcCalendarDateString()
-    const todayStartUtc = getUtcDayStart()
+    const today =
+      normalizeUtcCalendarDateString(calendarDate) ??
+      getUtcCalendarDateString()
+    const todayStartUtc = getUtcDayStartForCalendarDate(today)
     const byVarietyStorageList = {}
 
     const foundStorages = await this.storageRepository

@@ -14,7 +14,12 @@ import { ShiftService } from '@mush/modules/shift/shift.service'
 import { Work } from '@mush/modules/work/work.entity'
 import { WorkService } from '@mush/modules/work/work.service'
 
-import { CError, Nullable, pick } from '@mush/core/utils'
+import {
+  CError,
+  Nullable,
+  normalizeUtcCalendarDateString,
+  pick,
+} from '@mush/core/utils'
 
 import { CreateWorkRecordDto, GroupedWorkRecordResponseDto } from './dto'
 import { UpdateWorkRecordDto } from './dto/update.work.record'
@@ -33,9 +38,10 @@ export class WorkRecordService {
   ) {}
 
   findAllByDate(date, filters: { chamberId?: number; workId?: number; shiftId?: number; employeeId?: number; workType?: string; isRegular?: boolean; recordGroupId?: number } = {}): Promise<WorkRecord[]> {
+    const calendarDate = normalizeUtcCalendarDateString(date) ?? date
     const qb = this.workRecordRepository
       .createQueryBuilder('workRecord')
-      .where('workRecord.date = :date', { date })
+      .where('workRecord.date = :date', { date: calendarDate })
       .leftJoinAndSelect('workRecord.shift', 'shift')
       .leftJoinAndSelect('workRecord.work', 'work')
       .leftJoinAndSelect('workRecord.chamber', 'chamber')
@@ -153,6 +159,8 @@ export class WorkRecordService {
     workId: number,
     { dividedAmount, date, employees, chamberId }: CreateWorkRecordDto,
   ): Promise<WorkRecord[]> {
+    const calendarDate =
+      normalizeUtcCalendarDateString(date) ?? date
     // const percentSum: number = employees.reduce(
     //   (accumulator, employee) => accumulator + employee.percent,
     //   0,
@@ -203,7 +211,7 @@ export class WorkRecordService {
     const createdWorkRecords: WorkRecord[] = await Promise.all(
       employees.map(({  reward, amount }, index) => {
         return this.workRecordRepository.create({
-          date,
+          date: calendarDate,
           amount,
           reward,
           work: pick(foundWork, 'id', 'title', 'isRegular'),
@@ -412,8 +420,9 @@ export class WorkRecordService {
     })
 
     if (date) {
-      console.log('Applying date filter:', date)
-      qb.andWhere('workRecord.date = :date', { date })
+      const calendarDate = normalizeUtcCalendarDateString(date) ?? date
+      console.log('Applying date filter:', calendarDate)
+      qb.andWhere('workRecord.date = :date', { date: calendarDate })
     }
     
     if (chamberId) {
@@ -578,8 +587,10 @@ export class WorkRecordService {
 
     // Применяем фильтры
     if (filters.date) {
-      console.log('Applying date filter:', filters.date)
-      qb.andWhere('workRecord.date = :date', { date: filters.date })
+      const calendarDate =
+        normalizeUtcCalendarDateString(filters.date) ?? filters.date
+      console.log('Applying date filter:', calendarDate)
+      qb.andWhere('workRecord.date = :date', { date: calendarDate })
     }
     
     if (filters.chamberId) {
