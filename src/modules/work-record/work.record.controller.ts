@@ -28,17 +28,17 @@ import {
 
 import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
-import {
-  ApiV1,
-  getUtcCalendarDateString,
-  normalizeUtcCalendarDateString,
-} from '@mush/core/utils'
+import { ApiV1 } from '@mush/core/utils'
 
 import { CreateWorkRecordDto, GroupedWorkRecordResponseDto } from './dto'
 import { UpdateWorkRecordDto } from './dto/update.work.record'
 import { WorkRecord } from './work.record.entity'
 import { WorkRecordService } from './work.record.service'
 import { groupedWorkRecordPaginationConfig } from './pagination'
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
+
 @ApiTags('Work Records')
 @ApiBadGatewayResponse({
   status: 502,
@@ -224,9 +224,7 @@ export class WorkRecordController {
     @Query('isRegular') isRegular?: boolean,
     @Query('recordGroupId') recordGroupId?: number,
   ) {
-    date =
-      normalizeUtcCalendarDateString(date) ??
-      getUtcCalendarDateString()
+    date = date || dayjs.utc().format('YYYY-MM-DD');
     return this.workRecordService.findAllByDate(date, { 
       chamberId, 
       workId, 

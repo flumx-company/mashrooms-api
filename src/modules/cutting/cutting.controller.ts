@@ -7,7 +7,6 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Query,
   Req,
 } from '@nestjs/common'
 import {
@@ -156,7 +155,6 @@ export class CuttingController {
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Param('batchId', ParseIntPipe) batchId: number,
     @Param('waveId', ParseIntPipe) waveId: number,
-    @Query('calendarDate') calendarDate: string | undefined,
     @Body() data: CreateCuttingDto[],
   ): Promise<Cutting[]> {
     return this.cuttingService.createCutting({
@@ -165,7 +163,6 @@ export class CuttingController {
       waveId,
       data,
       author: request['user'] as User,
-      calendarDate,
     })
   }
 }

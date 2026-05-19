@@ -1,11 +1,7 @@
-import * as dayjs from 'dayjs'
-import * as utc from 'dayjs/plugin/utc'
-
-dayjs.extend(utc)
-
 export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | null => {
   if (!value) return null
   if (value instanceof Date) {
+    // If already a Date, extract UTC components and create new UTC date
     return new Date(Date.UTC(
       value.getUTCFullYear(),
       value.getUTCMonth(),
@@ -15,9 +11,11 @@ export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | nul
   if (typeof value !== 'string') {
     return null
   }
+  // YYYY-MM-DD или строка с временем (YYYY-MM-DD HH:mm:...); для колонки date берём только дату
   const datePart = value.slice(0, 10)
   const match = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!match) {
+    // Fallback: attempt ISO parse; if missing Z, append Z
     const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`
     const d = new Date(iso)
     return isNaN(d.getTime()) ? null : d
@@ -31,11 +29,13 @@ export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | nul
 export const ensureUTCDate = (value: string | Date | null): Date | null => {
   if (value == null) return null
   if (value instanceof Date) return value
+  // Try ISO first; if no zone provided, assume UTC
   const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`
   const d = new Date(iso)
   return isNaN(d.getTime()) ? null : d
 }
 
+/** Следующий календарный день в UTC (00:00 UTC). */
 export const addOneDayUTC = (value: string | Date): Date => {
   const d = dateOnlyStringToUTCDate(value) ?? new Date(value)
   return new Date(
@@ -47,6 +47,7 @@ export const addOneDayUTC = (value: string | Date): Date => {
   )
 }
 
+/** Вчера 00:00 UTC. */
 export const getYesterdayUTC = (): Date => {
   const now = new Date()
   return new Date(
@@ -58,9 +59,10 @@ export const getYesterdayUTC = (): Date => {
   )
 }
 
+/** Текущий год по UTC (для имён батчей и т.п.). */
 export const getCurrentYearUTC = (): number => new Date().getUTCFullYear()
 
-/** Календарный день YYYY-MM-DD по UTC. */
+/** Календарная дата YYYY-MM-DD по UTC (для автологики на беке). */
 export const getUtcCalendarDateString = (now: Date = new Date()): string => {
   const year = now.getUTCFullYear()
   const month = now.getUTCMonth() + 1
@@ -68,41 +70,10 @@ export const getUtcCalendarDateString = (now: Date = new Date()): string => {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
-export const normalizeUtcCalendarDateString = (
-  value?: string | null,
-): string | null => {
-  if (!value) return null
-  const part = value.slice(0, 10)
-  return /^\d{4}-\d{2}-\d{2}$/.test(part) ? part : null
+/** Начало текущих UTC-суток (instant для сравнения с updatedAt). */
+export const getUtcDayStart = (now: Date = new Date()): Date => {
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  )
 }
 
-/** Границы UTC-календарного дня [00:00Z, 24:00Z) для фильтра createdAt. */
-export const getUtcDayBoundsUtc = (
-  calendarDate: string,
-): { start: Date; endExclusive: Date } => {
-  const start = dateOnlyStringToUTCDate(calendarDate.slice(0, 10)) as Date
-  return { start, endExclusive: addOneDayUTC(start) }
-}
-
-export const getUtcDayStartForCalendarDate = (calendarDate: string): Date => {
-  return dateOnlyStringToUTCDate(calendarDate.slice(0, 10)) as Date
-}
-
-/** Границы UTC-календарного месяца. */
-/** SQL: календарная дата колонки timestamp в UTC (сессия MySQL должна быть UTC). */
-export const sqlUtcCalendarDate = (columnRef: string): string =>
-  `DATE(${columnRef})`
-
-export const getUtcMonthBoundsUtc = (
-  month: string,
-): { start: Date; endExclusive: Date } => {
-  const [yearStr, monthStr] = month.split('-')
-  const year = parseInt(yearStr, 10)
-  const m = parseInt(monthStr, 10) - 1
-  const start = new Date(Date.UTC(year, m, 1))
-  const endExclusive =
-    m === 11
-      ? new Date(Date.UTC(year + 1, 0, 1))
-      : new Date(Date.UTC(year, m + 1, 1))
-  return { start, endExclusive }
-}
