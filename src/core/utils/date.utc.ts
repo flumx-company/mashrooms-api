@@ -1,16 +1,7 @@
-import * as dayjs from 'dayjs'
-import * as utc from 'dayjs/plugin/utc'
-import * as timezone from 'dayjs/plugin/timezone'
-
-dayjs.extend(utc)
-dayjs.extend(timezone)
-
-/** Операционный пояс (ночная смена, холодильник, журнал резки). */
-export const BUSINESS_TIMEZONE = process.env.APP_TIMEZONE ?? 'Europe/Kyiv'
-
 export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | null => {
   if (!value) return null
   if (value instanceof Date) {
+    // If already a Date, extract UTC components and create new UTC date
     return new Date(Date.UTC(
       value.getUTCFullYear(),
       value.getUTCMonth(),
@@ -20,9 +11,11 @@ export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | nul
   if (typeof value !== 'string') {
     return null
   }
+  // YYYY-MM-DD или строка с временем (YYYY-MM-DD HH:mm:...); для колонки date берём только дату
   const datePart = value.slice(0, 10)
   const match = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!match) {
+    // Fallback: attempt ISO parse; if missing Z, append Z
     const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`
     const d = new Date(iso)
     return isNaN(d.getTime()) ? null : d
@@ -36,56 +29,51 @@ export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | nul
 export const ensureUTCDate = (value: string | Date | null): Date | null => {
   if (value == null) return null
   if (value instanceof Date) return value
+  // Try ISO first; if no zone provided, assume UTC
   const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`
   const d = new Date(iso)
   return isNaN(d.getTime()) ? null : d
 }
 
-/** Следующий календарный день в операционном поясе (00:00). */
+/** Следующий календарный день в UTC (00:00 UTC). */
 export const addOneDayUTC = (value: string | Date): Date => {
   const d = dateOnlyStringToUTCDate(value) ?? new Date(value)
-  const next = dayjs(d).tz(BUSINESS_TIMEZONE).add(1, 'day').startOf('day')
-  return next.utc().toDate()
+  return new Date(
+    Date.UTC(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      d.getUTCDate() + 1,
+    ),
+  )
 }
 
-/** Вчера 00:00 в операционном поясе. */
+/** Вчера 00:00 UTC. */
 export const getYesterdayUTC = (): Date => {
-  return dayjs().tz(BUSINESS_TIMEZONE).subtract(1, 'day').startOf('day').utc().toDate()
+  const now = new Date()
+  return new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() - 1,
+    ),
+  )
 }
 
-/** Текущий год в операционном поясе (имена батчей). */
-export const getCurrentYearUTC = (): number =>
-  dayjs().tz(BUSINESS_TIMEZONE).year()
+/** Текущий год по UTC (для имён батчей и т.п.). */
+export const getCurrentYearUTC = (): number => new Date().getUTCFullYear()
 
-/** Календарная дата YYYY-MM-DD в операционном поясе (холодильник, резка). */
+/** Календарная дата YYYY-MM-DD по UTC (для автологики на беке). */
 export const getUtcCalendarDateString = (now: Date = new Date()): string => {
-  return dayjs(now).tz(BUSINESS_TIMEZONE).format('YYYY-MM-DD')
+  const year = now.getUTCFullYear()
+  const month = now.getUTCMonth() + 1
+  const day = now.getUTCDate()
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
-/** Начало текущих операционных суток (instant UTC для сравнения с updatedAt). */
+/** Начало текущих UTC-суток (instant для сравнения с updatedAt). */
 export const getUtcDayStart = (now: Date = new Date()): Date => {
-  return dayjs(now).tz(BUSINESS_TIMEZONE).startOf('day').utc().toDate()
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  )
 }
 
-/** [start, end) — операционные сутки YYYY-MM-DD в UTC instant. */
-export const getBusinessDayUtcRange = (
-  dateStr: string,
-): { start: Date; end: Date } => {
-  const day = dateStr.slice(0, 10)
-  const start = dayjs.tz(day, BUSINESS_TIMEZONE).startOf('day')
-  return {
-    start: start.utc().toDate(),
-    end: start.add(1, 'day').utc().toDate(),
-  }
-}
-
-/** [start, end) — календарный месяц YYYY-MM в операционном поясе. */
-export const getBusinessMonthUtcRange = (
-  month: string,
-): { start: Date; end: Date } => {
-  const start = dayjs.tz(`${month}-01`, BUSINESS_TIMEZONE).startOf('month')
-  return {
-    start: start.utc().toDate(),
-    end: start.add(1, 'month').utc().toDate(),
-  }
-}
