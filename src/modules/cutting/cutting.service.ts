@@ -18,7 +18,13 @@ import { VarietyService } from '@mush/modules/variety/variety.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { CError, getUtcCalendarDateString, pick } from '@mush/core/utils'
+import {
+  CError,
+  getOperationalCalendarDateString,
+  getCreatedAtUtcBoundsForCalendarDate,
+  getOperationalMonthBoundsUtc,
+  pick,
+} from '@mush/core/utils'
 
 import { Cutting } from './cutting.entity'
 import { CreateCuttingDto } from './dto'
@@ -29,6 +35,11 @@ type CuttingGeneralDataType = {
   batchId: number
   waveId: number
   author: User
+}
+
+/** Дни с нарезкой в месяце (календарь), operational YYYY-MM-DD. */
+export type CuttingMonthCalendarDay = {
+  createdAt: string
 }
 
 @Injectable()
@@ -46,6 +57,8 @@ export class CuttingService {
   ) {}
 
   getGroupedByDay(date: string): Promise<Cutting[]> {
+    const { startUtc, endUtc } = getCreatedAtUtcBoundsForCalendarDate(date)
+
     return this.cuttingRepository
     .createQueryBuilder('cutting')
     .select(['batch.chamber', 'SUM(cutting.boxQuantity) as sum', 'chamber', 'category', 'variety', 'wave.order'])
@@ -54,7 +67,8 @@ export class CuttingService {
     .leftJoin('cutting.variety', 'variety')
     .leftJoin('batch.chamber', 'chamber')
     .leftJoin('cutting.wave', 'wave')
-    .where('cutting.createdAt like :date', { date: `${date}%` })
+    .where('cutting.createdAt >= :startUtc', { startUtc })
+    .andWhere('cutting.createdAt < :endUtc', { endUtc })
     .groupBy('batch.chamber')
     .addGroupBy('category.id')
     .addGroupBy('variety.id')
@@ -117,6 +131,8 @@ export class CuttingService {
 
   
   findAll(date: string, chamber: string, category:string): Promise<Cutting[]> {
+    const { startUtc, endUtc } = getCreatedAtUtcBoundsForCalendarDate(date)
+
     return this.cuttingRepository
       .createQueryBuilder('cutting')
       .leftJoinAndSelect('cutting.batch', 'batch')
@@ -128,23 +144,37 @@ export class CuttingService {
       .leftJoinAndSelect('cutting.loaderShift', 'loaderShift')
       .leftJoinAndSelect('loaderShift.employee', 'employeeLoader')
       .leftJoinAndSelect('batch.chamber', 'chamber')
-      .where('cutting.createdAt like :date AND chamber.id = :chamber AND category.id = :category', { chamber, category , date: `${date}%`})
+      .where('cutting.createdAt >= :startUtc', { startUtc })
+      .andWhere('cutting.createdAt < :endUtc', { endUtc })
+      .andWhere('chamber.id = :chamber', { chamber })
+      .andWhere('category.id = :category', { category })
       .getMany();
   }
 
   /**
    * Возвращает все каттинги за указанный chamber и год-месяц (формат YYYY-MM)
    */
-  async getAllByMonth(chamberId: number, month: string): Promise<Cutting[]> {
-    return this.cuttingRepository
-        .createQueryBuilder('cutting')
-        .select(['DATE(cutting.createdAt) as createdAt'])
-        .leftJoin('cutting.batch', 'batch')
-        .leftJoin('batch.chamber', 'chamber')
-        .where('batch.chamber.id = :chamberId', { chamberId })
-        .andWhere('cutting.createdAt LIKE :month', { month: `${month}%` })
-        .groupBy('createdAt')
-        .getRawMany();
+  async getAllByMonth(
+    chamberId: number,
+    month: string,
+  ): Promise<CuttingMonthCalendarDay[]> {
+    const { startUtc, endUtc } = getOperationalMonthBoundsUtc(month)
+    const rows = await this.cuttingRepository
+      .createQueryBuilder('cutting')
+      .select(['cutting.createdAt'])
+      .leftJoin('cutting.batch', 'batch')
+      .leftJoin('batch.chamber', 'chamber')
+      .where('batch.chamber.id = :chamberId', { chamberId })
+      .andWhere('cutting.createdAt >= :startUtc', { startUtc })
+      .andWhere('cutting.createdAt < :endUtc', { endUtc })
+      .getMany()
+
+    const operationalDays = new Set<string>()
+    rows.forEach(({ createdAt }) => {
+      operationalDays.add(getOperationalCalendarDateString(createdAt))
+    })
+
+    return [...operationalDays].map((createdAt) => ({ createdAt }))
   }
 
   @Transactional()
@@ -160,7 +190,7 @@ export class CuttingService {
     const byVarietyIdStorages = {}
     const byIdShifts = {}
     const byIdVarieties = {}
-    const today = getUtcCalendarDateString()
+    const today = getOperationalCalendarDateString()
     const [category, batch, wave]: [
       Category,
       Batch,
@@ -171,7 +201,12 @@ export class CuttingService {
       this.waveService.findWaveById(waveId),
     ])
 
-    const foundTodayStorages = await this.storageService.findAllTodayStoragesByWaveId({ waveId, categoryId, chamberId: batch.chamber.id });
+    const foundTodayStorages =
+      await this.storageService.findAllTodayStoragesByWaveId({
+        waveId,
+        categoryId,
+        chamberId: batch.chamber.id,
+      })
 
 
     if (!category || !batch || !wave) {
@@ -298,9 +333,7 @@ export class CuttingService {
     )
 
     return Promise.all(
-      createdCuttings.map((cutting) => {
-        return this.cuttingRepository.save(cutting)
-      }),
+      createdCuttings.map((cutting) => this.cuttingRepository.save(cutting)),
     )
   }
 }

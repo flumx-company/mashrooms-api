@@ -1,3 +1,13 @@
+import * as dayjs from 'dayjs'
+import * as utc from 'dayjs/plugin/utc'
+import * as timezone from 'dayjs/plugin/timezone'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
+/** Операционный часовой пояс (рабочие сутки на ферме). */
+export const OPERATIONAL_TIMEZONE = 'Europe/Kyiv'
+
 export const dateOnlyStringToUTCDate = (value: string | Date | null): Date | null => {
   if (!value) return null
   if (value instanceof Date) {
@@ -75,5 +85,54 @@ export const getUtcDayStart = (now: Date = new Date()): Date => {
   return new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
   )
+}
+
+/** Календарный операционный день YYYY-MM-DD (Europe/Kyiv). */
+export const getOperationalCalendarDateString = (
+  now: Date = new Date(),
+  tz: string = OPERATIONAL_TIMEZONE,
+): string => dayjs(now).tz(tz).format('YYYY-MM-DD')
+
+/**
+ * Календарная дата YYYY-MM-DD в поясе tz → полуинтервал [startUtc, endUtc) для createdAt в БД (UTC).
+ * Аналог Luxon: fromISO(date, { zone }).startOf('day').toUTC() … plus({ days: 1 }).
+ */
+export const getCreatedAtUtcBoundsForCalendarDate = (
+  dateYmd: string,
+  tz: string = OPERATIONAL_TIMEZONE,
+): { startUtc: Date; endUtc: Date } => {
+  const startUtc = dayjs.tz(dateYmd, tz).startOf('day').toDate()
+  const endUtc = dayjs.tz(dateYmd, tz).add(1, 'day').startOf('day').toDate()
+  return { startUtc, endUtc }
+}
+
+/** @deprecated используйте getCreatedAtUtcBoundsForCalendarDate */
+export const getOperationalDayBoundsFromDateString = (
+  dateYmd: string,
+  tz: string = OPERATIONAL_TIMEZONE,
+): { startUtc: Date; endUtc: Date } =>
+  getCreatedAtUtcBoundsForCalendarDate(dateYmd, tz)
+
+/** Начало календарных суток dateYmd в tz как instant UTC (00:00). */
+export const getOperationalDayStartUtc = (
+  now: Date = new Date(),
+  tz: string = OPERATIONAL_TIMEZONE,
+): Date => {
+  const dateYmd = dayjs(now).tz(tz).format('YYYY-MM-DD')
+  return getCreatedAtUtcBoundsForCalendarDate(dateYmd, tz).startUtc
+}
+
+/** Месяц YYYY-MM в поясе tz → [startUtc, endUtc) для фильтра createdAt. */
+export const getOperationalMonthBoundsUtc = (
+  monthYmd: string,
+  tz: string = OPERATIONAL_TIMEZONE,
+): { startUtc: Date; endUtc: Date } => {
+  const startUtc = dayjs.tz(`${monthYmd}-01`, tz).startOf('day').toDate()
+  const endUtc = dayjs
+    .tz(`${monthYmd}-01`, tz)
+    .add(1, 'month')
+    .startOf('day')
+    .toDate()
+  return { startUtc, endUtc }
 }
 

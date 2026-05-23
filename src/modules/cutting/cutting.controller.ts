@@ -25,7 +25,7 @@ import { ApiV1 } from '@mush/core/utils'
 
 import { User } from '../core-module/user/user.entity'
 import { Cutting } from './cutting.entity'
-import { CuttingService } from './cutting.service'
+import { CuttingMonthCalendarDay, CuttingService } from './cutting.service'
 import { CreateCuttingDto } from './dto'
 import { cuttingPaginationConfig } from './pagination'
 
@@ -112,7 +112,7 @@ export class CuttingController {
   async getAllByMonth(
     @Param('chamberId', ParseIntPipe) chamberId: number,
     @Param('month') month: string,
-  ): Promise<Cutting[]> {
+  ): Promise<CuttingMonthCalendarDay[]> {
     return this.cuttingService.getAllByMonth(chamberId, month);
   }
 

@@ -1,8 +1,8 @@
 /**
- * Симуляция: чистый UTC на беке vs локальный день на фронте (источник бага).
+ * Симуляция: операционный день (Europe/Kyiv) vs UTC.
  *
  * Запуск: npm run simulate:midnight-storage-date
- * Своё время: node scripts/simulate-midnight-storage-date.js "2026-05-16T00:30:00+03:00"
+ * Своё время: node scripts/simulate-midnight-storage-date.js "2026-05-18T00:24:00+03:00"
  */
 
 const dayjs = require('dayjs')
@@ -11,6 +11,12 @@ const timezone = require('dayjs/plugin/timezone')
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
+
+const TZ = 'Europe/Kyiv'
+
+function operationalCalendarDay(d) {
+  return dayjs(d).tz(TZ).format('YYYY-MM-DD')
+}
 
 function utcCalendarDay(d) {
   const y = d.getUTCFullYear()
@@ -23,45 +29,37 @@ function localJournalDay(iso) {
   return dayjs(iso).format('YYYY-MM-DD')
 }
 
-function utcJournalDay(iso) {
-  return dayjs.utc(iso).format('YYYY-MM-DD')
-}
-
 function report(label, iso) {
   const simulated = new Date(iso)
-  const storage = utcCalendarDay(simulated)
+  const storage = operationalCalendarDay(simulated)
+  const storageUtc = utcCalendarDay(simulated)
   const journalLocal = localJournalDay(iso)
-  const journalUtc = utcJournalDay(iso)
 
   console.log(label)
-  console.log('  ISO:           ', simulated.toISOString())
-  console.log('  Холодильник:   ', storage, '(бек UTC)')
+  console.log('  ISO:              ', simulated.toISOString())
+  console.log('  Холодильник (Kyiv):', storage, '  ← целевая модель')
+  console.log('  Холодильник (UTC): ', storageUtc, storageUtc !== storage ? '  ← старая модель' : '')
   console.log(
-    '  Журнал LOCAL:  ',
+    '  Журнал (локально): ',
     journalLocal,
-    journalLocal !== storage ? '  ← БАГ (старый фронт)' : '  ← OK',
-  )
-  console.log(
-    '  Журнал UTC:    ',
-    journalUtc,
-    journalUtc !== storage ? '  ← несовпадение' : '  ← OK (целевая модель)',
+    journalLocal === storage ? '  ← OK' : '  ← расхождение',
   )
   console.log('')
 }
 
 const customIso = process.argv[2]
 
-console.log('=== UTC на беке: холодильник + журнал (API) ===\n')
+console.log('=== Операционный день Europe/Kyiv (резка + холодильник) ===\n')
 
 if (customIso) {
   report(`Время: ${customIso}`, customIso)
 } else {
   report('Клиент: 16.05.2026 00:30 (Киев)', '2026-05-16T00:30:00+03:00')
+  report('Нарезка: 18.05.2026 00:24 (Киев)', '2026-05-18T00:24:00+03:00')
   report('Днём: 16.05.2026 14:00 (Киев)', '2026-05-16T14:00:00+03:00')
 }
 
 console.log('Сейчас:')
 const now = new Date()
-console.log('  UTC день (бек):     ', utcCalendarDay(now))
-console.log('  Журнал LOCAL:       ', localJournalDay(now.toISOString()))
-console.log('  Журнал UTC (фикс):  ', utcJournalDay(now.toISOString()))
+console.log('  Операционный день:  ', operationalCalendarDay(now))
+console.log('  UTC день (старое):  ', utcCalendarDay(now))

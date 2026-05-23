@@ -1,47 +1,49 @@
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
+import * as timezone from 'dayjs/plugin/timezone'
 
-import { getUtcCalendarDateString, getUtcDayStart } from './date.utc'
+import {
+  getCreatedAtUtcBoundsForCalendarDate,
+  getOperationalCalendarDateString,
+  getOperationalDayStartUtc,
+  getUtcCalendarDateString,
+  OPERATIONAL_TIMEZONE,
+} from './date.utc'
 
 dayjs.extend(utc)
+dayjs.extend(timezone)
 
-/** Как журнал резки на фронте при ошибке: локальный календарный день. */
-function localJournalCalendarDay(iso: string): string {
-  return dayjs(iso).format('YYYY-MM-DD')
-}
+describe('getCreatedAtUtcBoundsForCalendarDate (dayjs, Europe/Kyiv)', () => {
+  it('maps calendar date to [startUtc, endUtc) like Luxon', () => {
+    const date = '2026-05-23'
+    const { startUtc, endUtc } = getCreatedAtUtcBoundsForCalendarDate(date)
 
-/** Как журнал резки должен слать в API: UTC-календарный день. */
-function utcJournalCalendarDay(iso: string): string {
-  return dayjs.utc(iso).format('YYYY-MM-DD')
-}
-
-describe('UTC calendar date (storage & cutting API)', () => {
-  const clientIso = '2026-05-16T00:30:00+03:00'
-  const simulated = new Date(clientIso)
-
-  it('at 00:30 Kyiv UTC day is 15.05 for storage and UTC journal API', () => {
-    const storageDate = getUtcCalendarDateString(simulated)
-    const journalUtc = utcJournalCalendarDay(clientIso)
-    const journalLocal = localJournalCalendarDay(clientIso)
-
-    expect(storageDate).toBe('2026-05-15')
-    expect(journalUtc).toBe('2026-05-15')
-    expect(journalLocal).toBe('2026-05-16')
-    expect(storageDate).toBe(journalUtc)
-    expect(storageDate).not.toBe(journalLocal)
+    expect(startUtc.toISOString()).toBe('2026-05-22T21:00:00.000Z')
+    expect(endUtc.toISOString()).toBe('2026-05-23T21:00:00.000Z')
   })
 
-  it('UTC day start matches instant for 00:30 Kyiv scenario', () => {
-    expect(getUtcDayStart(simulated).toISOString()).toBe(
-      '2026-05-15T00:00:00.000Z',
+  it('includes instant inside the day and excludes next midnight Kyiv', () => {
+    const { startUtc, endUtc } =
+      getCreatedAtUtcBoundsForCalendarDate('2026-05-18')
+    const cut = new Date('2026-05-18T00:24:00+03:00')
+    const nextDayKyiv = new Date('2026-05-19T00:00:00+03:00')
+
+    expect(cut.getTime()).toBeGreaterThanOrEqual(startUtc.getTime())
+    expect(cut.getTime()).toBeLessThan(endUtc.getTime())
+    expect(nextDayKyiv.getTime()).toBeGreaterThanOrEqual(endUtc.getTime())
+  })
+
+  it('at 00:30 Kyiv operational label is 16.05 not UTC 15.05', () => {
+    const simulated = new Date('2026-05-16T00:30:00+03:00')
+    expect(getOperationalCalendarDateString(simulated)).toBe('2026-05-16')
+    expect(getUtcCalendarDateString(simulated)).toBe('2026-05-15')
+  })
+
+  it('operational day start equals startUtc of that calendar date', () => {
+    const simulated = new Date('2026-05-16T00:30:00+03:00')
+    const ymd = dayjs(simulated).tz(OPERATIONAL_TIMEZONE).format('YYYY-MM-DD')
+    expect(getOperationalDayStartUtc(simulated).toISOString()).toBe(
+      getCreatedAtUtcBoundsForCalendarDate(ymd).startUtc.toISOString(),
     )
-  })
-
-  it('during daytime UTC journal and storage day match', () => {
-    const noon = new Date('2026-05-16T14:00:00+03:00')
-    const iso = '2026-05-16T14:00:00+03:00'
-
-    expect(getUtcCalendarDateString(noon)).toBe('2026-05-16')
-    expect(utcJournalCalendarDay(iso)).toBe('2026-05-16')
   })
 })

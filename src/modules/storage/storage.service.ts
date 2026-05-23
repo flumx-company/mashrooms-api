@@ -16,8 +16,8 @@ import { WaveService } from '@mush/modules/wave/wave.service'
 import {
   CError,
   Nullable,
-  getUtcCalendarDateString,
-  getUtcDayStart,
+  getOperationalCalendarDateString,
+  getOperationalDayStartUtc,
   pick,
 } from '@mush/core/utils'
 
@@ -93,15 +93,17 @@ export class StorageService {
   async findAllTodayStoragesByWaveId({
     waveId,
     categoryId,
-    chamberId
+    chamberId,
+    asOf,
   }: {
     waveId: number
     categoryId: number,
     chamberId: number,
-
+    /** Для тестов: «сейчас» = этот instant (иначе реальное время). */
+    asOf?: Date,
   }): Promise<object> {
-    const today = getUtcCalendarDateString()
-    const todayStartUtc = getUtcDayStart()
+    const today = getOperationalCalendarDateString(asOf)
+    const todayStartUtc = getOperationalDayStartUtc(asOf)
     const byVarietyStorageList = {}
 
     const foundStorages = await this.storageRepository
