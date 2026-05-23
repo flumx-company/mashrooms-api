@@ -93,12 +93,11 @@ export class StorageService {
   async findAllTodayStoragesByWaveId({
     waveId,
     categoryId,
-    chamberId
+    chamberId,
   }: {
     waveId: number
     categoryId: number,
     chamberId: number,
-
   }): Promise<object> {
     const today = getUtcCalendarDateString()
     const todayStartUtc = getUtcDayStart()
