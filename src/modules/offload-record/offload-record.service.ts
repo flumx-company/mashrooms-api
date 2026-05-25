@@ -10,6 +10,12 @@ import { Offload } from '../offload/offload.entity'
 import { StoreContainer } from '../store-container/store-container.entity'
 import { Variety } from '../variety/variety.entity'
 import { Wave } from '../wave/wave.entity'
+import {
+  getCreatedAtUtcBoundsForCalendarDate,
+  normalizeJournalDateParam,
+  transformPaginateOperationalDayCreatedAtFilter,
+} from '@mush/core/utils'
+
 import { OffloadRecord } from './offload-record.entity'
 import { offloadRecordPaginationConfig } from './pagination'
 
@@ -22,7 +28,7 @@ export class OffloadRecordService {
 
   findAll(query: PaginateQuery): Promise<Paginated<OffloadRecord>> {
     return paginate(
-      query,
+      transformPaginateOperationalDayCreatedAtFilter(query),
       this.offloadRecordRepository,
       offloadRecordPaginationConfig,
     )
@@ -41,6 +47,9 @@ export class OffloadRecordService {
   }
 
   findAllByDate(date: string) {
+    const ymd = normalizeJournalDateParam(date)
+    const { startUtc, endUtc } = getCreatedAtUtcBoundsForCalendarDate(ymd)
+
     return this.offloadRecordRepository
       .createQueryBuilder('offload-record')
       .select()
@@ -49,7 +58,8 @@ export class OffloadRecordService {
       .leftJoinAndSelect('offload-record.variety', 'variety')
       .leftJoinAndSelect('offload-record.wave', 'wave')
       .leftJoinAndSelect('offload-record.storeContainer', 'storeContainer')
-      .where('offload-record.createdAt like :date', { date: `${date}%` })
+      .where('offload-record.createdAt >= :startUtc', { startUtc })
+      .andWhere('offload-record.createdAt < :endUtc', { endUtc })
       .getMany()
   }
 

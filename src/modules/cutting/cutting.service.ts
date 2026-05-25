@@ -76,16 +76,68 @@ export class CuttingService {
     .getRawMany();
   }
 
-  getGroupedByLoaderShift(shiftId: string): any {
+  private aggregateCuttingsByOperationalDay(
+    rows: Array<{
+      boxQuantity: string | number
+      createdAt: Date | string
+      categoryId: number
+      varietyId: number
+      batchId: number
+      chamberId: number
+    }>,
+  ) {
+    const map = new Map<
+      string,
+      {
+        totalBox: number
+        createdAt: string
+        categoryId: number
+        varietyId: number
+        batchId: number
+        chamberId: number
+      }
+    >()
+
+    rows.forEach((row) => {
+      const opDay = getOperationalCalendarDateString(new Date(row.createdAt))
+      const key = [
+        opDay,
+        row.categoryId,
+        row.varietyId,
+        row.batchId,
+        row.chamberId,
+      ].join('|')
+      const box = Number(row.boxQuantity)
+      const existing = map.get(key)
+      if (existing) {
+        existing.totalBox += box
+      } else {
+        map.set(key, {
+          totalBox: box,
+          createdAt: opDay,
+          categoryId: row.categoryId,
+          varietyId: row.varietyId,
+          batchId: row.batchId,
+          chamberId: row.chamberId,
+        })
+      }
+    })
+
+    return [...map.values()].sort((a, b) =>
+      a.createdAt.localeCompare(b.createdAt),
+    )
+  }
+
+  getGroupedByLoaderShift(shiftId: string): Promise<any[]> {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
       .select([
-        'SUM(cutting.boxQuantity) as totalBox',
-        'DATE(cutting.createdAt) as createdAt',
-        'category.id as "categoryId"',
-        'variety.id as "varietyId"',
-        'batch.id as "batchId"',
-        'chamberAl.id as "chamberId"',
+        'cutting.boxQuantity as boxQuantity',
+        'cutting.createdAt as createdAt',
+        'category.id as categoryId',
+        'variety.id as varietyId',
+        'batch.id as batchId',
+        'chamberAl.id as chamberId',
       ])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('cutting.category', 'category')
@@ -93,25 +145,20 @@ export class CuttingService {
       .leftJoin('cutting.loaderShift', 'loaderShift')
       .leftJoin('batch.chamber', 'chamberAl')
       .where('loaderShift.id = :shiftId', { shiftId: shiftId })
-      .groupBy('createdAt')
-      .addGroupBy('category.id')
-      .addGroupBy('variety.id')
-      .addGroupBy('batch.id')
-      .addGroupBy('chamberAl.id')
-      .orderBy('createdAt', 'ASC')
-      .getRawMany();
+      .getRawMany()
+      .then((rows) => this.aggregateCuttingsByOperationalDay(rows))
   }
 
-  getGroupedByCutterShift(shiftId: string): Promise<Cutting[]> {
+  getGroupedByCutterShift(shiftId: string): Promise<any[]> {
     return this.cuttingRepository
       .createQueryBuilder('cutting')
       .select([
-        'SUM(cutting.boxQuantity) as totalBox',
-        'DATE(cutting.createdAt) as createdAt',
-        'category.id as "categoryId"',
-        'variety.id as "varietyId"',
-        'batch.id as "batchId"',
-        'chamberAl.id as "chamberId"',
+        'cutting.boxQuantity as boxQuantity',
+        'cutting.createdAt as createdAt',
+        'category.id as categoryId',
+        'variety.id as varietyId',
+        'batch.id as batchId',
+        'chamberAl.id as chamberId',
       ])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('cutting.category', 'category')
@@ -119,14 +166,8 @@ export class CuttingService {
       .leftJoin('cutting.cutterShift', 'cutterShift')
       .leftJoin('batch.chamber', 'chamberAl')
       .where('cutterShift.id = :shiftId', { shiftId: shiftId })
-      // .andWhere('variety.isCutterPaid = 1')
-      .groupBy('createdAt')
-      .addGroupBy('category.id')
-      .addGroupBy('variety.id')
-      .addGroupBy('batch.id')
-      .addGroupBy('chamberAl.id')
-      .orderBy('createdAt', 'ASC')
-      .getRawMany();
+      .getRawMany()
+      .then((rows) => this.aggregateCuttingsByOperationalDay(rows))
   }
 
   
@@ -270,6 +311,8 @@ export class CuttingService {
       byIdVarieties[variety.id] = variety
     })
 
+    const createdAtUtc = new Date()
+
     const createdCuttings = await Promise.all(
       (data || []).map(
         ({ boxQuantity, trip, varietyId, cutterShiftId, loaderShiftId, recordNumber }) =>
@@ -292,6 +335,8 @@ export class CuttingService {
               'role',
               'position',
             ),
+            createdAt: createdAtUtc,
+            updatedAt: createdAtUtc,
           }),
       ),
     )

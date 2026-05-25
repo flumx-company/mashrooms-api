@@ -8,6 +8,7 @@ import {
   getOperationalDayStartUtc,
   getUtcCalendarDateString,
   OPERATIONAL_TIMEZONE,
+  transformPaginateOperationalDayCreatedAtFilter,
 } from './date.utc'
 
 dayjs.extend(utc)
@@ -45,5 +46,30 @@ describe('getCreatedAtUtcBoundsForCalendarDate (dayjs, Europe/Kyiv)', () => {
     expect(getOperationalDayStartUtc(simulated).toISOString()).toBe(
       getCreatedAtUtcBoundsForCalendarDate(ymd).startUtc.toISOString(),
     )
+  })
+
+  it('21:00 Kyiv on 24.05 stays in journal filter for 24.05', () => {
+    const { startUtc, endUtc } = getCreatedAtUtcBoundsForCalendarDate('2026-05-24')
+    const at2100Kyiv = new Date('2026-05-24T18:00:00.000Z')
+    expect(at2100Kyiv.getTime()).toBeGreaterThanOrEqual(startUtc.getTime())
+    expect(at2100Kyiv.getTime()).toBeLessThan(endUtc.getTime())
+  })
+
+  it('wall-clock 21:00 written as UTC misses 24.05 journal (client DB edit case)', () => {
+    const { endUtc } = getCreatedAtUtcBoundsForCalendarDate('2026-05-24')
+    const wrongWallClockUtc = new Date('2026-05-24T21:00:00.000Z')
+    expect(wrongWallClockUtc.getTime()).toBeGreaterThanOrEqual(endUtc.getTime())
+  })
+})
+
+describe('transformPaginateOperationalDayCreatedAtFilter', () => {
+  it('rewrites filter.createdAt to UTC bounds for operational day', () => {
+    const out = transformPaginateOperationalDayCreatedAtFilter({
+      filter: { createdAt: '2026-05-24' },
+    })
+    expect(out.filter?.createdAt).toContain('$gte:')
+    expect(out.filter?.createdAt).toContain('$lt:')
+    expect(out.filter?.createdAt).toContain('2026-05-23T21:00:00.000Z')
+    expect(out.filter?.createdAt).toContain('2026-05-24T21:00:00.000Z')
   })
 })

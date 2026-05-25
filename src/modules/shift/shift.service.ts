@@ -14,13 +14,16 @@ import {Price} from '@mush/modules/price/price.entity'
 import {PriceService} from '@mush/modules/price/price.service'
 
 import {EPriceTenant} from '@mush/core/enums'
-import {CError, Nullable, formatDateToDateTime, addOneDayUTC} from '@mush/core/utils'
+import {
+  CError,
+  Nullable,
+  formatDateToDateTime,
+  addOneOperationalCalendarDay,
+  createdAtOperationalDayFromInstant,
+} from '@mush/core/utils'
 
 import {shiftPaginationConfig} from './pagination/shift.pagiantion.config'
 import {Shift} from './shift.entity'
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-dayjs.extend(utc);
 import {BonusShiftEntity, CreateBonusShiftDto} from './bonus.shift.entity'
 import {ShiftOffload} from '../offload/shift-offload.entity';
 import { Transactional } from 'typeorm-transactional'
@@ -578,37 +581,28 @@ export class ShiftService {
                 return
             }
 
-            const date = formatDateToDateTime({
-                value: createdAt,
-                withTime: false,
-            }) as unknown as string
+            const date = createdAtOperationalDayFromInstant(createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_CUTTER, date})
             const previousValue = wageDirectory?.[date] || 0
             wageDirectory[date] = boxQuantity * price + previousValue
         })
 
         loadings.forEach(({createdAt, boxQuantity}) => {
-            const date = formatDateToDateTime({
-                value: createdAt,
-                withTime: false,
-            }) as unknown as string
+            const date = createdAtOperationalDayFromInstant(createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_MUSH_LOADER, date})
             const previousValue = wageDirectory?.[date] || 0
             wageDirectory[date] = boxQuantity * price + previousValue
         })
 
         shiftOffloads.forEach(({boxQuantity, createdAt}) => {
-            const date = formatDateToDateTime({
-                value: createdAt,
-                withTime: false,
-            }) as unknown as string
+            const date = createdAtOperationalDayFromInstant(createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date})
             const previousValue = wageDirectory?.[date] || 0
             wageDirectory[date] = boxQuantity * price + previousValue
         })
 
         waterings.map((i) => {
-            const date = String(i.dateTimeFrom).slice(0, 10)
+            const date = createdAtOperationalDayFromInstant(i.dateTimeFrom)
             // const tenant = drug ? EPriceTenant.MEDICATED_LITER : EPriceTenant.LITER
             const tenant = EPriceTenant.LITER
             const price = getNearestPrice({tenant, date})
@@ -651,10 +645,7 @@ export class ShiftService {
             kitchenExpenses = kitchenExpenses + (price || 0)
 
             if (slicedDate !== slidedDateTo) {
-                const nextDate = formatDateToDateTime({
-                    value: addOneDayUTC(date),
-                    withTime: false,
-                }) as unknown as string
+                const nextDate = addOneOperationalCalendarDay(slicedDate)
 
                 return calculateKitchenExpenses(nextDate)
             }
@@ -878,7 +869,7 @@ export class ShiftService {
 
         cuttings.forEach((i) => {
             i['price'] = 0
-            const date = dayjs.utc(i.createdAt).format('YYYY-MM-DD')
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const price = getNearestPrice({ tenant: EPriceTenant.BOX_CUTTER, date })
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.totalBox * price
@@ -886,7 +877,7 @@ export class ShiftService {
         })
 
         loadings.forEach((i) => {
-            const date = dayjs.utc(i.createdAt).format('YYYY-MM-DD')
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const price = getNearestPrice({ tenant: EPriceTenant.BOX_MUSH_LOADER, date })
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.totalBox * price
@@ -894,14 +885,16 @@ export class ShiftService {
         })
 
         offloadLoadings.forEach((i) => {
-            const date = dayjs.utc(i.createdAt).format('YYYY-MM-DD')
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.shiftOffloads[0]?.workAmount || 0
             wageDirectory[date] = (i.shiftOffloads[0]?.workAmount || 0) + previousValue
         })
 
         waterings.forEach((i) => {
-            const date = dayjs.utc(i.createdAt || i.dateTimeFrom).format('YYYY-MM-DD')
+            const date = createdAtOperationalDayFromInstant(
+              i.createdAt || i.dateTimeFrom,
+            )
             const tenant = EPriceTenant.LITER
             const price = getNearestPrice({ tenant, date })
             const previousValue = wageDirectory?.[date] || 0
@@ -910,7 +903,7 @@ export class ShiftService {
         })
 
         workRecords.forEach((i) => {
-            const date = dayjs.utc(i.date).format('YYYY-MM-DD')
+            const date = String(i.date).slice(0, 10)
             const previousValue = wageDirectory?.[date] || 0
             wageDirectory[date] = previousValue + Number(i.amount) + Number(i.reward || 0)
             i['price'] = Number(i.amount) + Number(i.reward || 0)
@@ -942,10 +935,7 @@ export class ShiftService {
             kitchenExpenses = kitchenExpenses + (price || 0)
 
             if (slicedDate !== slidedDateTo) {
-                const nextDate = formatDateToDateTime({
-                    value: addOneDayUTC(date),
-                    withTime: false,
-                }) as unknown as string
+                const nextDate = addOneOperationalCalendarDay(slicedDate)
 
                 return calculateKitchenExpenses(nextDate)
             }
@@ -1170,7 +1160,7 @@ export class ShiftService {
 
         cuttings.forEach((i) => {
             i['price'] = 0
-            const date = dayjs.utc(i.createdAt).format('YYYY-MM-DD')
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_CUTTER, date})
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.totalBox * price
@@ -1178,7 +1168,7 @@ export class ShiftService {
         })
 
         loadings.forEach((i) => {
-            const date = dayjs.utc(i.createdAt).format('YYYY-MM-DD')
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_MUSH_LOADER, date})
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.totalBox * price
@@ -1186,7 +1176,7 @@ export class ShiftService {
         })
 
         offloadLoadings.forEach((i) => {
-            const date = dayjs.utc(i.createdAt).format('YYYY-MM-DD')
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date})
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.shiftOffloads[0].workAmount
@@ -1194,7 +1184,9 @@ export class ShiftService {
         })
 
         waterings.forEach((i) => {
-            const date = dayjs.utc(i.createdAt).format('YYYY-MM-DD')
+            const date = createdAtOperationalDayFromInstant(
+              i.createdAt || i.dateTimeFrom,
+            )
             const tenant = i.drug ? EPriceTenant.LITER : EPriceTenant.LITER
             const price = getNearestPrice({tenant, date})
             const previousValue = wageDirectory?.[date] || 0
@@ -1204,7 +1196,7 @@ export class ShiftService {
 
         workRecords.forEach((i) => {
             const previousValue = wageDirectory?.[i.date as unknown as string] || 0
-            const date = dayjs.utc(i.date).format('YYYY-MM-DD')
+            const date = String(i.date).slice(0, 10)
             wageDirectory[date] =
                 previousValue + i.amount + i.reward
             i['price'] = i.amount + i.reward
@@ -1239,10 +1231,7 @@ export class ShiftService {
             kitchenExpenses = kitchenExpenses + (priceData?.price || 0)
 
             if (slicedDate !== slidedDateTo) {
-                const nextDate = formatDateToDateTime({
-                    value: addOneDayUTC(date),
-                    withTime: false,
-                }) as unknown as string
+                const nextDate = addOneOperationalCalendarDay(slicedDate)
 
                 return calculateKitchenExpenses(nextDate)
             }
@@ -1451,10 +1440,7 @@ export class ShiftService {
 
         cuttings.forEach((i) => {
             i['price'] = 0
-            const date = formatDateToDateTime({
-                value: i.createdAt,
-                withTime: false,
-            }) as unknown as string
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_CUTTER, date})
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.totalBox * price
@@ -1463,10 +1449,7 @@ export class ShiftService {
 
         loadings.forEach((i) => {
 
-            const date = formatDateToDateTime({
-                value: i.createdAt,
-                withTime: false,
-            }) as unknown as string
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_MUSH_LOADER, date})
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.totalBox * price
@@ -1474,10 +1457,7 @@ export class ShiftService {
         })
 
         offloadLoadings.forEach((i) => {
-            const date = formatDateToDateTime({
-                value: i.createdAt,
-                withTime: false,
-            }) as unknown as string
+            const date = createdAtOperationalDayFromInstant(i.createdAt)
             const price = getNearestPrice({tenant: EPriceTenant.BOX_OFFLOAD_LOADER, date})
             const previousValue = wageDirectory?.[date] || 0
             i['price'] = i.shiftOffloads[0].workAmount
@@ -1485,7 +1465,7 @@ export class ShiftService {
         })
 
         waterings.forEach((i) => {
-            const date = String(i.dateTimeFrom).slice(0, 10)
+            const date = createdAtOperationalDayFromInstant(i.dateTimeFrom)
             const tenant = i.drug ? EPriceTenant.LITER : EPriceTenant.LITER
             const price = getNearestPrice({tenant, date})
             const previousValue = wageDirectory?.[date] || 0
@@ -1528,10 +1508,7 @@ export class ShiftService {
             kitchenExpenses = kitchenExpenses + (priceData?.price || 0)
 
             if (slicedDate !== slidedDateTo) {
-                const nextDate = formatDateToDateTime({
-                    value: addOneDayUTC(date),
-                    withTime: false,
-                }) as unknown as string
+                const nextDate = addOneOperationalCalendarDay(slicedDate)
 
                 return calculateKitchenExpenses(nextDate)
             }

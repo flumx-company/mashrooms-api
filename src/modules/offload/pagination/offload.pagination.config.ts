@@ -7,7 +7,7 @@ export const offloadPaginationConfig: PaginateConfig<Offload> = {
   sortableColumns: ['id', 'createdAt', 'author.id', 'client.id', 'driver.id'],
   defaultSortBy: [['createdAt', 'DESC']],
   filterableColumns: {
-    createdAt: [FilterOperator.ILIKE],
+    createdAt: [FilterOperator.GTE, FilterOperator.LT],
     isClosed: [FilterOperator.EQ],
     ['shiftOffloads.shift.employee.id']: [FilterOperator.EQ],
     ['author.id']: [FilterOperator.EQ],

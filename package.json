@@ -24,7 +24,9 @@
     "createSuperAdmin": "node dist/src/main.commands createSuperAdmin",
     "changeSuperAdminPassword": "node dist/src/main.commands changeSuperAdminPassword",
     "simulate:midnight-storage-date": "node scripts/simulate-midnight-storage-date.js",
-    "test:midnight-storage-date": "jest src/core/utils/date.utc.spec.ts --watchman=false"
+    "test:midnight-storage-date": "jest src/core/utils/date.utc.spec.ts --watchman=false",
+    "test:date-scenarios": "jest src/core/utils/date.scenarios.spec.ts --watchman=false",
+    "test:date-scenarios:report": "node scripts/run-date-scenarios.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

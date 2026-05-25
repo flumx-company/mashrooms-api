@@ -14,7 +14,7 @@ services:
       - mashrooms-mysql-volume:/var/lib/mysql
       - ./deploy:/etc/mysql/mysql.conf.d
       - ./deploy/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
-    command: [ 'mysqld', '--default-time-zone=+03:00' ]
+    command: [ 'mysqld', '--default-time-zone=+00:00' ]
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s

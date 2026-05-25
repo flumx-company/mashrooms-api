@@ -101,9 +101,19 @@ export const getCreatedAtUtcBoundsForCalendarDate = (
   dateYmd: string,
   tz: string = OPERATIONAL_TIMEZONE,
 ): { startUtc: Date; endUtc: Date } => {
-  const startUtc = dayjs.tz(dateYmd, tz).startOf('day').toDate()
-  const endUtc = dayjs.tz(dateYmd, tz).add(1, 'day').startOf('day').toDate()
+  const normalized = dateYmd.slice(0, 10)
+  const startUtc = dayjs.tz(normalized, tz).startOf('day').toDate()
+  const endUtc = dayjs.tz(normalized, tz).add(1, 'day').startOf('day').toDate()
   return { startUtc, endUtc }
+}
+
+/** YYYY-MM-DD для query-параметра журнала (без сдвига TZ). */
+export const normalizeJournalDateParam = (date: string): string => {
+  const part = date.trim().slice(0, 10)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(part)) {
+    throw new Error(`Invalid journal date: ${date}`)
+  }
+  return part
 }
 
 /** @deprecated используйте getCreatedAtUtcBoundsForCalendarDate */
@@ -112,6 +122,53 @@ export const getOperationalDayBoundsFromDateString = (
   tz: string = OPERATIONAL_TIMEZONE,
 ): { startUtc: Date; endUtc: Date } =>
   getCreatedAtUtcBoundsForCalendarDate(dateYmd, tz)
+
+/** Операционный день из UTC instant (для группировки зарплаты и т.п.). */
+export const createdAtOperationalDayFromInstant = (
+  value: Date | string,
+  tz: string = OPERATIONAL_TIMEZONE,
+): string => getOperationalCalendarDateString(new Date(value), tz)
+
+/** Следующий календарный операционный день YYYY-MM-DD (Europe/Kyiv). */
+export const addOneOperationalCalendarDay = (
+  dateYmd: string,
+  tz: string = OPERATIONAL_TIMEZONE,
+): string => dayjs.tz(dateYmd.slice(0, 10), tz).add(1, 'day').format('YYYY-MM-DD')
+
+/** Вчерашний операционный день YYYY-MM-DD (Europe/Kyiv). */
+export const getOperationalYesterdayDateString = (
+  now: Date = new Date(),
+  tz: string = OPERATIONAL_TIMEZONE,
+): string =>
+  dayjs(now).tz(tz).subtract(1, 'day').format('YYYY-MM-DD')
+
+/**
+ * nestjs-paginate: filter.createdAt=$ilike:YYYY-MM-DD → $gte/$lt по операционным суткам.
+ */
+export const transformPaginateOperationalDayCreatedAtFilter = <
+  T extends { filter?: Record<string, string | string[]> },
+>(
+  query: T,
+): T => {
+  const raw = query.filter?.createdAt
+  if (raw == null || raw === '') {
+    return query
+  }
+  const match = String(Array.isArray(raw) ? raw[0] : raw).match(/(\d{4}-\d{2}-\d{2})/)
+  if (!match) {
+    return query
+  }
+  const ymd = normalizeJournalDateParam(match[1])
+  const { startUtc, endUtc } = getCreatedAtUtcBoundsForCalendarDate(ymd)
+  const { createdAt: _drop, ...restFilter } = query.filter
+  return {
+    ...query,
+    filter: {
+      ...restFilter,
+      createdAt: `$gte:${startUtc.toISOString()},$lt:${endUtc.toISOString()}`,
+    },
+  }
+}
 
 /** Начало календарных суток dateYmd в tz как instant UTC (00:00). */
 export const getOperationalDayStartUtc = (

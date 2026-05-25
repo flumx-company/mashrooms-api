@@ -21,5 +21,7 @@ export const TypeORMConfig: TypeOrmModuleOptions = {
   logging: true,
   extra: {
     decimalNumbers: true,
+    /** Сессия MySQL = UTC (совпадает с timezone: 'Z' в драйвере). */
+    initSql: "SET time_zone = '+00:00'",
   },
 }

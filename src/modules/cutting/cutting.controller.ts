@@ -23,6 +23,8 @@ import { Auth } from '@mush/core/decorators'
 import { EPermission, ERole } from '@mush/core/enums'
 import { ApiV1 } from '@mush/core/utils'
 
+import { normalizeJournalDateParam } from '@mush/core/utils'
+
 import { User } from '../core-module/user/user.entity'
 import { Cutting } from './cutting.entity'
 import { CuttingMonthCalendarDay, CuttingService } from './cutting.service'
@@ -57,7 +59,11 @@ export class CuttingController {
     @Param('chamberId') chamberId: string,
     @Param('categoryId') categoryId: string
   ): Promise<Cutting[]> {
-    return this.cuttingService.findAll(date, chamberId, categoryId)
+    return this.cuttingService.findAll(
+      normalizeJournalDateParam(date),
+      chamberId,
+      categoryId,
+    )
   }
 
   @Get(':date')
@@ -82,7 +88,7 @@ export class CuttingController {
   async getGroupedByDay(
     @Param('date') date: string,
   ): Promise<Cutting[]> {
-    return this.cuttingService.getGroupedByDay(date);
+    return this.cuttingService.getGroupedByDay(normalizeJournalDateParam(date));
   }
 
   @Get('/month/month/:chamberId/:month')

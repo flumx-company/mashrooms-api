@@ -21,7 +21,7 @@ export const cuttingPaginationConfig: PaginateConfig<Cutting> = {
   filterableColumns: {
     ['batch.id']: [FilterOperator.EQ],
     ['wave.id']: [FilterOperator.EQ],
-    createdAt: [FilterOperator.ILIKE],
+    createdAt: [FilterOperator.GTE, FilterOperator.LT],
     ['batch.chamber.id']: [FilterOperator.EQ],
   },
 }

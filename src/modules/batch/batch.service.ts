@@ -13,7 +13,15 @@ import { SubbatchService } from '@mush/modules/subbatch/subbatch.service'
 import { Wave } from '@mush/modules/wave/wave.entity'
 import { WaveService } from '@mush/modules/wave/wave.service'
 
-import { CError, Nullable, formatDateToDateTime, pick, getCurrentYearUTC, getYesterdayUTC } from '@mush/core/utils'
+import {
+  CError,
+  Nullable,
+  formatDateToDateTime,
+  pick,
+  getCurrentYearUTC,
+  getOperationalCalendarDateString,
+  getOperationalYesterdayDateString,
+} from '@mush/core/utils'
 import { Client } from '@mush/modules/client/client.entity';
 import { FileUploadService } from '@mush/modules/file-upload/file-upload.service';
 import { BufferedFile } from '@mush/modules/file-upload/file.model';
@@ -196,20 +204,8 @@ export class BatchService {
 
     const isOrderNext = waveOrder === foundWave.order + 1
     const meetsOrderLimit = foundBatch.waveQuantity >= waveOrder
-    const today = String(
-      formatDateToDateTime({
-        value: new Date(Date.now()),
-        dateFrom: true,
-        withTime: true,
-      }),
-    )
-    const yesterday = String(
-      formatDateToDateTime({
-        value: getYesterdayUTC(),
-        dateFrom: false,
-        withTime: true,
-      }),
-    )
+    const today = `${getOperationalCalendarDateString()} 00:00:00:000`
+    const yesterday = `${getOperationalYesterdayDateString()} 23:59:59:999`
 
     if (!isOrderNext || !meetsOrderLimit) {
       throw new HttpException(CError.WRONG_WAVE_ORDER, HttpStatus.BAD_REQUEST)

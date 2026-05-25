@@ -33,7 +33,13 @@ import { WaveService } from '@mush/modules/wave/wave.service'
 import { YieldService } from '@mush/modules/yield/yield.service'
 
 import { EFileCategory, EPriceTenant } from '@mush/core/enums'
-import { CError, Nullable, formatDateToDateTime } from '@mush/core/utils'
+import {
+  CError,
+  Nullable,
+  formatDateToDateTime,
+  createdAtOperationalDayFromInstant,
+  transformPaginateOperationalDayCreatedAtFilter,
+} from '@mush/core/utils'
 
 import { CreateOffloadDto, EditOffloadDto } from './dto'
 import { Offload } from './offload.entity'
@@ -66,7 +72,11 @@ export class OffloadService {
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Offload>> {
-    return paginate(query, this.offloadRepository, offloadPaginationConfig)
+    return paginate(
+      transformPaginateOperationalDayCreatedAtFilter(query),
+      this.offloadRepository,
+      offloadPaginationConfig,
+    )
   }
 
   findOffloadById(id: number): Promise<Nullable<Offload>> {
@@ -131,7 +141,11 @@ export class OffloadService {
       },
     }
 
-    return paginate(query, this.offloadRepository, config)
+    return paginate(
+      transformPaginateOperationalDayCreatedAtFilter(query),
+      this.offloadRepository,
+      config,
+    )
   }
 
   findAllByClientId(
@@ -147,7 +161,11 @@ export class OffloadService {
       },
     }
 
-    return paginate(query, this.offloadRepository, config)
+    return paginate(
+      transformPaginateOperationalDayCreatedAtFilter(query),
+      this.offloadRepository,
+      config,
+    )
   }
 
   findOffloadByIdWithFiles(id: number): Promise<Nullable<Offload>> {
@@ -609,10 +627,9 @@ export class OffloadService {
     for (const shiftOffload of shiftOffloads) {
       if (shiftOffload.workAmount === 0 && shiftOffload.boxQuantity > 0) {
         // Получаем цену за ящик для погрузчика при выгрузке
-        const offloadDate = formatDateToDateTime({
-          value: shiftOffload.offload.createdAt,
-          withTime: false,
-        }) as unknown as string;
+        const offloadDate = createdAtOperationalDayFromInstant(
+          shiftOffload.offload.createdAt,
+        );
 
         const priceData = await this.priceService.findPriceByClosestDate({
           tenant: EPriceTenant.BOX_OFFLOAD_LOADER,

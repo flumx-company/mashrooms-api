@@ -1,6 +1,9 @@
 import * as cookieParser from 'cookie-parser'
 import 'module-alias/register'
 
+/** Все Date на сервере — UTC; Kyiv только в фильтрах по календарному дню. */
+process.env.TZ = 'UTC'
+
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'

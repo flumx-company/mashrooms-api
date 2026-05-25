@@ -16,5 +16,6 @@ export const datasource = new DataSource({
   timezone: 'Z', // Use UTC to match MySQL default-time-zone
   extra: {
     decimalNumbers: true,
+    initSql: "SET time_zone = '+00:00'",
   },
 })
