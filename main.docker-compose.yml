@@ -27,6 +27,8 @@ services:
       - 51515:80
     env_file: 
       - .env
+    environment:
+      UPLOAD_LIMIT: 64M
     depends_on:
       - mashrooms-mysql
     links: 
