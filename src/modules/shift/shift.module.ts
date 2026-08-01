@@ -4,6 +4,8 @@ import { CategoryModule } from '@mush/modules/category/category.module';
 import { Chamber } from '@mush/modules/chamber/chamber.entity';
 import { ChamberService } from '@mush/modules/chamber/chamber.service';
 import { Client } from '@mush/modules/client/client.entity';
+import { ClientMovement } from '@mush/modules/client/client-movement.entity';
+import { ClientMovementService } from '@mush/modules/client/client-movement.service';
 import { ClientService } from '@mush/modules/client/client.service';
 import { Cutting } from '@mush/modules/cutting/cutting.entity';
 import { CuttingService } from '@mush/modules/cutting/cutting.service';
@@ -49,6 +51,7 @@ import {ShiftOffload} from "@mush/modules/offload/shift-offload.entity";
   imports: [
     TypeOrmModule.forFeature([
       Shift, BonusShiftEntity, Cutting, Offload, Client,
+      ClientMovement,
       Driver,
       StoreContainer,
       Yield,
@@ -72,6 +75,7 @@ import {ShiftOffload} from "@mush/modules/offload/shift-offload.entity";
   controllers: [ShiftController],
   providers: [
     ShiftService, CuttingService, OffloadService, WateringService, WorkRecordService, ClientService,
+    ClientMovementService,
     DriverService,
     StoreContainerService,
     YieldService,

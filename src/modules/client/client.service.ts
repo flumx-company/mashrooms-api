@@ -13,6 +13,7 @@ import { FileUploadService } from '../file-upload/file-upload.service'
 import { BufferedFile } from '../file-upload/file.model'
 import { PublicFile } from '../file-upload/public-file.entity'
 import { Client } from './client.entity'
+import { ClientMovementService } from './client-movement.service'
 import { CreateClientDto } from './dto/create.client.dto'
 import { UpdateClientDto } from './dto/update.client.dto'
 import { clientPaginationConfig } from './pagination'
@@ -25,6 +26,7 @@ export class ClientService {
     @InjectRepository(PublicFile)
     private publicFileRepository: Repository<PublicFile>,
     private readonly fileUploadService: FileUploadService,
+    private readonly clientMovementService: ClientMovementService,
   ) {}
 
   findAll(query: PaginateQuery): Promise<Paginated<Client>> {
@@ -181,6 +183,11 @@ export class ClientService {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
+    const boxesReturned =
+      (Number(delContainer1_7Debt) || 0) +
+      (Number(delContainer0_5Debt) || 0) +
+      (Number(delContainer0_4Debt) || 0)
+
     const updatedClient: Client = this.clientRepository.create({
       ...foundClientById,
       delContainer1_7Debt: foundClientById.delContainer1_7Debt
@@ -194,7 +201,9 @@ export class ClientService {
         : -delContainer0_4Debt,
     })
 
-    return this.clientRepository.save(updatedClient)
+    const saved = await this.clientRepository.save(updatedClient)
+    await this.clientMovementService.recordManualBoxReturn(id, boxesReturned)
+    return saved
   }
 
   async updateClientDebt({
@@ -348,6 +357,7 @@ export class ClientService {
     const updatedDebt = currentDebt - payment;
     client.moneyDebt = updatedDebt < 0 ? 0 : updatedDebt;
     await this.clientRepository.save(client);
+    await this.clientMovementService.recordManualDebtReturn(id, payment);
     return Number(client.moneyDebt);
   }
 }

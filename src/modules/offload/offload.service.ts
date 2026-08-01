@@ -11,6 +11,7 @@ import { Category } from '@mush/modules/category/category.entity'
 import { CategoryService } from '@mush/modules/category/category.service'
 import { Client } from '@mush/modules/client/client.entity'
 import { ClientService } from '@mush/modules/client/client.service'
+import { ClientMovementService, sumBoxes } from '@mush/modules/client/client-movement.service'
 import { User } from '@mush/modules/core-module/user/user.entity'
 import { Driver } from '@mush/modules/driver/driver.entity'
 import { DriverService } from '@mush/modules/driver/driver.service'
@@ -57,6 +58,7 @@ export class OffloadService {
     @InjectRepository(ShiftOffload)
     private shiftOffloadRepository: Repository<ShiftOffload>,
     private readonly clientService: ClientService,
+    private readonly clientMovementService: ClientMovementService,
     private readonly driverService: DriverService,
     private readonly batchService: BatchService,
     private readonly waveService: WaveService,
@@ -613,6 +615,9 @@ export class OffloadService {
       }
     }
 
+    savedNewOffload.client = client
+    await this.clientMovementService.recordOffloadCreate(savedNewOffload)
+
     return savedNewOffload
   }
 
@@ -798,6 +803,43 @@ export class OffloadService {
       delContainer0_4Debt: newDelContainer0_4Debt,
       delContainerSchoellerDebt: newDelContainerSchoellerDebt,
     })
+
+    await this.clientMovementService.recordOffloadEdit(
+      offloadId,
+      foundOffload.client.id,
+      {
+        priceTotal: Number(oldPriceTotal) || 0,
+        paidMoney: Number(oldPaidMoney) || 0,
+        boxesOut: sumBoxes([
+          foundOffload.delContainer0_4Out,
+          foundOffload.delContainer0_5Out,
+          foundOffload.delContainer1_7Out,
+          foundOffload.delContainerSchoellerOut,
+        ]),
+        boxesIn: sumBoxes([
+          foundOffload.delContainer0_4In,
+          foundOffload.delContainer0_5In,
+          foundOffload.delContainer1_7In,
+          foundOffload.delContainerSchoellerIn,
+        ]),
+      },
+      {
+        priceTotal: Number(newPriceTotal) || 0,
+        paidMoney: Number(newPaidMoney) || 0,
+        boxesOut: sumBoxes([
+          delContainer0_4Out,
+          delContainer0_5Out,
+          delContainer1_7Out,
+          delContainerSchoellerOut,
+        ]),
+        boxesIn: sumBoxes([
+          delContainer0_4In,
+          delContainer0_5In,
+          delContainer1_7In,
+          delContainerSchoellerIn,
+        ]),
+      },
+    )
 
     return this.offloadRepository.save(updatedOffload)
   }
@@ -1333,6 +1375,7 @@ export class OffloadService {
     })
 
     await this.offloadRepository.save(newOffload);
+    await this.clientMovementService.recordReturnPrice(clientId, offloadId, price)
   }
 
   async returnContainers(offloadId: number, {
@@ -1386,5 +1429,10 @@ export class OffloadService {
       delContainerSchoellerIn: delContainerSchoellerIn + delContainerSchoeller,
     })
     await this.offloadRepository.save(newOffload);
+    await this.clientMovementService.recordReturnContainers(
+      clientId,
+      offloadId,
+      sumBoxes([delContainer1_7, delContainer0_5, delContainer0_4, delContainerSchoeller]),
+    )
   }
 }

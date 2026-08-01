@@ -43,6 +43,8 @@ import { BufferedFile } from '../file-upload/file.model'
 import { PublicFile } from '../file-upload/public-file.entity'
 import { Client } from './client.entity'
 import { ClientService } from './client.service'
+import { ClientMovement } from './client-movement.entity'
+import { ClientMovementService } from './client-movement.service'
 import { AddClientFilesDto } from './dto'
 import { CreateClientDto } from './dto/create.client.dto'
 import { UpdateClientDto } from './dto/update.client.dto'
@@ -60,6 +62,7 @@ export class ClientController {
   constructor(
     readonly clientService: ClientService,
     private fileUploadService: FileUploadService,
+    private readonly clientMovementService: ClientMovementService,
   ) {}
 
   @Get()
@@ -82,6 +85,32 @@ export class ClientController {
     @Paginate() query: PaginateQuery,
   ): Promise<Paginated<Client>> {
     return this.clientService.findAll(query)
+  }
+
+  @Get(':id/movements')
+  @Auth({
+    roles: [ERole.SUPERADMIN, ERole.ADMIN],
+    permission: EPermission.READ_CLIENTS,
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+    example: 1,
+  } as ApiParamOptions)
+  @ApiOperation({
+    summary:
+      'Get money/tare movement history for a client. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Will return client movements newest first.',
+    type: ClientMovement,
+    isArray: true,
+  })
+  async getClientMovements(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ClientMovement[]> {
+    return this.clientMovementService.getMovementsByClientId(id)
   }
 
   @Get(':id')

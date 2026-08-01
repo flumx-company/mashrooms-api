@@ -1,4 +1,5 @@
 export * from './file.categories'
+export * from './client.movement.direction'
 export * from './error'
 export * from './payment.method'
 export * from './permissions'

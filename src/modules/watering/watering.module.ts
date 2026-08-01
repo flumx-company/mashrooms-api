@@ -3,6 +3,8 @@ import { CategoryService } from '@mush/modules/category/category.service';
 import { Chamber } from '@mush/modules/chamber/chamber.entity';
 import { ChamberService } from '@mush/modules/chamber/chamber.service';
 import { Client } from '@mush/modules/client/client.entity';
+import { ClientMovement } from '@mush/modules/client/client-movement.entity';
+import { ClientMovementService } from '@mush/modules/client/client-movement.service';
 import { ClientService } from '@mush/modules/client/client.service';
 import { Cutting } from '@mush/modules/cutting/cutting.entity';
 import { CuttingService } from '@mush/modules/cutting/cutting.service';
@@ -62,6 +64,7 @@ import {ShiftOffload} from "@mush/modules/offload/shift-offload.entity";
       Variety,
       Storage,
       Client,
+      ClientMovement,
       Driver,
       StoreContainer,
       Yield,
@@ -89,6 +92,7 @@ import {ShiftOffload} from "@mush/modules/offload/shift-offload.entity";
     VarietyService,
     StorageService,
     ClientService,
+    ClientMovementService,
     DriverService,
     StoreContainerService,
     YieldService,
