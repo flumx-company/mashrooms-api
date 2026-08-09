@@ -280,7 +280,18 @@ export class ClientMovementService {
     }
   }
 
-  async getMovementsByClientId(clientId: number): Promise<ClientMovement[]> {
+  async getMovementsByClientId(
+    clientId: number,
+    query: { page?: number | string; limit?: number | string } = {},
+  ): Promise<{
+    data: ClientMovement[]
+    meta: {
+      itemsPerPage: number
+      totalItems: number
+      currentPage: number
+      totalPages: number
+    }
+  }> {
     const client: Nullable<Client> = await this.clientRepository.findOneBy({
       id: clientId,
     })
@@ -288,18 +299,40 @@ export class ClientMovementService {
       throw new HttpException(CError.NOT_FOUND_ID, HttpStatus.BAD_REQUEST)
     }
 
-    await this.ensureBackfillFromOffloads(clientId)
+    const page = Math.max(1, Number(query.page) || 1)
+    const limit = Math.min(100, Math.max(1, Number(query.limit) || 40))
 
-    return this.movementRepository
+    // Backfill только на первой странице — не гоняем на каждый «Завантажити ще»
+    if (page === 1) {
+      await this.ensureBackfillFromOffloads(clientId)
+    }
+
+    const totalItems = await this.movementRepository.count({
+      where: { client: { id: clientId } },
+    })
+    const totalPages = Math.max(1, Math.ceil(totalItems / limit) || 1)
+
+    const data = await this.movementRepository
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.offload', 'offload')
-      .leftJoinAndSelect('m.client', 'client')
-      .where('client.id = :clientId', { clientId })
+      .where('m.clientId = :clientId', { clientId })
       .orderBy('m.eventDate', 'DESC')
       // OUT before IN on the same day (alphabetically OUT > IN)
       .addOrderBy('m.direction', 'DESC')
       .addOrderBy('m.id', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
       .getMany()
+
+    return {
+      data,
+      meta: {
+        itemsPerPage: limit,
+        totalItems,
+        currentPage: page,
+        totalPages,
+      },
+    }
   }
 }
 

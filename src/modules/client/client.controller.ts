@@ -99,18 +99,22 @@ export class ClientController {
   } as ApiParamOptions)
   @ApiOperation({
     summary:
-      'Get money/tare movement history for a client. Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
+      'Get money/tare movement history for a client (paginated). Role: SUPERADMIN, ADMIN. Permission: READ_CLIENTS.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Will return client movements newest first.',
+    description: 'Will return paginated client movements newest first.',
     type: ClientMovement,
     isArray: true,
   })
   async getClientMovements(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<ClientMovement[]> {
-    return this.clientMovementService.getMovementsByClientId(id)
+    @Paginate() query: PaginateQuery,
+  ) {
+    return this.clientMovementService.getMovementsByClientId(id, {
+      page: query.page,
+      limit: query.limit,
+    })
   }
 
   @Get(':id')
