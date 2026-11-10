@@ -1,4 +1,4 @@
-FROM node:20.18.0-bullseye as build
+FROM node:20.18.0-bookworm as build
 
 WORKDIR /app
 COPY . /app
@@ -6,7 +6,9 @@ COPY . /app
 COPY package*.json /app
 COPY package-lock.json /app
 
-RUN apt-get update && apt-get install -y default-mysql-client && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends default-mysql-client \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN npm i
 RUN npm run build
