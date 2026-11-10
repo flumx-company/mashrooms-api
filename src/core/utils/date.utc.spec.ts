@@ -6,7 +6,9 @@ import {
   getCreatedAtUtcBoundsForCalendarDate,
   getOperationalCalendarDateString,
   getOperationalDayStartUtc,
+  getUtcBoundsForCalendarDate,
   getUtcCalendarDateString,
+  getUtcMonthBounds,
   OPERATIONAL_TIMEZONE,
   transformPaginateOperationalDayCreatedAtFilter,
 } from './date.utc'
@@ -59,6 +61,34 @@ describe('getCreatedAtUtcBoundsForCalendarDate (dayjs, Europe/Kyiv)', () => {
     const { endUtc } = getCreatedAtUtcBoundsForCalendarDate('2026-05-24')
     const wrongWallClockUtc = new Date('2026-05-24T21:00:00.000Z')
     expect(wrongWallClockUtc.getTime()).toBeGreaterThanOrEqual(endUtc.getTime())
+  })
+
+  it('uses the winter UTC+2 boundary after the autumn clock change', () => {
+    const { startUtc, endUtc } =
+      getCreatedAtUtcBoundsForCalendarDate('2026-11-10')
+    expect(startUtc.toISOString()).toBe('2026-11-09T22:00:00.000Z')
+    expect(endUtc.toISOString()).toBe('2026-11-10T22:00:00.000Z')
+  })
+
+  it('keeps the 25-hour local day during the autumn DST transition', () => {
+    const { startUtc, endUtc } =
+      getCreatedAtUtcBoundsForCalendarDate('2026-10-25')
+    expect(startUtc.toISOString()).toBe('2026-10-24T21:00:00.000Z')
+    expect(endUtc.toISOString()).toBe('2026-10-25T22:00:00.000Z')
+  })
+})
+
+describe('getUtcBoundsForCalendarDate', () => {
+  it('does not apply any server or operational timezone offset', () => {
+    const { startUtc, endUtc } = getUtcBoundsForCalendarDate('2026-11-10')
+    expect(startUtc.toISOString()).toBe('2026-11-10T00:00:00.000Z')
+    expect(endUtc.toISOString()).toBe('2026-11-11T00:00:00.000Z')
+  })
+
+  it('creates UTC month bounds without a DST-dependent offset', () => {
+    const { startUtc, endUtc } = getUtcMonthBounds('2026-11')
+    expect(startUtc.toISOString()).toBe('2026-11-01T00:00:00.000Z')
+    expect(endUtc.toISOString()).toBe('2026-12-01T00:00:00.000Z')
   })
 })
 

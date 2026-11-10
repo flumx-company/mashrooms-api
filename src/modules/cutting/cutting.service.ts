@@ -21,8 +21,9 @@ import { WaveService } from '@mush/modules/wave/wave.service'
 import {
   CError,
   getOperationalCalendarDateString,
-  getCreatedAtUtcBoundsForCalendarDate,
-  getOperationalMonthBoundsUtc,
+  getUtcBoundsForCalendarDate,
+  getUtcCalendarDateString,
+  getUtcMonthBounds,
   pick,
 } from '@mush/core/utils'
 
@@ -56,8 +57,38 @@ export class CuttingService {
     private storageService: StorageService,
   ) {}
 
-  getGroupedByDay(date: string): Promise<Cutting[]> {
-    const { startUtc, endUtc } = getCreatedAtUtcBoundsForCalendarDate(date)
+  private resolveUtcBounds(
+    date: string,
+    startUtc?: string,
+    endUtc?: string,
+  ): { startUtc: Date; endUtc: Date } {
+    if (startUtc || endUtc) {
+      const start = new Date(startUtc ?? '')
+      const end = new Date(endUtc ?? '')
+      if (
+        !startUtc ||
+        !endUtc ||
+        Number.isNaN(start.getTime()) ||
+        Number.isNaN(end.getTime()) ||
+        start >= end
+      ) {
+        throw new HttpException(
+          'startUtc and endUtc must be a valid increasing UTC range',
+          HttpStatus.BAD_REQUEST,
+        )
+      }
+      return { startUtc: start, endUtc: end }
+    }
+
+    return getUtcBoundsForCalendarDate(date)
+  }
+
+  getGroupedByDay(
+    date: string,
+    startUtc?: string,
+    endUtc?: string,
+  ): Promise<Cutting[]> {
+    const bounds = this.resolveUtcBounds(date, startUtc, endUtc)
 
     return this.cuttingRepository
     .createQueryBuilder('cutting')
@@ -67,8 +98,8 @@ export class CuttingService {
     .leftJoin('cutting.variety', 'variety')
     .leftJoin('batch.chamber', 'chamber')
     .leftJoin('cutting.wave', 'wave')
-    .where('cutting.createdAt >= :startUtc', { startUtc })
-    .andWhere('cutting.createdAt < :endUtc', { endUtc })
+    .where('cutting.createdAt >= :startUtc', { startUtc: bounds.startUtc })
+    .andWhere('cutting.createdAt < :endUtc', { endUtc: bounds.endUtc })
     .groupBy('batch.chamber')
     .addGroupBy('category.id')
     .addGroupBy('variety.id')
@@ -171,8 +202,14 @@ export class CuttingService {
   }
 
   
-  findAll(date: string, chamber: string, category:string): Promise<Cutting[]> {
-    const { startUtc, endUtc } = getCreatedAtUtcBoundsForCalendarDate(date)
+  findAll(
+    date: string,
+    chamber: string,
+    category: string,
+    startUtc?: string,
+    endUtc?: string,
+  ): Promise<Cutting[]> {
+    const bounds = this.resolveUtcBounds(date, startUtc, endUtc)
 
     return this.cuttingRepository
       .createQueryBuilder('cutting')
@@ -185,8 +222,8 @@ export class CuttingService {
       .leftJoinAndSelect('cutting.loaderShift', 'loaderShift')
       .leftJoinAndSelect('loaderShift.employee', 'employeeLoader')
       .leftJoinAndSelect('batch.chamber', 'chamber')
-      .where('cutting.createdAt >= :startUtc', { startUtc })
-      .andWhere('cutting.createdAt < :endUtc', { endUtc })
+      .where('cutting.createdAt >= :startUtc', { startUtc: bounds.startUtc })
+      .andWhere('cutting.createdAt < :endUtc', { endUtc: bounds.endUtc })
       .andWhere('chamber.id = :chamber', { chamber })
       .andWhere('category.id = :category', { category })
       .getMany();
@@ -198,24 +235,26 @@ export class CuttingService {
   async getAllByMonth(
     chamberId: number,
     month: string,
+    startUtc?: string,
+    endUtc?: string,
   ): Promise<CuttingMonthCalendarDay[]> {
-    const { startUtc, endUtc } = getOperationalMonthBoundsUtc(month)
+    const bounds =
+      startUtc || endUtc
+        ? this.resolveUtcBounds(`${month}-01`, startUtc, endUtc)
+        : getUtcMonthBounds(month)
     const rows = await this.cuttingRepository
       .createQueryBuilder('cutting')
       .select(['cutting.createdAt'])
       .leftJoin('cutting.batch', 'batch')
       .leftJoin('batch.chamber', 'chamber')
       .where('batch.chamber.id = :chamberId', { chamberId })
-      .andWhere('cutting.createdAt >= :startUtc', { startUtc })
-      .andWhere('cutting.createdAt < :endUtc', { endUtc })
+      .andWhere('cutting.createdAt >= :startUtc', { startUtc: bounds.startUtc })
+      .andWhere('cutting.createdAt < :endUtc', { endUtc: bounds.endUtc })
       .getMany()
 
-    const operationalDays = new Set<string>()
-    rows.forEach(({ createdAt }) => {
-      operationalDays.add(getOperationalCalendarDateString(createdAt))
-    })
-
-    return [...operationalDays].map((createdAt) => ({ createdAt }))
+    return rows.map(({ createdAt }) => ({
+      createdAt: new Date(createdAt).toISOString(),
+    }))
   }
 
   @Transactional()
@@ -225,13 +264,21 @@ export class CuttingService {
     waveId,
     data,
     author,
+    calendarDate,
+    dayStartUtc,
   }: CuttingGeneralDataType & {
     data: CreateCuttingDto[]
+    calendarDate?: string
+    dayStartUtc?: string
   }): Promise<Cutting[]> {
     const byVarietyIdStorages = {}
     const byIdShifts = {}
     const byIdVarieties = {}
-    const today = getOperationalCalendarDateString()
+    const today = calendarDate || getUtcCalendarDateString()
+    const parsedDayStartUtc = dayStartUtc ? new Date(dayStartUtc) : undefined
+    if (parsedDayStartUtc && Number.isNaN(parsedDayStartUtc.getTime())) {
+      throw new HttpException('Invalid dayStartUtc', HttpStatus.BAD_REQUEST)
+    }
     const [category, batch, wave]: [
       Category,
       Batch,
@@ -247,6 +294,8 @@ export class CuttingService {
         waveId,
         categoryId,
         chamberId: batch.chamber.id,
+        calendarDate: today,
+        dayStartUtc: parsedDayStartUtc,
       })
 
 

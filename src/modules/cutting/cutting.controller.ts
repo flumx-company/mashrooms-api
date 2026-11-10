@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Req,
 } from '@nestjs/common'
 import {
@@ -57,12 +58,16 @@ export class CuttingController {
   async getAllCuttings(
     @Param('date') date: string,
     @Param('chamberId') chamberId: string,
-    @Param('categoryId') categoryId: string
+    @Param('categoryId') categoryId: string,
+    @Query('startUtc') startUtc?: string,
+    @Query('endUtc') endUtc?: string,
   ): Promise<Cutting[]> {
     return this.cuttingService.findAll(
       normalizeJournalDateParam(date),
       chamberId,
       categoryId,
+      startUtc,
+      endUtc,
     )
   }
 
@@ -87,8 +92,14 @@ export class CuttingController {
   })
   async getGroupedByDay(
     @Param('date') date: string,
+    @Query('startUtc') startUtc?: string,
+    @Query('endUtc') endUtc?: string,
   ): Promise<Cutting[]> {
-    return this.cuttingService.getGroupedByDay(normalizeJournalDateParam(date));
+    return this.cuttingService.getGroupedByDay(
+      normalizeJournalDateParam(date),
+      startUtc,
+      endUtc,
+    );
   }
 
   @Get('/month/month/:chamberId/:month')
@@ -118,8 +129,15 @@ export class CuttingController {
   async getAllByMonth(
     @Param('chamberId', ParseIntPipe) chamberId: number,
     @Param('month') month: string,
+    @Query('startUtc') startUtc?: string,
+    @Query('endUtc') endUtc?: string,
   ): Promise<CuttingMonthCalendarDay[]> {
-    return this.cuttingService.getAllByMonth(chamberId, month);
+    return this.cuttingService.getAllByMonth(
+      chamberId,
+      month,
+      startUtc,
+      endUtc,
+    );
   }
 
   @Post('category/:categoryId/batch/:batchId/wave/:waveId')
@@ -162,6 +180,8 @@ export class CuttingController {
     @Param('batchId', ParseIntPipe) batchId: number,
     @Param('waveId', ParseIntPipe) waveId: number,
     @Body() data: CreateCuttingDto[],
+    @Query('calendarDate') calendarDate?: string,
+    @Query('dayStartUtc') dayStartUtc?: string,
   ): Promise<Cutting[]> {
     return this.cuttingService.createCutting({
       categoryId,
@@ -169,6 +189,10 @@ export class CuttingController {
       waveId,
       data,
       author: request['user'] as User,
+      calendarDate: calendarDate
+        ? normalizeJournalDateParam(calendarDate)
+        : undefined,
+      dayStartUtc,
     })
   }
 }

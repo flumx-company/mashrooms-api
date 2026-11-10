@@ -9,6 +9,7 @@ import { EClientMovementDirection } from '@mush/core/enums'
 import { CError, Nullable } from '@mush/core/utils'
 
 import { Client } from './client.entity'
+import { calculateMoneyBalances } from './client-movement-balance'
 import { ClientMovement } from './client-movement.entity'
 
 function sumBoxes(parts: Array<number | string | null | undefined>): number {
@@ -312,17 +313,36 @@ export class ClientMovementService {
     })
     const totalPages = Math.max(1, Math.ceil(totalItems / limit) || 1)
 
+    const allMoneyMovements = await this.movementRepository
+      .createQueryBuilder('m')
+      .select([
+        'm.id',
+        'm.direction',
+        'm.moneyAmount',
+        'm.eventDate',
+      ])
+      .where('m.clientId = :clientId', { clientId })
+      .orderBy('m.eventDate', 'ASC')
+      .addOrderBy('m.id', 'ASC')
+      .getMany()
+    const moneyBalances = calculateMoneyBalances(
+      Number(client.moneyDebt) || 0,
+      allMoneyMovements,
+    )
+
     const data = await this.movementRepository
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.offload', 'offload')
       .where('m.clientId = :clientId', { clientId })
       .orderBy('m.eventDate', 'DESC')
-      // OUT before IN on the same day (alphabetically OUT > IN)
-      .addOrderBy('m.direction', 'DESC')
       .addOrderBy('m.id', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
       .getMany()
+
+    data.forEach((movement) => {
+      movement.moneyBalance = moneyBalances.get(movement.id) ?? 0
+    })
 
     return {
       data,

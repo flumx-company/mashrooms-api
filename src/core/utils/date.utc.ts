@@ -87,6 +87,39 @@ export const getUtcDayStart = (now: Date = new Date()): Date => {
   )
 }
 
+/** UTC-календарная дата YYYY-MM-DD → полуинтервал [startUtc, endUtc). */
+export const getUtcBoundsForCalendarDate = (
+  dateYmd: string,
+): { startUtc: Date; endUtc: Date } => {
+  const startUtc = dateOnlyStringToUTCDate(dateYmd)
+  if (!startUtc) {
+    throw new Error(`Invalid UTC calendar date: ${dateYmd}`)
+  }
+  return {
+    startUtc,
+    endUtc: addOneDayUTC(startUtc),
+  }
+}
+
+/** UTC-календарный месяц YYYY-MM → полуинтервал [startUtc, endUtc). */
+export const getUtcMonthBounds = (
+  monthYm: string,
+): { startUtc: Date; endUtc: Date } => {
+  const match = monthYm.match(/^(\d{4})-(\d{2})$/)
+  if (!match) {
+    throw new Error(`Invalid UTC calendar month: ${monthYm}`)
+  }
+  const year = Number(match[1])
+  const month = Number(match[2]) - 1
+  if (month < 0 || month > 11) {
+    throw new Error(`Invalid UTC calendar month: ${monthYm}`)
+  }
+  return {
+    startUtc: new Date(Date.UTC(year, month, 1)),
+    endUtc: new Date(Date.UTC(year, month + 1, 1)),
+  }
+}
+
 /** Календарный операционный день YYYY-MM-DD (Europe/Kyiv). */
 export const getOperationalCalendarDateString = (
   now: Date = new Date(),

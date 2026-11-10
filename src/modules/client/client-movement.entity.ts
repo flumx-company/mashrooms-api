@@ -59,4 +59,11 @@ export class ClientMovement extends DatedBasicEntity {
   })
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   moneyAmount: number
+
+  @ApiProperty({
+    example: 1250,
+    description: 'Стан грошового боргу клієнта одразу після цього руху',
+    required: false,
+  })
+  moneyBalance?: number
 }
